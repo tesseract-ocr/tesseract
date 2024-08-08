@@ -43,6 +43,7 @@ parts:
   leptonica:
     source: https://github.com/DanBloomberg/leptonica.git
     source-tag: 1.83.1
+    source-depth: 1
     plugin: autotools
     build-packages:
       - libjpeg-dev
@@ -57,8 +58,17 @@ parts:
       - libpng16-16
       - libtiff5
     autotools-configure-parameters:
+      # Reduce part build time
+      - --disable-programs
+      - --disable-static
+      - --disable-dependency-tracking
+
       # Ensure features are built
       - --with-libpng
       - --with-jpeg
       - --with-libtiff
       - --with-libopenjpeg
+    prime:
+      - usr/lib/$CRAFT_ARCH_TRIPLET/*.so*
+      - usr/local/lib/*.so*
+      - usr/share/doc/*/copyright*
