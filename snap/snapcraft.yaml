@@ -45,9 +45,14 @@ parts:
     source-tag: 1.83.1
     plugin: autotools
     build-packages:
+      - libjpeg-dev
       - libopenjp2-7-dev
+      - libpng-dev
+      - libtiff-dev
+      - pkg-config
     stage-packages:
       - libjbig0
       - libjpeg-turbo8
       - libopenjp2-7
+      - libpng16-16
       - libtiff5
