@@ -56,3 +56,9 @@ parts:
       - libopenjp2-7
       - libpng16-16
       - libtiff5
+    autotools-configure-parameters:
+      # Ensure features are built
+      - --with-libpng
+      - --with-jpeg
+      - --with-libtiff
+      - --with-libopenjpeg
