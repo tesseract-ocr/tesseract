@@ -45,6 +45,14 @@ parts:
       - libtiff5
       - zlib1g
     after: [leptonica]
+    prime:
+      - -usr/bin/fc-*
+      - -usr/local/include
+      - -usr/local/lib/*.a
+      - -usr/local/lib/*.la
+      - -usr/local/lib/pkgconfig
+      - -usr/share/lintian
+      - -usr/share/man
   leptonica:
     source: https://github.com/DanBloomberg/leptonica.git
     source-tag: 1.84.1
