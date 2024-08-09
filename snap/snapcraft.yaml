@@ -30,8 +30,6 @@ parts:
     plugin: autotools
     build-packages:
       - pkg-config
-      - libpng-dev
-      - libjpeg-dev
       - libtiff-dev
     stage-packages:
       - libgomp1
