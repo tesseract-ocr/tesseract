@@ -1,5 +1,5 @@
 name: tesseract
-version: git
+adopt-info: tesseract
 summary: open source optical character recognition engine
 description: |
   Tesseract has unicode (UTF-8) support, and can recognize more than 100
@@ -28,10 +28,19 @@ parts:
   tesseract:
     after: [leptonica]
     source: .
+    override-pull: |
+      craftctl default
+      "${CRAFT_PROJECT_DIR}/snap/local/selective-checkout" \
+        --beta-tag-pattern='-beta-[[:digit:]]+$'
     plugin: autotools
     build-packages:
       - pkg-config
       - libtiff-dev
+
+      # Dependencies of the selective-checkout scriptlet
+      - curl
+      - git
+      - jq
     stage-packages:
       - libgomp1
       - libtiff5
