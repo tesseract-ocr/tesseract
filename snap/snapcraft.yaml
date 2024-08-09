@@ -34,19 +34,12 @@ parts:
       - libjpeg-dev
       - libtiff-dev
       - zlib1g-dev
-      - libicu-dev
-      - libpango1.0-dev
-      - libcairo2-dev
     stage-packages:
-      - libcairo2
       - libgomp1
-      - libicu70
-      - libpango-1.0-0
       - libtiff5
       - zlib1g
     after: [leptonica]
     prime:
-      - -usr/bin/fc-*
       - -usr/local/include
       - -usr/local/lib/*.a
       - -usr/local/lib/*.la
