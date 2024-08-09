@@ -26,6 +26,7 @@ apps:
 
 parts:
   tesseract:
+    after: [leptonica]
     source: .
     plugin: autotools
     build-packages:
@@ -34,7 +35,6 @@ parts:
     stage-packages:
       - libgomp1
       - libtiff5
-    after: [leptonica]
     autotools-configure-parameters:
       # Disable unused features to reduce snap size and built time
       - --disable-dependency-tracking
