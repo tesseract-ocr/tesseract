@@ -50,6 +50,7 @@ parts:
       - libopenjp2-7-dev
       - libpng-dev
       - libtiff-dev
+      - libwebp-dev
       - pkg-config
     stage-packages:
       - libjbig0
@@ -57,6 +58,8 @@ parts:
       - libopenjp2-7
       - libpng16-16
       - libtiff5
+      - libwebp7
+      - libwebpmux3
     autotools-configure-parameters:
       # Reduce part build time
       - --disable-programs
@@ -67,6 +70,7 @@ parts:
       - --with-libpng
       - --with-jpeg
       - --with-libtiff
+      - --with-libwebp
       - --with-libopenjpeg
     prime:
       - usr/lib/$CRAFT_ARCH_TRIPLET/*.so*
