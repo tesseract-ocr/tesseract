@@ -35,6 +35,8 @@ parts:
     plugin: autotools
     build-packages:
       - pkg-config
+      - libarchive-dev
+      - libcurl4-gnutls-dev
       - libtiff-dev
 
       # Dependencies of the selective-checkout scriptlet
@@ -42,6 +44,8 @@ parts:
       - git
       - jq
     stage-packages:
+      - libarchive13
+      - libcurl3-gnutls
       - libgomp1
       - libtiff5
     autotools-configure-parameters:
@@ -50,6 +54,10 @@ parts:
       - --disable-doc
       - --disable-static
       - --disable-training
+
+      # Enable core features
+      - --with-archive
+      - --with-curl
     prime:
       - -usr/local/include
       - -usr/local/lib/pkgconfig
