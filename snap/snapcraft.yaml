@@ -25,6 +25,9 @@ apps:
       - home
       - removable-media
 
+      # For recognition of remote images
+      - network
+
 parts:
   tesseract:
     after: [leptonica]
