@@ -39,6 +39,9 @@ parts:
       - libtiff5
       - zlib1g
     after: [leptonica]
+    autotools-configure-parameters:
+      - --disable-doc
+      - --disable-training
     prime:
       - -usr/local/include
       - -usr/local/lib/*.a
