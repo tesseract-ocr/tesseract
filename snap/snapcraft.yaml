@@ -33,11 +33,9 @@ parts:
       - libpng-dev
       - libjpeg-dev
       - libtiff-dev
-      - zlib1g-dev
     stage-packages:
       - libgomp1
       - libtiff5
-      - zlib1g
     after: [leptonica]
     autotools-configure-parameters:
       # Disable unused features to reduce snap size and built time
@@ -62,6 +60,7 @@ parts:
       - libtiff-dev
       - libwebp-dev
       - pkg-config
+      - zlib1g-dev
     stage-packages:
       - libjbig0
       - libjpeg-turbo8
@@ -70,6 +69,7 @@ parts:
       - libtiff5
       - libwebp7
       - libwebpmux3
+      - zlib1g
     autotools-configure-parameters:
       # Reduce part build time
       - --disable-programs
