@@ -60,6 +60,10 @@ parts:
       - --with-archive
       - --with-curl
     prime:
+      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicui18n.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicutu.so*
       - -usr/local/include
       - -usr/local/lib/pkgconfig
       - -usr/share/lintian
