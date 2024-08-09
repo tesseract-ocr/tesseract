@@ -38,7 +38,12 @@ parts:
       - libpango1.0-dev
       - libcairo2-dev
     stage-packages:
+      - libcairo2
       - libgomp1
+      - libicu70
+      - libpango-1.0-0
+      - libtiff5
+      - zlib1g
     after: [leptonica]
   leptonica:
     source: https://github.com/DanBloomberg/leptonica.git
