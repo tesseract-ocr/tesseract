@@ -42,7 +42,7 @@ parts:
     after: [leptonica]
   leptonica:
     source: https://github.com/DanBloomberg/leptonica.git
-    source-tag: 1.83.1
+    source-tag: 1.84.1
     source-depth: 1
     plugin: autotools
     build-packages:
