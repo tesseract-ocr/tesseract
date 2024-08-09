@@ -40,12 +40,13 @@ parts:
       - zlib1g
     after: [leptonica]
     autotools-configure-parameters:
+      # Disable unused features to reduce snap size and built time
+      - --disable-dependency-tracking
       - --disable-doc
+      - --disable-static
       - --disable-training
     prime:
       - -usr/local/include
-      - -usr/local/lib/*.a
-      - -usr/local/lib/*.la
       - -usr/local/lib/pkgconfig
       - -usr/share/lintian
       - -usr/share/man
