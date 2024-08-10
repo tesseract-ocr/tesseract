@@ -62,6 +62,9 @@ parts:
       # Enable core features
       - --with-archive
       - --with-curl
+    override-build: |
+      patch -p1 < "${CRAFT_PROJECT_DIR}/snap/local/implement-fallback-config-loading.patch"
+      craftctl default
     prime:
       - -usr/lib/$CRAFT_ARCH_TRIPLET/libicuio.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET/libicui18n.so*
