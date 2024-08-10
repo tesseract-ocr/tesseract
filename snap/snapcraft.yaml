@@ -66,10 +66,10 @@ parts:
       patch -p1 < "${CRAFT_PROJECT_DIR}/snap/local/implement-fallback-config-loading.patch"
       craftctl default
     prime:
-      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicuio.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicui18n.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicutest.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET/libicutu.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
       - -usr/local/include
       - -usr/local/lib/pkgconfig
       - -usr/share/lintian
@@ -110,6 +110,6 @@ parts:
       - --with-libwebp
       - --with-libopenjpeg
     prime:
-      - usr/lib/$CRAFT_ARCH_TRIPLET/*.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/*.so*
       - usr/local/lib/*.so*
       - usr/share/doc/*/copyright*
