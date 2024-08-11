@@ -20,7 +20,6 @@ apps:
     command: usr/local/bin/tesseract
     environment:
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/local/lib
-      TESSDATA_PREFIX: $SNAP_USER_COMMON
     plugs:
       - home
       - removable-media
