@@ -62,6 +62,9 @@ parts:
       # Enable core features
       - --with-archive
       - --with-curl
+
+      # Fix incorrect compiled-in datadir
+      - CPPFLAGS=-DTESSDATA_PREFIX=\"\\\"/snap/$CRAFT_PROJECT_NAME/current/usr/local/share\\\"\"
     override-build: |
       patch -p1 < "${CRAFT_PROJECT_DIR}/snap/local/implement-fallback-config-loading.patch"
       craftctl default
