@@ -1312,7 +1312,10 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
   PointerVector<WERD_RES> best_words;
   // Points to the best result. May be word or in lang_words.
   const WERD_RES *word = word_data->word;
-  clock_t start_t = clock();
+  clock_t start_t;
+  if (tessedit_timing_debug) {
+    start_t = clock();
+  }
   const bool debug = classify_debug_level > 0 || multilang_debug_level > 0;
   if (debug) {
     tprintf("%s word with lang %s at:", word->done ? "Already done" : "Processing",
@@ -1364,8 +1367,8 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
   } else {
     tprintf("no best words!!\n");
   }
-  clock_t ocr_t = clock();
   if (tessedit_timing_debug) {
+    clock_t ocr_t = clock();
     tprintf("%s (ocr took %.2f sec)\n", word_data->word->best_choice->unichar_string().c_str(),
             static_cast<double>(ocr_t - start_t) / CLOCKS_PER_SEC);
   }
