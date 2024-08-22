@@ -1312,7 +1312,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
   PointerVector<WERD_RES> best_words;
   // Points to the best result. May be word or in lang_words.
   const WERD_RES *word = word_data->word;
-  clock_t start_t;
+  clock_t start_t = 0;
   if (tessedit_timing_debug) {
     start_t = clock();
   }
