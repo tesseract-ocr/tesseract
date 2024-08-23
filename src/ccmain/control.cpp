@@ -51,13 +51,14 @@ const char *const kBackUpConfigFile = "tempconfigdata.config";
 const double kMinRefitXHeightFraction = 0.5;
 #endif // ! DISABLED_LEGACY_ENGINE
 
+namespace tesseract {
+
 /**
  * Make a word from the selected blobs and run Tess on them.
  *
  * @param page_res recognise blobs
  * @param selection_box within this box
  */
-namespace tesseract {
 
 void Tesseract::recog_pseudo_word(PAGE_RES *page_res, TBOX &selection_box) {
   PAGE_RES_IT *it = make_pseudo_word(page_res, selection_box);
