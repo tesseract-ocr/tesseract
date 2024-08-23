@@ -87,6 +87,7 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST *real_rows) {
     word->set_flag(W_EOL, true);
     word->set_flag(W_DONT_CHOP, one_blob);
     word_it.add_after_then_move(word);
+    real_row->recalc_bounding_box();
     row_it.add_after_then_move(real_row);
   }
 }
