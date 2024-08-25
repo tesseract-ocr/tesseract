@@ -67,8 +67,8 @@ TabFind::TabFind(int gridsize, const ICOORD &bleft, const ICOORD &tright, TabVec
     : AlignedBlob(gridsize, bleft, tright)
     , resolution_(resolution)
     , image_origin_(0, tright.y() - 1)
-    , v_it_(&vectors_) {
-  width_cb_ = nullptr;
+    , v_it_(&vectors_)
+    , width_cb_(nullptr) {
   v_it_.add_list_after(vlines);
   SetVerticalSkewAndParallelize(vertical_x, vertical_y);
   using namespace std::placeholders; // for _1

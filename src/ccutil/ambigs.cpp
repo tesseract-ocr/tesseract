@@ -39,12 +39,9 @@ static const char kIllegalUnicharMsg[] = "Illegal unichar %s in ambiguity specif
 //   UNICHAR_LEN * (MAX_AMBIG_SIZE + 1) for each part of the ambig
 const int kMaxAmbigStringSize = UNICHAR_LEN * (MAX_AMBIG_SIZE + 1);
 
-AmbigSpec::AmbigSpec() {
+AmbigSpec::AmbigSpec() : correct_ngram_id(INVALID_UNICHAR_ID), type(NOT_AMBIG), wrong_ngram_size(0) {
   wrong_ngram[0] = INVALID_UNICHAR_ID;
   correct_fragments[0] = INVALID_UNICHAR_ID;
-  correct_ngram_id = INVALID_UNICHAR_ID;
-  type = NOT_AMBIG;
-  wrong_ngram_size = 0;
 }
 
 // Initializes the ambigs by adding a nullptr pointer to each table.

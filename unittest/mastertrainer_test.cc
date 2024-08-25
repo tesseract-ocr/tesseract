@@ -156,9 +156,9 @@ protected:
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  MasterTrainerTest() {
-    shape_table_ = nullptr;
-    master_trainer_ = nullptr;
+  MasterTrainerTest() :
+    shape_table_(nullptr),
+    master_trainer_(nullptr) {
   }
   ~MasterTrainerTest() override {
     delete shape_table_;

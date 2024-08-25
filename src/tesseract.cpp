@@ -78,8 +78,8 @@ static void Win32WarningHandler(const char *module, const char *fmt, va_list ap)
 
 class AutoWin32ConsoleOutputCP {
 public:
-  explicit AutoWin32ConsoleOutputCP(UINT codeCP) {
-    oldCP_ = GetConsoleOutputCP();
+  explicit AutoWin32ConsoleOutputCP(UINT codeCP) :
+    oldCP_(GetConsoleOutputCP()) {
     SetConsoleOutputCP(codeCP);
   }
   ~AutoWin32ConsoleOutputCP() {
