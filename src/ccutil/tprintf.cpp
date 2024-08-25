@@ -35,38 +35,45 @@ INT_VAR(log_level, INT_MAX, "Logging level");
 
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
-// Trace printf
-void tprintf(const char *format, ...) {
-  const char *debug_file_name = debug_file.c_str();
-  static FILE *debugfp = nullptr; // debug file
+// File for debug output.
+static FILE *debugfp;
 
-  if (debug_file_name == nullptr) {
-    // This should not happen.
-    return;
-  }
-
+// Set output for log messages.
+// The output is written to stderr if debug_file is empty.
+// Otherwise it is written to debug_file.
+// It is possible to switch between stderr and debug_file output:
+// tprintf("write to configured output\n");
+// debug_file = "";
+// tprintf("write to stderr\n");
+// debug_file = "/tmp/log";
+// tprintf("write to /tmp/log\n");
+// debug_file = "";
+// tprintf("write to stderr\n");
+static void set_debugfp() {
+  if (debug_file.empty()) {
+    // Write to stderr.
+    if (debugfp != stderr && debugfp != nullptr) {
+      fclose(debugfp);
+    }
+    debugfp = stderr;
+  } else if (debugfp == stderr || debugfp == nullptr) {
+    // Write to file.
 #ifdef _WIN32
-  // Replace /dev/null by nul for Windows.
-  if (strcmp(debug_file_name, "/dev/null") == 0) {
-    debug_file_name = "nul";
-    debug_file.set_value(debug_file_name);
-  }
+    if (debug_file == "/dev/null") {
+      // Replace /dev/null by nul for Windows.
+      debug_file = "nul";
+    }
 #endif
-
-  if (debugfp == nullptr && debug_file_name[0] != '\0') {
-    debugfp = fopen(debug_file_name, "wb");
-  } else if (debugfp != nullptr && debug_file_name[0] == '\0') {
-    fclose(debugfp);
-    debugfp = nullptr;
+    debugfp = fopen(debug_file.c_str(), "wb");
   }
+}
 
+// Trace printf.
+void tprintf(const char *format, ...) {
+  set_debugfp();
   va_list args;           // variable args
   va_start(args, format); // variable list
-  if (debugfp != nullptr) {
-    vfprintf(debugfp, format, args);
-  } else {
-    vfprintf(stderr, format, args);
-  }
+  vfprintf(debugfp, format, args);
   va_end(args);
 }
 
