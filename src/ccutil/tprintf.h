@@ -36,6 +36,9 @@ extern TESS_API void tprintf( // Trace printf
     const char *format, ...)  // Message
     __attribute__((format(printf, 1, 2)));
 
+// Get file for debug output.
+FILE *get_debugfp();
+
 } // namespace tesseract
 
 #undef __attribute__

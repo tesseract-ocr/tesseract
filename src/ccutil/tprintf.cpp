@@ -21,6 +21,7 @@
 #  include "config_auto.h"
 #endif
 
+#include "tesserrstream.h"
 #include "tprintf.h"
 
 #include "params.h"
@@ -36,7 +37,7 @@ INT_VAR(log_level, INT_MAX, "Logging level");
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 // File for debug output.
-static FILE *debugfp;
+FILE *debugfp;
 
 // Set output for log messages.
 // The output is written to stderr if debug_file is empty.
@@ -49,7 +50,7 @@ static FILE *debugfp;
 // tprintf("write to /tmp/log\n");
 // debug_file = "";
 // tprintf("write to stderr\n");
-static void set_debugfp() {
+FILE *get_debugfp() {
   if (debug_file.empty()) {
     // Write to stderr.
     if (debugfp != stderr && debugfp != nullptr) {
@@ -66,15 +67,18 @@ static void set_debugfp() {
 #endif
     debugfp = fopen(debug_file.c_str(), "wb");
   }
+  return debugfp;
 }
 
 // Trace printf.
 void tprintf(const char *format, ...) {
-  set_debugfp();
+  FILE *f = get_debugfp();
   va_list args;           // variable args
   va_start(args, format); // variable list
-  vfprintf(debugfp, format, args);
+  vfprintf(f, format, args);
   va_end(args);
 }
+
+TessErrStream tesserr;
 
 } // namespace tesseract
