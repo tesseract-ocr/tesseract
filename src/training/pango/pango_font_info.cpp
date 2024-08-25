@@ -521,9 +521,9 @@ bool FontUtils::IsAvailableFont(const char *input_query_desc, std::string *best_
     *best_match = selected_desc_str;
     // Clip the ending ' 0' if there is one. It seems that, if there is no
     // point size on the end of the fontname, then Pango always appends ' 0'.
-    int len = best_match->size();
+    auto len = best_match->size();
     if (len > 2 && best_match->at(len - 1) == '0' && best_match->at(len - 2) == ' ') {
-      *best_match = best_match->substr(0, len - 2);
+      best_match->resize(len - 2);
     }
   }
   g_free(selected_desc_str);
