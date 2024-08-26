@@ -64,6 +64,7 @@
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
 #include <cstring>  // for strcmp, strcpy
+#include <filesystem> // for std::filesystem
 #include <fstream>  // for size_t
 #include <iostream> // for std::cin
 #include <locale>   // for std::locale::classic
@@ -82,15 +83,9 @@
 #endif
 
 #if defined(_WIN32)
-#  include <fcntl.h>
-#  include <io.h>
-#else
-#  include <dirent.h> // for closedir, opendir, readdir, DIR, dirent
-#  include <libgen.h>
-#  include <sys/stat.h> // for stat, S_IFDIR
-#  include <sys/types.h>
-#  include <unistd.h>
-#endif // _WIN32
+#  include <fcntl.h> // for _O_BINARY
+#  include <io.h>    // for _setmode
+#endif
 
 namespace tesseract {
 
@@ -149,61 +144,18 @@ static void ExtractFontName(const char* filename, std::string* fontname) {
 
 /* Add all available languages recursively.
  */
-static void addAvailableLanguages(const std::string &datadir, const std::string &base,
+static void addAvailableLanguages(const std::string &datadir,
                                   std::vector<std::string> *langs) {
-  auto base2 = base;
-  if (!base2.empty()) {
-    base2 += "/";
-  }
-  const size_t extlen = sizeof(kTrainedDataSuffix);
-#ifdef _WIN32
-  WIN32_FIND_DATA data;
-  HANDLE handle = FindFirstFile((datadir + base2 + "*").c_str(), &data);
-  if (handle != INVALID_HANDLE_VALUE) {
-    BOOL result = TRUE;
-    for (; result;) {
-      char *name = data.cFileName;
-      // Skip '.', '..', and hidden files
-      if (name[0] != '.') {
-        if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
-          addAvailableLanguages(datadir, base2 + name, langs);
-        } else {
-          size_t len = strlen(name);
-          if (len > extlen && name[len - extlen] == '.' &&
-              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
-            name[len - extlen] = '\0';
-            langs->push_back(base2 + name);
-          }
-        }
-      }
-      result = FindNextFile(handle, &data);
+  for (const auto& entry :
+       std::filesystem::recursive_directory_iterator(datadir,
+         std::filesystem::directory_options::follow_directory_symlink |
+         std::filesystem::directory_options::skip_permission_denied)) {
+    auto path = entry.path().lexically_relative(datadir).string();
+    auto extPos = path.rfind(".traineddata");
+    if (extPos != std::string::npos) {
+      langs->push_back(path.substr(0, extPos));
     }
-    FindClose(handle);
   }
-#else // _WIN32
-  DIR *dir = opendir((datadir + base).c_str());
-  if (dir != nullptr) {
-    dirent *de;
-    while ((de = readdir(dir))) {
-      char *name = de->d_name;
-      // Skip '.', '..', and hidden files
-      if (name[0] != '.') {
-        struct stat st;
-        if (stat((datadir + base2 + name).c_str(), &st) == 0 && (st.st_mode & S_IFDIR) == S_IFDIR) {
-          addAvailableLanguages(datadir, base2 + name, langs);
-        } else {
-          size_t len = strlen(name);
-          if (len > extlen && name[len - extlen] == '.' &&
-              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
-            name[len - extlen] = '\0';
-            langs->push_back(base2 + name);
-          }
-        }
-      }
-    }
-    closedir(dir);
-  }
-#endif
 }
 
 TessBaseAPI::TessBaseAPI()
@@ -444,7 +396,7 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(std::vector<std::string> *langs) co
 void TessBaseAPI::GetAvailableLanguagesAsVector(std::vector<std::string> *langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
-    addAvailableLanguages(tesseract_->datadir, "", langs);
+    addAvailableLanguages(tesseract_->datadir, langs);
     std::sort(langs->begin(), langs->end());
   }
 }
