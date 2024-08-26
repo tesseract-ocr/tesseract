@@ -549,11 +549,11 @@ libtesseract_lstm_la_SOURCES += src/lstm/reconfig.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/reversed.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/series.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/stridemap.cpp
-libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.cpp
-libtesseract_lstm_la_SOURCES += src/lstm/weightmatrix.cpp
 if TENSORFLOW
+libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.cpp
 libtesseract_lstm_la_SOURCES += src/lstm/tfnetwork.pb.cc
 endif
+libtesseract_lstm_la_SOURCES += src/lstm/weightmatrix.cpp
 
 # Rules for src/textord.
 
