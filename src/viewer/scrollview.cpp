@@ -307,7 +307,7 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
   // Set up an actual Window on the client side.
   char message[kMaxMsgSize];
   snprintf(message, sizeof(message),
-           "w%u = luajava.newInstance('com.google.scrollview.ui"
+           "w%d = luajava.newInstance('com.google.scrollview.ui"
            ".SVWindow','%s',%u,%u,%u,%u,%u,%u,%u)\n",
            window_id_, window_name_, window_id_, x_pos, y_pos, x_size, y_size, x_canvas_size,
            y_canvas_size);
@@ -393,7 +393,7 @@ void ScrollView::SendMsg(const char *format, ...) {
   va_end(args);
 
   char form[kMaxMsgSize];
-  snprintf(form, sizeof(form), "w%u:%s\n", window_id_, message);
+  snprintf(form, sizeof(form), "w%d:%s\n", window_id_, message);
 
   stream_->Send(form);
 }
@@ -532,7 +532,7 @@ void ScrollView::AlwaysOnTop(bool b) {
 // Adds a message entry to the message box.
 void ScrollView::AddMessage(const char *message) {
   char form[kMaxMsgSize];
-  snprintf(form, sizeof(form), "w%u:%s", window_id_, message);
+  snprintf(form, sizeof(form), "w%d:%s", window_id_, message);
 
   char *esc = AddEscapeChars(form);
   SendMsg("addMessage(\"%s\")", esc);

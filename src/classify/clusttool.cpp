@@ -277,7 +277,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
     fprintf(File, "insignificant ");
   }
   WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
-  fprintf(File, "%6d\n\t", Proto->NumSamples);
+  fprintf(File, "%6u\n\t", Proto->NumSamples);
   WriteNFloats(File, N, &Proto->Mean[0]);
   fprintf(File, "\t");
 
