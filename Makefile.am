@@ -23,7 +23,6 @@ uninstall-hook:
 	rm -rf $(DESTDIR)$(pkgincludedir)
 
 dist-hook:
-# Need to remove .svn directories from directories
 # added using EXTRA_DIST. $(distdir)/tessdata would in
 # theory suffice.
 	rm -rf `find $(distdir) -name .deps -type d`
