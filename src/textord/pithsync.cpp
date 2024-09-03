@@ -120,6 +120,7 @@ void FPCUTPT::assign(       // constructor
                          // half of pitch
   int16_t half_pitch = pitch / 2 - 1;
   uint32_t lead_flag; // new flag
+  float inv_projection_scale = 1.0/projection_scale;
 
   if (half_pitch > 31) {
     half_pitch = 31;
@@ -166,7 +167,7 @@ void FPCUTPT::assign(       // constructor
             }
           }
           balance_count =
-              static_cast<int16_t>(balance_count * textord_balance_factor / projection_scale);
+              static_cast<int16_t>(balance_count * textord_balance_factor * inv_projection_scale);
         }
         r_index = segpt->region_index + 1;
         total = segpt->mean_sum + dist;
@@ -221,6 +222,7 @@ void FPCUTPT::assign_cheap( // constructor
                          // half of pitch
   int16_t half_pitch = pitch / 2 - 1;
   uint32_t lead_flag; // new flag
+  float inv_projection_scale = 1.0/projection_scale;
 
   if (half_pitch > 31) {
     half_pitch = 31;
@@ -260,7 +262,7 @@ void FPCUTPT::assign_cheap( // constructor
           lead_flag &= lead_flag - 1;
         }
         balance_count =
-            static_cast<int16_t>(balance_count * textord_balance_factor / projection_scale);
+            static_cast<int16_t>(balance_count * textord_balance_factor * projection_scale);
       }
       r_index = segpt->region_index + 1;
       total = segpt->mean_sum + dist;
@@ -511,6 +513,7 @@ double check_pitch_sync3(    // find segmentation
   int16_t best_fake;            // best fake level
   int16_t best_count;           // no of cuts
   FPSEGPT_IT seg_it = seg_list; // output iterator
+  float inv_projection_scale = 1.0/projection_scale;
 
   end = (end - start) % pitch;
   if (pitch < 3) {
@@ -597,7 +600,7 @@ double check_pitch_sync3(    // find segmentation
         offset = projection->pile_count(x);
         faking = true;
       } else {
-        projection_offset = static_cast<int16_t>(projection->pile_count(x) / projection_scale);
+        projection_offset = static_cast<int16_t>(projection->pile_count(x) * inv_projection_scale);
         if (projection_offset > offset) {
           offset = projection_offset;
         }
