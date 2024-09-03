@@ -92,7 +92,8 @@ public:
   // pixel: the value of the pixel from the image (in one channel)
   // black: the pixel value to map to the lowest of the range of *this
   // contrast: the range of pixel values to stretch to half the range of *this.
-  void SetPixel(int t, int f, int pixel, float black, float contrast);
+  // inv_contrast: one over the contrast, to save a divide
+  void SetPixel(int t, int f, int pixel, float black, float inv_contrast);
   // Converts the array to a Pix. Must be pixDestroyed after use.
   Image ToPix() const;
   // Prints the first and last num timesteps of the array for each feature.
