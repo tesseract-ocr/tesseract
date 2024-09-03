@@ -17,6 +17,7 @@
 #define TESSERACT_CCUTIL_TESSERRSTREAM_H
 
 #include "tprintf.h"
+#include <tesseract/export.h> // for TESS_API
 
 #include <ostream> // for std::ostream
 
@@ -60,7 +61,7 @@ public:
   }
 };
 
-extern TessErrStream tesserr;
+extern TESS_API TessErrStream tesserr;
 
 } // namespace tesseract
 
