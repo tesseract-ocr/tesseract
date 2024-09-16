@@ -1,0 +1,1 @@
+"use strict";exports.id=879,exports.ids=[879],exports.modules={5879:(e,t,s)=>{s.r(t),s.d(t,{default:()=>r});let r=(0,s(8570).createProxy)(String.raw`/Users/thun/Desktop/Research Document/tesseract/app/components/ImageUploader.tsx#default`)}};
