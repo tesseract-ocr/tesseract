@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/amp.ts"],"names":["useAmp","isInAmpMode","React","useContext","AmpStateContext"],"mappings":";;;;+BAIgBA;;;eAAAA;;;;gEAJE;yCACc;yBACJ;AAErB,SAASA;IACd,6DAA6D;IAC7D,OAAOC,IAAAA,oBAAW,EAACC,cAAK,CAACC,UAAU,CAACC,wCAAe;AACrD"}

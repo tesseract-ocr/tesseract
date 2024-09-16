@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/image-config-context.shared-runtime.ts"],"names":["ImageConfigContext","React","createContext","imageConfigDefault","process","env","NODE_ENV","displayName"],"mappings":";;;;+BAIaA;;;eAAAA;;;;gEAJK;6BAEiB;AAE5B,MAAMA,qBACXC,cAAK,CAACC,aAAa,CAAsBC,+BAAkB;AAE7D,IAAIC,QAAQC,GAAG,CAACC,QAAQ,KAAK,cAAc;IACzCN,mBAAmBO,WAAW,GAAG;AACnC"}

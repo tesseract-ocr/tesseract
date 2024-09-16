@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/shared/lib/lazy-dynamic/dynamic-bailout-to-csr.tsx"],"names":["BailoutToCSR","reason","children","window","BailoutToCSRError"],"mappings":"AAAA;;;;;+BAcgBA;;;eAAAA;;;8BAXkB;AAW3B,SAASA,aAAa,KAAuC;IAAvC,IAAA,EAAEC,MAAM,EAAEC,QAAQ,EAAqB,GAAvC;IAC3B,IAAI,OAAOC,WAAW,aAAa;QACjC,MAAM,IAAIC,+BAAiB,CAACH;IAC9B;IAEA,OAAOC;AACT"}

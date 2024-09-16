@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/client/has-base-path.ts"],"names":["hasBasePath","basePath","process","env","__NEXT_ROUTER_BASEPATH","path","pathHasPrefix"],"mappings":";;;;+BAIgBA;;;eAAAA;;;+BAJc;AAE9B,MAAMC,WAAW,AAACC,QAAQC,GAAG,CAACC,sBAAsB,IAAe;AAE5D,SAASJ,YAAYK,IAAY;IACtC,OAAOC,IAAAA,4BAAa,EAACD,MAAMJ;AAC7B"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/client/components/is-hydration-error.ts"],"names":["isHydrationError","hydrationErrorRegex","error","isError","test","message"],"mappings":";;;;+BAKgBA;;;eAAAA;;;;kEALI;AAEpB,MAAMC,sBACJ;AAEK,SAASD,iBAAiBE,KAAc;IAC7C,OAAOC,IAAAA,gBAAO,EAACD,UAAUD,oBAAoBG,IAAI,CAACF,MAAMG,OAAO;AACjE"}

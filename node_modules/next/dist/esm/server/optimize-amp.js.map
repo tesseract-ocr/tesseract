@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/server/optimize-amp.ts"],"names":["optimize","html","config","AmpOptimizer","require","_","optimizer","create","transformHtml"],"mappings":"AAAA,eAAe,eAAeA,SAC5BC,IAAY,EACZC,MAAW;IAEX,IAAIC;IACJ,IAAI;QACFA,eAAeC,QAAQ;IACzB,EAAE,OAAOC,GAAG;QACV,OAAOJ;IACT;IACA,MAAMK,YAAYH,aAAaI,MAAM,CAACL;IACtC,OAAOI,UAAUE,aAAa,CAACP,MAAMC;AACvC"}

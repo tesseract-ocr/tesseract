@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/build/webpack/loaders/next-flight-loader/module-proxy.ts"],"names":["createProxy","createClientModuleProxy"],"mappings":"AAAA,oDAAoD;;;;+BAIvCA;;;eAAAA;;;4BAH2B;AAGjC,MAAMA,cAAyCC,mCAAuB"}

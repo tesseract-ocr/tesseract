@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/is-app-page-route.ts"],"names":["isAppPageRoute","route","endsWith"],"mappings":";;;;+BAAgBA;;;eAAAA;;;AAAT,SAASA,eAAeC,KAAa;IAC1C,OAAOA,MAAMC,QAAQ,CAAC;AACxB"}

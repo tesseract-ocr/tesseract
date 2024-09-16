@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/app-render/strip-flight-headers.ts"],"names":["stripFlightHeaders","headers","header","FLIGHT_PARAMETERS","toLowerCase"],"mappings":";;;;+BASgBA;;;eAAAA;;;kCAPkB;AAO3B,SAASA,mBAAmBC,OAA4B;IAC7D,KAAK,MAAM,CAACC,OAAO,IAAIC,mCAAiB,CAAE;QACxC,OAAOF,OAAO,CAACC,OAAOE,WAAW,GAAG;IACtC;AACF"}

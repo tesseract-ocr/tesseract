@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/server/future/normalizers/request/rsc.ts"],"names":["RSC_SUFFIX","SuffixPathnameNormalizer","RSCPathnameNormalizer","constructor"],"mappings":"AAEA,SAASA,UAAU,QAAQ,4BAA2B;AACtD,SAASC,wBAAwB,QAAQ,WAAU;AAEnD,OAAO,MAAMC,8BACHD;IAGRE,aAAc;QACZ,KAAK,CAACH;IACR;AACF"}

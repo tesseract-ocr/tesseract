@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/router-context.shared-runtime.ts"],"names":["RouterContext","React","createContext","process","env","NODE_ENV","displayName"],"mappings":";;;;+BAGaA;;;eAAAA;;;;gEAHK;AAGX,MAAMA,gBAAgBC,cAAK,CAACC,aAAa,CAAoB;AAEpE,IAAIC,QAAQC,GAAG,CAACC,QAAQ,KAAK,cAAc;IACzCL,cAAcM,WAAW,GAAG;AAC9B"}

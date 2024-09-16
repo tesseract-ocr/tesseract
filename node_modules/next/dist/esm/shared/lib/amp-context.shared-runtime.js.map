@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/amp-context.shared-runtime.ts"],"names":["React","AmpStateContext","createContext","process","env","NODE_ENV","displayName"],"mappings":"AAAA,OAAOA,WAAW,QAAO;AAEzB,OAAO,MAAMC,kBAAsCD,MAAME,aAAa,CAAC,CAAC,GAAE;AAE1E,IAAIC,QAAQC,GAAG,CAACC,QAAQ,KAAK,cAAc;IACzCJ,gBAAgBK,WAAW,GAAG;AAChC"}

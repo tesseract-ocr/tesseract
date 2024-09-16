@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/segment.ts"],"names":["isGroupSegment","segment","endsWith","PAGE_SEGMENT_KEY","DEFAULT_SEGMENT_KEY"],"mappings":"AAAA,OAAO,SAASA,eAAeC,OAAe;IAC5C,sCAAsC;IACtC,OAAOA,OAAO,CAAC,EAAE,KAAK,OAAOA,QAAQC,QAAQ,CAAC;AAChD;AAEA,OAAO,MAAMC,mBAAmB,WAAU;AAC1C,OAAO,MAAMC,sBAAsB,cAAa"}

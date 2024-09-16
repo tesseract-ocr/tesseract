@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/lib/router-utils/is-postpone.ts"],"names":["isPostpone","REACT_POSTPONE_TYPE","Symbol","for","error","$$typeof"],"mappings":";;;;+BAEgBA;;;eAAAA;;;AAFhB,MAAMC,sBAA8BC,OAAOC,GAAG,CAAC;AAExC,SAASH,WAAWI,KAAU;IACnC,OACE,OAAOA,UAAU,YACjBA,UAAU,QACVA,MAAMC,QAAQ,KAAKJ;AAEvB"}

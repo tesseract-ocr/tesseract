@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/telemetry/flush-and-exit.ts"],"names":["flushAndExit","code","telemetry","traceGlobals","get","flush","process","exit"],"mappings":";;;;+BAEsBA;;;eAAAA;;;wBAFO;AAEtB,eAAeA,aAAaC,IAAY;IAC7C,IAAIC,YAAYC,oBAAY,CAACC,GAAG,CAAC;IAGjC,IAAIF,WAAW;QACb,MAAMA,UAAUG,KAAK;IACvB;IACAC,QAAQC,IAAI,CAACN;AACf"}

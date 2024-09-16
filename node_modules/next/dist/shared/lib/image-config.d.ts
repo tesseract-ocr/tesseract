@@ -1,0 +1,74 @@
+export declare const VALID_LOADERS: readonly ["default", "imgix", "cloudinary", "akamai", "custom"];
+export type LoaderValue = (typeof VALID_LOADERS)[number];
+export type ImageLoaderProps = {
+    src: string;
+    width: number;
+    quality?: number;
+};
+export type ImageLoaderPropsWithConfig = ImageLoaderProps & {
+    config: Readonly<ImageConfig>;
+};
+export type RemotePattern = {
+    /**
+     * Must be `http` or `https`.
+     */
+    protocol?: 'http' | 'https';
+    /**
+     * Can be literal or wildcard.
+     * Single `*` matches a single subdomain.
+     * Double `**` matches any number of subdomains.
+     */
+    hostname: string;
+    /**
+     * Can be literal port such as `8080` or empty string
+     * meaning no port.
+     */
+    port?: string;
+    /**
+     * Can be literal or wildcard.
+     * Single `*` matches a single path segment.
+     * Double `**` matches any number of path segments.
+     */
+    pathname?: string;
+};
+type ImageFormat = 'image/avif' | 'image/webp';
+/**
+ * Image configurations
+ *
+ * @see [Image configuration options](https://nextjs.org/docs/api-reference/next/image#configuration-options)
+ */
+export type ImageConfigComplete = {
+    /** @see [Device sizes documentation](https://nextjs.org/docs/api-reference/next/image#device-sizes) */
+    deviceSizes: number[];
+    /** @see [Image sizing documentation](https://nextjs.org/docs/basic-features/image-optimization#image-sizing) */
+    imageSizes: number[];
+    /** @see [Image loaders configuration](https://nextjs.org/docs/api-reference/next/legacy/image#loader) */
+    loader: LoaderValue;
+    /** @see [Image loader configuration](https://nextjs.org/docs/api-reference/next/legacy/image#loader-configuration) */
+    path: string;
+    /** @see [Image loader configuration](https://nextjs.org/docs/api-reference/next/image#loader-configuration) */
+    loaderFile: string;
+    /**
+     * @deprecated Use `remotePatterns` instead.
+     */
+    domains: string[];
+    /** @see [Disable static image import configuration](https://nextjs.org/docs/api-reference/next/image#disable-static-imports) */
+    disableStaticImages: boolean;
+    /** @see [Cache behavior](https://nextjs.org/docs/api-reference/next/image#caching-behavior) */
+    minimumCacheTTL: number;
+    /** @see [Acceptable formats](https://nextjs.org/docs/api-reference/next/image#acceptable-formats) */
+    formats: ImageFormat[];
+    /** @see [Dangerously Allow SVG](https://nextjs.org/docs/api-reference/next/image#dangerously-allow-svg) */
+    dangerouslyAllowSVG: boolean;
+    /** @see [Dangerously Allow SVG](https://nextjs.org/docs/api-reference/next/image#dangerously-allow-svg) */
+    contentSecurityPolicy: string;
+    /** @see [Dangerously Allow SVG](https://nextjs.org/docs/api-reference/next/image#dangerously-allow-svg) */
+    contentDispositionType: 'inline' | 'attachment';
+    /** @see [Remote Patterns](https://nextjs.org/docs/api-reference/next/image#remotepatterns) */
+    remotePatterns: RemotePattern[];
+    /** @see [Unoptimized](https://nextjs.org/docs/api-reference/next/image#unoptimized) */
+    unoptimized: boolean;
+};
+export type ImageConfig = Partial<ImageConfigComplete>;
+export declare const imageConfigDefault: ImageConfigComplete;
+export {};

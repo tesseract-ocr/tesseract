@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/lib/match-next-data-pathname.ts"],"names":["matchNextDataPathname","matcher","getPathMatch","pathname"],"mappings":";;;;+BAIgBA;;;eAAAA;;;2BAJa;AAE7B,MAAMC,UAAUC,IAAAA,uBAAY,EAAC;AAEtB,SAASF,sBAAsBG,QAAmC;IACvE,IAAI,OAAOA,aAAa,UAAU,OAAO;IAEzC,OAAOF,QAAQE;AACjB"}

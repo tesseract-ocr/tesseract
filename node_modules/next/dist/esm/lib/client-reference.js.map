@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/client-reference.ts"],"names":["isClientReference","mod","defaultExport","default","$$typeof","Symbol","for"],"mappings":"AAAA,OAAO,SAASA,kBAAkBC,GAAQ;IACxC,MAAMC,gBAAgBD,CAAAA,uBAAAA,IAAKE,OAAO,KAAIF;IACtC,OAAOC,CAAAA,iCAAAA,cAAeE,QAAQ,MAAKC,OAAOC,GAAG,CAAC;AAChD"}

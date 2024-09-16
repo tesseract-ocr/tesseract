@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/web/http.ts"],"names":["HTTP_METHODS","isHTTPMethod","maybeMethod","includes"],"mappings":"AAAA;;;CAGC,GACD,OAAO,MAAMA,eAAe;IAC1B;IACA;IACA;IACA;IACA;IACA;IACA;CACD,CAAS;AAQV;;;;;;CAMC,GACD,OAAO,SAASC,aAAaC,WAAmB;IAC9C,OAAOF,aAAaG,QAAQ,CAACD;AAC/B"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/server/future/normalizers/request/action.ts"],"names":["ACTION_SUFFIX","SuffixPathnameNormalizer","ActionPathnameNormalizer","constructor"],"mappings":"AAEA,SAASA,aAAa,QAAQ,4BAA2B;AACzD,SAASC,wBAAwB,QAAQ,WAAU;AAEnD,OAAO,MAAMC,iCACHD;IAGRE,aAAc;QACZ,KAAK,CAACH;IACR;AACF"}

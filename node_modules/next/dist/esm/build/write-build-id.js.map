@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/build/write-build-id.ts"],"names":["promises","join","BUILD_ID_FILE","writeBuildId","distDir","buildId","buildIdPath","writeFile"],"mappings":"AAAA,SAASA,QAAQ,QAAQ,KAAI;AAC7B,SAASC,IAAI,QAAQ,OAAM;AAC3B,SAASC,aAAa,QAAQ,0BAAyB;AAEvD,OAAO,eAAeC,aACpBC,OAAe,EACfC,OAAe;IAEf,MAAMC,cAAcL,KAAKG,SAASF;IAClC,MAAMF,SAASO,SAAS,CAACD,aAAaD,SAAS;AACjD"}

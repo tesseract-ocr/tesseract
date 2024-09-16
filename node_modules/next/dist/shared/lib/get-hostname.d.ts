@@ -1,0 +1,11 @@
+/// <reference types="node" />
+import type { OutgoingHttpHeaders } from 'http';
+/**
+ * Takes an object with a hostname property (like a parsed URL) and some
+ * headers that may contain Host and returns the preferred hostname.
+ * @param parsed An object containing a hostname property.
+ * @param headers A dictionary with headers containing a `host`.
+ */
+export declare function getHostname(parsed: {
+    hostname?: string | null;
+}, headers?: OutgoingHttpHeaders): string | undefined;

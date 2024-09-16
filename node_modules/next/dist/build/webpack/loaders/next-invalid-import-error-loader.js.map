@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/build/webpack/loaders/next-invalid-import-error-loader.ts"],"names":["nextInvalidImportErrorLoader","message","getOptions","Error"],"mappings":";;;;+BAAA;;;eAAwBA;;;AAAT,SAASA;IACtB,MAAM,EAAEC,OAAO,EAAE,GAAG,IAAI,CAACC,UAAU;IACnC,MAAM,IAAIC,MAAMF;AAClB"}

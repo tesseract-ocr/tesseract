@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/oxford-comma-list.ts"],"names":["getOxfordCommaList","items","map","v","index","length","join"],"mappings":"AAAA,OAAO,SAASA,mBAAmBC,KAAe;IAChD,OAAOA,MACJC,GAAG,CACF,CAACC,GAAGC,OAAO,EAAEC,MAAM,EAAE,GACnB,AAACD,CAAAA,QAAQ,IACLA,UAAUC,SAAS,IACjBA,SAAS,IACP,WACA,UACF,OACF,EAAC,IAAKF,GAEbG,IAAI,CAAC;AACV"}

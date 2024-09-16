@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/export/helpers/is-navigation-signal-error.ts"],"names":["isNavigationSignalError","err","isNotFoundError","isRedirectError"],"mappings":";;;;+BAQaA;;;eAAAA;;;0BARmB;0BACA;AAOzB,MAAMA,0BAA0B,CAACC,MACtCC,IAAAA,yBAAe,EAACD,QAAQE,IAAAA,yBAAe,EAACF"}

@@ -1,0 +1,11 @@
+import type { VersionInfo } from '../../../../server/dev/parse-version-info';
+export declare function register(): void;
+export declare function unregister(): void;
+export declare function onBuildOk(): void;
+export declare function onBuildError(message: string): void;
+export declare function onRefresh(): void;
+export declare function onBeforeRefresh(): void;
+export declare function onVersionInfo(versionInfo: VersionInfo): void;
+export { getErrorByType } from '../internal/helpers/getErrorByType';
+export { getServerError } from '../internal/helpers/nodeStackFrames';
+export { default as ReactDevOverlay } from './ReactDevOverlay';

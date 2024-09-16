@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/web/spec-extension/cookies.ts"],"names":["RequestCookies","ResponseCookies","stringifyCookie"],"mappings":"AAAA,SACEA,cAAc,EACdC,eAAe,EACfC,eAAe,QACV,2CAA0C"}

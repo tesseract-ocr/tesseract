@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/build/polyfills/object-assign.ts"],"names":["assign","Object","bind","module","exports","default"],"mappings":";AAAA,IAAIA,SAASC,OAAOD,MAAM,CAACE,IAAI,CAACD;AAChCE,OAAOC,OAAO,GAAGJ;AACjBG,OAAOC,OAAO,CAACC,OAAO,GAAGF,OAAOC,OAAO"}

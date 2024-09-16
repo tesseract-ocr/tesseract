@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/api-utils/web.ts"],"names":["byteLength","payload","TextEncoder","encode","buffer"],"mappings":"AAAA,yEAAyE;AACzE,2BAA2B;;;;;+BACXA;;;eAAAA;;;AAAT,SAASA,WAAWC,OAAe;IACxC,OAAO,IAAIC,cAAcC,MAAM,CAACF,SAASG,MAAM,CAACJ,UAAU;AAC5D"}

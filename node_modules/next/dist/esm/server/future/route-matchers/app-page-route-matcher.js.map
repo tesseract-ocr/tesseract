@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/future/route-matchers/app-page-route-matcher.ts"],"names":["RouteMatcher","AppPageRouteMatcher","identity","definition","pathname","page"],"mappings":"AAAA,SAASA,YAAY,QAAQ,kBAAiB;AAG9C,OAAO,MAAMC,4BAA4BD;IACvC,IAAWE,WAAmB;QAC5B,OAAO,CAAC,EAAE,IAAI,CAACC,UAAU,CAACC,QAAQ,CAAC,YAAY,EAAE,IAAI,CAACD,UAAU,CAACE,IAAI,CAAC,CAAC;IACzE;AACF"}

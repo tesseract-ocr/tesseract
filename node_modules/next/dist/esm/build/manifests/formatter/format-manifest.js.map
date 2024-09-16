@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/build/manifests/formatter/format-manifest.ts"],"names":["formatManifest","manifest","process","env","NODE_ENV","JSON","stringify"],"mappings":"AAAA;;;;CAIC,GACD,OAAO,SAASA,eAAiCC,QAAW;IAC1D,IAAIC,QAAQC,GAAG,CAACC,QAAQ,KAAK,eAAe;QAC1C,OAAOC,KAAKC,SAAS,CAACL,UAAU,MAAM;IACxC;IAEA,OAAOI,KAAKC,SAAS,CAACL;AACxB"}

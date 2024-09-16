@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/future/normalizers/underscore-normalizer.ts"],"names":["UnderscoreNormalizer","normalize","pathname","replace"],"mappings":";;;;+BAKaA;;;eAAAA;;;AAAN,MAAMA;IACJC,UAAUC,QAAgB,EAAU;QACzC,OAAOA,SAASC,OAAO,CAAC,QAAQ;IAClC;AACF"}

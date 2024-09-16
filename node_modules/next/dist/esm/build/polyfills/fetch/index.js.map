@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/build/polyfills/fetch/index.ts"],"names":["fetchModule","self","fetch","bind","module","exports","default"],"mappings":"AAAA,gBAAgB,GAChB,MAAMA,cAAcC,KAAKC,KAAK,CAACC,IAAI,CAACF;AACpCG,OAAOC,OAAO,GAAGL;AACjBI,OAAOC,OAAO,CAACC,OAAO,GAAGF,OAAOC,OAAO"}

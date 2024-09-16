@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/client/components/is-next-router-error.ts"],"names":["isNotFoundError","isRedirectError","isNextRouterError","error","digest"],"mappings":"AAAA,SAASA,eAAe,QAAQ,cAAa;AAC7C,SAASC,eAAe,QAAQ,aAAY;AAE5C,OAAO,SAASC,kBAAkBC,KAAU;IAC1C,OACEA,SAASA,MAAMC,MAAM,IAAKH,CAAAA,gBAAgBE,UAAUH,gBAAgBG,MAAK;AAE7E"}

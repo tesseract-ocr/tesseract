@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/pick.ts"],"names":["pick","obj","keys","newObj","key"],"mappings":"AAAA,OAAO,SAASA,KAA2BC,GAAM,EAAEC,IAAS;IAC1D,MAAMC,SAAS,CAAC;IAChB,KAAK,MAAMC,OAAOF,KAAM;QACtBC,MAAM,CAACC,IAAI,GAAGH,GAAG,CAACG,IAAI;IACxB;IACA,OAAOD;AACT"}

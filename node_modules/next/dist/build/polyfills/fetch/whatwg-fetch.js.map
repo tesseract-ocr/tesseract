@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/build/polyfills/fetch/whatwg-fetch.ts"],"names":["exports","Headers","self","Request","Response","fetch"],"mappings":"AAAA,gBAAgB;AAChBA,QAAQC,OAAO,GAAGC,KAAKD,OAAO;AAC9BD,QAAQG,OAAO,GAAGD,KAAKC,OAAO;AAC9BH,QAAQI,QAAQ,GAAGF,KAAKE,QAAQ;AAChCJ,QAAQK,KAAK,GAAGH,KAAKG,KAAK"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/client/app-next.ts"],"names":["appBootstrap","hydrate","require"],"mappings":"AAAA,4EAA4E;AAC5E,sCAAsC;;;;;QAC/B;8BACsB;AAE7BA,IAAAA,0BAAY,EAAC;IACX,MAAM,EAAEC,OAAO,EAAE,GAAGC,QAAQ;IAC5B,yDAAyD;IACzDA,QAAQ;IACRA,QAAQ;IACRD;AACF"}

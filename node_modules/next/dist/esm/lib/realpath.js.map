@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/realpath.ts"],"names":["fs","isWindows","process","platform","realpathSync","native"],"mappings":"AAAA,OAAOA,QAAQ,KAAI;AAEnB,MAAMC,YAAYC,QAAQC,QAAQ,KAAK;AAEvC,kGAAkG;AAClG,uFAAuF;AACvF,6CAA6C;AAC7C,uFAAuF;AACvF,OAAO,MAAMC,eAAeH,YAAYD,GAAGI,YAAY,GAAGJ,GAAGI,YAAY,CAACC,MAAM,CAAA"}

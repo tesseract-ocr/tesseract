@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/needs-experimental-react.ts"],"names":["needsExperimentalReact","config","Boolean","experimental","ppr","taint"],"mappings":";;;;+BAEgBA;;;eAAAA;;;AAAT,SAASA,uBAAuBC,MAAkB;QACxCA,sBAA4BA;IAA3C,OAAOC,QAAQD,EAAAA,uBAAAA,OAAOE,YAAY,qBAAnBF,qBAAqBG,GAAG,OAAIH,wBAAAA,OAAOE,YAAY,qBAAnBF,sBAAqBI,KAAK;AACvE"}

@@ -1,0 +1,36 @@
+import type { NextConfigComplete } from '../../../../server/config-shared';
+import type { DocumentType } from '../../../../shared/lib/utils';
+import type { BuildManifest } from '../../../../server/get-page-files';
+import type { ReactLoadableManifest } from '../../../../server/load-components';
+import type { ClientReferenceManifest } from '../../plugins/flight-manifest-plugin';
+import type { NextFontManifest } from '../../plugins/next-font-manifest-plugin';
+import type { NextFetchEvent } from '../../../../server/web/spec-extension/fetch-event';
+import type { ManifestRewriteRoute } from '../../..';
+import type { SizeLimit } from '../../../../../types';
+import type { PAGE_TYPES } from '../../../../lib/page-types';
+import type { NextRequestHint } from '../../../../server/web/adapter';
+export declare function getRender({ dev, page, appMod, pageMod, errorMod, error500Mod, pagesType, Document, buildManifest, reactLoadableManifest, interceptionRouteRewrites, renderToHTML, clientReferenceManifest, subresourceIntegrityManifest, serverActionsManifest, serverActions, config, buildId, nextFontManifest, incrementalCacheHandler, }: {
+    pagesType: PAGE_TYPES;
+    dev: boolean;
+    page: string;
+    appMod: any;
+    pageMod: any;
+    errorMod: any;
+    error500Mod: any;
+    renderToHTML?: any;
+    Document: DocumentType;
+    buildManifest: BuildManifest;
+    reactLoadableManifest: ReactLoadableManifest;
+    subresourceIntegrityManifest?: Record<string, string>;
+    interceptionRouteRewrites?: ManifestRewriteRoute[];
+    clientReferenceManifest?: ClientReferenceManifest;
+    serverActionsManifest?: any;
+    serverActions?: {
+        bodySizeLimit?: SizeLimit;
+        allowedOrigins?: string[];
+    };
+    config: NextConfigComplete;
+    buildId: string;
+    nextFontManifest: NextFontManifest;
+    incrementalCacheHandler?: any;
+}): (request: NextRequestHint, event?: NextFetchEvent) => Promise<Response>;

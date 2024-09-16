@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/future/route-matchers/pages-api-route-matcher.ts"],"names":["PagesAPILocaleRouteMatcher","PagesAPIRouteMatcher","RouteMatcher","LocaleRouteMatcher"],"mappings":";;;;;;;;;;;;;;;IAMaA,0BAA0B;eAA1BA;;IAFAC,oBAAoB;eAApBA;;;oCAHsB;8BACN;AAEtB,MAAMA,6BAA6BC,0BAAY;AAA2B;AAE1E,MAAMF,mCAAmCG,sCAAkB;AAA2B"}

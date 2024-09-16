@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/server/future/normalizers/request/prefetch-rsc.ts"],"names":["RSC_PREFETCH_SUFFIX","SuffixPathnameNormalizer","PrefetchRSCPathnameNormalizer","constructor"],"mappings":"AAEA,SAASA,mBAAmB,QAAQ,4BAA2B;AAC/D,SAASC,wBAAwB,QAAQ,WAAU;AAEnD,OAAO,MAAMC,sCACHD;IAGRE,aAAc;QACZ,KAAK,CAACH;IACR;AACF"}

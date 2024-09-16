@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/server/future/normalizers/request/rsc.ts"],"names":["RSCPathnameNormalizer","SuffixPathnameNormalizer","constructor","RSC_SUFFIX"],"mappings":";;;;+BAKaA;;;eAAAA;;;2BAHc;wBACc;AAElC,MAAMA,8BACHC,gCAAwB;IAGhCC,aAAc;QACZ,KAAK,CAACC,qBAAU;IAClB;AACF"}

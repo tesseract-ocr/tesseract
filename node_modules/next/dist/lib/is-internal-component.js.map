@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/is-internal-component.ts"],"names":["isInternalComponent","isNonRoutePagesPage","pathname"],"mappings":";;;;;;;;;;;;;;;IAAgBA,mBAAmB;eAAnBA;;IAUAC,mBAAmB;eAAnBA;;;AAVT,SAASD,oBAAoBE,QAAgB;IAClD,OAAQA;QACN,KAAK;QACL,KAAK;YACH,OAAO;QACT;YACE,OAAO;IACX;AACF;AAEO,SAASD,oBAAoBC,QAAgB;IAClD,OAAOA,aAAa,WAAWA,aAAa;AAC9C"}

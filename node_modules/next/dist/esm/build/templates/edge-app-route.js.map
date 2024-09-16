@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/build/templates/edge-app-route.ts"],"names":["EdgeRouteModuleWrapper","module","ComponentMod","wrap","routeModule"],"mappings":"AAAA,SAASA,sBAAsB,QAAQ,6CAA4C;AAEnF,4BAA4B;AAC5B,YAAYC,YAAY,eAAc;AAEtC,OAAO,MAAMC,eAAeD,OAAM;AAElC,eAAeD,uBAAuBG,IAAI,CAACF,OAAOG,WAAW,EAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/shared/lib/runtime-config.external.ts"],"names":["runtimeConfig","setConfig","configValue"],"mappings":"AAAA,IAAIA;AAEJ,eAAe,CAAA;IACb,OAAOA;AACT,CAAA,EAAC;AAED,OAAO,SAASC,UAAUC,WAAgB;IACxCF,gBAAgBE;AAClB"}

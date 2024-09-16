@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/lib/format-hostname.ts"],"names":["isIPv6","formatHostname","hostname"],"mappings":"AAAA,SAASA,MAAM,QAAQ,YAAW;AAElC;;;;;CAKC,GACD,OAAO,SAASC,eAAeC,QAAgB;IAC7C,OAAOF,OAAOE,YAAY,CAAC,CAAC,EAAEA,SAAS,CAAC,CAAC,GAAGA;AAC9C"}

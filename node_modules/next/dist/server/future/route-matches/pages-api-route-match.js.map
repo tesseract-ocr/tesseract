@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/future/route-matches/pages-api-route-match.ts"],"names":["isPagesAPIRouteMatch","match","definition","kind","RouteKind","PAGES_API"],"mappings":";;;;+BAagBA;;;eAAAA;;;2BAVU;AAUnB,SAASA,qBACdC,KAAiB;IAEjB,OAAOA,MAAMC,UAAU,CAACC,IAAI,KAAKC,oBAAS,CAACC,SAAS;AACtD"}

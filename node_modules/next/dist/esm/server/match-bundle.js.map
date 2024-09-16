@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/server/match-bundle.ts"],"names":["getRouteFromAssetPath","matchBundle","regex","input","result","exec"],"mappings":"AAAA,OAAOA,2BAA2B,uDAAsD;AAExF,eAAe,SAASC,YACtBC,KAAa,EACbC,KAAa;IAEb,MAAMC,SAASF,MAAMG,IAAI,CAACF;IAE1B,IAAI,CAACC,QAAQ;QACX,OAAO;IACT;IAEA,OAAOJ,sBAAsB,CAAC,CAAC,EAAEI,MAAM,CAAC,EAAE,CAAC,CAAC;AAC9C"}

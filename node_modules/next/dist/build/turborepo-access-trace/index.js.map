@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/build/turborepo-access-trace/index.ts"],"names":["TurborepoAccessTraceResult","turborepoTraceAccess","writeTurborepoAccessTraceResult"],"mappings":";;;;;;;;;;;;;;;;IAKSA,0BAA0B;eAA1BA,kCAA0B;;IAHjCC,oBAAoB;eAApBA,6BAAoB;;IACpBC,+BAA+B;eAA/BA,wCAA+B;;;yBAC1B;wBACoC"}

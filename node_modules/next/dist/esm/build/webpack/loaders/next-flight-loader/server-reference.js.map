@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/build/webpack/loaders/next-flight-loader/server-reference.ts"],"names":["registerServerReference","flightRegisterServerReference","id","action"],"mappings":"AAAA,oDAAoD,GACpD,SAASA,2BAA2BC,6BAA6B,QAAQ,uCAAsC;AAE/G,OAAO,SAASD,wBAAwBE,EAAU,EAAEC,MAAW;IAC7D,OAAOF,8BAA8BE,QAAQD,IAAI;AACnD"}

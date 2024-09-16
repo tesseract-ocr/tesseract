@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/client/add-locale.ts"],"names":["normalizePathTrailingSlash","addLocale","path","args","process","env","__NEXT_I18N_SUPPORT","require"],"mappings":"AACA,SAASA,0BAA0B,QAAQ,6BAA4B;AAEvE,OAAO,MAAMC,YAAuB,SAACC;qCAASC;QAAAA;;IAC5C,IAAIC,QAAQC,GAAG,CAACC,mBAAmB,EAAE;QACnC,OAAON,2BACLO,QAAQ,yCAAyCN,SAAS,CAACC,SAASC;IAExE;IACA,OAAOD;AACT,EAAC"}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../src/shared/lib/router/utils/get-asset-path-from-route.ts"],"names":["getAssetPathFromRoute","route","ext","path","test"],"mappings":"AAAA,uFAAuF;AACvF,0EAA0E;;;;;+BAC1E;;;eAAwBA;;;AAAT,SAASA,sBACtBC,KAAa,EACbC,GAAgB;IAAhBA,IAAAA,gBAAAA,MAAc;IAEd,MAAMC,OACJF,UAAU,MACN,WACA,iBAAiBG,IAAI,CAACH,SACtB,AAAC,WAAQA,QACTA;IACN,OAAOE,OAAOD;AAChB"}

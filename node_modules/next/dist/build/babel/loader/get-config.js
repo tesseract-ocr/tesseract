@@ -1,0 +1,335 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return getConfig;
+    }
+});
+const _fs = require("fs");
+const _json5 = /*#__PURE__*/ _interop_require_default(require("next/dist/compiled/json5"));
+const _core = require("next/dist/compiled/babel/core");
+const _corelibconfig = /*#__PURE__*/ _interop_require_default(require("next/dist/compiled/babel/core-lib-config"));
+const _util = require("./util");
+const _log = /*#__PURE__*/ _interop_require_wildcard(require("../../output/log"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+const nextDistPath = /(next[\\/]dist[\\/]shared[\\/]lib)|(next[\\/]dist[\\/]client)|(next[\\/]dist[\\/]pages)/;
+const fileExtensionRegex = /\.([a-z]+)$/;
+function getCacheCharacteristics(loaderOptions, source, filename) {
+    var _fileExtensionRegex_exec;
+    const { isServer, pagesDir } = loaderOptions;
+    const isPageFile = filename.startsWith(pagesDir);
+    const isNextDist = nextDistPath.test(filename);
+    const hasModuleExports = source.indexOf("module.exports") !== -1;
+    const fileExt = ((_fileExtensionRegex_exec = fileExtensionRegex.exec(filename)) == null ? void 0 : _fileExtensionRegex_exec[1]) || "unknown";
+    return {
+        isServer,
+        isPageFile,
+        isNextDist,
+        hasModuleExports,
+        fileExt
+    };
+}
+/**
+ * Return an array of Babel plugins, conditioned upon loader options and
+ * source file characteristics.
+ */ function getPlugins(loaderOptions, cacheCharacteristics) {
+    const { isServer, isPageFile, isNextDist, hasModuleExports } = cacheCharacteristics;
+    const { hasReactRefresh, development } = loaderOptions;
+    const applyCommonJsItem = hasModuleExports ? (0, _core.createConfigItem)(require("../plugins/commonjs"), {
+        type: "plugin"
+    }) : null;
+    const reactRefreshItem = hasReactRefresh ? (0, _core.createConfigItem)([
+        require("next/dist/compiled/react-refresh/babel"),
+        {
+            skipEnvCheck: true
+        }
+    ], {
+        type: "plugin"
+    }) : null;
+    const pageConfigItem = !isServer && isPageFile ? (0, _core.createConfigItem)([
+        require("../plugins/next-page-config")
+    ], {
+        type: "plugin"
+    }) : null;
+    const disallowExportAllItem = !isServer && isPageFile ? (0, _core.createConfigItem)([
+        require("../plugins/next-page-disallow-re-export-all-exports")
+    ], {
+        type: "plugin"
+    }) : null;
+    const transformDefineItem = (0, _core.createConfigItem)([
+        require.resolve("next/dist/compiled/babel/plugin-transform-define"),
+        {
+            "process.env.NODE_ENV": development ? "development" : "production",
+            "typeof window": isServer ? "undefined" : "object",
+            "process.browser": isServer ? false : true
+        },
+        "next-js-transform-define-instance"
+    ], {
+        type: "plugin"
+    });
+    const nextSsgItem = !isServer && isPageFile ? (0, _core.createConfigItem)([
+        require.resolve("../plugins/next-ssg-transform")
+    ], {
+        type: "plugin"
+    }) : null;
+    const commonJsItem = isNextDist ? (0, _core.createConfigItem)(require("next/dist/compiled/babel/plugin-transform-modules-commonjs"), {
+        type: "plugin"
+    }) : null;
+    const nextFontUnsupported = (0, _core.createConfigItem)([
+        require("../plugins/next-font-unsupported")
+    ], {
+        type: "plugin"
+    });
+    return [
+        reactRefreshItem,
+        pageConfigItem,
+        disallowExportAllItem,
+        applyCommonJsItem,
+        transformDefineItem,
+        nextSsgItem,
+        commonJsItem,
+        nextFontUnsupported
+    ].filter(Boolean);
+}
+const isJsonFile = /\.(json|babelrc)$/;
+const isJsFile = /\.js$/;
+/**
+ * While this function does block execution while reading from disk, it
+ * should not introduce any issues.  The function is only invoked when
+ * generating a fresh config, and only a small handful of configs should
+ * be generated during compilation.
+ */ function getCustomBabelConfig(configFilePath) {
+    if (isJsonFile.exec(configFilePath)) {
+        const babelConfigRaw = (0, _fs.readFileSync)(configFilePath, "utf8");
+        return _json5.default.parse(babelConfigRaw);
+    } else if (isJsFile.exec(configFilePath)) {
+        return require(configFilePath);
+    }
+    throw new Error("The Next.js Babel loader does not support .mjs or .cjs config files.");
+}
+let babelConfigWarned = false;
+/**
+ * Check if custom babel configuration from user only contains options that
+ * can be migrated into latest Next.js features supported by SWC.
+ *
+ * This raises soft warning messages only, not making any errors yet.
+ */ function checkCustomBabelConfigDeprecation(config) {
+    if (!config || Object.keys(config).length === 0) {
+        return;
+    }
+    const { plugins, presets, ...otherOptions } = config;
+    if (Object.keys(otherOptions ?? {}).length > 0) {
+        return;
+    }
+    if (babelConfigWarned) {
+        return;
+    }
+    babelConfigWarned = true;
+    const isPresetReadyToDeprecate = !presets || presets.length === 0 || presets.length === 1 && presets[0] === "next/babel";
+    const pluginReasons = [];
+    const unsupportedPlugins = [];
+    if (Array.isArray(plugins)) {
+        for (const plugin of plugins){
+            const pluginName = Array.isArray(plugin) ? plugin[0] : plugin;
+            // [NOTE]: We cannot detect if the user uses babel-plugin-macro based transform plugins,
+            // such as `styled-components/macro` in here.
+            switch(pluginName){
+                case "styled-components":
+                case "babel-plugin-styled-components":
+                    pluginReasons.push(`\t- 'styled-components' can be enabled via 'compiler.styledComponents' in 'next.config.js'`);
+                    break;
+                case "@emotion/babel-plugin":
+                    pluginReasons.push(`\t- '@emotion/babel-plugin' can be enabled via 'compiler.emotion' in 'next.config.js'`);
+                    break;
+                case "babel-plugin-relay":
+                    pluginReasons.push(`\t- 'babel-plugin-relay' can be enabled via 'compiler.relay' in 'next.config.js'`);
+                    break;
+                case "react-remove-properties":
+                    pluginReasons.push(`\t- 'react-remove-properties' can be enabled via 'compiler.reactRemoveProperties' in 'next.config.js'`);
+                    break;
+                case "transform-remove-console":
+                    pluginReasons.push(`\t- 'transform-remove-console' can be enabled via 'compiler.removeConsole' in 'next.config.js'`);
+                    break;
+                default:
+                    unsupportedPlugins.push(pluginName);
+                    break;
+            }
+        }
+    }
+    if (isPresetReadyToDeprecate && unsupportedPlugins.length === 0) {
+        _log.warn(`It looks like there is a custom Babel configuration that can be removed${pluginReasons.length > 0 ? ":" : "."}`);
+        if (pluginReasons.length > 0) {
+            _log.warn(`Next.js supports the following features natively: `);
+            _log.warn(pluginReasons.join(""));
+            _log.warn(`For more details configuration options, please refer https://nextjs.org/docs/architecture/nextjs-compiler#supported-features`);
+        }
+    }
+}
+/**
+ * Generate a new, flat Babel config, ready to be handed to Babel-traverse.
+ * This config should have no unresolved overrides, presets, etc.
+ */ function getFreshConfig(cacheCharacteristics, loaderOptions, target, filename, inputSourceMap) {
+    let { isServer, pagesDir, development, hasJsxRuntime, configFile, srcDir } = loaderOptions;
+    let customConfig = configFile ? getCustomBabelConfig(configFile) : undefined;
+    checkCustomBabelConfigDeprecation(customConfig);
+    let options = {
+        babelrc: false,
+        cloneInputAst: false,
+        filename,
+        inputSourceMap: inputSourceMap || undefined,
+        // Set the default sourcemap behavior based on Webpack's mapping flag,
+        // but allow users to override if they want.
+        sourceMaps: loaderOptions.sourceMaps === undefined ? this.sourceMap : loaderOptions.sourceMaps,
+        // Ensure that Webpack will get a full absolute path in the sourcemap
+        // so that it can properly map the module back to its internal cached
+        // modules.
+        sourceFileName: filename,
+        plugins: [
+            ...getPlugins(loaderOptions, cacheCharacteristics),
+            ...(customConfig == null ? void 0 : customConfig.plugins) || []
+        ],
+        // target can be provided in babelrc
+        target: isServer ? undefined : customConfig == null ? void 0 : customConfig.target,
+        // env can be provided in babelrc
+        env: customConfig == null ? void 0 : customConfig.env,
+        presets: (()=>{
+            // If presets is defined the user will have next/babel in their babelrc
+            if (customConfig == null ? void 0 : customConfig.presets) {
+                return customConfig.presets;
+            }
+            // If presets is not defined the user will likely have "env" in their babelrc
+            if (customConfig) {
+                return undefined;
+            }
+            // If no custom config is provided the default is to use next/babel
+            return [
+                "next/babel"
+            ];
+        })(),
+        overrides: loaderOptions.overrides,
+        caller: {
+            name: "next-babel-turbo-loader",
+            supportsStaticESM: true,
+            supportsDynamicImport: true,
+            // Provide plugins with insight into webpack target.
+            // https://github.com/babel/babel-loader/issues/787
+            target: target,
+            // Webpack 5 supports TLA behind a flag. We enable it by default
+            // for Babel, and then webpack will throw an error if the experimental
+            // flag isn't enabled.
+            supportsTopLevelAwait: true,
+            isServer,
+            srcDir,
+            pagesDir,
+            isDev: development,
+            hasJsxRuntime,
+            ...loaderOptions.caller
+        }
+    };
+    // Babel does strict checks on the config so undefined is not allowed
+    if (typeof options.target === "undefined") {
+        delete options.target;
+    }
+    Object.defineProperty(options.caller, "onWarning", {
+        enumerable: false,
+        writable: false,
+        value: (reason)=>{
+            if (!(reason instanceof Error)) {
+                reason = new Error(reason);
+            }
+            this.emitWarning(reason);
+        }
+    });
+    const loadedOptions = (0, _core.loadOptions)(options);
+    const config = (0, _util.consumeIterator)((0, _corelibconfig.default)(loadedOptions));
+    return config;
+}
+/**
+ * Each key returned here corresponds with a Babel config that can be shared.
+ * The conditions of permissible sharing between files is dependent on specific
+ * file attributes and Next.js compiler states: `CharacteristicsGermaneToCaching`.
+ */ function getCacheKey(cacheCharacteristics) {
+    const { isServer, isPageFile, isNextDist, hasModuleExports, fileExt } = cacheCharacteristics;
+    const flags = 0 | (isServer ? 1 : 0) | (isPageFile ? 2 : 0) | (isNextDist ? 4 : 0) | (hasModuleExports ? 8 : 0);
+    return fileExt + flags;
+}
+const configCache = new Map();
+const configFiles = new Set();
+function getConfig({ source, target, loaderOptions, filename, inputSourceMap }) {
+    const cacheCharacteristics = getCacheCharacteristics(loaderOptions, source, filename);
+    if (loaderOptions.configFile) {
+        // Ensures webpack invalidates the cache for this loader when the config file changes
+        this.addDependency(loaderOptions.configFile);
+    }
+    const cacheKey = getCacheKey(cacheCharacteristics);
+    if (configCache.has(cacheKey)) {
+        const cachedConfig = configCache.get(cacheKey);
+        return {
+            ...cachedConfig,
+            options: {
+                ...cachedConfig.options,
+                cwd: loaderOptions.cwd,
+                root: loaderOptions.cwd,
+                filename,
+                sourceFileName: filename
+            }
+        };
+    }
+    if (loaderOptions.configFile && !configFiles.has(loaderOptions.configFile)) {
+        configFiles.add(loaderOptions.configFile);
+        _log.info(`Using external babel configuration from ${loaderOptions.configFile}`);
+    }
+    const freshConfig = getFreshConfig.call(this, cacheCharacteristics, loaderOptions, target, filename, inputSourceMap);
+    configCache.set(cacheKey, freshConfig);
+    return freshConfig;
+}
+
+//# sourceMappingURL=get-config.js.map

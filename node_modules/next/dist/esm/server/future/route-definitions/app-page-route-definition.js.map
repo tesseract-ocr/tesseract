@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/server/future/route-definitions/app-page-route-definition.ts"],"names":["RouteKind","isAppPageRouteDefinition","definition","kind","APP_PAGE"],"mappings":"AACA,SAASA,SAAS,QAAQ,gBAAe;AAOzC;;CAEC,GACD,OAAO,SAASC,yBACdC,UAA2B;IAE3B,OAAOA,WAAWC,IAAI,KAAKH,UAAUI,QAAQ;AAC/C"}

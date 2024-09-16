@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/build/deployment-id.ts"],"names":["getDeploymentIdQueryOrEmptyString","process","env","NEXT_DEPLOYMENT_ID"],"mappings":"AAAA,OAAO,SAASA;IACd,IAAIC,QAAQC,GAAG,CAACC,kBAAkB,EAAE;QAClC,OAAO,CAAC,KAAK,EAAEF,QAAQC,GAAG,CAACC,kBAAkB,CAAC,CAAC;IACjD;IACA,OAAO;AACT"}

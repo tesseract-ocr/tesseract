@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/client/components/router-reducer/create-href-from-url.ts"],"names":["createHrefFromUrl","url","includeHash","pathname","search","hash"],"mappings":";;;;+BAAgBA;;;eAAAA;;;AAAT,SAASA,kBACdC,GAA8C,EAC9CC,WAA2B;IAA3BA,IAAAA,wBAAAA,cAAuB;IAEvB,OAAOD,IAAIE,QAAQ,GAAGF,IAAIG,MAAM,GAAIF,CAAAA,cAAcD,IAAII,IAAI,GAAG,EAAC;AAChE"}

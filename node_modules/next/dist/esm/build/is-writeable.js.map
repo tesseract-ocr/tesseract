@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/build/is-writeable.ts"],"names":["fs","isWriteable","directory","promises","access","constants","W_OK","err"],"mappings":"AAAA,OAAOA,QAAQ,KAAI;AAEnB,OAAO,eAAeC,YAAYC,SAAiB;IACjD,IAAI;QACF,MAAMF,GAAGG,QAAQ,CAACC,MAAM,CAACF,WAAW,AAACF,CAAAA,GAAGK,SAAS,IAAIL,EAAC,EAAGM,IAAI;QAC7D,OAAO;IACT,EAAE,OAAOC,KAAK;QACZ,OAAO;IACT;AACF"}

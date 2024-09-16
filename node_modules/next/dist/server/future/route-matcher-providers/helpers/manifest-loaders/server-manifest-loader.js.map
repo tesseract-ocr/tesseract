@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../../../src/server/future/route-matcher-providers/helpers/manifest-loaders/server-manifest-loader.ts"],"names":["ServerManifestLoader","constructor","getter","load","name"],"mappings":";;;;+BAEaA;;;eAAAA;;;AAAN,MAAMA;IACXC,YAAY,AAAiBC,MAAyC,CAAE;aAA3CA,SAAAA;IAA4C;IAElEC,KAAKC,IAAY,EAAmB;QACzC,OAAO,IAAI,CAACF,MAAM,CAACE;IACrB;AACF"}

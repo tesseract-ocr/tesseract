@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/server/app-render/flight-render-result.ts"],"names":["FlightRenderResult","RenderResult","constructor","response","contentType","RSC_CONTENT_TYPE_HEADER","metadata"],"mappings":";;;;+BAMaA;;;eAAAA;;;kCAN2B;qEACf;;;;;;AAKlB,MAAMA,2BAA2BC,qBAAY;IAClDC,YAAYC,QAA6C,CAAE;QACzD,KAAK,CAACA,UAAU;YAAEC,aAAaC,yCAAuB;YAAEC,UAAU,CAAC;QAAE;IACvE;AACF"}

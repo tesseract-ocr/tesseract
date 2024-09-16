@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/lib/wait.ts"],"names":["wait","ms","Promise","resolve","setTimeout"],"mappings":"AAAA;;;;CAIC;;;;+BACqBA;;;eAAAA;;;AAAf,eAAeA,KAAKC,EAAU;IACnC,OAAO,IAAIC,QAAQ,CAACC,UAAYC,WAAWD,SAASF;AACtD"}

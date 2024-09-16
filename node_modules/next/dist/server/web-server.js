@@ -1,0 +1,300 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return NextWebServer;
+    }
+});
+const _web = require("./api-utils/web");
+const _baseserver = /*#__PURE__*/ _interop_require_wildcard(require("./base-server"));
+const _etag = require("./lib/etag");
+const _requestmeta = require("./request-meta");
+const _web1 = /*#__PURE__*/ _interop_require_default(require("./response-cache/web"));
+const _isapiroute = require("../lib/is-api-route");
+const _removetrailingslash = require("../shared/lib/router/utils/remove-trailing-slash");
+const _utils = require("../shared/lib/router/utils");
+const _serverutils = require("./server-utils");
+const _routeregex = require("../shared/lib/router/utils/route-regex");
+const _routematcher = require("../shared/lib/router/utils/route-matcher");
+const _incrementalcache = require("./lib/incremental-cache");
+const _buildcustomroute = require("../lib/build-custom-route");
+const _constants = require("../api/constants");
+const _getedgepreviewprops = require("./web/get-edge-preview-props");
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+function _getRequireWildcardCache(nodeInterop) {
+    if (typeof WeakMap !== "function") return null;
+    var cacheBabelInterop = new WeakMap();
+    var cacheNodeInterop = new WeakMap();
+    return (_getRequireWildcardCache = function(nodeInterop) {
+        return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
+    })(nodeInterop);
+}
+function _interop_require_wildcard(obj, nodeInterop) {
+    if (!nodeInterop && obj && obj.__esModule) {
+        return obj;
+    }
+    if (obj === null || typeof obj !== "object" && typeof obj !== "function") {
+        return {
+            default: obj
+        };
+    }
+    var cache = _getRequireWildcardCache(nodeInterop);
+    if (cache && cache.has(obj)) {
+        return cache.get(obj);
+    }
+    var newObj = {
+        __proto__: null
+    };
+    var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor;
+    for(var key in obj){
+        if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) {
+            var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null;
+            if (desc && (desc.get || desc.set)) {
+                Object.defineProperty(newObj, key, desc);
+            } else {
+                newObj[key] = obj[key];
+            }
+        }
+    }
+    newObj.default = obj;
+    if (cache) {
+        cache.set(obj, newObj);
+    }
+    return newObj;
+}
+class NextWebServer extends _baseserver.default {
+    constructor(options){
+        super(options);
+        this.handleCatchallRenderRequest = async (req, res, parsedUrl)=>{
+            let { pathname, query } = parsedUrl;
+            if (!pathname) {
+                throw new Error("pathname is undefined");
+            }
+            // interpolate query information into page for dynamic route
+            // so that rewritten paths are handled properly
+            const normalizedPage = this.serverOptions.webServerConfig.pathname;
+            if (pathname !== normalizedPage) {
+                pathname = normalizedPage;
+                if ((0, _utils.isDynamicRoute)(pathname)) {
+                    const routeRegex = (0, _routeregex.getNamedRouteRegex)(pathname, false);
+                    const dynamicRouteMatcher = (0, _routematcher.getRouteMatcher)(routeRegex);
+                    const defaultRouteMatches = dynamicRouteMatcher(pathname);
+                    const paramsResult = (0, _serverutils.normalizeDynamicRouteParams)(query, false, routeRegex, defaultRouteMatches);
+                    const normalizedParams = paramsResult.hasValidParams ? paramsResult.params : query;
+                    pathname = (0, _serverutils.interpolateDynamicPath)(pathname, normalizedParams, routeRegex);
+                    (0, _serverutils.normalizeVercelUrl)(req, true, Object.keys(routeRegex.routeKeys), true, routeRegex);
+                }
+            }
+            // next.js core assumes page path without trailing slash
+            pathname = (0, _removetrailingslash.removeTrailingSlash)(pathname);
+            if (this.i18nProvider) {
+                const { detectedLocale } = await this.i18nProvider.analyze(pathname);
+                if (detectedLocale) {
+                    parsedUrl.query.__nextLocale = detectedLocale;
+                }
+            }
+            const bubbleNoFallback = !!query._nextBubbleNoFallback;
+            if ((0, _isapiroute.isAPIRoute)(pathname)) {
+                delete query._nextBubbleNoFallback;
+            }
+            try {
+                await this.render(req, res, pathname, query, parsedUrl, true);
+                return true;
+            } catch (err) {
+                if (err instanceof _baseserver.NoFallbackError && bubbleNoFallback) {
+                    return false;
+                }
+                throw err;
+            }
+        };
+        // Extend `renderOpts`.
+        Object.assign(this.renderOpts, options.webServerConfig.extendRenderOpts);
+    }
+    async getIncrementalCache({ requestHeaders }) {
+        const dev = !!this.renderOpts.dev;
+        // incremental-cache is request specific
+        // although can have shared caches in module scope
+        // per-cache handler
+        return new _incrementalcache.IncrementalCache({
+            dev,
+            requestHeaders,
+            requestProtocol: "https",
+            pagesDir: this.enabledDirectories.pages,
+            appDir: this.enabledDirectories.app,
+            allowedRevalidateHeaderKeys: this.nextConfig.experimental.allowedRevalidateHeaderKeys,
+            minimalMode: this.minimalMode,
+            fetchCache: true,
+            fetchCacheKeyPrefix: this.nextConfig.experimental.fetchCacheKeyPrefix,
+            maxMemoryCacheSize: this.nextConfig.cacheMaxMemorySize,
+            flushToDisk: false,
+            CurCacheHandler: this.serverOptions.webServerConfig.incrementalCacheHandler,
+            getPrerenderManifest: ()=>this.getPrerenderManifest(),
+            // PPR is not supported in the edge runtime.
+            experimental: {
+                ppr: false
+            }
+        });
+    }
+    getResponseCache() {
+        return new _web1.default(this.minimalMode);
+    }
+    async hasPage(page) {
+        return page === this.serverOptions.webServerConfig.page;
+    }
+    getBuildId() {
+        return this.serverOptions.webServerConfig.extendRenderOpts.buildId;
+    }
+    getEnabledDirectories() {
+        return {
+            app: this.serverOptions.webServerConfig.pagesType === "app",
+            pages: this.serverOptions.webServerConfig.pagesType === "pages"
+        };
+    }
+    getPagesManifest() {
+        return {
+            // keep same theme but server path doesn't need to be accurate
+            [this.serverOptions.webServerConfig.pathname]: `server${this.serverOptions.webServerConfig.page}.js`
+        };
+    }
+    getAppPathsManifest() {
+        const page = this.serverOptions.webServerConfig.page;
+        return {
+            [this.serverOptions.webServerConfig.page]: `app${page}.js`
+        };
+    }
+    attachRequestMeta(req, parsedUrl) {
+        (0, _requestmeta.addRequestMeta)(req, "initQuery", {
+            ...parsedUrl.query
+        });
+    }
+    getPrerenderManifest() {
+        return {
+            version: -1,
+            routes: {},
+            dynamicRoutes: {},
+            notFoundRoutes: [],
+            preview: (0, _getedgepreviewprops.getEdgePreviewProps)()
+        };
+    }
+    getNextFontManifest() {
+        return this.serverOptions.webServerConfig.extendRenderOpts.nextFontManifest;
+    }
+    renderHTML(req, res, pathname, query, renderOpts) {
+        const { renderToHTML } = this.serverOptions.webServerConfig;
+        if (!renderToHTML) {
+            throw new Error("Invariant: routeModule should be configured when rendering pages");
+        }
+        // For edge runtime if the pathname hit as /_not-found entrypoint,
+        // override the pathname to /404 for rendering
+        if (pathname === _constants.UNDERSCORE_NOT_FOUND_ROUTE) {
+            pathname = "/404";
+        }
+        return renderToHTML(req, res, pathname, query, Object.assign(renderOpts, {
+            disableOptimizedLoading: true,
+            runtime: "experimental-edge"
+        }));
+    }
+    async sendRenderResult(_req, res, options) {
+        res.setHeader("X-Edge-Runtime", "1");
+        // Add necessary headers.
+        // @TODO: Share the isomorphic logic with server/send-payload.ts.
+        if (options.poweredByHeader && options.type === "html") {
+            res.setHeader("X-Powered-By", "Next.js");
+        }
+        if (!res.getHeader("Content-Type")) {
+            res.setHeader("Content-Type", options.result.contentType ? options.result.contentType : options.type === "json" ? "application/json" : "text/html; charset=utf-8");
+        }
+        let promise;
+        if (options.result.isDynamic) {
+            promise = options.result.pipeTo(res.transformStream.writable);
+        } else {
+            const payload = options.result.toUnchunkedString();
+            res.setHeader("Content-Length", String((0, _web.byteLength)(payload)));
+            if (options.generateEtags) {
+                res.setHeader("ETag", (0, _etag.generateETag)(payload));
+            }
+            res.body(payload);
+        }
+        res.send();
+        // If we have a promise, wait for it to resolve.
+        if (promise) await promise;
+    }
+    async findPageComponents({ page, query, params, url: _url }) {
+        const result = await this.serverOptions.webServerConfig.loadComponent(page);
+        if (!result) return null;
+        return {
+            query: {
+                ...query || {},
+                ...params || {}
+            },
+            components: result
+        };
+    }
+    // Below are methods that are not implemented by the web server as they are
+    // handled by the upstream proxy (edge runtime or node server).
+    async runApi() {
+        // This web server does not need to handle API requests.
+        return true;
+    }
+    async handleApiRequest() {
+        // Edge API requests are handled separately in minimal mode.
+        return false;
+    }
+    loadEnvConfig() {
+    // The web server does not need to load the env config. This is done by the
+    // runtime already.
+    }
+    getPublicDir() {
+        // Public files are not handled by the web server.
+        return "";
+    }
+    getHasStaticDir() {
+        return false;
+    }
+    async getFallback() {
+        return "";
+    }
+    getFontManifest() {
+        return undefined;
+    }
+    handleCompression() {
+    // For the web server layer, compression is automatically handled by the
+    // upstream proxy (edge runtime or node server) and we can simply skip here.
+    }
+    async handleUpgrade() {
+    // The web server does not support web sockets.
+    }
+    async getFallbackErrorComponents(_url) {
+        // The web server does not need to handle fallback errors in production.
+        return null;
+    }
+    getRoutesManifest() {
+        // The web server does not need to handle rewrite rules. This is done by the
+        // upstream proxy (edge runtime or node server).
+        return undefined;
+    }
+    getMiddleware() {
+        // The web server does not need to handle middleware. This is done by the
+        // upstream proxy (edge runtime or node server).
+        return undefined;
+    }
+    getFilesystemPaths() {
+        return new Set();
+    }
+    async getPrefetchRsc() {
+        return null;
+    }
+    getinterceptionRoutePatterns() {
+        var _this_serverOptions_webServerConfig_interceptionRouteRewrites;
+        return ((_this_serverOptions_webServerConfig_interceptionRouteRewrites = this.serverOptions.webServerConfig.interceptionRouteRewrites) == null ? void 0 : _this_serverOptions_webServerConfig_interceptionRouteRewrites.map((rewrite)=>new RegExp((0, _buildcustomroute.buildCustomRoute)("rewrite", rewrite).regex))) ?? [];
+    }
+}
+
+//# sourceMappingURL=web-server.js.map
