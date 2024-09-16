@@ -11,36 +11,14 @@ const ImageUploader: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
+      handleFileUpload(event.target.files[0]);
     }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      alert('Please select an image file');
-      return;
-    }
-
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-
-    try {
-      const response = await axios.post('/api/ocr', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setResult(response.data.text);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('An error occurred while processing the image');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await handleFileUpload(file);
+  const handleCapturePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedFile(event.target.files[0]);
+      handleFileUpload(event.target.files[0]);
     }
   };
 
@@ -86,10 +64,15 @@ const ImageUploader: React.FC = () => {
       <label htmlFor="cameraInput" className="btn btn-secondary">
         Take Photo
       </label>
-      
-      <button onClick={handleUpload} disabled={!selectedFile || isLoading}>
-        {isLoading ? 'Processing...' : 'Upload and Process'}
-      </button>
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleCapturePhoto}
+        style={{ display: 'none' }}
+        id="cameraInput"
+      />
+      {isLoading && <p>Processing...</p>}
       {result && (
         <div>
           <h3>OCR Result:</h3>
