@@ -116,6 +116,4 @@ times.txt
 /*.snap
 /*_source.tar.bz2
 node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node
-node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node
-node_modules/
 node_modules/
