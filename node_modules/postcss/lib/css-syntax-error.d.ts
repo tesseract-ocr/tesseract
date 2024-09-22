@@ -49,7 +49,7 @@ declare namespace CssSyntaxError {
  * }
  * ```
  */
-declare class CssSyntaxError_ {
+declare class CssSyntaxError_ extends Error {
   /**
    * Source column of the error.
    *

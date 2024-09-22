@@ -9,14 +9,12 @@ export {
   plugin,
   parse,
   list,
-
   document,
   comment,
   atRule,
   rule,
   decl,
   root,
-
   CssSyntaxError,
   Declaration,
   Container,
@@ -67,6 +65,5 @@ export {
   WarningOptions,
 
   // This is a class, but it’s not re-exported. That’s why it’s exported as type-only here.
-  type LazyResult,
-
+  type LazyResult
 } from './postcss.js'

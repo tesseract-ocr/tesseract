@@ -5,6 +5,12 @@ import Node, { ChildNode, ChildProps, NodeProps } from './node.js'
 import Rule from './rule.js'
 
 declare namespace Container {
+  export class ContainerWithChildren<
+    Child extends Node = ChildNode
+  > extends Container_<Child> {
+    nodes: Child[]
+  }
+
   export interface ValueOptions {
     /**
      * String that’s used to narrow down values and speed up the regexp search.
@@ -14,12 +20,25 @@ declare namespace Container {
     /**
      * An array of property names.
      */
-    props?: string[]
+    props?: readonly string[]
   }
 
   export interface ContainerProps extends NodeProps {
-    nodes?: (ChildNode | ChildProps)[]
+    nodes?: readonly (ChildProps | Node)[]
   }
+
+  /**
+   * All types that can be passed into container methods to create or add a new
+   * child node.
+   */
+  export type NewChild =
+    | ChildProps
+    | Node
+    | readonly ChildProps[]
+    | readonly Node[]
+    | readonly string[]
+    | string
+    | undefined
 
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   export { Container_ as default }
@@ -43,7 +62,27 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * root.nodes[0].nodes[0].prop //=> 'color'
    * ```
    */
-  nodes: Child[]
+  nodes: Child[] | undefined
+
+  /**
+   * An internal method that converts a {@link NewChild} into a list of actual
+   * child nodes that can then be added to this container.
+   *
+   * This ensures that the nodes' parent is set to this container, that they use
+   * the correct prototype chain, and that they're marked as dirty.
+   *
+   * @param mnodes The new node or nodes to add.
+   * @param sample A node from whose raws the new node's `before` raw should be
+   *               taken.
+   * @param type   This should be set to `'prepend'` if the new nodes will be
+   *               inserted at the beginning of the container.
+   * @hidden
+   */
+  protected normalize(
+    nodes: Container.NewChild,
+    sample: Node | undefined,
+    type?: 'prepend' | false
+  ): Child[]
 
   /**
    * Inserts new nodes to the end of the container.
@@ -65,14 +104,12 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * @param nodes New nodes.
    * @return This node for methods chain.
    */
-  append(
-    ...nodes: (ChildProps | ChildProps[] | Node | Node[] | string | string[])[]
-  ): this
-
+  append(...nodes: Container.NewChild[]): this
   assign(overrides: Container.ContainerProps | object): this
-  clone(overrides?: Partial<Container.ContainerProps>): Container<Child>
-  cloneAfter(overrides?: Partial<Container.ContainerProps>): Container<Child>
-  cloneBefore(overrides?: Partial<Container.ContainerProps>): Container<Child>
+  clone(overrides?: Partial<Container.ContainerProps>): this
+  cloneAfter(overrides?: Partial<Container.ContainerProps>): this
+
+  cloneBefore(overrides?: Partial<Container.ContainerProps>): this
 
   /**
    * Iterates through the container’s immediate children,
@@ -110,7 +147,6 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
   each(
     callback: (node: Child, index: number) => false | void
   ): false | undefined
-
   /**
    * Returns `true` if callback returns `true`
    * for all of the container’s children.
@@ -125,6 +161,7 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
   every(
     condition: (node: Child, index: number, nodes: Child[]) => boolean
   ): boolean
+
   /**
    * Returns a `child`’s index within the `Container#nodes` array.
    *
@@ -136,7 +173,6 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * @return Child index.
    */
   index(child: Child | number): number
-
   /**
    * Insert new node after old node within the container.
    *
@@ -144,10 +180,8 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * @param newNode New node.
    * @return This node for methods chain.
    */
-  insertAfter(
-    oldNode: Child | number,
-    newNode: Child | Child[] | ChildProps | ChildProps[] | string | string[]
-  ): this
+  insertAfter(oldNode: Child | number, newNode: Container.NewChild): this
+
   /**
    * Insert new node before old node within the container.
    *
@@ -159,10 +193,7 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * @param newNode New node.
    * @return This node for methods chain.
    */
-  insertBefore(
-    oldNode: Child | number,
-    newNode: Child | Child[] | ChildProps | ChildProps[] | string | string[]
-  ): this
+  insertBefore(oldNode: Child | number, newNode: Container.NewChild): this
 
   /**
    * Traverses the container’s descendant nodes, calling callback
@@ -201,9 +232,7 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * @param nodes New nodes.
    * @return This node for methods chain.
    */
-  prepend(
-    ...nodes: (ChildProps | ChildProps[] | Node | Node[] | string | string[])[]
-  ): this
+  prepend(...nodes: Container.NewChild[]): this
   /**
    * Add child to the end of the node.
    *
@@ -265,8 +294,8 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
    * ```
    *
    * @param pattern      Replace pattern.
-   * @param {object} opts                Options to speed up the search.
-   * @param callback   String to replace pattern or callback
+   * @param {object} options             Options to speed up the search.
+   * @param replaced   String to replace pattern or callback
    *                                     that returns a new value. The callback
    *                                     will receive the same arguments
    *                                     as those passed to a function parameter
@@ -447,6 +476,8 @@ declare abstract class Container_<Child extends Node = ChildNode> extends Node {
   get last(): Child | undefined
 }
 
-declare class Container<Child extends Node = ChildNode> extends Container_<Child> {}
+declare class Container<
+  Child extends Node = ChildNode
+> extends Container_<Child> {}
 
 export = Container

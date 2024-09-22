@@ -27,7 +27,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "app/components/ImageUploader.jsx"  ],
   "exclude": [
     "node_modules"
   ]

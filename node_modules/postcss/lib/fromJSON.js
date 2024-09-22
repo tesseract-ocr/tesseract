@@ -1,10 +1,10 @@
 'use strict'
 
-let Declaration = require('./declaration')
-let PreviousMap = require('./previous-map')
-let Comment = require('./comment')
 let AtRule = require('./at-rule')
+let Comment = require('./comment')
+let Declaration = require('./declaration')
 let Input = require('./input')
+let PreviousMap = require('./previous-map')
 let Root = require('./root')
 let Rule = require('./rule')
 

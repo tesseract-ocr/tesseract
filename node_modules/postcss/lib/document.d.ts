@@ -5,7 +5,7 @@ import Root from './root.js'
 
 declare namespace Document {
   export interface DocumentProps extends ContainerProps {
-    nodes?: Root[]
+    nodes?: readonly Root[]
 
     /**
      * Information to generate byte-to-byte equal node string as it was
@@ -35,15 +35,16 @@ declare namespace Document {
  * ```
  */
 declare class Document_ extends Container<Root> {
+  nodes: Root[]
   parent: undefined
   type: 'document'
 
   constructor(defaults?: Document.DocumentProps)
 
   assign(overrides: Document.DocumentProps | object): this
-  clone(overrides?: Partial<Document.DocumentProps>): Document
-  cloneAfter(overrides?: Partial<Document.DocumentProps>): Document
-  cloneBefore(overrides?: Partial<Document.DocumentProps>): Document
+  clone(overrides?: Partial<Document.DocumentProps>): this
+  cloneAfter(overrides?: Partial<Document.DocumentProps>): this
+  cloneBefore(overrides?: Partial<Document.DocumentProps>): this
 
   /**
    * Returns a `Result` instance representing the document’s CSS roots.

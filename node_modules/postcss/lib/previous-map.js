@@ -1,8 +1,8 @@
 'use strict'
 
-let { SourceMapConsumer, SourceMapGenerator } = require('source-map-js')
 let { existsSync, readFileSync } = require('fs')
 let { dirname, join } = require('path')
+let { SourceMapConsumer, SourceMapGenerator } = require('source-map-js')
 
 function fromBase64(str) {
   if (Buffer) {
@@ -41,12 +41,14 @@ class PreviousMap {
     let charsetUri = /^data:application\/json;charset=utf-?8,/
     let uri = /^data:application\/json,/
 
-    if (charsetUri.test(text) || uri.test(text)) {
-      return decodeURIComponent(text.substr(RegExp.lastMatch.length))
+    let uriMatch = text.match(charsetUri) || text.match(uri)
+    if (uriMatch) {
+      return decodeURIComponent(text.substr(uriMatch[0].length))
     }
 
-    if (baseCharsetUri.test(text) || baseUri.test(text)) {
-      return fromBase64(text.substr(RegExp.lastMatch.length))
+    let baseUriMatch = text.match(baseCharsetUri) || text.match(baseUri)
+    if (baseUriMatch) {
+      return fromBase64(text.substr(baseUriMatch[0].length))
     }
 
     let encoding = text.match(/data:application\/json;([^,]+),/)[1]
@@ -67,7 +69,7 @@ class PreviousMap {
   }
 
   loadAnnotation(css) {
-    let comments = css.match(/\/\*\s*# sourceMappingURL=/gm)
+    let comments = css.match(/\/\*\s*# sourceMappingURL=/g)
     if (!comments) return
 
     // sourceMappingURLs from comments, strings, etc.

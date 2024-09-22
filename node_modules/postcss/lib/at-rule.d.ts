@@ -1,4 +1,7 @@
-import Container, { ContainerProps } from './container.js'
+import Container, {
+  ContainerProps,
+  ContainerWithChildren
+} from './container.js'
 
 declare namespace AtRule {
   export interface AtRuleRaws extends Record<string, unknown> {
@@ -77,15 +80,47 @@ declare namespace AtRule {
  */
 declare class AtRule_ extends Container {
   /**
+   * An array containing the layer’s children.
+   *
+   * ```js
+   * const root = postcss.parse('@layer example { a { color: black } }')
+   * const layer = root.first
+   * layer.nodes.length           //=> 1
+   * layer.nodes[0].selector      //=> 'a'
+   * ```
+   *
+   * Can be `undefinded` if the at-rule has no body.
+   *
+   * ```js
+   * const root = postcss.parse('@layer a, b, c;')
+   * const layer = root.first
+   * layer.nodes //=> undefined
+   * ```
+   */
+  nodes: Container['nodes']
+  parent: ContainerWithChildren | undefined
+
+  raws: AtRule.AtRuleRaws
+  type: 'atrule'
+  constructor(defaults?: AtRule.AtRuleProps)
+  assign(overrides: AtRule.AtRuleProps | object): this
+
+  clone(overrides?: Partial<AtRule.AtRuleProps>): this
+
+  cloneAfter(overrides?: Partial<AtRule.AtRuleProps>): this
+
+  cloneBefore(overrides?: Partial<AtRule.AtRuleProps>): this
+  /**
    * The at-rule’s name immediately follows the `@`.
    *
    * ```js
    * const root  = postcss.parse('@media print {}')
-   * media.name //=> 'media'
    * const media = root.first
+   * media.name //=> 'media'
    * ```
    */
-  name: string
+  get name(): string
+  set name(value: string)
   /**
    * The at-rule’s parameters, the values that follow the at-rule’s name
    * but precede any `{}` block.
@@ -96,18 +131,8 @@ declare class AtRule_ extends Container {
    * media.params //=> 'print, screen'
    * ```
    */
-  params: string
-  parent: Container | undefined
-
-  raws: AtRule.AtRuleRaws
-
-  type: 'atrule'
-
-  constructor(defaults?: AtRule.AtRuleProps)
-  assign(overrides: AtRule.AtRuleProps | object): this
-  clone(overrides?: Partial<AtRule.AtRuleProps>): AtRule
-  cloneAfter(overrides?: Partial<AtRule.AtRuleProps>): AtRule
-  cloneBefore(overrides?: Partial<AtRule.AtRuleProps>): AtRule
+  get params(): string
+  set params(value: string)
 }
 
 declare class AtRule extends AtRule_ {}

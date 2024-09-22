@@ -29,8 +29,8 @@ module.exports = function tokenizer(input, options = {}) {
   let css = input.css.valueOf()
   let ignore = options.ignoreErrors
 
-  let code, next, quote, content, escape
-  let escaped, escapePos, prev, n, currentToken
+  let code, content, escape, next, quote
+  let currentToken, escaped, escapePos, n, prev
 
   let length = css.length
   let pos = 0

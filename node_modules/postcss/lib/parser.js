@@ -1,11 +1,11 @@
 'use strict'
 
-let Declaration = require('./declaration')
-let tokenizer = require('./tokenize')
-let Comment = require('./comment')
 let AtRule = require('./at-rule')
+let Comment = require('./comment')
+let Declaration = require('./declaration')
 let Root = require('./root')
 let Rule = require('./rule')
+let tokenizer = require('./tokenize')
 
 const SAFE_COMMENT_NEIGHBOR = {
   empty: true,
@@ -28,7 +28,6 @@ class Parser {
     this.current = this.root
     this.spaces = ''
     this.semicolon = false
-    this.customProperty = false
 
     this.createTokenizer()
     this.root.source = { input, start: { column: 1, line: 1, offset: 0 } }
@@ -144,7 +143,7 @@ class Parser {
 
   colon(tokens) {
     let brackets = 0
-    let token, type, prev
+    let prev, token, type
     for (let [i, element] of tokens.entries()) {
       token = element
       type = token[0]
@@ -268,12 +267,12 @@ class Parser {
         let str = ''
         for (let j = i; j > 0; j--) {
           let type = cache[j][0]
-          if (str.trim().indexOf('!') === 0 && type !== 'space') {
+          if (str.trim().startsWith('!') && type !== 'space') {
             break
           }
           str = cache.pop()[1] + str
         }
-        if (str.trim().indexOf('!') === 0) {
+        if (str.trim().startsWith('!')) {
           node.important = true
           node.raws.important = str
           tokens = cache

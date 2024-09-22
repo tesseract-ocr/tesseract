@@ -1,13 +1,13 @@
 'use strict'
 
+let { nanoid } = require('nanoid/non-secure')
+let { isAbsolute, resolve } = require('path')
 let { SourceMapConsumer, SourceMapGenerator } = require('source-map-js')
 let { fileURLToPath, pathToFileURL } = require('url')
-let { isAbsolute, resolve } = require('path')
-let { nanoid } = require('nanoid/non-secure')
 
-let terminalHighlight = require('./terminal-highlight')
 let CssSyntaxError = require('./css-syntax-error')
 let PreviousMap = require('./previous-map')
+let terminalHighlight = require('./terminal-highlight')
 
 let fromOffsetCache = Symbol('fromOffsetCache')
 
@@ -61,7 +61,7 @@ class Input {
   }
 
   error(message, line, column, opts = {}) {
-    let result, endLine, endColumn
+    let endColumn, endLine, result
 
     if (line && typeof line === 'object') {
       let start = line

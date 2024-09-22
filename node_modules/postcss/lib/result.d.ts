@@ -39,7 +39,6 @@ declare namespace Result {
     plugin?: string
   }
 
-
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   export { Result_ as default }
 }

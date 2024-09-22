@@ -1,14 +1,14 @@
 'use strict'
 
-let { isClean, my } = require('./symbols')
-let MapGenerator = require('./map-generator')
-let stringify = require('./stringify')
 let Container = require('./container')
 let Document = require('./document')
-let warnOnce = require('./warn-once')
-let Result = require('./result')
+let MapGenerator = require('./map-generator')
 let parse = require('./parse')
+let Result = require('./result')
 let Root = require('./root')
+let stringify = require('./stringify')
+let { isClean, my } = require('./symbols')
+let warnOnce = require('./warn-once')
 
 const TYPE_TO_CLASS_NAME = {
   atrule: 'AtRule',

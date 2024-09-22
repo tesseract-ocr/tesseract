@@ -1,8 +1,8 @@
 'use strict'
 
 let Container = require('./container')
-let Parser = require('./parser')
 let Input = require('./input')
+let Parser = require('./parser')
 
 function parse(css, opts) {
   let input = new Input(css, opts)

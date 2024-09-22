@@ -52,24 +52,23 @@ class CssSyntaxError extends Error {
 
     let css = this.source
     if (color == null) color = pico.isColorSupported
-    if (terminalHighlight) {
-      if (color) css = terminalHighlight(css)
+
+    let aside = text => text
+    let mark = text => text
+    let highlight = text => text
+    if (color) {
+      let { bold, gray, red } = pico.createColors(true)
+      mark = text => bold(red(text))
+      aside = text => gray(text)
+      if (terminalHighlight) {
+        highlight = text => terminalHighlight(text)
+      }
     }
 
     let lines = css.split(/\r?\n/)
     let start = Math.max(this.line - 3, 0)
     let end = Math.min(this.line + 2, lines.length)
-
     let maxWidth = String(end).length
-
-    let mark, aside
-    if (color) {
-      let { bold, gray, red } = pico.createColors(true)
-      mark = text => bold(red(text))
-      aside = text => gray(text)
-    } else {
-      mark = aside = str => str
-    }
 
     return lines
       .slice(start, end)
@@ -77,12 +76,46 @@ class CssSyntaxError extends Error {
         let number = start + 1 + index
         let gutter = ' ' + (' ' + number).slice(-maxWidth) + ' | '
         if (number === this.line) {
+          if (line.length > 160) {
+            let padding = 20
+            let subLineStart = Math.max(0, this.column - padding)
+            let subLineEnd = Math.max(
+              this.column + padding,
+              this.endColumn + padding
+            )
+            let subLine = line.slice(subLineStart, subLineEnd)
+
+            let spacing =
+              aside(gutter.replace(/\d/g, ' ')) +
+              line
+                .slice(0, Math.min(this.column - 1, padding - 1))
+                .replace(/[^\t]/g, ' ')
+
+            return (
+              mark('>') +
+              aside(gutter) +
+              highlight(subLine) +
+              '\n ' +
+              spacing +
+              mark('^')
+            )
+          }
+
           let spacing =
             aside(gutter.replace(/\d/g, ' ')) +
             line.slice(0, this.column - 1).replace(/[^\t]/g, ' ')
-          return mark('>') + aside(gutter) + line + '\n ' + spacing + mark('^')
+
+          return (
+            mark('>') +
+            aside(gutter) +
+            highlight(line) +
+            '\n ' +
+            spacing +
+            mark('^')
+          )
         }
-        return ' ' + aside(gutter) + line
+
+        return ' ' + aside(gutter) + highlight(line)
       })
       .join('\n')
   }

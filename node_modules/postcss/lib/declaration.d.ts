@@ -1,4 +1,4 @@
-import Container from './container.js'
+import { ContainerWithChildren } from './container.js'
 import Node from './node.js'
 
 declare namespace Declaration {
@@ -63,6 +63,19 @@ declare namespace Declaration {
  * ```
  */
 declare class Declaration_ extends Node {
+  parent: ContainerWithChildren | undefined
+  raws: Declaration.DeclarationRaws
+
+  type: 'decl'
+
+  constructor(defaults?: Declaration.DeclarationProps)
+  assign(overrides: Declaration.DeclarationProps | object): this
+
+  clone(overrides?: Partial<Declaration.DeclarationProps>): this
+
+  cloneAfter(overrides?: Partial<Declaration.DeclarationProps>): this
+
+  cloneBefore(overrides?: Partial<Declaration.DeclarationProps>): this
   /**
    * It represents a specificity of the declaration.
    *
@@ -77,10 +90,9 @@ declare class Declaration_ extends Node {
    * root.first.last.important  //=> undefined
    * ```
    */
-  important: boolean
+  get important(): boolean
 
-  parent: Container | undefined
-
+  set important(value: boolean)
   /**
    * The property name for a CSS declaration.
    *
@@ -91,12 +103,9 @@ declare class Declaration_ extends Node {
    * decl.prop //=> 'color'
    * ```
    */
-  prop: string
+  get prop(): string
 
-  raws: Declaration.DeclarationRaws
-
-  type: 'decl'
-
+  set prop(value: string)
   /**
    * The property value for a CSS declaration.
    *
@@ -114,8 +123,8 @@ declare class Declaration_ extends Node {
    * decl.value //=> 'black'
    * ```
    */
-  value: string
-
+  get value(): string
+  set value(value: string)
   /**
    * It represents a getter that returns `true` if a declaration starts with
    * `--` or `$`, which are used to declare variables in CSS and SASS/SCSS.
@@ -134,13 +143,7 @@ declare class Declaration_ extends Node {
    * one.variable //=> true
    * ```
    */
-  variable: boolean
-
-  constructor(defaults?: Declaration.DeclarationProps)
-  assign(overrides: Declaration.DeclarationProps | object): this
-  clone(overrides?: Partial<Declaration.DeclarationProps>): Declaration
-  cloneAfter(overrides?: Partial<Declaration.DeclarationProps>): Declaration
-  cloneBefore(overrides?: Partial<Declaration.DeclarationProps>): Declaration
+  get variable(): boolean
 }
 
 declare class Declaration extends Declaration_ {}

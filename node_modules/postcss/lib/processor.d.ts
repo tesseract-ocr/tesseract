@@ -51,7 +51,7 @@ declare class Processor_ {
   /**
    * @param plugins PostCSS plugins
    */
-  constructor(plugins?: AcceptedPlugin[])
+  constructor(plugins?: readonly AcceptedPlugin[])
 
   /**
    * Parses source CSS and returns a `LazyResult` Promise proxy.

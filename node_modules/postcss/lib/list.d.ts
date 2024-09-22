@@ -47,11 +47,14 @@ declare namespace list {
      * @param last boolean indicator.
      * @return Split values.
      */
-    split(string: string, separators: string[], last: boolean): string[]
+    split(
+      string: string,
+      separators: readonly string[],
+      last: boolean
+    ): string[]
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
 declare const list: list.List
 
 export = list

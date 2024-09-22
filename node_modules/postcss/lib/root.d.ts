@@ -54,6 +54,7 @@ declare namespace Root {
  * ```
  */
 declare class Root_ extends Container {
+  nodes: NonNullable<Container['nodes']>
   parent: Document | undefined
   raws: Root.RootRaws
   type: 'root'
@@ -61,9 +62,9 @@ declare class Root_ extends Container {
   constructor(defaults?: Root.RootProps)
 
   assign(overrides: object | Root.RootProps): this
-  clone(overrides?: Partial<Root.RootProps>): Root
-  cloneAfter(overrides?: Partial<Root.RootProps>): Root
-  cloneBefore(overrides?: Partial<Root.RootProps>): Root
+  clone(overrides?: Partial<Root.RootProps>): this
+  cloneAfter(overrides?: Partial<Root.RootProps>): this
+  cloneBefore(overrides?: Partial<Root.RootProps>): this
 
   /**
    * Returns a `Result` instance representing the root’s CSS.
@@ -75,7 +76,7 @@ declare class Root_ extends Container {
    * const result = root1.toResult({ to: 'all.css', map: true })
    * ```
    *
-   * @param opts Options.
+   * @param options Options.
    * @return Result with current root’s CSS.
    */
   toResult(options?: ProcessOptions): Result

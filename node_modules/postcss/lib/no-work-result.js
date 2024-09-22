@@ -1,10 +1,10 @@
 'use strict'
 
 let MapGenerator = require('./map-generator')
-let stringify = require('./stringify')
-let warnOnce = require('./warn-once')
 let parse = require('./parse')
 const Result = require('./result')
+let stringify = require('./stringify')
+let warnOnce = require('./warn-once')
 
 class NoWorkResult {
   constructor(processor, css, opts) {
@@ -37,6 +37,9 @@ class NoWorkResult {
       if (generatedMap) {
         this.result.map = generatedMap
       }
+    } else {
+      map.clearAnnotation()
+      this.result.css = map.css
     }
   }
 

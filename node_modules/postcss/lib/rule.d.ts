@@ -1,4 +1,7 @@
-import Container, { ContainerProps } from './container.js'
+import Container, {
+  ContainerProps,
+  ContainerWithChildren
+} from './container.js'
 
 declare namespace Rule {
   export interface RuleRaws extends Record<string, unknown> {
@@ -37,14 +40,21 @@ declare namespace Rule {
     semicolon?: boolean
   }
 
-  export interface RuleProps extends ContainerProps {
+  export type RuleProps = {
     /** Information used to generate byte-to-byte equal node string as it was in the origin input. */
     raws?: RuleRaws
-    /** Selector or selectors of the rule. */
-    selector?: string
-    /** Selectors of the rule represented as an array of strings. */
-    selectors?: string[]
-  }
+  } & (
+      | {
+          /** Selector or selectors of the rule. */
+          selector: string
+          selectors?: never
+        }
+      | {
+          selector?: never
+          /** Selectors of the rule represented as an array of strings. */
+          selectors: readonly string[]
+        }
+    ) & ContainerProps
 
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   export { Rule_ as default }
@@ -69,8 +79,18 @@ declare namespace Rule {
  * ```
  */
 declare class Rule_ extends Container {
-  parent: Container | undefined
+  nodes: NonNullable<Container['nodes']>
+  parent: ContainerWithChildren | undefined
   raws: Rule.RuleRaws
+  type: 'rule'
+  constructor(defaults?: Rule.RuleProps)
+
+  assign(overrides: object | Rule.RuleProps): this
+  clone(overrides?: Partial<Rule.RuleProps>): this
+
+  cloneAfter(overrides?: Partial<Rule.RuleProps>): this
+
+  cloneBefore(overrides?: Partial<Rule.RuleProps>): this
   /**
    * The rule’s full selector represented as a string.
    *
@@ -80,8 +100,8 @@ declare class Rule_ extends Container {
    * rule.selector //=> 'a, b'
    * ```
    */
-  selector: string
-
+  get selector(): string
+  set selector(value: string)
   /**
    * An array containing the rule’s individual selectors.
    * Groups of selectors are split at commas.
@@ -97,15 +117,8 @@ declare class Rule_ extends Container {
    * rule.selector //=> 'a, strong'
    * ```
    */
-  selectors: string[]
-
-  type: 'rule'
-
-  constructor(defaults?: Rule.RuleProps)
-  assign(overrides: object | Rule.RuleProps): this
-  clone(overrides?: Partial<Rule.RuleProps>): Rule
-  cloneAfter(overrides?: Partial<Rule.RuleProps>): Rule
-  cloneBefore(overrides?: Partial<Rule.RuleProps>): Rule
+  get selectors(): string[]
+  set selectors(values: string[])
 }
 
 declare class Rule extends Rule_ {}

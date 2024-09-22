@@ -2,7 +2,7 @@ import { RawSourceMap, SourceMapGenerator } from 'source-map-js'
 
 import AtRule, { AtRuleProps } from './at-rule.js'
 import Comment, { CommentProps } from './comment.js'
-import Container, { ContainerProps } from './container.js'
+import Container, { ContainerProps, NewChild } from './container.js'
 import CssSyntaxError from './css-syntax-error.js'
 import Declaration, { DeclarationProps } from './declaration.js'
 import Document, { DocumentProps } from './document.js'
@@ -28,13 +28,22 @@ type DocumentProcessor = (
   document: Document,
   helper: postcss.Helpers
 ) => Promise<void> | void
-type RootProcessor = (root: Root, helper: postcss.Helpers) => Promise<void> | void
+type RootProcessor = (
+  root: Root,
+  helper: postcss.Helpers
+) => Promise<void> | void
 type DeclarationProcessor = (
   decl: Declaration,
   helper: postcss.Helpers
 ) => Promise<void> | void
-type RuleProcessor = (rule: Rule, helper: postcss.Helpers) => Promise<void> | void
-type AtRuleProcessor = (atRule: AtRule, helper: postcss.Helpers) => Promise<void> | void
+type RuleProcessor = (
+  rule: Rule,
+  helper: postcss.Helpers
+) => Promise<void> | void
+type AtRuleProcessor = (
+  atRule: AtRule,
+  helper: postcss.Helpers
+) => Promise<void> | void
 type CommentProcessor = (
   comment: Comment,
   helper: postcss.Helpers
@@ -161,6 +170,7 @@ declare namespace postcss {
     LazyResult,
     list,
     Message,
+    NewChild,
     Node,
     NodeErrorOptions,
     NodeProps,
@@ -176,9 +186,9 @@ declare namespace postcss {
     WarningOptions
   }
 
-  export type SourceMap = SourceMapGenerator & {
+  export type SourceMap = {
     toJSON(): RawSourceMap
-  }
+  } & SourceMapGenerator
 
   export type Helpers = { postcss: Postcss; result: Result } & Postcss
 
@@ -309,7 +319,7 @@ declare namespace postcss {
      * The path of the CSS source file. You should always set `from`,
      * because it is used in source map generation and syntax error messages.
      */
-    from?: string
+    from?: string | undefined
 
     /**
      * Source map options
@@ -435,7 +445,9 @@ declare namespace postcss {
  * @param plugins PostCSS plugins.
  * @return Processor to process multiple CSS.
  */
-declare function postcss(plugins?: postcss.AcceptedPlugin[]): Processor
+declare function postcss(
+  plugins?: readonly postcss.AcceptedPlugin[]
+): Processor
 declare function postcss(...plugins: postcss.AcceptedPlugin[]): Processor
 
 export = postcss

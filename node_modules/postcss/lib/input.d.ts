@@ -174,6 +174,9 @@ declare class Input_ {
     endLine?: number,
     endColumn?: number
   ): false | Input.FilePosition
+  /** Converts this to a JSON-friendly object representation. */
+  toJSON(): object
+
   /**
    * The CSS source identifier. Contains `Input#file` if the user
    * set the `from` option, or `Input#id` if they did not.

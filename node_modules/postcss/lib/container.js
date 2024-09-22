@@ -1,11 +1,11 @@
 'use strict'
 
-let { isClean, my } = require('./symbols')
-let Declaration = require('./declaration')
 let Comment = require('./comment')
+let Declaration = require('./declaration')
 let Node = require('./node')
+let { isClean, my } = require('./symbols')
 
-let parse, Rule, AtRule, Root
+let AtRule, parse, Root, Rule
 
 function cleanSource(nodes) {
   return nodes.map(i => {
@@ -15,11 +15,11 @@ function cleanSource(nodes) {
   })
 }
 
-function markDirtyUp(node) {
+function markTreeDirty(node) {
   node[isClean] = false
   if (node.proxyOf.nodes) {
     for (let i of node.proxyOf.nodes) {
-      markDirtyUp(i)
+      markTreeDirty(i)
     }
   }
 }
@@ -153,7 +153,11 @@ class Container extends Node {
   insertBefore(exist, add) {
     let existIndex = this.index(exist)
     let type = existIndex === 0 ? 'prepend' : false
-    let nodes = this.normalize(add, this.proxyOf.nodes[existIndex], type).reverse()
+    let nodes = this.normalize(
+      add,
+      this.proxyOf.nodes[existIndex],
+      type
+    ).reverse()
     existIndex = this.index(exist)
     for (let node of nodes) this.proxyOf.nodes.splice(existIndex, 0, node)
 
@@ -173,6 +177,8 @@ class Container extends Node {
   normalize(nodes, sample) {
     if (typeof nodes === 'string') {
       nodes = cleanSource(parse(nodes).nodes)
+    } else if (typeof nodes === 'undefined') {
+      nodes = []
     } else if (Array.isArray(nodes)) {
       nodes = nodes.slice(0)
       for (let i of nodes) {
@@ -192,7 +198,7 @@ class Container extends Node {
         nodes.value = String(nodes.value)
       }
       nodes = [new Declaration(nodes)]
-    } else if (nodes.selector) {
+    } else if (nodes.selector || nodes.selectors) {
       nodes = [new Rule(nodes)]
     } else if (nodes.name) {
       nodes = [new AtRule(nodes)]
@@ -207,7 +213,9 @@ class Container extends Node {
       if (!i[my]) Container.rebuild(i)
       i = i.proxyOf
       if (i.parent) i.parent.removeChild(i)
-      if (i[isClean]) markDirtyUp(i)
+      if (i[isClean]) markTreeDirty(i)
+
+      if (!i.raws) i.raws = {}
       if (typeof i.raws.before === 'undefined') {
         if (sample && typeof sample.raws.before !== 'undefined') {
           i.raws.before = sample.raws.before.replace(/\S/g, '')
