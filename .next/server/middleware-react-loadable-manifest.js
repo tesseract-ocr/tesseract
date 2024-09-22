@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"app/page.js -> ./components/ImageUploader":{"id":5474,"files":["static/chunks/474.81d3fc8f79d89eea.js"]}}';
