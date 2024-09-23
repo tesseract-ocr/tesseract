@@ -200,7 +200,7 @@ inline void SoftmaxInPlace(int n, T *inout) {
     inout[i] = prob;
   }
   if (prob_total > 0) {
-    T inv_prob_total = 1.0/prob_total;
+    T inv_prob_total = 1 / prob_total;
     for (int i = 0; i < n; i++) {
       inout[i] *= inv_prob_total;
     }
