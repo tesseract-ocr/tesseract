@@ -126,7 +126,7 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 generate_export_header(common_training EXPORT_MACRO_NAME
                        TESS_COMMON_TRAINING_API)
-if (MSVC)
+if (MSVC AND BUILD_SHARED_LIBS)
   install(FILES $<TARGET_PDB_FILE:common_training> DESTINATION bin OPTIONAL)
 endif()
 project_group(common_training "Training Tools")
@@ -298,7 +298,7 @@ if(ICU_FOUND)
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  if (MSVC)
+  if (MSVC AND BUILD_SHARED_LIBS)
     install(FILES $<TARGET_PDB_FILE:unicharset_training> DESTINATION bin OPTIONAL)
   endif()
   generate_export_header(unicharset_training EXPORT_MACRO_NAME
