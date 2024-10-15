@@ -10,7 +10,7 @@ Name: @PACKAGE_NAME@
 Description: An OCR Engine that was developed at HP Labs between 1985 and 1995... and now at Google.
 URL: https://github.com/tesseract-ocr/tesseract
 Version: @VERSION@
-Requires.private: lept
-Libs: -L${libdir} -ltesseract @libarchive_LIBS@ @libcurl_LIBS@ @TENSORFLOW_LIBS@
+Requires.private: @LEPTONICA_LIBS@
+Libs: -L${libdir} -l@tesseract_OUTPUT_NAME@ @libarchive_LIBS@ @libcurl_LIBS@ @TENSORFLOW_LIBS@
 Libs.private: -lpthread
 Cflags: -I${includedir}
