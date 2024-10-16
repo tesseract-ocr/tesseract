@@ -14,8 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-12-clang-14-autotools, os: macos-12, cxx: clang++ }
-          #- { name: macos-12-gcc-11-autotools, os: macos-12, cxx: g++-11 }
+          - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
     - uses: actions/checkout@v4
@@ -114,7 +113,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-12-clang-14-autotools, os: macos-12, cxx: clang++ }
+          - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
     - uses: actions/checkout@v4
