@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default        
+          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
           - { name: macos-14-gcc-14-cmake, os: macos-14, cxx: g++-14 } #installed
           - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
 
