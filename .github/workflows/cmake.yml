@@ -14,11 +14,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-
-          - { name: macos-12-clang-14-cmake, os: macos-12, cxx: clang++ } # default
-          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
-
+          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default        
           - { name: macos-14-gcc-14-cmake, os: macos-14, cxx: g++-14 } #installed
+          - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
 
@@ -55,6 +53,8 @@ jobs:
            brew install ninja
            ninja --version
            cmake --version
+           clang++ --version
+           g++ --version
         if: runner.os == 'macOS'
 
       - name: Checkout Source
