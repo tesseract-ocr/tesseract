@@ -212,6 +212,7 @@ static void PrintHelpExtra(const char *program) {
       "  --tessdata-dir PATH   Specify the location of tessdata path.\n"
       "  --user-words PATH     Specify the location of user words file.\n"
       "  --user-patterns PATH  Specify the location of user patterns file.\n"
+      "  --lstm-num-threads N  Specify the number of threads for LSTM word recognition.\n"
       "  --dpi VALUE           Specify DPI for input image.\n"
       "  --loglevel LEVEL      Specify logging level. LEVEL can be\n"
       "                        ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL or OFF.\n"
@@ -404,6 +405,10 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       ++i;
     } else if (strcmp(argv[i], "--user-patterns") == 0 && i + 1 < argc) {
       vars_vec->push_back("user_patterns_file");
+      vars_values->push_back(argv[i + 1]);
+      ++i;
+    } else if (strcmp(argv[i], "--lstm-num-threads") == 0 && i + 1 < argc) {
+      vars_vec->push_back("lstm_num_threads");
       vars_values->push_back(argv[i + 1]);
       ++i;
     } else if (strcmp(argv[i], "--list-langs") == 0) {
