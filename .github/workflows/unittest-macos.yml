@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies (macOS Homebrew)
       run: |
            brew install autoconf automake cabextract libtool
-           brew install leptonica libarchive pango
+           brew install curl icu4c leptonica libarchive pango
     - name: Setup
       run: |
            ./autogen.sh
