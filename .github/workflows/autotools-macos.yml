@@ -29,11 +29,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-           brew install autoconf automake
-           brew install leptonica
-           brew install pango icu4c
-           brew install cabextract
-           brew install libarchive curl
+           brew install autoconf automake cabextract libtool
+           brew install curl icu4c leptonica libarchive pango
 
     - name: Setup Tesseract
       run: |
