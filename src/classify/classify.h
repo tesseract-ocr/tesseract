@@ -243,8 +243,8 @@ public:
   void DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class);
   bool AdaptableWord(WERD_RES *word);
   void EndAdaptiveClassifier();
-  void SettupPass1();
-  void SettupPass2();
+  void SetupPass1();
+  void SetupPass2();
   void AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices);
   void ClassifyAsNoise(ADAPT_RESULTS *Results);
   void ResetAdaptiveClassifierInternal();
