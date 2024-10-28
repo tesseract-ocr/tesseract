@@ -493,7 +493,7 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   }
 
   num_pts = ptaGetCount(bottom_pts);
-  // Create a interpolated polygon with stepsize 1
+  // Create an interpolated polygon with stepsize 1.
   for (int index = 0; index < num_pts - 1; ++index) {
     ptaGetIPt(bottom_pts, index, &x0, &y0);
     ptaGetIPt(bottom_pts, index + 1, &x1, &y1);
@@ -636,7 +636,7 @@ bool TessPAGERenderer::AddImageHandler(TessBaseAPI *api) {
         "pagecontent.xsd\">\n"
         "\t<Metadata");
 
-    // If a URL is used to recognize a image add it as <Metadata
+    // If a URL is used to recognize an image add it as <Metadata
     // externalRef="url">
     if (std::regex_search(api->GetInputName(),
                           std::regex("^(https?|ftp|ssh):"))) {
