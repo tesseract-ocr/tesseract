@@ -107,8 +107,11 @@ export PKG_CONFIG_PATH
 make all training
 MINGW_INSTALL=${PWD}${MINGW}
 make install-jars install training-install html prefix="$MINGW_INSTALL"
+test -d venv || python3 -m venv venv
+source venv/bin/activate
+pip install pefile
 mkdir -p dll
-ln -sv $($ROOTDIR/nsis/find_deps.py $MINGW_INSTALL/bin/*.exe $MINGW_INSTALL/bin/*.dll | sort | uniq) dll/
+ln -sv $("$ROOTDIR/nsis/find_deps.py" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL"/bin/*.dll) dll/
 make winsetup prefix="$MINGW_INSTALL"
 
 # Copy result for upload.
