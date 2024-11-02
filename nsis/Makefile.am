@@ -9,7 +9,7 @@ gitrev="$(shell git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdi
 .PHONY: winsetup
 
 Plugins/x86-unicode/INetC.dll:
-	curl -O https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
+	curl -OsS https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
 	unzip Inetc.zip $@
 
 winpath.exe: winpath.cpp

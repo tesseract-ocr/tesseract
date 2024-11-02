@@ -32,7 +32,7 @@ mkdir -p "$OUT"/tessdata
 (
 cd "$OUT"/tessdata
 test -f eng.traineddata || \
-  curl -L -O https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+  curl -sSL -O https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
 )
 
 # OSS-Fuzz requires static linking for the project specific libraries,

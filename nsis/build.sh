@@ -33,13 +33,6 @@ sudo apt-get install --assume-yes --no-install-recommends --quiet \
   mingw-w64-tools nsis g++-"$PKG_ARCH" \
   makepkg pacman-package-manager
 
-# Install pacman-package-manager and its dependencies (from Ubuntu 22.10).
-# sudo curl -Os http://de.archive.ubuntu.com/ubuntu/pool/universe/p/pacman-package-manager/pacman-package-manager_6.0.1-4_amd64.deb
-# sudo curl -Os http://de.archive.ubuntu.com/ubuntu/pool/universe/p/pacman-package-manager/libalpm13_6.0.1-4_amd64.deb
-# sudo curl -Os http://de.archive.ubuntu.com/ubuntu/pool/universe/p/pacman-package-manager/makepkg_6.0.1-4_amd64.deb
-# sudo dpkg -i *.deb || true
-# sudo apt-get install --fix-broken --assume-yes --no-install-recommends --quiet
-
 # Configure pacman.
 
 # Enable mirrorlist.
@@ -47,9 +40,9 @@ sudo sed -Ei 's/^#.*(Include.*mirrorlist)/\1/' /etc/pacman.conf
 (
 # Add msys key for pacman.
 cd /usr/share/keyrings
-sudo curl -Os https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2.gpg
-sudo curl -Os https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2-revoked
-sudo curl -Os https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2-trusted
+sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2.gpg
+sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2-revoked
+sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys2-trusted
 )
 (
 # Add active environments for pacman.
@@ -60,8 +53,8 @@ cat <<eod | sudo tee mirrorlist >/dev/null
 [mingw64]
 Include = /etc/pacman.d/mirrorlist.mingw
 eod
-sudo curl -O https://raw.githubusercontent.com/msys2/MSYS2-packages/master/pacman-mirrors/mirrorlist.mingw
-# sudo curl -O https://raw.githubusercontent.com/msys2/MSYS2-packages/master/pacman-mirrors/mirrorlist.msys
+sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-packages/master/pacman-mirrors/mirrorlist.mingw
+# sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-packages/master/pacman-mirrors/mirrorlist.msys
 )
 
 sudo pacman-key --init

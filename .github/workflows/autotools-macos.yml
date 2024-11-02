@@ -125,7 +125,7 @@ jobs:
 
     - name: Install Macports
       run: |
-        curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
+        curl -sSLO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
         # --remove-brew does not remove the Homebrew entries in bin,
         # so remove them now.
         rm -v $(brew --prefix)/bin/*
