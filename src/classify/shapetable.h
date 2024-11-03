@@ -26,6 +26,7 @@
 #include "fontinfo.h"
 #include "genericheap.h"
 #include "intmatcher.h"
+#include "tesserrstream.h"  // for tesserr
 
 namespace tesseract {
 
@@ -41,10 +42,10 @@ struct UnicharRating {
 
   // Print debug info.
   void Print() const {
-    tprintf(
-        "Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%u,"
-        " %zu fonts\n",
-        unichar_id, static_cast<double>(rating), adapted, config, feature_misses, fonts.size());
+    tesserr << "Unichar-id=" << unichar_id << ", rating=" << rating
+            << ", adapted=" << adapted << ", config=" << config
+            << ", misses=" << feature_misses << ", "
+            << fonts.size() << " fonts\n";
   }
 
   // Helper function to get the index of the first result with the required

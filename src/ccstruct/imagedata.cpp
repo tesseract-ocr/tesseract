@@ -27,6 +27,7 @@
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "tprintf.h"    // for tprintf
+#include "tesserrstream.h" // for tesserr
 
 #include "helpers.h"  // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "serialis.h" // for TFile
@@ -618,9 +619,10 @@ bool DocumentData::ReCachePages() {
     pages_.clear();
   } else if (loaded_pages > 1) {
     // Avoid lots of messages for training with single line images.
-    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
-            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
-            document_name_.c_str());
+    tesserr << "Loaded " << pages_.size() << '/' << loaded_pages << " lines ("
+            << pages_offset_ + 1 << '-'
+            << pages_offset_ + pages_.size() << ") of document "
+            << document_name_ << '\n';
   }
   set_total_pages(loaded_pages);
   return !pages_.empty();

@@ -23,6 +23,7 @@
 
 #include "fileio.h"
 #include "normstrngs.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tprintf.h"
 #include "unicharset.h"
 #include "unicode/uchar.h" // from libicu
@@ -100,7 +101,7 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar *> *boxes) {
   InsertSpaces(rtl_rules, vertical_rules, boxes);
   for (size_t i = 0; i < boxes->size(); ++i) {
     if ((*boxes)[i]->box_ == nullptr) {
-      tprintf("Null box at index %zu\n", i);
+      tesserr << "Null box at index " << i << '\n';
     }
   }
   if (rtl_rules) {

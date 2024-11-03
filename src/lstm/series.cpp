@@ -20,6 +20,7 @@
 #include "fullyconnected.h"
 #include "networkscratch.h"
 #include "scrollview.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tprintf.h"
 
 namespace tesseract {
@@ -164,7 +165,8 @@ void Series::SplitAt(unsigned last_start, Series **start, Series **end) {
   *start = nullptr;
   *end = nullptr;
   if (last_start >= stack_.size()) {
-    tprintf("Invalid split index %u must be in range [0,%zu]!\n", last_start, stack_.size() - 1);
+    tesserr << "Invalid split index " << last_start
+            << " must be in range [0," << stack_.size() - 1 << "]!\n";
     return;
   }
   auto *master_series = new Series("MasterSeries");

@@ -18,6 +18,7 @@
 
 #include "dict.h"
 
+#include "tesserrstream.h"  // for tesserr
 #include "tprintf.h"
 
 #include <cstdio>
@@ -410,10 +411,10 @@ int Dict::def_letter_is_okay(void *void_dawg_args, const UNICHARSET &unicharset,
   ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
 
   if (dawg_debug_level >= 3) {
-    tprintf(
-        "def_letter_is_okay: current unichar=%s word_end=%d"
-        " num active dawgs=%zu\n",
-        getUnicharset().debug_str(unichar_id).c_str(), word_end, dawg_args->active_dawgs->size());
+    tesserr << "def_letter_is_okay: current unichar="
+            << getUnicharset().debug_str(unichar_id)
+            << " word_end=" << word_end
+            << " num active dawgs=" << dawg_args->active_dawgs->size() << '\n';
   }
 
   // Do not accept words that contain kPatternUnicharID.
