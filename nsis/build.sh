@@ -99,7 +99,7 @@ export PKG_CONFIG_PATH
 
 make all training
 MINGW_INSTALL=${PWD}${MINGW}
-make install-jars install training-install html prefix="$MINGW_INSTALL"
+make install-jars install training-install html prefix="$MINGW_INSTALL" INSTALL_STRIP_FLAG=-s
 test -d venv || python3 -m venv venv
 source venv/bin/activate
 pip install pefile
