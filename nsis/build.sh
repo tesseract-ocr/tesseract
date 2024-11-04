@@ -76,8 +76,6 @@ sudo pacman -S --noconfirm \
  mingw-w64-x86_64-libtiff \
  mingw-w64-x86_64-libwebp
 
-sudo ln -sf "$PWD/.github/workflows/pkg-config-crosswrapper" "/usr/bin/$HOST-pkg-config"
-
 git config --global user.email "sw@weilnetz.de"
 git config --global user.name "Stefan Weil"
 git tag -a "v$TAG" -m "Tesseract $TAG"
