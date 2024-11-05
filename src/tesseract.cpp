@@ -112,6 +112,9 @@ static void PrintVersionInfo() {
 #if defined(HAVE_NEON) || defined(__aarch64__)
   if (tesseract::SIMDDetect::IsNEONAvailable())
     printf(" Found NEON\n");
+#elif defined(HAVE_RVV)
+  if (tesseract::SIMDDetect::IsRVVAvailable())
+    printf(" Found RVV\n");
 #else
   if (tesseract::SIMDDetect::IsAVX512BWAvailable()) {
     printf(" Found AVX512BW\n");

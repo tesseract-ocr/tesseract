@@ -63,6 +63,10 @@ public:
   static inline bool IsNEONAvailable() {
     return detector.neon_available_;
   }
+  // Returns true if RVV is available on this system.
+  static inline bool IsRVVAvailable() {
+    return detector.rvv_available_;
+  }
 
   // Update settings after config variable was set.
   static TESS_API void Update();
@@ -86,6 +90,8 @@ private:
   static TESS_API bool sse_available_;
   // If true, then NEON has been detected.
   static TESS_API bool neon_available_;
+  // If true, then RVV has been detected.
+  static TESS_API bool rvv_available_;
 };
 
 } // namespace tesseract
