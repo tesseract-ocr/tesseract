@@ -103,6 +103,8 @@ source venv/bin/activate
 pip install pefile
 mkdir -p dll
 ln -sv $("$ROOTDIR/nsis/find_deps.py" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL"/bin/*.dll) dll/
+ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libstdc++-6.dll dll/
+ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libgcc_s_seh-1.dll dll/
 make winsetup prefix="$MINGW_INSTALL"
 
 # Copy result for upload.
