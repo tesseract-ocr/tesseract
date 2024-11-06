@@ -28,10 +28,10 @@ PKG_ARCH=mingw-w64-${ARCH/_/-}
 # Install packages.
 sudo apt-get update --quiet
 sudo apt-get install --assume-yes --no-install-recommends --quiet \
-  asciidoc xsltproc docbook-xml docbook-xsl \
+  asciidoc curl xsltproc docbook-xml docbook-xsl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
   mingw-w64-tools nsis g++-"$PKG_ARCH" \
-  makepkg pacman-package-manager
+  makepkg pacman-package-manager python3-venv unzip
 
 # Configure pacman.
 
