@@ -8,6 +8,6 @@ Description: An OCR Engine that was developed at HP Labs (1985-1995) and Google 
 URL: https://github.com/tesseract-ocr/tesseract
 Version: @tesseract_VERSION@
 Requires.private: lept
-Libs: -L${libdir} -l@tesseract_OUTPUT_NAME@ @libarchive_LIBS@ @libcurl_LIBS@ @TENSORFLOW_LIBS@
+Libs: -L${libdir} -l@tesseract_OUTPUT_NAME@ @libarchive_LIBS@ @libcurl_LIBS@
 Libs.private:
 Cflags: -I${includedir}

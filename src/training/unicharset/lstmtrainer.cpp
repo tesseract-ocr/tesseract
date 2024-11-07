@@ -36,9 +36,6 @@
 #include "networkbuilder.h"
 #include "ratngs.h"
 #include "recodebeam.h"
-#ifdef INCLUDE_TENSORFLOW
-#  include "tfnetwork.h"
-#endif
 #include "tprintf.h"
 
 namespace tesseract {
@@ -185,23 +182,6 @@ bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index,
   tprintf("null char=%d\n", null_char_);
   return true;
 }
-
-// Initializes a trainer from a serialized TFNetworkModel proto.
-// Returns the global step of TensorFlow graph or 0 if failed.
-#ifdef INCLUDE_TENSORFLOW
-int LSTMTrainer::InitTensorFlowNetwork(const std::string &tf_proto) {
-  delete network_;
-  TFNetwork *tf_net = new TFNetwork("TensorFlow");
-  training_iteration_ = tf_net->InitFromProtoStr(tf_proto);
-  if (training_iteration_ == 0) {
-    tprintf("InitFromProtoStr failed!!\n");
-    return 0;
-  }
-  network_ = tf_net;
-  ASSERT_HOST(recoder_.code_range() == tf_net->num_classes());
-  return training_iteration_;
-}
-#endif
 
 // Resets all the iteration counters for fine tuning or traininng a head,
 // where we want the error reporting to reset.
