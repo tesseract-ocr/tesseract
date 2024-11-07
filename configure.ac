@@ -131,6 +131,7 @@ AM_CONDITIONAL([HAVE_AVX512F], false)
 AM_CONDITIONAL([HAVE_FMA], false)
 AM_CONDITIONAL([HAVE_SSE4_1], false)
 AM_CONDITIONAL([HAVE_NEON], false)
+AM_CONDITIONAL([HAVE_RVV], false)
 
 case "${host_cpu}" in
 
@@ -188,6 +189,16 @@ case "${host_cpu}" in
 
     ;;
 
+  riscv*)
+
+    AX_CHECK_COMPILE_FLAG([-march=rv64gcv], [rvv=true], [rvv=false], [$WERROR])
+    AM_CONDITIONAL([HAVE_RVV], [$rvv])
+    if $rvv; then
+      AC_DEFINE([HAVE_RVV], [1], [Enable RVV instructions])
+      check_for_rvv=1
+    fi
+    ;;
+
   *)
 
     AC_MSG_WARN([No compiler options for $host_cpu])
@@ -204,6 +215,16 @@ if test x$check_for_neon = x1; then
 
   if test $ac_cv_func_getauxval = no && test $ac_cv_func_elf_aux_info = no && test $ac_cv_func_android_getCpuFamily = no; then
       AC_MSG_WARN([NEON is available, but we don't know how to check for it.  Will not be able to use NEON.])
+  fi
+fi
+
+# additional checks for RVV targets
+if test x$check_for_rvv = x1; then
+  AC_MSG_NOTICE([checking how to detect RVV availability])
+  AC_CHECK_FUNCS([getauxval])
+
+  if test $ac_cv_func_getauxval = no; then
+      AC_MSG_WARN([RVV is available, but we don't know how to check for it.  Will not be able to use RVV.])
   fi
 fi
 
