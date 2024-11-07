@@ -270,25 +270,6 @@ AC_ARG_WITH([curl],
             AS_HELP_STRING([--with-curl],
                            [Build with libcurl which supports processing an image URL @<:@default=check@:>@]),
             [], [with_curl=check])
-AC_ARG_WITH([tensorflow],
-  AS_HELP_STRING([--with-tensorflow],
-                 [support TensorFlow @<:@default=check@:>@]),
-  [], [with_tensorflow=check])
-
-# Check whether to build with support for TensorFlow.
-AM_CONDITIONAL([TENSORFLOW], false)
-TENSORFLOW_LIBS=
-AS_IF([test "x$with_tensorflow" != xno],
-  [AC_CHECK_HEADERS([tensorflow/core/framework/graph.pb.h],
-    [AC_SUBST([TENSORFLOW_LIBS], ["-lprotobuf -ltensorflow_cc"])
-      AM_CONDITIONAL([TENSORFLOW], true)
-    ],
-    [if test "x$with_tensorflow" != xcheck; then
-      AC_MSG_FAILURE(
-        [--with-tensorflow was given, but test for libtensorflow-dev failed])
-     fi
-    ])
-  ])
 
 # https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
 m4_define([MY_CHECK_FRAMEWORK],
