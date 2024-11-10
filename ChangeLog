@@ -1,3 +1,21 @@
+2024-11-10 - V5.5.0
+* Set hOCR capabilities ocrp_dir and ocrp_lang unconditionally.
+* Calculate row bounding box in single-word mode per (issue #4304).
+* Reduce clock syscalls (#4303).
+* Several small performance and other code fixes.
+* Modernized code.
+* Print time for tessedit_timing_debug in milliseconds.
+* Print time for ErrorCounter::ComputeErrorRate in milliseconds.
+* cmake: Correctly set the soversion based on SemVer properties.
+* Do not export PDBs for static libraries (issue #4279).
+* Several other small fixes and improvements for builds and CI.
+* Modernize code for renderers and remove filename conversion for Windows (#4330).
+* Add build rule for Windows installer.
+* Support symbolic values for --oem and --psm options.
+* Remove Tensorflow support.
+* Add RISC-V V support (#4346).
+* Remove broken GitHub action msys2-4.1.1.
+
 2024-06-11 - V5.4.1
 * Avoid FP overflow in NormEvidenceOf (fixes issue #4257) (#4259)
 * Small build fixes and code improvements (#4262, #4263, #4266, #4267)
