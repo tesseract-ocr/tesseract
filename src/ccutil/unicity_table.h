@@ -80,7 +80,7 @@ public:
   int push_back(T object)  {
     auto idx = get_index(object);
     if (idx == -1) {
-      idx = table_.push_back(object);
+      idx = table_.push_back(std::move(object));
     }
     return idx;
   }
