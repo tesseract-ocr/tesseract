@@ -92,7 +92,7 @@ void BlamerBundle::SetSymbolTruth(const UNICHARSET &unicharset, const char *char
   if (id != INVALID_UNICHAR_ID) {
     std::string normed_uch(unicharset.get_normed_unichar(id));
     if (normed_uch.length() > 0) {
-      symbol_str = normed_uch;
+      symbol_str = std::move(normed_uch);
     }
   }
   int length = truth_word_.length();
