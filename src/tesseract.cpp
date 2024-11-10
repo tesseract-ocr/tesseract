@@ -351,8 +351,7 @@ static int stringToOEM(const std::string arg) {
     {"default", 3},
   };
   auto it = oem_map.find(arg);
-  printf("it: %d, %d\n", it == oem_map.end(), it->second);
-  return it->second;
+  return it == oem_map.end() ? -1 : it->second;
 }
 
 static int stringToPSM(const std::string arg) {
@@ -387,7 +386,7 @@ static int stringToPSM(const std::string arg) {
     {"raw_line", 13},
   };
   auto it = psm_map.find(arg);
-  return it->second;
+  return it == psm_map.end() ? -1 : it->second;
 }
 
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
