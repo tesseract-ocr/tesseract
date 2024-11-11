@@ -16,7 +16,6 @@ void build(Solution &s)
         libtesseract += "TESS_API"_api;
         libtesseract += "include/.*"_rr;
         libtesseract += "src/.+/.*"_rr;
-        libtesseract -= "src/lstm/.*\\.cc"_rr;
         libtesseract -= "src/training/.*"_rr;
 
         libtesseract.Public += "include"_idir;
