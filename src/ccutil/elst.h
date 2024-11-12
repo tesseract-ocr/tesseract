@@ -24,10 +24,9 @@
 #include "serialis.h"
 
 #include <cstdio>
+#include <memory>
 
 namespace tesseract {
-
-class ELIST_ITERATOR;
 
 /**********************************************************************
 This module implements list classes and iterators.
@@ -79,25 +78,43 @@ lists.
  *  walks the list.
  **********************************************************************/
 
-class ELIST_LINK {
-  friend class ELIST_ITERATOR;
-  friend class ELIST;
+// Forward declarations
+template<typename T>
+class ELIST_ITERATOR_T;
 
-  ELIST_LINK *next;
+template<typename T>
+class ELIST_LINK_T;
+
+template<typename T>
+class ELIST_T;
+
+template <typename U>
+struct is_shared_ptr : std::false_type {};
+
+template <typename U>
+struct is_shared_ptr<std::shared_ptr<U>> : std::true_type {};
+
+template<typename T>
+class ELIST_LINK_T {
+  friend class ELIST_ITERATOR_T<T>;
+  friend class ELIST_T<T>;
+
+protected:
+  T next;
 
 public:
-  ELIST_LINK() {
+  ELIST_LINK_T() {
     next = nullptr;
   }
   // constructor
 
   // The special copy constructor is used by lots of classes.
-  ELIST_LINK(const ELIST_LINK &) {
+  ELIST_LINK_T(const ELIST_LINK_T &) {
     next = nullptr;
   }
 
   // The special assignment operator is used by lots of classes.
-  void operator=(const ELIST_LINK &) {
+  void operator=(const ELIST_LINK_T &) {
     next = nullptr;
   }
 };
@@ -108,16 +125,19 @@ public:
  * Generic list class for singly linked lists with embedded links
  **********************************************************************/
 
-class TESS_API ELIST {
-  friend class ELIST_ITERATOR;
-
-  ELIST_LINK *last = nullptr; // End of list
+template<typename T>
+class TESS_API ELIST_T {
+  friend class ELIST_ITERATOR_T<T>;
+protected:
+  T last; // End of list
   //(Points to head)
-  ELIST_LINK *First() { // return first
+  T First() { // return first
     return last ? last->next : nullptr;
   }
 
 public:
+  ELIST_T(): last(nullptr) { // constructor
+  }
   // destroy all links
   void internal_clear(void (*zapper)(void *));
 
@@ -130,17 +150,13 @@ public:
   }
 
   void shallow_copy(      // dangerous!!
-      ELIST *from_list) { // beware destructors!!
+      ELIST_T *from_list) { // beware destructors!!
     last = from_list->last;
   }
 
-  // ptr to copier functn
-  void internal_deep_copy(ELIST_LINK *(*copier)(ELIST_LINK *),
-                          const ELIST *list); // list being copied
-
   void assign_to_sublist(       // to this list
-      ELIST_ITERATOR *start_it, // from list start
-      ELIST_ITERATOR *end_it);  // from list end
+      ELIST_ITERATOR_T<T> *start_it, // from list start
+      ELIST_ITERATOR_T<T> *end_it);  // from list end
 
   // # elements in list
   int32_t length() const {
@@ -168,12 +184,12 @@ public:
   // list) - new_link is not added to the list and the function returns the
   // pointer to the identical entry that already exists in the list
   // (otherwise the function returns new_link).
-  ELIST_LINK *add_sorted_and_find(int comparator(const void *, const void *), bool unique,
-                                  ELIST_LINK *new_link);
+  T add_sorted_and_find(int comparator(const void *, const void *), bool unique,
+                        T new_link);
 
   // Same as above, but returns true if the new entry was inserted, false
   // if the identical entry already existed in the list.
-  bool add_sorted(int comparator(const void *, const void *), bool unique, ELIST_LINK *new_link) {
+  bool add_sorted(int comparator(const void *, const void *), bool unique, T new_link) {
     return (add_sorted_and_find(comparator, unique, new_link) == new_link);
   }
 };
@@ -185,50 +201,52 @@ public:
  *embedded links
  **********************************************************************/
 
-class TESS_API ELIST_ITERATOR {
-  friend void ELIST::assign_to_sublist(ELIST_ITERATOR *, ELIST_ITERATOR *);
-
-  ELIST *list;                  // List being iterated
-  ELIST_LINK *prev;             // prev element
-  ELIST_LINK *current;          // current element
-  ELIST_LINK *next;             // next element
-  ELIST_LINK *cycle_pt;         // point we are cycling the list to.
+template<typename T>
+class TESS_API ELIST_ITERATOR_T {
+  friend void ELIST_T<T>::assign_to_sublist(ELIST_ITERATOR_T *, ELIST_ITERATOR_T *);
+protected:
+  ELIST_T<T> *list;                  // List being iterated
+  T prev;             // prev element
+  T current;          // current element
+  T next;             // next element
+  T cycle_pt;         // point we are cycling the list to.
   bool ex_current_was_last;     // current extracted was end of list
   bool ex_current_was_cycle_pt; // current extracted was cycle point
   bool started_cycling;         // Have we moved off the start?
 
-  ELIST_LINK *extract_sublist(   // from this current...
-      ELIST_ITERATOR *other_it); // to other current
-
+  T extract_sublist(   // from this current...
+      ELIST_ITERATOR_T<T> *other_it); // to other current
+private:
+  T extract_internal();
 public:
-  ELIST_ITERATOR() { // constructor
+  ELIST_ITERATOR_T() { // constructor
     list = nullptr;
   } // unassigned list
 
-  explicit ELIST_ITERATOR(ELIST *list_to_iterate);
+  explicit ELIST_ITERATOR_T(ELIST_T<T> *list_to_iterate);
 
   void set_to_list( // change list
-      ELIST *list_to_iterate);
+      ELIST_T<T> *list_to_iterate);
 
   void add_after_then_move(  // add after current &
-      ELIST_LINK *new_link); // move to new
+      T new_link); // move to new
 
   void add_after_stay_put(   // add after current &
-      ELIST_LINK *new_link); // stay at current
+      T new_link); // stay at current
 
   void add_before_then_move( // add before current &
-      ELIST_LINK *new_link); // move to new
+      T new_link); // move to new
 
   void add_before_stay_put(  // add before current &
-      ELIST_LINK *new_link); // stay at current
+      T new_link); // stay at current
 
   void add_list_after(     // add a list &
-      ELIST *list_to_add); // stay at current
+      ELIST_T<T> *list_to_add); // stay at current
 
   void add_list_before(    // add a list &
-      ELIST *list_to_add); // move to it 1st item
+      ELIST_T<T> *list_to_add); // move to it 1st item
 
-  ELIST_LINK *data() { // get current data
+  T data() { // get current data
 #ifndef NDEBUG
     if (!list) {
       NO_LIST.error("ELIST_ITERATOR::data", ABORT);
@@ -240,16 +258,17 @@ public:
     return current;
   }
 
-  ELIST_LINK *data_relative( // get data + or - ...
+  T data_relative( // get data + or - ...
       int8_t offset);        // offset from current
 
-  ELIST_LINK *forward(); // move to next element
+  T forward(); // move to next element
 
-  ELIST_LINK *extract(); // remove from list
+  T extract(); // remove from list
+  T extract_mt(); // remove from list (multithreaded version)
 
-  ELIST_LINK *move_to_first(); // go to start of list
+  T move_to_first(); // go to start of list
 
-  ELIST_LINK *move_to_last(); // go to end of list
+  T move_to_last(); // go to end of list
 
   void mark_cycle_pt(); // remember current
 
@@ -263,7 +282,7 @@ public:
   }
 
   bool current_extracted() const { // current extracted?
-    return !current;
+    return current == nullptr;
   }
 
   bool at_first() const; // Current is first?
@@ -273,10 +292,10 @@ public:
   bool cycled_list() const; // Completed a cycle?
 
   void add_to_end(           // add at end &
-      ELIST_LINK *new_link); // don't move
+      T new_link); // don't move
 
   void exchange(                 // positions of 2 links
-      ELIST_ITERATOR *other_it); // other iterator
+      ELIST_ITERATOR_T *other_it); // other iterator
 
   //# elements in list
   int32_t length() const {
@@ -295,8 +314,9 @@ public:
  *  over.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::set_to_list( // change list
-    ELIST *list_to_iterate) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::set_to_list( // change list
+    ELIST_T<T> *list_to_iterate) {
 #ifndef NDEBUG
   if (!list_to_iterate) {
     BAD_PARAMETER.error("ELIST_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
@@ -319,7 +339,8 @@ inline void ELIST_ITERATOR::set_to_list( // change list
  *  CONSTRUCTOR - set iterator to specified list;
  **********************************************************************/
 
-inline ELIST_ITERATOR::ELIST_ITERATOR(ELIST *list_to_iterate) {
+template<typename T>
+inline ELIST_ITERATOR_T<T>::ELIST_ITERATOR_T(ELIST_T<T> *list_to_iterate) {
   set_to_list(list_to_iterate);
 }
 
@@ -330,8 +351,9 @@ inline ELIST_ITERATOR::ELIST_ITERATOR(ELIST *list_to_iterate) {
  *  iterator to the new element.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_after_then_move( // element to add
-    ELIST_LINK *new_element) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_after_then_move( // element to add
+    T new_element) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_after_then_move", ABORT);
@@ -377,8 +399,9 @@ inline void ELIST_ITERATOR::add_after_then_move( // element to add
  *  the iterator to the new element.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_after_stay_put( // element to add
-    ELIST_LINK *new_element) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_after_stay_put( // element to add
+    T new_element) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_after_stay_put", ABORT);
@@ -426,8 +449,9 @@ inline void ELIST_ITERATOR::add_after_stay_put( // element to add
  *  iterator to the new element.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_before_then_move( // element to add
-    ELIST_LINK *new_element) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_before_then_move( // element to add
+    T new_element) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_before_then_move", ABORT);
@@ -469,8 +493,9 @@ inline void ELIST_ITERATOR::add_before_then_move( // element to add
  *  iterator to the new element.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_before_stay_put( // element to add
-    ELIST_LINK *new_element) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_before_stay_put( // element to add
+    T new_element) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_before_stay_put", ABORT);
@@ -514,7 +539,8 @@ inline void ELIST_ITERATOR::add_before_stay_put( // element to add
  *  iterator.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_list_after(ELIST_T<T> *list_to_add) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_list_after", ABORT);
@@ -561,7 +587,8 @@ inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
  *  iterator.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::add_list_before(ELIST *list_to_add) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_list_before(ELIST_T<T> *list_to_add) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_list_before", ABORT);
@@ -607,8 +634,9 @@ inline void ELIST_ITERATOR::add_list_before(ELIST *list_to_add) {
  *  is to be deleted, this is the callers responsibility.
  **********************************************************************/
 
-inline ELIST_LINK *ELIST_ITERATOR::extract() {
-  ELIST_LINK *extracted_link;
+template<typename T>
+inline T ELIST_ITERATOR_T<T>::extract_internal() {
+  T extracted_link;
 
 #ifndef NDEBUG
   if (!list) {
@@ -634,9 +662,21 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
   ex_current_was_cycle_pt = (current == cycle_pt);
   extracted_link = current;
-  extracted_link->next = nullptr; // for safety
   current = nullptr;
   return extracted_link;
+}
+
+
+template<typename T>
+inline T ELIST_ITERATOR_T<T>::extract() {
+  T extracted_link = extract_internal();
+  extracted_link->next = nullptr; // for safety
+  return extracted_link;
+}
+
+template<typename T>
+inline T ELIST_ITERATOR_T<T>::extract_mt() {
+  return extract_internal();
 }
 
 /***********************************************************************
@@ -646,7 +686,8 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
  *  Return data just in case anyone wants it.
  **********************************************************************/
 
-inline ELIST_LINK *ELIST_ITERATOR::move_to_first() {
+template<typename T>
+inline T ELIST_ITERATOR_T<T>::move_to_first() {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::move_to_first", ABORT);
@@ -670,7 +711,8 @@ inline ELIST_LINK *ELIST_ITERATOR::move_to_first() {
  *  by a forward, add_after_then_move or add_after_then_move.
  **********************************************************************/
 
-inline void ELIST_ITERATOR::mark_cycle_pt() {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::mark_cycle_pt() {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::mark_cycle_pt", ABORT);
@@ -692,7 +734,8 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_first() const {
+template<typename T>
+inline bool ELIST_ITERATOR_T<T>::at_first() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_first", ABORT);
@@ -712,7 +755,8 @@ inline bool ELIST_ITERATOR::at_first() const {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::at_last() const {
+template<typename T>
+inline bool ELIST_ITERATOR_T<T>::at_last() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::at_last", ABORT);
@@ -732,7 +776,8 @@ inline bool ELIST_ITERATOR::at_last() const {
  *
  **********************************************************************/
 
-inline bool ELIST_ITERATOR::cycled_list() const {
+template<typename T>
+inline bool ELIST_ITERATOR_T<T>::cycled_list() const {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::cycled_list", ABORT);
@@ -749,7 +794,8 @@ inline bool ELIST_ITERATOR::cycled_list() const {
  *
  **********************************************************************/
 
-inline void ELIST_ITERATOR::sort( // sort elements
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::sort( // sort elements
     int comparator(               // comparison routine
         const void *, const void *)) {
 #ifndef NDEBUG
@@ -772,8 +818,9 @@ inline void ELIST_ITERATOR::sort( // sort elements
               queues.
 **********************************************************************/
 
-inline void ELIST_ITERATOR::add_to_end( // element to add
-    ELIST_LINK *new_element) {
+template<typename T>
+inline void ELIST_ITERATOR_T<T>::add_to_end( // element to add
+    T new_element) {
 #ifndef NDEBUG
   if (!list) {
     NO_LIST.error("ELIST_ITERATOR::add_to_end", ABORT);
@@ -800,12 +847,33 @@ inline void ELIST_ITERATOR::add_to_end( // element to add
   }
 }
 
+
+// Type aliases for raw pointer versions
+class ELIST_LINK : public ELIST_LINK_T<ELIST_LINK*> {};
+using ELIST = ELIST_T<ELIST_LINK*>;
+using ELIST_ITERATOR = ELIST_ITERATOR_T<ELIST_LINK*>;
+
+ // Type aliases for shared_ptr versions
+class ELIST_LINK_SP : public ELIST_LINK_T<std::shared_ptr<ELIST_LINK_SP>> {};
+using ELIST_SP = ELIST_T<std::shared_ptr<ELIST_LINK_SP>>;
+using ELIST_ITERATOR_SP = ELIST_ITERATOR_T<std::shared_ptr<ELIST_LINK_SP>>;
+
+
 #define ELISTIZEH(CLASSNAME)                                                 \
   class CLASSNAME##_LIST : public X_LIST<ELIST, ELIST_ITERATOR, CLASSNAME> { \
     using X_LIST<ELIST, ELIST_ITERATOR, CLASSNAME>::X_LIST;                  \
   };                                                                         \
   class CLASSNAME##_IT : public X_ITER<ELIST_ITERATOR, CLASSNAME> {          \
     using X_ITER<ELIST_ITERATOR, CLASSNAME>::X_ITER;                         \
+  };
+
+#define ELISTIZEH_SP(CLASSNAME)                                              \
+  class CLASSNAME##_LIST                                                  \
+      : public X_LIST_SP<ELIST_SP, ELIST_ITERATOR_SP, CLASSNAME> { \
+    using X_LIST_SP<ELIST_SP, ELIST_ITERATOR_SP, CLASSNAME>::X_LIST_SP;             \
+  };                                                                          \
+  class CLASSNAME##_IT : public X_ITER_SP<ELIST_ITERATOR_SP, CLASSNAME> {     \
+    using X_ITER_SP<ELIST_ITERATOR_SP, CLASSNAME>::X_ITER_SP;                       \
   };
 
 } // namespace tesseract

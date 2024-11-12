@@ -37,6 +37,7 @@
 #include <functional> // for std::function
 #include <set>        // for std::pair
 #include <vector>     // for std::vector
+#include <memory>     // for std::shared_ptr
 
 #include <sys/types.h> // for int8_t
 
@@ -69,7 +70,7 @@ class ROW_RES;
 ELISTIZEH(ROW_RES)
 class WERD_RES;
 
-ELISTIZEH(WERD_RES)
+ELISTIZEH_SP(WERD_RES)
 
 /*************************************************************************
  * PAGE_RES - Page results
@@ -161,7 +162,7 @@ enum CRUNCH_MODE { CR_NONE, CR_KEEP_SPACE, CR_LOOSE_SPACE, CR_DELETE };
 
 // WERD_RES is a collection of publicly accessible members that gathers
 // information about a word result.
-class TESS_API WERD_RES : public ELIST_LINK {
+class TESS_API WERD_RES : public ELIST_LINK_SP {
 public:
   // Which word is which?
   // There are 3 coordinate spaces in use here: a possibly rotated pixel space,
@@ -345,7 +346,7 @@ public:
   }
   // Deep copies everything except the ratings MATRIX.
   // To get that use deep_copy below.
-  WERD_RES(const WERD_RES &source) : ELIST_LINK(source) {
+  WERD_RES(const WERD_RES &source) : ELIST_LINK_SP(source) {
     // combination is used in function Clear which is called from operator=.
     combination = false;
     *this = source; // see operator=
@@ -685,8 +686,11 @@ public:
 
   PAGE_RES_IT() = default;
 
-  PAGE_RES_IT(PAGE_RES *the_page_res) { // page result
+  // If multiple instances of PAGE_RES_IT needs to be used concurrently,
+  // then they must be created using the same mutex_res.
+  PAGE_RES_IT(PAGE_RES *the_page_res, std::shared_ptr<std::mutex> the_mutex_res = std::make_shared<std::mutex>()) { // page result
     page_res = the_page_res;
+    mutex_res = the_mutex_res;
     restart_page(); // ready to scan
   }
 
@@ -720,8 +724,8 @@ public:
   // ============ Methods that mutate the underling structures ===========
   // Note that these methods will potentially invalidate other PAGE_RES_ITs
   // and are intended to be used only while a single PAGE_RES_IT is  active.
-  // This problem needs to be taken into account if these mutation operators
-  // are ever provided to PageIterator or its subclasses.
+  // To use these methods safely, from multiple PAGE_RES_ITs concurrently, it
+  // is needed to construct all these iterators with the same mutex_res.
 
   // Inserts the new_word and a corresponding WERD_RES before the current
   // position. The simple fields of the WERD_RES are copied from clone_res and
@@ -741,18 +745,22 @@ public:
   void MakeCurrentWordFuzzy();
 
   WERD_RES *forward() { // Get next word.
+    std::lock_guard<std::mutex> guard(*mutex_res);
     return internal_forward(false, false);
   }
   // Move forward, but allow empty blocks to show as single nullptr words.
   WERD_RES *forward_with_empties() {
+    std::lock_guard<std::mutex> guard(*mutex_res);
     return internal_forward(false, true);
   }
 
   WERD_RES *forward_paragraph(); // get first word in next non-empty paragraph
   WERD_RES *forward_block();     // get first word in next non-empty block
 
+  bool forward_to_word(const WERD_RES *word_res); // go to this word
+
   WERD_RES *prev_word() const { // previous word
-    return prev_word_res;
+    return prev_word_res.get();
   }
   ROW_RES *prev_row() const { // row of prev word
     return prev_row_res;
@@ -761,7 +769,7 @@ public:
     return prev_block_res;
   }
   WERD_RES *word() const { // current word
-    return word_res;
+    return word_res.get();
   }
   ROW_RES *row() const { // row of current word
     return row_res;
@@ -770,7 +778,7 @@ public:
     return block_res;
   }
   WERD_RES *next_word() const { // next word
-    return next_word_res;
+    return next_word_res.get();
   }
   ROW_RES *next_row() const { // row of next word
     return next_row_res;
@@ -784,15 +792,15 @@ public:
 private:
   WERD_RES *internal_forward(bool new_block, bool empty_ok);
 
-  WERD_RES *prev_word_res;   // previous word
+  std::shared_ptr<WERD_RES> prev_word_res;   // previous word
   ROW_RES *prev_row_res;     // row of prev word
   BLOCK_RES *prev_block_res; // block of prev word
 
-  WERD_RES *word_res;   // current word
+  std::shared_ptr<WERD_RES> word_res; // current word
   ROW_RES *row_res;     // row of current word
   BLOCK_RES *block_res; // block of cur. word
 
-  WERD_RES *next_word_res;   // next word
+  std::shared_ptr<WERD_RES> next_word_res; // next word
   ROW_RES *next_row_res;     // row of next word
   BLOCK_RES *next_block_res; // block of next word
 
@@ -803,6 +811,8 @@ private:
   // Since word_res_it is 2 words further on, this is otherwise hard to do.
   WERD_RES_IT wr_it_of_current_word;
   WERD_RES_IT wr_it_of_next_word;
+
+  std::shared_ptr<std::mutex> mutex_res;
 };
 
 } // namespace tesseract

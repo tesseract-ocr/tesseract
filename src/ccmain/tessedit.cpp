@@ -169,8 +169,11 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
 #endif // ndef DISABLED_LEGACY_ENGINE
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
-      lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix.c_str());
-      ASSERT_HOST(lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : "", mgr));
+      for (int i = 0; i < lstm_num_threads; ++i) {
+        lstm_recognizers_.push_back(new LSTMRecognizer(language_data_path_prefix.c_str()));
+        lstm_recognizers_.back()->Load(this->params(), lstm_use_matrix ? language : "", mgr);
+      }
+      lstm_recognizer_ = lstm_recognizers_[0];
     } else {
       tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);

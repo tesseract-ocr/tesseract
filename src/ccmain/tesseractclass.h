@@ -173,7 +173,7 @@ struct WordData {
 // allows both a conventional tesseract classifier to work, or a line-level
 // classifier that generates multiple words from a merged input.
 using WordRecognizer = void (Tesseract::*)(const WordData &, WERD_RES **,
-                                           PointerVector<WERD_RES> *);
+                                           PointerVector<WERD_RES> *, LSTMRecognizer *);
 
 class TESS_API Tesseract : public Wordrec {
 public:
@@ -370,11 +370,11 @@ public:
   // Recognizes a word or group of words, converting to WERD_RES in *words.
   // Analogous to classify_word_pass1, but can handle a group of words as well.
   void LSTMRecognizeWord(const BLOCK &block, ROW *row, WERD_RES *word,
-                         PointerVector<WERD_RES> *words);
+                         PointerVector<WERD_RES> *words, LSTMRecognizer *lstm_recognizer);
   // Apply segmentation search to the given set of words, within the constraints
   // of the existing ratings matrix. If there is already a best_choice on a word
   // leaves it untouched and just sets the done/accepted etc flags.
-  void SearchWords(PointerVector<WERD_RES> *words);
+  void SearchWords(PointerVector<WERD_RES> *words, LSTMRecognizer *lstm_recognizer);
 
   //// control.h /////////////////////////////////////////////////////////
   bool ProcessTargetWord(const TBOX &word_box, const TBOX &target_word_box, const char *word_config,
@@ -384,8 +384,12 @@ public:
                           PAGE_RES *page_res, std::vector<WordData> *words);
   // Sets up the single word ready for whichever engine is to be run.
   void SetupWordPassN(int pass_n, WordData *word);
+  bool RecogWordsSegment(std::vector<WordData>::iterator start, std::vector<WordData>::iterator end,
+                         int pass_n, ETEXT_DESC *monitor, PAGE_RES *page_res,
+                         LSTMRecognizer *lstm_recognizer, std::atomic<int>& words_done,
+                         int total_words, std::shared_ptr<std::mutex> recog_words_mutex);
   // Runs word recognition on all the words.
-  bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT *pr_it,
+  bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES *page_res,
                           std::vector<WordData> *words);
   bool recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
                        const char *word_config, int dopasses);
@@ -399,7 +403,8 @@ public:
   // Returns positive if this recognizer found more new best words than the
   // number kept from best_words.
   int RetryWithLanguage(const WordData &word_data, WordRecognizer recognizer, bool debug,
-                        WERD_RES **in_word, PointerVector<WERD_RES> *best_words);
+                        WERD_RES **in_word, PointerVector<WERD_RES> *best_words,
+                        LSTMRecognizer *lstm_recognizer);
   // Moves good-looking "noise"/diacritics from the reject list to the main
   // blob list on the current word. Returns true if anything was done, and
   // sets make_next_word_fuzzy if blob(s) were added to the end of the word.
@@ -435,9 +440,10 @@ public:
   // best raw choice, and undoing all the work done to fake out the word.
   float ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob, std::string &best_str,
                            float *c2);
-  void classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordData *word_data);
+  void classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordData *word_data,
+                                  LSTMRecognizer *lstm_recognizer_thread_local = nullptr);
   void classify_word_pass1(const WordData &word_data, WERD_RES **in_word,
-                           PointerVector<WERD_RES> *out_words);
+                           PointerVector<WERD_RES> *out_words, LSTMRecognizer *lstm_recognizer);
   void recog_pseudo_word(PAGE_RES *page_res, // blocks to check
                          TBOX &selection_box);
 
@@ -447,7 +453,7 @@ public:
                                               const char *lengths);
   void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *block);
   void classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
-                           PointerVector<WERD_RES> *out_words);
+                           PointerVector<WERD_RES> *out_words, LSTMRecognizer *lstm_recognizer);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht, WERD_RES *word, WERD_RES *new_word);
   bool RunOldFixXht(WERD_RES *word, BLOCK *block, ROW *row);
   bool TrainedXheightFix(WERD_RES *word, BLOCK *block, ROW *row);
@@ -966,6 +972,7 @@ public:
   STRING_VAR_H(page_separator);
   INT_VAR_H(lstm_choice_mode);
   INT_VAR_H(lstm_choice_iterations);
+  INT_VAR_H(lstm_num_threads);
   double_VAR_H(lstm_rating_coefficient);
   BOOL_VAR_H(pageseg_apply_music_mask);
 
@@ -1022,6 +1029,7 @@ private:
 #endif // ndef DISABLED_LEGACY_ENGINE
   // LSTM recognizer, if available.
   LSTMRecognizer *lstm_recognizer_;
+  std::vector<LSTMRecognizer *> lstm_recognizers_;
   // Output "page" number (actually line number) using TrainLineRecognizer.
   int train_line_page_num_;
 };

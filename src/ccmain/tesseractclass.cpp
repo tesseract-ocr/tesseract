@@ -439,6 +439,10 @@ Tesseract::Tesseract()
                  "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
                  "value greater than 0 to produce results.",
                  this->params())
+    , INT_INIT_MEMBER(lstm_num_threads, 1,
+                 "Sets the number of threads used by the LSTM recognizer. The "
+                 "default value is 1.",
+                 this->params())
     , double_MEMBER(lstm_rating_coefficient, 5,
                     "Sets the rating coefficient for the lstm choices. The smaller the "
                     "coefficient, the better are the ratings for each choice and less "
@@ -477,7 +481,10 @@ Tesseract::~Tesseract() {
   for (auto *lang : sub_langs_) {
     delete lang;
   }
-  delete lstm_recognizer_;
+  for (auto &&lstm_recognizer : lstm_recognizers_) {
+    delete lstm_recognizer;
+  }
+  lstm_recognizers_.clear();
   lstm_recognizer_ = nullptr;
 }
 
