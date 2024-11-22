@@ -25,7 +25,7 @@ protected:
   const size_t ListSize = 5;
 };
 
-class Clst : public CLIST_LINK {
+class Clst {
 public:
   Clst(unsigned n) : value(n) {}
   unsigned value;
@@ -51,7 +51,7 @@ TEST_F(ListTest, TestCLIST) {
   Clst_CLIST list;
   EXPECT_TRUE(list.empty());
   EXPECT_EQ(list.length(), 0);
-  auto it = CLIST_ITERATOR(&list);
+  auto it = Clst_CLIST::ITERATOR(&list);
   for (unsigned i = 0; i < ListSize; i++) {
     auto *lst = new Clst(i);
     it.add_to_end(lst);
