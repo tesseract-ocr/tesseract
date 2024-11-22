@@ -355,7 +355,7 @@ WERD *WERD::shallow_copy() {
  */
 
 WERD &WERD::operator=(const WERD &source) {
-  this->ELIST2_LINK::operator=(source);
+  this->ELIST2<WERD>::LINK::operator=(source);
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;

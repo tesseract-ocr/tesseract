@@ -552,7 +552,7 @@ private:
   bool owns_cblob_ = false;
 };
 
-class TO_ROW : public ELIST2_LINK {
+class TO_ROW : public ELIST2<TO_ROW>::LINK {
 public:
   static const int kErrorWeight = 3;
 
