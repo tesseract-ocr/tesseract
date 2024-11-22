@@ -222,7 +222,7 @@ void BLOCK::print( // print list of sides
 BLOCK &BLOCK::operator=( // assignment
     const BLOCK &source  // from this
 ) {
-  this->ELIST_LINK::operator=(source);
+  this->ELIST<BLOCK>::LINK::operator=(source);
   pdblk = source.pdblk;
   proportional = source.proportional;
   kerning = source.kerning;

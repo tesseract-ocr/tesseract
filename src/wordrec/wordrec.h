@@ -169,7 +169,7 @@ private:
 };
 
 /* ccmain/tstruct.cpp *********************************************************/
-class FRAGMENT : public ELIST_LINK {
+class FRAGMENT : public ELIST<FRAGMENT>::LINK {
 public:
   FRAGMENT() { // constructor
   }

@@ -36,7 +36,7 @@ class TO_ROW;
 
 struct PARA;
 
-class ROW : public ELIST_LINK {
+class ROW : public ELIST<ROW>::LINK {
   friend void tweak_row_baseline(ROW *, double, double);
 
 public:

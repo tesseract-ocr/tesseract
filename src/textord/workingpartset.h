@@ -29,7 +29,7 @@ namespace tesseract {
 // WorkingPartSet holds a working set of ColPartitions during transformation
 // from the grid-based storage to regions in logical reading order, and is
 // therefore only used during construction of the regions.
-class WorkingPartSet : public ELIST_LINK {
+class WorkingPartSet : public ELIST<WorkingPartSet>::LINK {
 public:
   explicit WorkingPartSet(ColPartition *column)
       : column_(column), latest_part_(nullptr), part_it_(&part_set_) {}

@@ -110,7 +110,7 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
  *
  * Constructor to build a BLOB_CHOICE from another BLOB_CHOICE.
  */
-BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST_LINK(other) {
+BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST<BLOB_CHOICE>::LINK(other) {
   unichar_id_ = other.unichar_id();
   rating_ = other.rating();
   certainty_ = other.certainty();
@@ -129,7 +129,7 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST_LINK(other) {
 
 // Copy assignment operator.
 BLOB_CHOICE &BLOB_CHOICE::operator=(const BLOB_CHOICE &other) {
-  ELIST_LINK::operator=(other);
+  ELIST<BLOB_CHOICE>::LINK::operator=(other);
   unichar_id_ = other.unichar_id();
   rating_ = other.rating();
   certainty_ = other.certainty();

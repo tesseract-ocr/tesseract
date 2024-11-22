@@ -64,7 +64,7 @@ ELISTIZEH(TabConstraint)
 // on a list of constraints. The list itself is cooperatively owned
 // by the TabVectors of the constraints on the list and managed
 // by implicit reference counting via the elements of the list.
-class TabConstraint : public ELIST_LINK {
+class TabConstraint : public ELIST<TabConstraint>::LINK {
 public:
   // This empty constructor is here only so that the class can be ELISTIZED.
   // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier

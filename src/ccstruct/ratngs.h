@@ -53,7 +53,7 @@ enum BlobChoiceClassifier {
   BCC_FAKE,               // From some other process.
 };
 
-class BLOB_CHOICE : public ELIST_LINK {
+class BLOB_CHOICE : public ELIST<BLOB_CHOICE>::LINK {
 public:
   BLOB_CHOICE() {
     unichar_id_ = UNICHAR_SPACE;
@@ -255,7 +255,7 @@ enum ScriptPos { SP_NORMAL, SP_SUBSCRIPT, SP_SUPERSCRIPT, SP_DROPCAP };
 
 const char *ScriptPosToString(ScriptPos script_pos);
 
-class TESS_API WERD_CHOICE : public ELIST_LINK {
+class TESS_API WERD_CHOICE : public ELIST<WERD_CHOICE>::LINK {
 public:
   static const float kBadRating;
   static const char *permuter_name(uint8_t permuter);
@@ -272,7 +272,7 @@ public:
     this->init(src_string, src_lengths, src_rating, src_certainty, src_permuter);
   }
   WERD_CHOICE(const char *src_string, const UNICHARSET &unicharset);
-  WERD_CHOICE(const WERD_CHOICE &word) : ELIST_LINK(word), unicharset_(word.unicharset_) {
+  WERD_CHOICE(const WERD_CHOICE &word) : ELIST<WERD_CHOICE>::LINK(word), unicharset_(word.unicharset_) {
     this->init(word.length());
     this->operator=(word);
   }

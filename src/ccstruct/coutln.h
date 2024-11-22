@@ -72,7 +72,7 @@ struct EdgeOffset {
 class C_OUTLINE; // forward declaration
 
 ELISTIZEH(C_OUTLINE)
-class C_OUTLINE : public ELIST_LINK {
+class C_OUTLINE : public ELIST<C_OUTLINE>::LINK {
 public:
   C_OUTLINE() {
     stepcount = 0;

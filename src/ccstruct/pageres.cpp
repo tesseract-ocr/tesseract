@@ -184,7 +184,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
 }
 
 WERD_RES &WERD_RES::operator=(const WERD_RES &source) {
-  this->ELIST_LINK::operator=(source);
+  this->ELIST<WERD_RES>::LINK::operator=(source);
   Clear();
   if (source.combination) {
     word = new WERD;
