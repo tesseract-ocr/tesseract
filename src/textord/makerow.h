@@ -243,8 +243,8 @@ OVERLAP_STATE most_overlapping_row(TO_ROW_IT *row_it, // iterator
                                    bool testing_blob  // test stuff
 );
 int blob_x_order(      // sort function
-    const void *item1, // items to compare
-    const void *item2);
+    const BLOBNBOX *item1, // items to compare
+    const BLOBNBOX *item2);
 
 void mark_repeated_chars(TO_ROW *row);
 

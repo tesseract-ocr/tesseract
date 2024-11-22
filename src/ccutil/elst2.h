@@ -19,7 +19,6 @@
 #ifndef ELST2_H
 #define ELST2_H
 
-#include "list.h"
 #include "lsterr.h"
 #include "serialis.h"
 
@@ -972,7 +971,7 @@ public:
    **********************************************************************/
     void sort(          // sort elements
       int comparator( // comparison routine
-        const void *, const void *)) {
+        const CLASSNAME *, const CLASSNAME *)) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::sort", ABORT);
@@ -1095,7 +1094,7 @@ public:
  **********************************************************************/
   void sort(          // sort elements
     int comparator( // comparison routine
-      const void *, const void *)) {
+      const CLASSNAME *, const CLASSNAME *)) {
     // Allocate an array of pointers, one per list element.
     auto count = length();
     if (count > 0) {
@@ -1111,7 +1110,9 @@ public:
       }
 
       // Sort the pointer array.
-      qsort(&base[0], count, sizeof(base[0]), comparator);
+      std::sort(base.begin(), base.end(),
+        // all current comparators return -1,0,1, so we handle this correctly for std::sort
+        [&](auto &&l, auto &&r) {return comparator(l, r) < 0; });
 
       // Rebuild the list from the sorted pointers.
       for (auto current : base) {
@@ -1125,9 +1126,9 @@ public:
   // Comparison function is the same as used by sort, i.e. uses double
   // indirection. Time is O(1) to add to beginning or end.
   // Time is linear to add pre-sorted items to an empty list.
-  void add_sorted(int comparator(const void *, const void *), CLASSNAME *new_link) {
+  void add_sorted(int comparator(const CLASSNAME *, const CLASSNAME *), CLASSNAME *new_link) {
     // Check for adding at the end.
-    if (last == nullptr || comparator(&last, &new_link) < 0) {
+    if (last == nullptr || comparator(last, new_link) < 0) {
       if (last == nullptr) {
         new_link->next = new_link;
         new_link->prev = new_link;
@@ -1143,7 +1144,7 @@ public:
       ITERATOR it(this);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         auto link = it.data();
-        if (comparator(&link, &new_link) > 0) {
+        if (comparator(link, new_link) > 0) {
           break;
         }
       }

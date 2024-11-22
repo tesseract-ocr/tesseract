@@ -34,7 +34,7 @@ namespace tesseract {
 
 #define INTERSECTING INT16_MAX
 
-int lessthan(const void *first, const void *second);
+int lessthan(const ICOORDELT *first, const ICOORDELT *second);
 
 POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType t) {
   ICOORDELT_IT v = &vertices;
@@ -371,10 +371,7 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(TDimension y) {
   return result;
 }
 
-int lessthan(const void *first, const void *second) {
-  const ICOORDELT *p1 = *reinterpret_cast<const ICOORDELT *const *>(first);
-  const ICOORDELT *p2 = *reinterpret_cast<const ICOORDELT *const *>(second);
-
+int lessthan(const ICOORDELT *p1, const ICOORDELT *p2) {
   if (p1->x() < p2->x()) {
     return (-1);
   } else if (p1->x() > p2->x()) {
