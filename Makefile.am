@@ -394,9 +394,6 @@ endif
 noinst_LTLIBRARIES += libtesseract_ccutil.la
 
 libtesseract_ccutil_la_SOURCES = src/ccutil/ccutil.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/clst.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/elst2.cpp
-libtesseract_ccutil_la_SOURCES += src/ccutil/elst.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/errcode.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/serialis.cpp
 libtesseract_ccutil_la_SOURCES += src/ccutil/scanutils.cpp
