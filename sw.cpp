@@ -334,8 +334,7 @@ void build(Solution &s)
 
         auto &tw = add_test("tatweel");
         tw += "unittest/util/.*"_rr;
-        tw += "unittest/third_party/.*"_rr;
-        tw -= "unittest/third_party/googletest/.*"_rr;
+        tw += "unittest/third_party/utf/.*"_rr;
     }
 }
 
