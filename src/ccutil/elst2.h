@@ -22,6 +22,7 @@
 #include "lsterr.h"
 #include "serialis.h"
 
+#include <algorithm>
 #include <cstdio>
 
 namespace tesseract {
