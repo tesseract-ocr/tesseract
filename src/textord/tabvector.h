@@ -102,7 +102,7 @@ private:
 
 // Class to hold information about a single vector
 // that represents a tab stop or a rule line.
-class TabVector : public ELIST2_LINK {
+class TabVector : public ELIST2<TabVector>::LINK {
 public:
   // TODO(rays) fix this in elst.h line 1076, where it should use the
   // copy constructor instead of operator=.
