@@ -1429,7 +1429,7 @@ pagesegmode_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 pango_font_info_test_SOURCES = unittest/pango_font_info_test.cc
 pango_font_info_test_CPPFLAGS = $(unittest_CPPFLAGS)
 pango_font_info_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
-pango_font_info_test_LDADD += $(ICU_I18N_LIBS)
+pango_font_info_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 pango_font_info_test_LDADD += $(pangocairo_LIBS)
 pango_font_info_test_LDADD += $(pangoft2_LIBS)
 
