@@ -1159,13 +1159,15 @@ public:
 
 // add TESS_API?
 // move templated lists to public include dirs?
-#define ELIST2IZEH(CLASSNAME)                                                  \
-  struct CLASSNAME##_LIST : ELIST2<CLASSNAME> {                          \
-    using ELIST2<CLASSNAME>::ELIST2;                                            \
-  };                  \
-  struct CLASSNAME##_IT : ELIST2<CLASSNAME>::ITERATOR {            \
-    using base = ELIST2<CLASSNAME>::ITERATOR;          \
-    using base::base;                   \
+#define ELIST2IZEH(CLASSNAME)                           \
+  class CLASSNAME##_LIST : public ELIST2<CLASSNAME> {   \
+  public:                                               \
+    using ELIST2<CLASSNAME>::ELIST2;                    \
+  };                                                    \
+  class CLASSNAME##_IT : public ELIST2<CLASSNAME>::ITERATOR { \
+  public:                                               \
+    using base = ELIST2<CLASSNAME>::ITERATOR;           \
+    using base::base;                                   \
   };
 
 } // namespace tesseract
