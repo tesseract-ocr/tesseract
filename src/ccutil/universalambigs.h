@@ -22,8 +22,10 @@
 
 namespace tesseract {
 
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverlength-strings"
+#endif
 inline const char kUniversalAmbigsFile[] = {
     "v2\n"
     "'' \" 1\n"
@@ -19035,7 +19037,9 @@ inline const char kUniversalAmbigsFile[] = {
     "iXl in 1\n"
 #endif
 };
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
+#endif
 
 inline const int ksizeofUniversalAmbigsFile = sizeof(kUniversalAmbigsFile);
 
