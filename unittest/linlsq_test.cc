@@ -103,15 +103,15 @@ TEST_F(LLSQTest, Vectors) {
 //   sqrt( sum (!nvec * (x_i - x_avg))^2 / n)
 TEST_F(LLSQTest, RmsOrthWorksAsIntended) {
   std::vector<FCOORD> pts;
-  pts.emplace_back(0.56, 0.95);
-  pts.emplace_back(0.09, 0.09);
-  pts.emplace_back(0.13, 0.77);
-  pts.emplace_back(0.16, 0.83);
-  pts.emplace_back(0.45, 0.79);
-  VerifyRmsOrth(pts, FCOORD(1, 0));
-  VerifyRmsOrth(pts, FCOORD(1, 1));
-  VerifyRmsOrth(pts, FCOORD(1, 2));
-  VerifyRmsOrth(pts, FCOORD(2, 1));
+  pts.emplace_back(0.56f, 0.95f);
+  pts.emplace_back(0.09f, 0.09f);
+  pts.emplace_back(0.13f, 0.77f);
+  pts.emplace_back(0.16f, 0.83f);
+  pts.emplace_back(0.45f, 0.79f);
+  VerifyRmsOrth(pts, FCOORD(1.f, 0.f));
+  VerifyRmsOrth(pts, FCOORD(1.f, 1.f));
+  VerifyRmsOrth(pts, FCOORD(1.f, 2.f));
+  VerifyRmsOrth(pts, FCOORD(2.f, 1.f));
 }
 
 } // namespace tesseract
