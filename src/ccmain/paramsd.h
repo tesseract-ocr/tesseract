@@ -47,7 +47,7 @@ enum ParamType { VT_INTEGER, VT_BOOLEAN, VT_STRING, VT_DOUBLE };
 class ParamContent : public ELIST<ParamContent>::LINK {
 public:
   // Compare two VC objects by their name.
-  static int Compare(const void *v1, const void *v2);
+  static int Compare(const ParamContent *v1, const ParamContent *v2);
 
   // Gets a VC object identified by its ID.
   static ParamContent *GetParamContentById(int id);

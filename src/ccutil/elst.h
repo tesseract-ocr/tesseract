@@ -19,7 +19,6 @@
 #ifndef ELST_H
 #define ELST_H
 
-#include "list.h"
 #include "lsterr.h"
 #include "serialis.h"
 
@@ -905,7 +904,7 @@ public:
    **********************************************************************/
     void sort(          // sort elements
       int comparator( // comparison routine
-        const void *, const void *)) {
+        const CLASSNAME *, const CLASSNAME *)) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST_ITERATOR::sort", ABORT);
@@ -1032,7 +1031,7 @@ public:
  **********************************************************************/
   void sort(          // sort elements
     int comparator( // comparison routine
-      const void *, const void *)) {
+      const CLASSNAME *, const CLASSNAME *)) {
     // Allocate an array of pointers, one per list element.
     auto count = length();
 
@@ -1049,7 +1048,9 @@ public:
       }
 
       // Sort the pointer array.
-      qsort(&base[0], count, sizeof(base[0]), comparator);
+      std::sort(base.begin(), base.end(),
+        // all current comparators return -1,0,1, so we handle this correctly for std::sort
+        [&](auto &&l, auto &&r) {return comparator(l, r) < 0; });
 
       // Rebuild the list from the sorted pointers.
       for (auto current : base) {
@@ -1068,10 +1069,10 @@ public:
   // list) - new_link is not added to the list and the function returns the
   // pointer to the identical entry that already exists in the list
   // (otherwise the function returns new_link).
-  CLASSNAME *add_sorted_and_find(int comparator(const void *, const void *), bool unique,
+  CLASSNAME *add_sorted_and_find(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique,
     CLASSNAME *new_link) {
     // Check for adding at the end.
-    if (last == nullptr || comparator(&last, &new_link) < 0) {
+    if (last == nullptr || comparator(last, new_link) < 0) {
       if (last == nullptr) {
         new_link->next = new_link;
       } else {
@@ -1084,7 +1085,7 @@ public:
       ITERATOR it(this);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         auto *link = it.data();
-        int compare = comparator(&link, &new_link);
+        int compare = comparator(link, new_link);
         if (compare > 0) {
           break;
         } else if (unique && compare == 0) {
@@ -1102,7 +1103,7 @@ public:
 
   // Same as above, but returns true if the new entry was inserted, false
   // if the identical entry already existed in the list.
-  bool add_sorted(int comparator(const void *, const void *), bool unique, CLASSNAME *new_link) {
+  bool add_sorted(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique, CLASSNAME *new_link) {
     return (add_sorted_and_find(comparator, unique, new_link) == new_link);
   }
 };

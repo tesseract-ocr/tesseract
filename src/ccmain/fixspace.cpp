@@ -55,12 +55,9 @@ class ROW;
  **********************************************************************/
 
 static int c_blob_comparator( // sort blobs
-    const void *blob1p,       // ptr to ptr to blob1
-    const void *blob2p        // ptr to ptr to blob2
+    const C_BLOB *blob1,
+    const C_BLOB *blob2
 ) {
-  const C_BLOB *blob1 = *reinterpret_cast<const C_BLOB *const *>(blob1p);
-  const C_BLOB *blob2 = *reinterpret_cast<const C_BLOB *const *>(blob2p);
-
   return blob1->bounding_box().left() - blob2->bounding_box().left();
 }
 
