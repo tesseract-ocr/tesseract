@@ -68,7 +68,9 @@ inline const std::vector<std::string> split(const std::string &s, char c) {
   return v;
 }
 
-// A simple linear congruential random number generator.
+// A simple linear congruential random number generator,
+// using Knuth's constants from:
+// http://en.wikipedia.org/wiki/Linear_congruential_generator.
 class TRand {
 public:
   // Sets the seed to the given value.
@@ -95,7 +97,10 @@ public:
   }
 
 private:
-  std::minstd_rand e;
+  std::linear_congruential_engine<std::uint_fast32_t,
+                                  6364136223846793005ULL,
+                                  1442695040888963407ULL,
+                                  UINT64_MAX> e;
 };
 
 // Remove newline (if any) at the end of the string.
