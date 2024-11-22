@@ -50,14 +50,10 @@ public:
    *  walks the list.
    **********************************************************************/
   struct CLIST_LINK {
-    CLIST_LINK *next;
-    void *data;
+    CLIST_LINK *next{};
+    CLASSNAME *data{};
 
-  public:
-    CLIST_LINK() { // constructor
-      data = next = nullptr;
-    }
-
+    CLIST_LINK() = default;
     CLIST_LINK(const CLIST_LINK &) = delete;
     void operator=(const CLIST_LINK &) = delete;
   };
@@ -189,7 +185,7 @@ public:
      *  iterator to the new element.
      **********************************************************************/
     void add_after_then_move( // add after current &
-      void *new_data) {
+      CLASSNAME *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
         BAD_PARAMETER.error("CLIST_ITERATOR::add_after_then_move", ABORT, "new_data is nullptr");
@@ -232,7 +228,7 @@ public:
      *  the iterator to the new element.
      **********************************************************************/
     void add_after_stay_put( // add after current &
-      void *new_data) {
+      CLASSNAME *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
         BAD_PARAMETER.error("CLIST_ITERATOR::add_after_stay_put", ABORT, "new_data is nullptr");
@@ -277,7 +273,7 @@ public:
      *  iterator to the new element.
      **********************************************************************/
     void add_before_then_move( // add before current &
-      void *new_data) {
+      CLASSNAME *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
         BAD_PARAMETER.error("CLIST_ITERATOR::add_before_then_move", ABORT, "new_data is nullptr");
@@ -316,7 +312,7 @@ public:
      *  iterator to the new element.
      **********************************************************************/
     void add_before_stay_put( // add before current &
-      void *new_data) {
+      CLASSNAME *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
         BAD_PARAMETER.error("CLIST_ITERATOR::add_before_stay_put", ABORT, "new_data is nullptr");
@@ -423,7 +419,7 @@ public:
       }
     } // move to it 1st item
 
-    void *data() { // get current data
+    CLASSNAME *data() { // get current data
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("CLIST_ITERATOR::data", ABORT);
@@ -439,7 +435,7 @@ public:
      *  "offset" must not be less than -1.
      *  (This function can't be INLINEd because it contains a loop)
      **********************************************************************/
-    void *data_relative(  // get data + or - ...
+    CLASSNAME *data_relative(  // get data + or - ...
       int8_t offset) {                 // offset from current
       CLIST_LINK *ptr;
 
@@ -469,7 +465,7 @@ public:
      *  Move the iterator to the next element of the list.
      *  REMEMBER: ALL LISTS ARE CIRCULAR.
      **********************************************************************/
-    void *forward() {
+    CLASSNAME *forward() {
       if (list->empty()) {
         return nullptr;
       }
@@ -499,7 +495,7 @@ public:
      *  that any calling loop can do this.)  The iterator's current points to
      *  nullptr.  If the data is to be deleted, this is the callers responsibility.
      **********************************************************************/
-    void *extract() {
+    CLASSNAME *extract() {
 #ifndef NDEBUG
       if (!current) { // list empty or
         // element extracted
@@ -534,7 +530,7 @@ public:
      *  Move current so that it is set to the start of the list.
      *  Return data just in case anyone wants it.
      **********************************************************************/
-    void *move_to_first() {
+    CLASSNAME *move_to_first() {
       current = list->First();
       prev = list->last;
       next = current != nullptr ? current->next : nullptr;
@@ -548,7 +544,7 @@ public:
      *  Return data just in case anyone wants it.
      *  (This function can't be INLINEd because it contains a loop)
      **********************************************************************/
-    void *move_to_last() {
+    CLASSNAME *move_to_last() {
       while (current != list->last) {
         forward();
       }
@@ -639,7 +635,7 @@ public:
                   queues.
     **********************************************************************/
     void add_to_end(  // element to add
-      void *new_data) {
+      CLASSNAME *new_data) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("CLIST_ITERATOR::add_to_end", ABORT);
@@ -895,12 +891,12 @@ public:
    **********************************************************************/
   void sort(          // sort elements
     int comparator( // comparison routine
-      const void *, const void *)) {
+      const CLASSNAME *, const CLASSNAME *)) {
     // Allocate an array of pointers, one per list element.
     auto count = length();
     if (count > 0) {
       // ptr array to sort
-      std::vector<void *> base;
+      std::vector<CLASSNAME *> base;
       base.reserve(count);
 
       CLIST_ITERATOR it(this);
@@ -911,7 +907,7 @@ public:
       }
 
       // Sort the pointer array.
-      qsort(&base[0], count, sizeof(base[0]), comparator);
+      std::sort(base.begin(), base.end(), comparator);
 
       // Rebuild the list from the sorted pointers.
       for (auto current : base) {
@@ -927,9 +923,9 @@ public:
   // Time is linear to add pre-sorted items to an empty list.
   // If unique, then don't add duplicate entries.
   // Returns true if the element was added to the list.
-  bool add_sorted(int comparator(const void *, const void *), bool unique, void *new_data) {
+  bool add_sorted(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique, CLASSNAME *new_data) {
     // Check for adding at the end.
-    if (last == nullptr || comparator(&last->data, &new_data) < 0) {
+    if (last == nullptr || comparator(last->data, new_data) < 0) {
       auto *new_element = new CLIST_LINK;
       new_element->data = new_data;
       if (last == nullptr) {
@@ -944,11 +940,11 @@ public:
       // Need to use an iterator.
       CLIST_ITERATOR it(this);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-        void *data = it.data();
+        auto data = it.data();
         if (data == new_data && unique) {
           return false;
         }
-        if (comparator(&data, &new_data) > 0) {
+        if (comparator(data, new_data) > 0) {
           break;
         }
       }
@@ -967,7 +963,7 @@ public:
   // the set difference minuend - subtrahend to this, being the elements
   // of minuend that do not compare equal to anything in subtrahend.
   // If unique is true, any duplicates in minuend are also eliminated.
-  void set_subtract(int comparator(const void *, const void *), bool unique, CLIST *minuend,
+  void set_subtract(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique, CLIST *minuend,
     CLIST *subtrahend) {
     shallow_clear();
     CLIST_ITERATOR m_it(minuend);
@@ -975,16 +971,16 @@ public:
     // Since both lists are sorted, finding the subtras that are not
     // minus is a case of a parallel iteration.
     for (m_it.mark_cycle_pt(); !m_it.cycled_list(); m_it.forward()) {
-      void *minu = m_it.data();
-      void *subtra = nullptr;
+      auto minu = m_it.data();
+      CLASSNAME *subtra = nullptr;
       if (!s_it.empty()) {
         subtra = s_it.data();
-        while (!s_it.at_last() && comparator(&subtra, &minu) < 0) {
+        while (!s_it.at_last() && comparator(subtra, minu) < 0) {
           s_it.forward();
           subtra = s_it.data();
         }
       }
-      if (subtra == nullptr || comparator(&subtra, &minu) != 0) {
+      if (subtra == nullptr || comparator(subtra, minu) != 0) {
         add_sorted(comparator, unique, minu);
       }
     }
