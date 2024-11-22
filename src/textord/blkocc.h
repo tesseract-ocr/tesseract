@@ -44,7 +44,7 @@ CLASS REGION_OCC
 
 ****************************************************************************/
 
-class REGION_OCC : public ELIST_LINK {
+class REGION_OCC : public ELIST<REGION_OCC>::LINK {
 public:
   float min_x;         // Lowest x in region
   float max_x;         // Highest x in region

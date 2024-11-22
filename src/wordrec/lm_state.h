@@ -89,7 +89,7 @@ struct LanguageModelNgramInfo {
 
 /// Struct for storing the information about a path in the segmentation graph
 /// explored by Viterbi search.
-struct ViterbiStateEntry : public ELIST_LINK {
+struct ViterbiStateEntry : public ELIST<ViterbiStateEntry>::LINK {
   ViterbiStateEntry(ViterbiStateEntry *pe, BLOB_CHOICE *b, float c, float ol,
                     const LMConsistencyInfo &ci, const AssociateStats &as,
                     LanguageModelFlagsType tcf, LanguageModelDawgInfo *d, LanguageModelNgramInfo *n,

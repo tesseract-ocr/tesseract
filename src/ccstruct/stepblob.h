@@ -36,8 +36,7 @@ class C_BLOB;
 class DENORM;
 
 ELISTIZEH(C_BLOB)
-
-class TESS_API C_BLOB : public ELIST_LINK {
+class TESS_API C_BLOB : public ELIST<C_BLOB>::LINK {
 public:
   C_BLOB() = default;
   explicit C_BLOB(C_OUTLINE_LIST *outline_list);

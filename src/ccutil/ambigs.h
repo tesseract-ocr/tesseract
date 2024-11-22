@@ -109,7 +109,7 @@ public:
 
 // AMBIG_SPEC_LIST stores a list of dangerous ambigs that
 // start with the same unichar (e.g. r->t rn->m rr1->m).
-class AmbigSpec : public ELIST_LINK {
+class AmbigSpec : public ELIST<AmbigSpec>::LINK {
 public:
   AmbigSpec();
   ~AmbigSpec() = default;

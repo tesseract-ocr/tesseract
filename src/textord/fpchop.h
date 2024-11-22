@@ -24,7 +24,7 @@
 
 namespace tesseract {
 
-class C_OUTLINE_FRAG : public ELIST_LINK {
+class C_OUTLINE_FRAG : public ELIST<C_OUTLINE_FRAG>::LINK {
 public:
   C_OUTLINE_FRAG() { // empty constructor
     steps = nullptr;

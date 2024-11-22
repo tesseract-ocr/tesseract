@@ -2099,7 +2099,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid,
 //////// ColSegment code
 ////////
 ColSegment::ColSegment()
-    : ELIST_LINK(),
+    : ELIST<ColSegment>::LINK(),
       num_table_cells_(0),
       num_text_cells_(0),
       type_(COL_UNKNOWN) {}

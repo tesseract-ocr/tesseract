@@ -34,7 +34,7 @@ namespace tesseract {
  **********************************************************************/
 
 template <typename CLASSNAME>
-class TESS_API CLIST {
+class CLIST {
   friend class LINK;
   //friend class ITERATOR;
 
@@ -64,7 +64,7 @@ public:
    *              Generic iterator class for singly linked lists with embedded
    *links
    **********************************************************************/
-  class TESS_API ITERATOR {
+  class ITERATOR {
     CLIST *list;                  // List being iterated
     LINK *prev;             // prev element
     LINK *current;          // current element

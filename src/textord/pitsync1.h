@@ -31,7 +31,7 @@ namespace tesseract {
 
 class FPSEGPT_LIST;
 
-class FPSEGPT : public ELIST_LINK {
+class FPSEGPT : public ELIST<FPSEGPT>::LINK {
 public:
   FPSEGPT() = default;
   FPSEGPT(                      // constructor

@@ -160,7 +160,7 @@ protected:
   TDimension ycoord; ///< y value
 };
 
-class ICOORDELT : public ELIST_LINK,
+class ICOORDELT : public ELIST<ICOORDELT>::LINK,
                   public ICOORD
 // embedded coord list
 {

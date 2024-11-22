@@ -27,7 +27,7 @@ namespace tesseract {
 
 class ParagraphModel;
 
-struct PARA : public ELIST_LINK {
+struct PARA : public ELIST<PARA>::LINK {
 public:
   PARA()
       : model(nullptr)

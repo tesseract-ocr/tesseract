@@ -138,7 +138,7 @@ class ColPartition;
 
 class BLOBNBOX;
 ELISTIZEH(BLOBNBOX)
-class BLOBNBOX : public ELIST_LINK {
+class BLOBNBOX : public ELIST<BLOBNBOX>::LINK {
 public:
   BLOBNBOX() {
     ReInit();
@@ -695,7 +695,7 @@ private:
 };
 
 ELIST2IZEH(TO_ROW)
-class TESS_API TO_BLOCK : public ELIST_LINK {
+class TESS_API TO_BLOCK : public ELIST<TO_BLOCK>::LINK {
 public:
   TO_BLOCK() : pitch_decision(PITCH_DUNNO) {
     clear();
