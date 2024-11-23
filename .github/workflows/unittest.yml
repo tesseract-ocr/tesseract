@@ -3,6 +3,7 @@ name: unittest
 # ubuntu-20.04-gcc-unittest - CI runs out of diskspace.
 on:
   #push:
+  pull_request:
   schedule:
     - cron: 0 0 * * *
   workflow_dispatch:
