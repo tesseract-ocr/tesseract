@@ -24,9 +24,7 @@
 #include <climits> // for INT_MIN, INT_MAX
 #include <cmath> // std::isfinite
 #include <cstdio>
-#include <cstring>
 #include <algorithm>  // for std::find
-#include <functional>
 #include <string>
 #include <vector>
 
@@ -76,11 +74,6 @@ public:
   // Sets the seed to the given value.
   void set_seed(uint64_t seed) {
     seed_ = seed;
-  }
-  // Sets the seed using a hash of a string.
-  void set_seed(const std::string &str) {
-    std::hash<std::string> hasher;
-    set_seed(static_cast<uint64_t>(hasher(str)));
   }
 
   // Returns an integer in the range 0 to INT32_MAX.

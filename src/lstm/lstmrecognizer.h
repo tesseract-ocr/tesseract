@@ -286,7 +286,7 @@ public:
 protected:
   // Sets the random seed from the sample_iteration_;
   void SetRandomSeed() {
-    int64_t seed = static_cast<int64_t>(sample_iteration_) * 0x10000001;
+    int64_t seed = sample_iteration_ * 0x10000001LL;
     randomizer_.set_seed(seed);
     randomizer_.IntRand();
   }

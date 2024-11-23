@@ -526,7 +526,8 @@ void DocumentData::Shuffle() {
   TRand random;
   // Different documents get shuffled differently, but the same for the same
   // name.
-  random.set_seed(document_name_.c_str());
+  std::hash<std::string> hasher;
+  random.set_seed(static_cast<uint64_t>(hasher(document_name_)));
   int num_pages = pages_.size();
   // Execute one random swap for each page in the document.
   for (int i = 0; i < num_pages; ++i) {
