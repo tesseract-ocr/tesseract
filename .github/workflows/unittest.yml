@@ -8,7 +8,7 @@ on:
       - '**.cpp'
       - '**.h'
       - '**Makefile.am'
-        '/configure.ac'
+      - '/configure.ac'
       - 'unittest/**.c'
       - 'unittest/**.cc'
   schedule:
