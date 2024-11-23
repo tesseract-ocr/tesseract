@@ -4,6 +4,13 @@ name: unittest
 on:
   #push:
   pull_request:
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**Makefile.am'
+        '/configure.ac'
+      - 'unittest/**.c'
+      - 'unittest/**.cc'
   schedule:
     - cron: 0 0 * * *
   workflow_dispatch:
