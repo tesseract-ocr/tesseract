@@ -27,7 +27,6 @@
 #include <cstring>
 #include <algorithm>  // for std::find
 #include <functional>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -73,9 +72,10 @@ inline const std::vector<std::string> split(const std::string &s, char c) {
 // http://en.wikipedia.org/wiki/Linear_congruential_generator.
 class TRand {
 public:
+  TRand() = default;
   // Sets the seed to the given value.
   void set_seed(uint64_t seed) {
-    e.seed(seed);
+    seed_ = seed;
   }
   // Sets the seed using a hash of a string.
   void set_seed(const std::string &str) {
@@ -85,7 +85,8 @@ public:
 
   // Returns an integer in the range 0 to INT32_MAX.
   int32_t IntRand() {
-    return e();
+    Iterate();
+    return seed_ >> 33;
   }
   // Returns a floating point value in the range [-range, range].
   double SignedRand(double range) {
@@ -97,10 +98,14 @@ public:
   }
 
 private:
-  std::linear_congruential_engine<std::uint_fast32_t,
-                                  6364136223846793005ULL,
-                                  1442695040888963407ULL,
-                                  UINT64_MAX> e;
+  // Steps the generator to the next value.
+  void Iterate() {
+    seed_ *= 6364136223846793005ULL;
+    seed_ += 1442695040888963407ULL;
+  }
+
+  // The current value of the seed.
+  uint64_t seed_{1};
 };
 
 // Remove newline (if any) at the end of the string.

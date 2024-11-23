@@ -92,9 +92,9 @@ protected:
     }
     // Compare sum of all results with expected value.
 #ifdef FAST_FLOAT
-    EXPECT_FLOAT_EQ(total, 337852.16f);
+    EXPECT_FLOAT_EQ(total, -423236.53f);
 #else
-    EXPECT_FLOAT_EQ(total, 337849.39354684710);
+    EXPECT_FLOAT_EQ(total, -423243.392011);
 #endif
   }
 
