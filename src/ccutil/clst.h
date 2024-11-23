@@ -33,59 +33,57 @@ namespace tesseract {
  * Generic list class for singly linked CONS cell lists
  **********************************************************************/
 
-template <typename CLASSNAME>
-class CLIST {
-  friend class LINK;
-  //friend class ITERATOR;
+template <typename T>
+class ConsList {
+  friend class Link;
 
 public:
-
   /**********************************************************************
-   *              CLASS - LINK
+   *              CLASS - Link
    *
    *              Generic link class for singly linked CONS cell lists
    *
    *  Note:  No destructor - elements are assumed to be destroyed EITHER after
-   *  they have been extracted from a list OR by the CLIST destructor which
+   *  they have been extracted from a list OR by the ConsList destructor which
    *  walks the list.
    **********************************************************************/
-  struct LINK {
-    LINK *next{};
-    CLASSNAME *data{};
+  struct Link {
+    Link *next{};
+    T *data{};
 
-    LINK() = default;
-    LINK(const LINK &) = delete;
-    void operator=(const LINK &) = delete;
+    Link() = default;
+    Link(const Link &) = delete;
+    void operator=(const Link &) = delete;
   };
 
   /***********************************************************************
-   *              CLASS - ITERATOR
+   *              CLASS - Iterator
    *
    *              Generic iterator class for singly linked lists with embedded
    *links
    **********************************************************************/
-  class ITERATOR {
-    CLIST *list;                  // List being iterated
-    LINK *prev;             // prev element
-    LINK *current;          // current element
-    LINK *next;             // next element
-    LINK *cycle_pt;         // point we are cycling the list to.
+  class Iterator {
+    ConsList *list;                  // List being iterated
+    Link *prev;             // prev element
+    Link *current;          // current element
+    Link *next;             // next element
+    Link *cycle_pt;         // point we are cycling the list to.
     bool ex_current_was_last;     // current extracted was end of list
     bool ex_current_was_cycle_pt; // current extracted was cycle point
     bool started_cycling;         // Have we moved off the start?
 
     /***********************************************************************
-     *              ITERATOR::extract_sublist()
+     *              Iterator::extract_sublist()
      *
-     *  This is a private member, used only by CLIST::assign_to_sublist.
+     *  This is a private member, used only by ConsList::assign_to_sublist.
      *  Given another iterator for the same list, extract the links from THIS to
      *  OTHER inclusive, link them into a new circular list, and return a
      *  pointer to the last element.
      *  (Can't inline this function because it contains a loop)
      **********************************************************************/
-    LINK *extract_sublist(  // from this current
-      ITERATOR *other_it) {              // to other current
-      ITERATOR temp_it = *this;
+    Link *extract_sublist(  // from this current
+      Iterator *other_it) {              // to other current
+      Iterator temp_it = *this;
 
       constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 #ifndef NDEBUG
@@ -93,12 +91,12 @@ public:
       constexpr ERRCODE DONT_EXTRACT_DELETED("Can't extract a sublist marked by deleted points");
 
       if (list != other_it->list)
-        BAD_EXTRACTION_PTS.error("ITERATOR.extract_sublist", ABORT);
+        BAD_EXTRACTION_PTS.error("Iterator.extract_sublist", ABORT);
       if (list->empty())
-        EMPTY_LIST.error("ITERATOR::extract_sublist", ABORT);
+        EMPTY_LIST.error("Iterator::extract_sublist", ABORT);
 
       if (!current || !other_it->current)
-        DONT_EXTRACT_DELETED.error("ITERATOR.extract_sublist", ABORT);
+        DONT_EXTRACT_DELETED.error("Iterator.extract_sublist", ABORT);
 #endif
 
       ex_current_was_last = other_it->ex_current_was_last = false;
@@ -108,7 +106,7 @@ public:
       temp_it.mark_cycle_pt();
       do {                         // walk sublist
         if (temp_it.cycled_list()) { // can't find end pt
-          BAD_SUBLIST.error("ITERATOR.extract_sublist", ABORT);
+          BAD_SUBLIST.error("Iterator.extract_sublist", ABORT);
         }
 
         if (temp_it.at_last()) {
@@ -146,28 +144,28 @@ public:
     }
 
   public:
-    ITERATOR() { // constructor
+    Iterator() { // constructor
       list = nullptr;
     } // unassigned list
 
   /***********************************************************************
-   *              ITERATOR::ITERATOR
+   *              Iterator::Iterator
    *
    *  CONSTRUCTOR - set iterator to specified list;
    **********************************************************************/
-    ITERATOR( // constructor
-      CLIST *list_to_iterate) {
+    Iterator( // constructor
+      ConsList *list_to_iterate) {
       set_to_list(list_to_iterate);
     }
 
     /***********************************************************************
-     *              ITERATOR::set_to_list
+     *              Iterator::set_to_list
      *
      *  (Re-)initialise the iterator to point to the start of the list_to_iterate
      *  over.
      **********************************************************************/
     void set_to_list( // change list
-      CLIST *list_to_iterate) {
+      ConsList *list_to_iterate) {
       list = list_to_iterate;
       prev = list->last;
       current = list->First();
@@ -179,20 +177,20 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::add_after_then_move
+     *              Iterator::add_after_then_move
      *
      *  Add a new element to the list after the current element and move the
      *  iterator to the new element.
      **********************************************************************/
     void add_after_then_move( // add after current &
-      CLASSNAME *new_data) {
+      T *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
-        BAD_PARAMETER.error("ITERATOR::add_after_then_move", ABORT, "new_data is nullptr");
+        BAD_PARAMETER.error("Iterator::add_after_then_move", ABORT, "new_data is nullptr");
       }
 #endif
 
-      auto new_element = new LINK;
+      auto new_element = new Link;
       new_element->data = new_data;
 
       if (list->empty()) {
@@ -222,20 +220,20 @@ public:
     }      // move to new
 
     /***********************************************************************
-     *              ITERATOR::add_after_stay_put
+     *              Iterator::add_after_stay_put
      *
      *  Add a new element to the list after the current element but do not move
      *  the iterator to the new element.
      **********************************************************************/
     void add_after_stay_put( // add after current &
-      CLASSNAME *new_data) {
+      T *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
-        BAD_PARAMETER.error("ITERATOR::add_after_stay_put", ABORT, "new_data is nullptr");
+        BAD_PARAMETER.error("Iterator::add_after_stay_put", ABORT, "new_data is nullptr");
       }
 #endif
 
-      auto new_element = new LINK;
+      auto new_element = new Link;
       new_element->data = new_data;
 
       if (list->empty()) {
@@ -267,20 +265,20 @@ public:
     }     // stay at current
 
     /***********************************************************************
-     *              ITERATOR::add_before_then_move
+     *              Iterator::add_before_then_move
      *
      *  Add a new element to the list before the current element and move the
      *  iterator to the new element.
      **********************************************************************/
     void add_before_then_move( // add before current &
-      CLASSNAME *new_data) {
+      T *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
-        BAD_PARAMETER.error("ITERATOR::add_before_then_move", ABORT, "new_data is nullptr");
+        BAD_PARAMETER.error("Iterator::add_before_then_move", ABORT, "new_data is nullptr");
       }
 #endif
 
-      auto new_element = new LINK;
+      auto new_element = new Link;
       new_element->data = new_data;
 
       if (list->empty()) {
@@ -306,20 +304,20 @@ public:
     }       // move to new
 
     /***********************************************************************
-     *              ITERATOR::add_before_stay_put
+     *              Iterator::add_before_stay_put
      *
      *  Add a new element to the list before the current element but don't move the
      *  iterator to the new element.
      **********************************************************************/
     void add_before_stay_put( // add before current &
-      CLASSNAME *new_data) {
+      T *new_data) {
 #ifndef NDEBUG
       if (!new_data) {
-        BAD_PARAMETER.error("ITERATOR::add_before_stay_put", ABORT, "new_data is nullptr");
+        BAD_PARAMETER.error("Iterator::add_before_stay_put", ABORT, "new_data is nullptr");
       }
 #endif
 
-      auto new_element = new LINK;
+      auto new_element = new Link;
       new_element->data = new_data;
 
       if (list->empty()) {
@@ -346,14 +344,14 @@ public:
     }      // stay at current
 
     /***********************************************************************
-     *              ITERATOR::add_list_after
+     *              Iterator::add_list_after
      *
      *  Insert another list to this list after the current element but don't move
      *the
      *  iterator.
      **********************************************************************/
     void add_list_after(     // add a list &
-      CLIST *list_to_add) {
+      ConsList *list_to_add) {
       if (!list_to_add->empty()) {
         if (list->empty()) {
           list->last = list_to_add->last;
@@ -384,14 +382,14 @@ public:
     } // stay at current
 
     /***********************************************************************
-     *              ITERATOR::add_list_before
+     *              Iterator::add_list_before
      *
      *  Insert another list to this list before the current element. Move the
      *  iterator to the start of the inserted elements
      *  iterator.
      **********************************************************************/
     void add_list_before(    // add a list &
-      CLIST *list_to_add) {
+      ConsList *list_to_add) {
       if (!list_to_add->empty()) {
         if (list->empty()) {
           list->last = list_to_add->last;
@@ -419,33 +417,33 @@ public:
       }
     } // move to it 1st item
 
-    CLASSNAME *data() { // get current data
+    T *data() { // get current data
 #ifndef NDEBUG
       if (!list) {
-        NO_LIST.error("ITERATOR::data", ABORT);
+        NO_LIST.error("Iterator::data", ABORT);
       }
 #endif
       return current->data;
     }
 
     /***********************************************************************
-     *              ITERATOR::data_relative
+     *              Iterator::data_relative
      *
      *  Return the data pointer to the element "offset" elements from current.
      *  "offset" must not be less than -1.
      *  (This function can't be INLINEd because it contains a loop)
      **********************************************************************/
-    CLASSNAME *data_relative(  // get data + or - ...
+    T *data_relative(  // get data + or - ...
       int8_t offset) {                 // offset from current
-      LINK *ptr;
+      Link *ptr;
 
 #ifndef NDEBUG
       if (!list)
-        NO_LIST.error("ITERATOR::data_relative", ABORT);
+        NO_LIST.error("Iterator::data_relative", ABORT);
       if (list->empty())
-        EMPTY_LIST.error("ITERATOR::data_relative", ABORT);
+        EMPTY_LIST.error("Iterator::data_relative", ABORT);
       if (offset < -1)
-        BAD_PARAMETER.error("ITERATOR::data_relative", ABORT, "offset < -l");
+        BAD_PARAMETER.error("Iterator::data_relative", ABORT, "offset < -l");
 #endif
 
       if (offset == -1) {
@@ -460,12 +458,12 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::forward
+     *              Iterator::forward
      *
      *  Move the iterator to the next element of the list.
      *  REMEMBER: ALL LISTS ARE CIRCULAR.
      **********************************************************************/
-    CLASSNAME *forward() {
+    T *forward() {
       if (list->empty()) {
         return nullptr;
       }
@@ -488,18 +486,18 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::extract
+     *              Iterator::extract
      *
      *  Do extraction by removing current from the list, deleting the cons cell
      *  and returning the data to the caller, but NOT updating the iterator.  (So
      *  that any calling loop can do this.)  The iterator's current points to
      *  nullptr.  If the data is to be deleted, this is the callers responsibility.
      **********************************************************************/
-    CLASSNAME *extract() {
+    T *extract() {
 #ifndef NDEBUG
       if (!current) { // list empty or
         // element extracted
-        NULL_CURRENT.error("ITERATOR::extract", ABORT);
+        NULL_CURRENT.error("Iterator::extract", ABORT);
       }
 #endif
 
@@ -525,12 +523,12 @@ public:
     } // remove from list
 
     /***********************************************************************
-     *              ITERATOR::move_to_first()
+     *              Iterator::move_to_first()
      *
      *  Move current so that it is set to the start of the list.
      *  Return data just in case anyone wants it.
      **********************************************************************/
-    CLASSNAME *move_to_first() {
+    T *move_to_first() {
       current = list->First();
       prev = list->last;
       next = current != nullptr ? current->next : nullptr;
@@ -538,13 +536,13 @@ public:
     } // go to start of list
 
     /***********************************************************************
-     *              ITERATOR::move_to_last()
+     *              Iterator::move_to_last()
      *
      *  Move current so that it is set to the end of the list.
      *  Return data just in case anyone wants it.
      *  (This function can't be INLINEd because it contains a loop)
      **********************************************************************/
-    CLASSNAME *move_to_last() {
+    T *move_to_last() {
       while (current != list->last) {
         forward();
       }
@@ -557,7 +555,7 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::mark_cycle_pt()
+     *              Iterator::mark_cycle_pt()
      *
      *  Remember the current location so that we can tell whether we've returned
      *  to this point later.
@@ -569,7 +567,7 @@ public:
     void mark_cycle_pt() {
 #ifndef NDEBUG
       if (!list) {
-        NO_LIST.error("ITERATOR::mark_cycle_pt", ABORT);
+        NO_LIST.error("Iterator::mark_cycle_pt", ABORT);
       }
 #endif
 
@@ -590,7 +588,7 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::at_first()
+     *              Iterator::at_first()
      *
      *  Are we at the start of the list?
      *
@@ -603,7 +601,7 @@ public:
     } // Current is first?
 
     /***********************************************************************
-     *              ITERATOR::at_last()
+     *              Iterator::at_last()
      *
      *  Are we at the end of the list?
      *
@@ -616,7 +614,7 @@ public:
     } // Current is last?
 
     /***********************************************************************
-     *              ITERATOR::cycled_list()
+     *              Iterator::cycled_list()
      *
      *  Have we returned to the cycle_pt since it was set?
      *
@@ -626,7 +624,7 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::add_to_end
+     *              Iterator::add_to_end
      *
      *  Add a new element to the end of the list without moving the iterator.
      *  This is provided because a single linked list cannot move to the last as
@@ -635,13 +633,13 @@ public:
                   queues.
     **********************************************************************/
     void add_to_end(  // element to add
-      CLASSNAME *new_data) {
+      T *new_data) {
 #ifndef NDEBUG
       if (!list) {
-        NO_LIST.error("ITERATOR::add_to_end", ABORT);
+        NO_LIST.error("Iterator::add_to_end", ABORT);
       }
       if (!new_data) {
-        BAD_PARAMETER.error("ITERATOR::add_to_end", ABORT, "new_data is nullptr");
+        BAD_PARAMETER.error("Iterator::add_to_end", ABORT, "new_data is nullptr");
       }
 #endif
 
@@ -652,7 +650,7 @@ public:
           this->add_before_stay_put(new_data);
           list->last = prev;
         } else { // Iteratr is elsewhere
-          auto new_element = new LINK;
+          auto new_element = new Link;
           new_element->data = new_data;
 
           new_element->next = list->last->next;
@@ -663,7 +661,7 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::exchange()
+     *              Iterator::exchange()
      *
      *  Given another iterator, whose current element is a different element on
      *  the same list list OR an element of another list, exchange the two current
@@ -672,7 +670,7 @@ public:
      *  (This function hasn't been in-lined because its a bit big!)
      **********************************************************************/
     void exchange(                 // positions of 2 links
-      ITERATOR *other_it) { // other iterator
+      Iterator *other_it) { // other iterator
       constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
 
       /* Do nothing if either list is empty or if both iterators reference the same
@@ -685,7 +683,7 @@ public:
       /* Error if either current element is deleted */
 
       if (!current || !other_it->current) {
-        DONT_EXCHANGE_DELETED.error("ITERATOR.exchange", ABORT);
+        DONT_EXCHANGE_DELETED.error("Iterator.exchange", ABORT);
       }
 
       /* Now handle the 4 cases: doubleton list; non-doubleton adjacent elements
@@ -747,7 +745,7 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::length()
+     *              Iterator::length()
      *
      *  Return the length of the list
      *
@@ -757,38 +755,39 @@ public:
     }
 
     /***********************************************************************
-     *              ITERATOR::sort()
+     *              Iterator::sort()
      *
      *  Sort the elements of the list, then reposition at the start.
      *
      **********************************************************************/
     void sort(     // sort elements
       int comparator(               // comparison routine
-        const CLASSNAME *, const CLASSNAME *)) {
+        const T *, const T *)) {
       list->sort(comparator);
       move_to_first();
     }
   };
+  using ITERATOR = Iterator; // compat
 
 private:
-  LINK *last = nullptr; // End of list
+  Link *last = nullptr; // End of list
 
   //(Points to head)
-  LINK *First() { // return first
+  Link *First() { // return first
     return last != nullptr ? last->next : nullptr;
   }
 
-  const LINK *First() const { // return first
+  const Link *First() const { // return first
     return last != nullptr ? last->next : nullptr;
   }
 
 public:
-  ~CLIST() { // destructor
+  ~ConsList() { // destructor
     shallow_clear();
   }
 
   /***********************************************************************
-   *              CLIST::internal_deep_clear
+   *              ConsList::internal_deep_clear
    *
    *  Used by the "deep_clear" member function of derived list
    *  classes to destroy all the elements on the list.
@@ -816,7 +815,7 @@ public:
   }
 
   /***********************************************************************
-   *              CLIST::shallow_clear
+   *              ConsList::shallow_clear
    *
    *  Used by the destructor and the "shallow_clear" member function of derived
    *  list classes to destroy the list.
@@ -845,12 +844,12 @@ public:
   }
 
   void shallow_copy(      // dangerous!!
-    CLIST *from_list) { // beware destructors!!
+    ConsList *from_list) { // beware destructors!!
     last = from_list->last;
   }
 
   /***********************************************************************
-   *              CLIST::assign_to_sublist
+   *              ConsList::assign_to_sublist
    *
    *  The list is set to a sublist of another list.  "This" list must be empty
    *  before this function is invoked.  The two iterators passed must refer to
@@ -862,12 +861,12 @@ public:
    *  end point is always the end_it position.
    **********************************************************************/
   void assign_to_sublist(  // to this list
-    ITERATOR *start_it,  // from list start
-    ITERATOR *end_it) {  // from list end
+    Iterator *start_it,  // from list start
+    Iterator *end_it) {  // from list end
     constexpr ERRCODE LIST_NOT_EMPTY("Destination list must be empty before extracting a sublist");
 
     if (!empty()) {
-      LIST_NOT_EMPTY.error("CLIST.assign_to_sublist", ABORT);
+      LIST_NOT_EMPTY.error("ConsList.assign_to_sublist", ABORT);
     }
 
     last = start_it->extract_sublist(end_it);
@@ -885,21 +884,21 @@ public:
   }
 
   /***********************************************************************
-   *              CLIST::sort
+   *              ConsList::sort
    *
    *  Sort elements on list
    **********************************************************************/
   void sort(          // sort elements
     int comparator( // comparison routine
-      const CLASSNAME *, const CLASSNAME *)) {
+      const T *, const T *)) {
     // Allocate an array of pointers, one per list element.
     auto count = length();
     if (count > 0) {
       // ptr array to sort
-      std::vector<CLASSNAME *> base;
+      std::vector<T *> base;
       base.reserve(count);
 
-      ITERATOR it(this);
+      Iterator it(this);
 
       // Extract all elements, putting the pointers in the array.
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -925,10 +924,10 @@ public:
   // Time is linear to add pre-sorted items to an empty list.
   // If unique, then don't add duplicate entries.
   // Returns true if the element was added to the list.
-  bool add_sorted(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique, CLASSNAME *new_data) {
+  bool add_sorted(int comparator(const T *, const T *), bool unique, T *new_data) {
     // Check for adding at the end.
     if (last == nullptr || comparator(last->data, new_data) < 0) {
-      auto *new_element = new LINK;
+      auto *new_element = new Link;
       new_element->data = new_data;
       if (last == nullptr) {
         new_element->next = new_element;
@@ -940,7 +939,7 @@ public:
       return true;
     } else if (!unique || last->data != new_data) {
       // Need to use an iterator.
-      ITERATOR it(this);
+      Iterator it(this);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         auto data = it.data();
         if (data == new_data && unique) {
@@ -965,16 +964,16 @@ public:
   // the set difference minuend - subtrahend to this, being the elements
   // of minuend that do not compare equal to anything in subtrahend.
   // If unique is true, any duplicates in minuend are also eliminated.
-  void set_subtract(int comparator(const CLASSNAME *, const CLASSNAME *), bool unique, CLIST *minuend,
-    CLIST *subtrahend) {
+  void set_subtract(int comparator(const T *, const T *), bool unique, ConsList *minuend,
+    ConsList *subtrahend) {
     shallow_clear();
-    ITERATOR m_it(minuend);
-    ITERATOR s_it(subtrahend);
+    Iterator m_it(minuend);
+    Iterator s_it(subtrahend);
     // Since both lists are sorted, finding the subtras that are not
     // minus is a case of a parallel iteration.
     for (m_it.mark_cycle_pt(); !m_it.cycled_list(); m_it.forward()) {
       auto minu = m_it.data();
-      CLASSNAME *subtra = nullptr;
+      T *subtra = nullptr;
       if (!s_it.empty()) {
         subtra = s_it.data();
         while (!s_it.at_last() && comparator(subtra, minu) < 0) {
@@ -989,11 +988,11 @@ public:
   }
 };
 
-#define CLISTIZEH(CLASSNAME)                                    \
-  class CLASSNAME##_CLIST : public CLIST<CLASSNAME> {           \
-    using CLIST<CLASSNAME>::CLIST;                              \
-  };                                                            \
-  using CLASSNAME##_C_IT = CLIST<CLASSNAME>::ITERATOR;
+#define CLISTIZEH(T)                          \
+  class T##_CLIST : public ConsList<T> {      \
+    using ConsList<T>::ConsList;              \
+  };                                          \
+  using T##_C_IT = ConsList<T>::Iterator;
 
 } // namespace tesseract
 

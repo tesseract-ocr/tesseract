@@ -51,11 +51,11 @@ i)  The duplication in source does not affect the run time code size - the
  * Generic list class for doubly linked lists with embedded links
  **********************************************************************/
 
-template <typename CLASSNAME>
-class ELIST2 {
+template <typename T>
+class IntrusiveList {
 public:
   /**********************************************************************
-   *              CLASS - LINK
+   *              CLASS - Link
    *
    *              Generic link class for doubly linked lists with embedded links
    *
@@ -64,26 +64,26 @@ public:
    *  walks the list.
    **********************************************************************/
 
-  class LINK {
-    friend class ITERATOR;
-    friend class ELIST2;
+  class Link {
+    friend class Iterator;
+    friend class IntrusiveList;
 
-    CLASSNAME *prev;
-    CLASSNAME *next;
+    T *prev;
+    T *next;
 
   public:
-    LINK() { // constructor
+    Link() { // constructor
       prev = next = nullptr;
     }
 
-    LINK(const LINK &) = delete;
+    Link(const Link &) = delete;
 
     // The assignment operator is required for WERD.
-    void operator=(const LINK &) {
+    void operator=(const Link &) {
       prev = next = nullptr;
     }
   };
-
+  using LINK = Link; // compat
 
   /***********************************************************************
    *              CLASS - ELIST2_ITERATOR
@@ -92,36 +92,36 @@ public:
    *links
    **********************************************************************/
 
-  class ITERATOR {
-    friend void ELIST2::assign_to_sublist(ITERATOR *, ITERATOR *);
+  class Iterator {
+    friend void IntrusiveList::assign_to_sublist(Iterator *, Iterator *);
 
-    ELIST2 *list;                 // List being iterated
-    CLASSNAME *prev;            // prev element
-    CLASSNAME *current;         // current element
-    CLASSNAME *next;            // next element
-    CLASSNAME *cycle_pt;        // point we are cycling the list to.
+    IntrusiveList *list;                 // List being iterated
+    T *prev;            // prev element
+    T *current;         // current element
+    T *next;            // next element
+    T *cycle_pt;        // point we are cycling the list to.
     bool ex_current_was_last;     // current extracted was end of list
     bool ex_current_was_cycle_pt; // current extracted was cycle point
     bool started_cycling;         // Have we moved off the start?
     /***********************************************************************
    *              ELIST2_ITERATOR::extract_sublist()
    *
-   *  This is a private member, used only by ELIST2::assign_to_sublist.
+   *  This is a private member, used only by IntrusiveList::assign_to_sublist.
    *  Given another iterator for the same list, extract the links from THIS to
    *  OTHER inclusive, link them into a new circular list, and return a
    *  pointer to the last element.
    *  (Can't inline this function because it contains a loop)
    **********************************************************************/
-    CLASSNAME *extract_sublist(   // from this current...
-      ITERATOR *other_it) {               // to other current
+    T *extract_sublist(   // from this current...
+      Iterator *other_it) {               // to other current
 #ifndef NDEBUG
       constexpr ERRCODE BAD_EXTRACTION_PTS("Can't extract sublist from points on different lists");
       constexpr ERRCODE DONT_EXTRACT_DELETED("Can't extract a sublist marked by deleted points");
 #endif
       constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 
-      ITERATOR temp_it = *this;
-      CLASSNAME *end_of_new_list;
+      Iterator temp_it = *this;
+      T *end_of_new_list;
 
 #ifndef NDEBUG
       if (!other_it)
@@ -193,8 +193,8 @@ public:
    *
    *  CONSTRUCTOR - set iterator to specified list;
    **********************************************************************/
-    ITERATOR( // constructor
-      ELIST2 *list_to_iterate) {
+    Iterator( // constructor
+      IntrusiveList *list_to_iterate) {
       set_to_list(list_to_iterate);
     }
 
@@ -206,7 +206,7 @@ public:
      **********************************************************************/
 
     void set_to_list( // change list
-      ELIST2 *list_to_iterate) {
+      IntrusiveList *list_to_iterate) {
 #ifndef NDEBUG
       if (!list_to_iterate) {
         BAD_PARAMETER.error("ELIST2_ITERATOR::set_to_list", ABORT, "list_to_iterate is nullptr");
@@ -229,7 +229,7 @@ public:
    *  iterator to the new element.
    **********************************************************************/
     void add_after_then_move(   // add after current &
-      CLASSNAME *new_element) {
+      T *new_element) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_after_then_move", ABORT);
@@ -278,7 +278,7 @@ public:
      *  the iterator to the new element.
      **********************************************************************/
     void add_after_stay_put(    // add after current &
-      CLASSNAME *new_element) {
+      T *new_element) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_after_stay_put", ABORT);
@@ -329,7 +329,7 @@ public:
      *  iterator to the new element.
      **********************************************************************/
     void add_before_then_move(  // add before current &
-      CLASSNAME *new_element) {
+      T *new_element) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_before_then_move", ABORT);
@@ -375,7 +375,7 @@ public:
      *  iterator to the new element.
      **********************************************************************/
     void add_before_stay_put(   // add before current &
-      CLASSNAME *new_element) {
+      T *new_element) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_before_stay_put", ABORT);
@@ -423,7 +423,7 @@ public:
      *  iterator.
      **********************************************************************/
     void add_list_after(      // add a list &
-      ELIST2 *list_to_add) {
+      IntrusiveList *list_to_add) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_list_after", ABORT);
@@ -473,7 +473,7 @@ public:
      *  iterator.
      **********************************************************************/
     void add_list_before(     // add a list &
-      ELIST2 *list_to_add) {
+      IntrusiveList *list_to_add) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_list_before", ABORT);
@@ -514,7 +514,7 @@ public:
       }
     } // move to it 1st item
 
-    CLASSNAME *data() { // get current data
+    T *data() { // get current data
 #ifndef NDEBUG
       if (!current) {
         NULL_DATA.error("ELIST2_ITERATOR::data", ABORT);
@@ -531,9 +531,9 @@ public:
    *  Return the data pointer to the element "offset" elements from current.
    *  (This function can't be INLINEd because it contains a loop)
    **********************************************************************/
-    CLASSNAME *data_relative( // get data + or - ...
+    T *data_relative( // get data + or - ...
       int8_t offset) {                         // offset from current
-      CLASSNAME *ptr;
+      T *ptr;
 
 #ifndef NDEBUG
       if (!list)
@@ -565,7 +565,7 @@ public:
      *  Move the iterator to the next element of the list.
      *  REMEMBER: ALL LISTS ARE CIRCULAR.
      **********************************************************************/
-    CLASSNAME *forward() {
+    T *forward() {
 #ifndef NDEBUG
       if (!list)
         NO_LIST.error("ELIST2_ITERATOR::forward", ABORT);
@@ -611,7 +611,7 @@ public:
      *  Move the iterator to the previous element of the list.
      *  REMEMBER: ALL LISTS ARE CIRCULAR.
      **********************************************************************/
-    CLASSNAME *backward() {
+    T *backward() {
 #ifndef NDEBUG
       if (!list)
         NO_LIST.error("ELIST2_ITERATOR::backward", ABORT);
@@ -655,8 +655,8 @@ public:
      *  this.)   The iterator's current points to nullptr.  If the extracted element
      *  is to be deleted, this is the callers responsibility.
      **********************************************************************/
-    CLASSNAME *extract() {
-      CLASSNAME *extracted_link;
+    T *extract() {
+      T *extracted_link;
 
 #ifndef NDEBUG
       if (!list) {
@@ -697,7 +697,7 @@ public:
      *  Return data just in case anyone wants it.
      **********************************************************************/
      // go to start of list
-    CLASSNAME *move_to_first() {
+    T *move_to_first() {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::move_to_first", ABORT);
@@ -715,7 +715,7 @@ public:
    *  Move current so that it is set to the end of the list.
    *  Return data just in case anyone wants it.
    **********************************************************************/
-    CLASSNAME *move_to_last() {
+    T *move_to_last() {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::move_to_last", ABORT);
@@ -825,7 +825,7 @@ public:
                   queues.
     **********************************************************************/
     void add_to_end(            // add at end &
-      CLASSNAME *new_element) {
+      T *new_element) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::add_to_end", ABORT);
@@ -863,10 +863,10 @@ public:
      *  (This function hasn't been in-lined because its a bit big!)
      **********************************************************************/
     void exchange(                  // positions of 2 links
-      ITERATOR *other_it) { // other iterator
+      Iterator *other_it) { // other iterator
       constexpr ERRCODE DONT_EXCHANGE_DELETED("Can't exchange deleted elements of lists");
 
-      CLASSNAME *old_current;
+      T *old_current;
 
 #ifndef NDEBUG
       if (!list)
@@ -972,7 +972,7 @@ public:
    **********************************************************************/
     void sort(          // sort elements
       int comparator( // comparison routine
-        const CLASSNAME *, const CLASSNAME *)) {
+        const T *, const T *)) {
 #ifndef NDEBUG
       if (!list) {
         NO_LIST.error("ELIST2_ITERATOR::sort", ABORT);
@@ -985,19 +985,19 @@ public:
 
   private:
     // Don't use the following constructor.
-    ITERATOR() = delete;
+    Iterator() = delete;
   };
-
+  using ITERATOR = Iterator; // compat
 
 private:
-  CLASSNAME *last = nullptr; // End of list
+  T *last = nullptr; // End of list
   //(Points to head)
-  CLASSNAME *First() { // return first
+  T *First() { // return first
     return last ? last->next : nullptr;
   }
 
 public:
-  ~ELIST2() {
+  ~IntrusiveList() {
     clear();
   }
 
@@ -1008,16 +1008,16 @@ public:
 
   /* Become a deep copy of src_list */
   template <typename U>
-  void deep_copy(const U *src_list, CLASSNAME *(*copier)(const CLASSNAME *)) {
-    ITERATOR from_it(const_cast<U *>(src_list));
-    ITERATOR to_it(this);
+  void deep_copy(const U *src_list, T *(*copier)(const T *)) {
+    Iterator from_it(const_cast<U *>(src_list));
+    Iterator to_it(this);
 
     for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())
       to_it.add_after_then_move((*copier)(from_it.data()));
   }
 
   /***********************************************************************
-   *              ELIST2::internal_clear
+   *              IntrusiveList::internal_clear
    *
    *  Used by the destructor and the "clear" member function of derived list
    *  classes to destroy all the elements on the list.
@@ -1031,8 +1031,8 @@ public:
    // destroy all links
   void internal_clear() {
     // ptr to zapper functn
-    CLASSNAME *ptr;
-    CLASSNAME *next;
+    T *ptr;
+    T *next;
 
     if (!empty()) {
       ptr = last->next;     // set to first
@@ -1055,12 +1055,12 @@ public:
   }
 
   void shallow_copy(       // dangerous!!
-    ELIST2 *from_list) { // beware destructors!!
+    IntrusiveList *from_list) { // beware destructors!!
     last = from_list->last;
   }
 
   /***********************************************************************
- *              ELIST2::assign_to_sublist
+ *              IntrusiveList::assign_to_sublist
  *
  *  The list is set to a sublist of another list.  "This" list must be empty
  *  before this function is invoked.  The two iterators passed must refer to
@@ -1072,8 +1072,8 @@ public:
  *  end point is always the end_it position.
  **********************************************************************/
   void assign_to_sublist(        // to this list
-    ITERATOR *start_it, // from list start
-    ITERATOR *end_it);  // from list end
+    Iterator *start_it, // from list start
+    Iterator *end_it);  // from list end
 
   // # elements in list
   int32_t length() const {
@@ -1087,7 +1087,7 @@ public:
     return count;
   }
   /***********************************************************************
- *              ELIST2::sort
+ *              IntrusiveList::sort
  *
  *  Sort elements on list
  *  NB If you don't like the const declarations in the comparator, coerce yours:
@@ -1095,15 +1095,15 @@ public:
  **********************************************************************/
   void sort(          // sort elements
     int comparator( // comparison routine
-      const CLASSNAME *, const CLASSNAME *)) {
+      const T *, const T *)) {
     // Allocate an array of pointers, one per list element.
     auto count = length();
     if (count > 0) {
       // ptr array to sort
-      std::vector<CLASSNAME *> base;
+      std::vector<T *> base;
       base.reserve(count);
 
-      ITERATOR it(this);
+      Iterator it(this);
 
       // Extract all elements, putting the pointers in the array.
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -1127,7 +1127,7 @@ public:
   // Comparison function is the same as used by sort, i.e. uses double
   // indirection. Time is O(1) to add to beginning or end.
   // Time is linear to add pre-sorted items to an empty list.
-  void add_sorted(int comparator(const CLASSNAME *, const CLASSNAME *), CLASSNAME *new_link) {
+  void add_sorted(int comparator(const T *, const T *), T *new_link) {
     // Check for adding at the end.
     if (last == nullptr || comparator(last, new_link) < 0) {
       if (last == nullptr) {
@@ -1142,7 +1142,7 @@ public:
       last = new_link;
     } else {
       // Need to use an iterator.
-      ITERATOR it(this);
+      Iterator it(this);
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         auto link = it.data();
         if (comparator(link, new_link) > 0) {
@@ -1158,16 +1158,19 @@ public:
   }
 };
 
+template <typename CLASSNAME>
+using ELIST2 = IntrusiveList<CLASSNAME>;
+
 // add TESS_API?
 // move templated lists to public include dirs?
-#define ELIST2IZEH(CLASSNAME)                           \
-  class CLASSNAME##_LIST : public ELIST2<CLASSNAME> {   \
+#define ELIST2IZEH(T)                           \
+  class T##_LIST : public IntrusiveList<T> {   \
   public:                                               \
-    using ELIST2<CLASSNAME>::ELIST2;                    \
+    using IntrusiveList<T>::IntrusiveList;                    \
   };                                                    \
-  class CLASSNAME##_IT : public ELIST2<CLASSNAME>::ITERATOR { \
+  class T##_IT : public IntrusiveList<T>::Iterator { \
   public:                                               \
-    using base = ELIST2<CLASSNAME>::ITERATOR;           \
+    using base = IntrusiveList<T>::Iterator;           \
     using base::base;                                   \
   };
 
