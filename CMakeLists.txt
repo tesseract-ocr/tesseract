@@ -320,7 +320,10 @@ if(OPENMP_BUILD
   set(OPENMP_BUILD OFF)
 endif()
 if(OPENMP_BUILD)
-  find_package(OpenMP QUIET)
+  if(MSVC)  # supported from cmake 3.30
+    set(OpenMP_RUNTIME_MSVC "llvm")
+  endif(MSVC)
+  find_package(OpenMP)
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
   if(NOT OpenMP_FOUND
