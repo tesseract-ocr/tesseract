@@ -273,32 +273,6 @@ static void PrintHelpMessage(const char *program) {
       program, program, program);
 }
 
-static bool SetVariablesFromCLArgs(tesseract::TessBaseAPI &api, int argc, char **argv) {
-  bool success = true;
-  char opt1[256], opt2[255];
-  for (int i = 0; i < argc; i++) {
-    if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
-      strncpy(opt1, argv[i + 1], 255);
-      opt1[255] = '\0';
-      char *p = strchr(opt1, '=');
-      if (!p) {
-        fprintf(stderr, "Missing = in configvar assignment\n");
-        success = false;
-        break;
-      }
-      *p = 0;
-      strncpy(opt2, strchr(argv[i + 1], '=') + 1, sizeof(opt2) - 1);
-      opt2[254] = 0;
-      ++i;
-
-      if (!api.SetVariable(opt1, opt2)) {
-        fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
-      }
-    }
-  }
-  return success;
-}
-
 static void PrintLangsList(tesseract::TessBaseAPI &api) {
   std::vector<std::string> languages;
   api.GetAvailableLanguagesAsVector(&languages);
@@ -485,7 +459,16 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       *print_fonts_table = true;
 #endif  // ndef DISABLED_LEGACY_ENGINE
     } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
-      // handled properly after api init
+      const std::string argument(argv[i + 1]);
+      const auto equal_pos = argument.find('=');
+      if (equal_pos == std::string::npos) {
+          throw std::invalid_argument("Missing '=' in configvar assignment");
+      }
+      // Extract key and value
+      const std::string key = argument.substr(0, equal_pos);
+      const std::string value = argument.substr(equal_pos + 1);
+      vars_vec->push_back(key);
+      vars_values->push_back(value);
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
@@ -735,10 +718,6 @@ int main(int argc, char **argv) {
 
   const int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]), argc - arg_i,
                                    &vars_vec, &vars_values, false);
-
-  if (!SetVariablesFromCLArgs(api, argc, argv)) {
-    return EXIT_FAILURE;
-  }
 
   // SIMD settings might be overridden by config variable.
   tesseract::SIMDDetect::Update();
