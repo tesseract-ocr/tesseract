@@ -648,7 +648,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
  *
  **********************************************************************/
 
-int main(int argc, char **argv) {
+int main1(int argc, char **argv) {
 #if defined(__USE_GNU) && defined(HAVE_FEENABLEEXCEPT)
   // Raise SIGFPE.
 #  if defined(__clang__)
@@ -851,4 +851,15 @@ int main(int argc, char **argv) {
   }
 
   return ret_val;
+}
+
+int main(int argc, char **argv) {
+  try {
+    return main1(argc, argv);
+  } catch (std::exception &e) {
+    std::cerr << "exception: " << e.what() << "\n";
+  } catch (...) {
+    std::cerr << "unknown exception\n";
+  }
+  return 1;
 }
