@@ -146,6 +146,10 @@ static void ExtractFontName(const char* filename, std::string* fontname) {
  */
 static void addAvailableLanguages(const std::string &datadir,
                                   std::vector<std::string> *langs) {
+  if (!std::filesystem::exists(datadir)) {
+    std::cerr << "Error: The directory '" << datadir << "' does not exist.\n";
+    return;
+  }
   for (const auto& entry :
        std::filesystem::recursive_directory_iterator(datadir,
          std::filesystem::directory_options::follow_directory_symlink |
