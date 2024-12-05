@@ -827,7 +827,7 @@ set_target_properties(
                           ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set_target_properties(
   libtesseract PROPERTIES SOVERSION
-                          ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+                          ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set_target_properties(
   libtesseract
