@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import CameraCapture from './CameraCapture';
+import '../style/ImageUploader.css';
 
 const ImageUploader = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -58,62 +59,47 @@ const ImageUploader = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-          Image Text Extractor
-        </h2>
-        
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-            <div className="flex-1">
+    <div className="container">
+      <div className="wrapper">
+        <h2 className="title">Image Text Extractor</h2>
+        <div className="content">
+          <div className="upload-section">
+            <div className="file-input-wrapper">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
                 multiple
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-3 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-violet-100 file:text-violet-700
-                  hover:file:bg-violet-200 
-                  cursor-pointer
-                  border border-gray-300 rounded-lg"
+                className="file-input"
               />
             </div>
             <button
               onClick={toggleCamera}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                transition-colors duration-200 font-medium shadow-sm"
+              className="camera-button"
             >
               {showCamera ? 'Hide Camera' : 'Use Camera'}
             </button>
           </div>
 
           {showCamera && (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="camera-container">
               <CameraCapture onCapture={(file) => processFiles([file])} />
             </div>
           )}
 
           {isLoading && (
-            <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600">Processing images...</p>
+            <div className="loading">
+              <div className="spinner"></div>
+              <p className="loading-text">Processing images...</p>
             </div>
           )}
           
           {results.length > 0 && (
-            <div className="mt-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">OCR Results</h3>
-                <button
-                  onClick={handleDownload}
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg 
-                    hover:bg-green-700 transition-colors duration-200 font-medium shadow-sm"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="results-section">
+              <div className="results-header">
+                <h3 className="results-title">OCR Results</h3>
+                <button onClick={handleDownload} className="download-button">
+                  <svg className="download-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
@@ -121,12 +107,11 @@ const ImageUploader = () => {
                 </button>
               </div>
               
-              <div className="space-y-4">
+              <div className="results-list">
                 {results.map((result, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4 shadow-sm">
-                    <h4 className="font-medium text-gray-900 mb-2">{result.file}</h4>
-                    <pre className="bg-white p-4 rounded-lg border border-gray-200 text-sm text-gray-700 
-                      overflow-x-auto">{result.text}</pre>
+                  <div key={index} className="result-item">
+                    <h4 className="result-filename">{result.file}</h4>
+                    <pre className="result-text">{result.text}</pre>
                   </div>
                 ))}
               </div>

@@ -22,8 +22,8 @@
     "@types/node": "^22.5.4",
     "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.12",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
     "typescript": "5.6.2"
   }
 }

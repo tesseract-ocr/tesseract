@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import Webcam from 'react-webcam';
+import '../style/CameraCapture.css';
 
 const CameraCapture = ({ onCapture }) => {
   const webcamRef = useRef(null);
@@ -17,15 +18,15 @@ const CameraCapture = ({ onCapture }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="camera-container">
       <Webcam
         ref={webcamRef}
         screenshotFormat="image/jpeg"
-        className="w-full rounded"
+        className="webcam"
       />
       <button
         onClick={handleCameraCapture}
-        className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors w-full"
+        className="capture-button"
       >
         Capture Photo ({capturedImages.length} captured)
       </button>

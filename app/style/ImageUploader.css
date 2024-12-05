@@ -1,0 +1,196 @@
+.container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 3rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.wrapper {
+  max-width: 42rem;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .upload-section {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+.file-input-wrapper {
+  flex: 1;
+}
+
+.file-input {
+  display: block;
+  width: 100%;
+  font-size: 0.875rem;
+  color: #6b7280;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.file-input::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.file-input::file-selector-button:hover {
+  background-color: #ddd6fe;
+}
+
+.camera-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s;
+}
+
+.camera-button:hover {
+  background-color: #1d4ed8;
+}
+
+.camera-container {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-bottom: 2px solid #2563eb;
+  border-radius: 9999px;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 0.5rem;
+  color: #4b5563;
+}
+
+.results-section {
+  margin-top: 2rem;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.results-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #059669;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s;
+}
+
+.download-button:hover {
+  background-color: #047857;
+}
+
+.download-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.result-item {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.result-filename {
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.result-text {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  color: #374151;
+  overflow-x: auto;
+} 

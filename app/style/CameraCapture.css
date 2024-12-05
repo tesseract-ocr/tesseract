@@ -1,0 +1,22 @@
+.camera-container {
+  position: relative;
+}
+
+.webcam {
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.capture-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.capture-button:hover {
+  background-color: #059669;
+} 
