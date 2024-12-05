@@ -11,12 +11,16 @@
     "@types/react-dom": "^18.3.0",
     "axios": "^1.7.7",
     "file-saver": "^2.0.5",
+    "jsdom": "^25.0.1",
     "next": "^14.2.11",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-webcam": "^7.2.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
+    "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.12",

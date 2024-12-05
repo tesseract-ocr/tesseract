@@ -29,13 +29,12 @@ export async function POST(request: NextRequest) {
     // Run Tesseract OCR
     const { stdout, stderr } = await execAsync(`tesseract "${filePath}" stdout -l khm --psm 1`);
 
-    // Clean up the temporary file
-    await execAsync(`rm "${filePath}"`);
-
     if (stderr) {
       console.error('Tesseract Error:', stderr);
-      return NextResponse.json({ text: stdout.trim(), error: stderr }, { status: 200 });
     }
+
+    // Clean up the temporary file
+    await execAsync(`rm "${filePath}"`);
 
     return NextResponse.json({ text: stdout.trim() });
   } catch (error) {
