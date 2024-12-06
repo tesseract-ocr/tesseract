@@ -9,7 +9,7 @@ on:
 
 env:
   ILOC: d:/a/local
-  png_ver: 1643
+  png_ver: 1644
 
 jobs:
   build:
@@ -37,9 +37,9 @@ jobs:
         run: |
              mkdir ${{env.ILOC}}
 
-      - name: Uninstall Perl
-        run: |
-          choco uninstall strawberryperl
+      #- name: Uninstall Perl
+      #  run: |
+      #    choco uninstall strawberryperl
 
       - name: Build and Install zlib-ng
         shell: cmd
