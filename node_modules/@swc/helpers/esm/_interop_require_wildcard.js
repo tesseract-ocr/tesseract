@@ -8,7 +8,7 @@ function _getRequireWildcardCache(nodeInterop) {
         return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
     })(nodeInterop);
 }
-export function _interop_require_wildcard(obj, nodeInterop) {
+function _interop_require_wildcard(obj, nodeInterop) {
     if (!nodeInterop && obj && obj.__esModule) return obj;
     if (obj === null || typeof obj !== "object" && typeof obj !== "function") return { default: obj };
 

@@ -1,5 +1,5 @@
 var REACT_ELEMENT_TYPE;
-export function _jsx(type, props, key, children) {
+function _jsx(type, props, key, children) {
     if (!REACT_ELEMENT_TYPE) {
         REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7;
     }

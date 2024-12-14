@@ -1,4 +1,4 @@
-export function _apply_decorated_descriptor(target, property, decorators, descriptor, context) {
+function _apply_decorated_descriptor(target, property, decorators, descriptor, context) {
     var desc = {};
 
     Object["ke" + "ys"](descriptor).forEach(function(key) {

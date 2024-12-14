@@ -69,7 +69,7 @@ modules.forEach((p) => {
         }),
     );
 
-    indexESM.push(`export { ${importBinding} } from "./${importBinding}.js";`);
+    indexESM.push(`export { _ as ${importBinding} } from "./${importBinding}.js";`);
 
     cjs_module_lexer.push(`${importBinding}: null,`);
     cjs_export_list.push(`get ${importBinding}() {

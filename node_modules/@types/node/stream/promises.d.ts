@@ -1,12 +1,19 @@
 declare module "stream/promises" {
     import {
-        FinishedOptions,
+        FinishedOptions as _FinishedOptions,
         PipelineDestination,
         PipelineOptions,
         PipelinePromise,
         PipelineSource,
         PipelineTransform,
     } from "node:stream";
+    interface FinishedOptions extends _FinishedOptions {
+        /**
+         * If true, removes the listeners registered by this function before the promise is fulfilled.
+         * @default false
+         */
+        cleanup?: boolean | undefined;
+    }
     function finished(
         stream: NodeJS.ReadableStream | NodeJS.WritableStream | NodeJS.ReadWriteStream,
         options?: FinishedOptions,

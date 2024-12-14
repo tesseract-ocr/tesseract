@@ -1,4 +1,4 @@
-export function _async_generator_delegate(inner, awaitWrap) {
+function _async_generator_delegate(inner, awaitWrap) {
     var iter = {}, waiting = false;
 
     function pump(key, value) {

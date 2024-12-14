@@ -1,8 +1,8 @@
-import { _to_array } from "./_to_array.js";
-import { _to_property_key } from "./_to_property_key.js";
-import { _type_of } from "./_type_of.js";
+import { _ as _to_array } from "./_to_array.js";
+import { _ as _to_property_key } from "./_to_property_key.js";
+import { _ as _type_of } from "./_type_of.js";
 
-export function _decorate(decorators, factory, superClass) {
+function _decorate(decorators, factory, superClass) {
     var r = factory(function initialize(O) {
         _initializeInstanceElements(O, decorated.elements);
     }, superClass);

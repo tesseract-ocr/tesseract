@@ -1,4 +1,4 @@
-export function _class_apply_descriptor_update(receiver, descriptor) {
+function _class_apply_descriptor_update(receiver, descriptor) {
     if (descriptor.set) {
         if (!descriptor.get) throw new TypeError("attempted to read set only private field");
 

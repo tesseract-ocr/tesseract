@@ -166,6 +166,9 @@ declare module "stream/web" {
     interface ReadableStreamErrorCallback {
         (reason: any): void | PromiseLike<void>;
     }
+    interface ReadableStreamAsyncIterator<T> extends NodeJS.AsyncIterator<T, NodeJS.BuiltinIteratorReturn, unknown> {
+        [Symbol.asyncIterator](): ReadableStreamAsyncIterator<T>;
+    }
     /** This Streams API interface represents a readable stream of byte data. */
     interface ReadableStream<R = any> {
         readonly locked: boolean;
@@ -176,8 +179,8 @@ declare module "stream/web" {
         pipeThrough<T>(transform: ReadableWritablePair<T, R>, options?: StreamPipeOptions): ReadableStream<T>;
         pipeTo(destination: WritableStream<R>, options?: StreamPipeOptions): Promise<void>;
         tee(): [ReadableStream<R>, ReadableStream<R>];
-        values(options?: { preventCancel?: boolean }): AsyncIterableIterator<R>;
-        [Symbol.asyncIterator](): AsyncIterableIterator<R>;
+        values(options?: { preventCancel?: boolean }): ReadableStreamAsyncIterator<R>;
+        [Symbol.asyncIterator](): ReadableStreamAsyncIterator<R>;
     }
     const ReadableStream: {
         prototype: ReadableStream;
@@ -418,7 +421,7 @@ declare module "stream/web" {
     global {
         interface ByteLengthQueuingStrategy extends _ByteLengthQueuingStrategy {}
         /**
-         * `ByteLengthQueuingStrategy` class is a global reference for `require('stream/web').ByteLengthQueuingStrategy`.
+         * `ByteLengthQueuingStrategy` class is a global reference for `import { ByteLengthQueuingStrategy } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-bytelengthqueuingstrategy
          * @since v18.0.0
          */
@@ -428,7 +431,7 @@ declare module "stream/web" {
 
         interface CompressionStream extends _CompressionStream {}
         /**
-         * `CompressionStream` class is a global reference for `require('stream/web').CompressionStream`.
+         * `CompressionStream` class is a global reference for `import { CompressionStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-compressionstream
          * @since v18.0.0
          */
@@ -448,7 +451,7 @@ declare module "stream/web" {
 
         interface CountQueuingStrategy extends _CountQueuingStrategy {}
         /**
-         * `CountQueuingStrategy` class is a global reference for `require('stream/web').CountQueuingStrategy`.
+         * `CountQueuingStrategy` class is a global reference for `import { CountQueuingStrategy } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-countqueuingstrategy
          * @since v18.0.0
          */
@@ -457,7 +460,7 @@ declare module "stream/web" {
 
         interface DecompressionStream extends _DecompressionStream {}
         /**
-         * `DecompressionStream` class is a global reference for `require('stream/web').DecompressionStream`.
+         * `DecompressionStream` class is a global reference for `import { DecompressionStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-decompressionstream
          * @since v18.0.0
          */
@@ -477,7 +480,7 @@ declare module "stream/web" {
 
         interface ReadableByteStreamController extends _ReadableByteStreamController {}
         /**
-         * `ReadableByteStreamController` class is a global reference for `require('stream/web').ReadableByteStreamController`.
+         * `ReadableByteStreamController` class is a global reference for `import { ReadableByteStreamController } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablebytestreamcontroller
          * @since v18.0.0
          */
@@ -487,7 +490,7 @@ declare module "stream/web" {
 
         interface ReadableStream<R = any> extends _ReadableStream<R> {}
         /**
-         * `ReadableStream` class is a global reference for `require('stream/web').ReadableStream`.
+         * `ReadableStream` class is a global reference for `import { ReadableStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablestream
          * @since v18.0.0
          */
@@ -496,7 +499,7 @@ declare module "stream/web" {
 
         interface ReadableStreamBYOBReader extends _ReadableStreamBYOBReader {}
         /**
-         * `ReadableStreamBYOBReader` class is a global reference for `require('stream/web').ReadableStreamBYOBReader`.
+         * `ReadableStreamBYOBReader` class is a global reference for `import { ReadableStreamBYOBReader } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablestreambyobreader
          * @since v18.0.0
          */
@@ -506,7 +509,7 @@ declare module "stream/web" {
 
         interface ReadableStreamBYOBRequest extends _ReadableStreamBYOBRequest {}
         /**
-         * `ReadableStreamBYOBRequest` class is a global reference for `require('stream/web').ReadableStreamBYOBRequest`.
+         * `ReadableStreamBYOBRequest` class is a global reference for `import { ReadableStreamBYOBRequest } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablestreambyobrequest
          * @since v18.0.0
          */
@@ -516,7 +519,7 @@ declare module "stream/web" {
 
         interface ReadableStreamDefaultController<R = any> extends _ReadableStreamDefaultController<R> {}
         /**
-         * `ReadableStreamDefaultController` class is a global reference for `require('stream/web').ReadableStreamDefaultController`.
+         * `ReadableStreamDefaultController` class is a global reference for `import { ReadableStreamDefaultController } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablestreamdefaultcontroller
          * @since v18.0.0
          */
@@ -526,7 +529,7 @@ declare module "stream/web" {
 
         interface ReadableStreamDefaultReader<R = any> extends _ReadableStreamDefaultReader<R> {}
         /**
-         * `ReadableStreamDefaultReader` class is a global reference for `require('stream/web').ReadableStreamDefaultReader`.
+         * `ReadableStreamDefaultReader` class is a global reference for `import { ReadableStreamDefaultReader } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-readablestreamdefaultreader
          * @since v18.0.0
          */
@@ -536,7 +539,7 @@ declare module "stream/web" {
 
         interface TextDecoderStream extends _TextDecoderStream {}
         /**
-         * `TextDecoderStream` class is a global reference for `require('stream/web').TextDecoderStream`.
+         * `TextDecoderStream` class is a global reference for `import { TextDecoderStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-textdecoderstream
          * @since v18.0.0
          */
@@ -545,7 +548,7 @@ declare module "stream/web" {
 
         interface TextEncoderStream extends _TextEncoderStream {}
         /**
-         * `TextEncoderStream` class is a global reference for `require('stream/web').TextEncoderStream`.
+         * `TextEncoderStream` class is a global reference for `import { TextEncoderStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-textencoderstream
          * @since v18.0.0
          */
@@ -554,7 +557,7 @@ declare module "stream/web" {
 
         interface TransformStream<I = any, O = any> extends _TransformStream<I, O> {}
         /**
-         * `TransformStream` class is a global reference for `require('stream/web').TransformStream`.
+         * `TransformStream` class is a global reference for `import { TransformStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-transformstream
          * @since v18.0.0
          */
@@ -563,7 +566,7 @@ declare module "stream/web" {
 
         interface TransformStreamDefaultController<O = any> extends _TransformStreamDefaultController<O> {}
         /**
-         * `TransformStreamDefaultController` class is a global reference for `require('stream/web').TransformStreamDefaultController`.
+         * `TransformStreamDefaultController` class is a global reference for `import { TransformStreamDefaultController } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-transformstreamdefaultcontroller
          * @since v18.0.0
          */
@@ -573,7 +576,7 @@ declare module "stream/web" {
 
         interface WritableStream<W = any> extends _WritableStream<W> {}
         /**
-         * `WritableStream` class is a global reference for `require('stream/web').WritableStream`.
+         * `WritableStream` class is a global reference for `import { WritableStream } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-writablestream
          * @since v18.0.0
          */
@@ -582,7 +585,7 @@ declare module "stream/web" {
 
         interface WritableStreamDefaultController extends _WritableStreamDefaultController {}
         /**
-         * `WritableStreamDefaultController` class is a global reference for `require('stream/web').WritableStreamDefaultController`.
+         * `WritableStreamDefaultController` class is a global reference for `import { WritableStreamDefaultController } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-writablestreamdefaultcontroller
          * @since v18.0.0
          */
@@ -592,7 +595,7 @@ declare module "stream/web" {
 
         interface WritableStreamDefaultWriter<W = any> extends _WritableStreamDefaultWriter<W> {}
         /**
-         * `WritableStreamDefaultWriter` class is a global reference for `require('stream/web').WritableStreamDefaultWriter`.
+         * `WritableStreamDefaultWriter` class is a global reference for `import { WritableStreamDefaultWriter } from 'node:stream/web'`.
          * https://nodejs.org/api/globals.html#class-writablestreamdefaultwriter
          * @since v18.0.0
          */

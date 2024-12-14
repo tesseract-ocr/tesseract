@@ -540,11 +540,11 @@ declare module "diagnostics_channel" {
          * @param args Optional arguments to pass to the function
          * @return The return value of the given function
          */
-        traceCallback<Fn extends (this: any, ...args: any) => any>(
+        traceCallback<Fn extends (this: any, ...args: any[]) => any>(
             fn: Fn,
-            position: number | undefined,
-            context: ContextType | undefined,
-            thisArg: any,
+            position?: number,
+            context?: ContextType,
+            thisArg?: any,
             ...args: Parameters<Fn>
         ): void;
     }

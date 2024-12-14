@@ -13,7 +13,7 @@ function ownKeys(object, enumerableOnly) {
 
     return keys;
 }
-export function _object_spread_props(target, source) {
+function _object_spread_props(target, source) {
     source = source != null ? source : {};
 
     if (Object.getOwnPropertyDescriptors) Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));

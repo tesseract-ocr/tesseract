@@ -9,7 +9,7 @@
  * system do, use {@link lookup}.
  *
  * ```js
- * const dns = require('node:dns');
+ * import dns from 'node:dns';
  *
  * dns.lookup('example.org', (err, address, family) => {
  *   console.log('address: %j family: IPv%s', address, family);
@@ -23,7 +23,7 @@
  * DNS queries, bypassing other name-resolution facilities.
  *
  * ```js
- * const dns = require('node:dns');
+ * import dns from 'node:dns';
  *
  * dns.resolve4('archive.org', (err, addresses) => {
  *   if (err) throw err;
@@ -139,7 +139,7 @@ declare module "dns" {
      * Example usage:
      *
      * ```js
-     * const dns = require('node:dns');
+     * import dns from 'node:dns';
      * const options = {
      *   family: 6,
      *   hints: dns.ADDRCONFIG | dns.V4MAPPED,
@@ -199,7 +199,7 @@ declare module "dns" {
      * where `err.code` is the error code.
      *
      * ```js
-     * const dns = require('node:dns');
+     * import dns from 'node:dns';
      * dns.lookupService('127.0.0.1', 22, (err, hostname, service) => {
      *   console.log(hostname, service);
      *   // Prints: localhost ssh
@@ -787,7 +787,7 @@ declare module "dns" {
      * other resolvers:
      *
      * ```js
-     * const { Resolver } = require('node:dns');
+     * import { Resolver } from 'node:dns';
      * const resolver = new Resolver();
      * resolver.setServers(['4.4.4.4']);
      *

@@ -4,7 +4,7 @@
  * applications. It can be accessed using:
  *
  * ```js
- * const repl = require('node:repl');
+ * import repl from 'node:repl';
  * ```
  * @see [source](https://github.com/nodejs/node/blob/v22.x/lib/repl.js)
  */
@@ -130,7 +130,7 @@ declare module "repl" {
      * or directly using the JavaScript `new` keyword.
      *
      * ```js
-     * const repl = require('node:repl');
+     * import repl from 'node:repl';
      *
      * const options = { useColors: true };
      *
@@ -257,7 +257,7 @@ declare module "repl" {
          * The following example shows two new commands added to the REPL instance:
          *
          * ```js
-         * const repl = require('node:repl');
+         * import repl from 'node:repl';
          *
          * const replServer = repl.start({ prompt: '> ' });
          * replServer.defineCommand('sayhello', {
@@ -407,7 +407,7 @@ declare module "repl" {
      * If `options` is a string, then it specifies the input prompt:
      *
      * ```js
-     * const repl = require('node:repl');
+     * import repl from 'node:repl';
      *
      * // a Unix style prompt
      * repl.start('$ ');

@@ -1,7 +1,7 @@
-import { _get } from "./_get.js";
-import { _set } from "./_set.js";
+import { _ as _get } from "./_get.js";
+import { _ as _set } from "./_set.js";
 
-export function _update(target, property, receiver, isStrict) {
+function _update(target, property, receiver, isStrict) {
     return {
         get _() {
             return _get(target, property, receiver);

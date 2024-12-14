@@ -10,7 +10,7 @@
  * To access the `node:stream` module:
  *
  * ```js
- * const stream = require('node:stream');
+ * import stream from 'node:stream';
  * ```
  *
  * The `node:stream` module is useful for creating new types of stream instances.
@@ -303,7 +303,7 @@ declare module "stream" {
          * the method does nothing.
          *
          * ```js
-         * const fs = require('node:fs');
+         * import fs from 'node:fs';
          * const readable = getReadableStreamSomehow();
          * const writable = fs.createWriteStream('file.txt');
          * // All the data from readable goes into 'file.txt',
@@ -341,7 +341,7 @@ declare module "stream" {
          * // Pull off a header delimited by \n\n.
          * // Use unshift() if we get too much.
          * // Call the callback with (error, header, stream).
-         * const { StringDecoder } = require('node:string_decoder');
+         * import { StringDecoder } from 'node:string_decoder';
          * function parseHeader(stream, callback) {
          *   stream.on('error', callback);
          *   stream.on('readable', onReadable);
@@ -399,8 +399,8 @@ declare module "stream" {
          * libraries.
          *
          * ```js
-         * const { OldReader } = require('./old-api-module.js');
-         * const { Readable } = require('node:stream');
+         * import { OldReader } from './old-api-module.js';
+         * import { Readable } from 'node:stream';
          * const oreader = new OldReader();
          * const myReader = new Readable().wrap(oreader);
          *
@@ -422,7 +422,7 @@ declare module "stream" {
          * or exiting a `for await...of` iteration using a `break`, `return`, or `throw` will not destroy the stream.
          * **Default: `true`**.
          */
-        iterator(options?: { destroyOnReturn?: boolean }): AsyncIterableIterator<any>;
+        iterator(options?: { destroyOnReturn?: boolean }): NodeJS.AsyncIterator<any>;
         /**
          * This method allows mapping over the stream. The *fn* function will be called for every chunk in the stream.
          * If the *fn* function returns a promise - that promise will be `await`ed before being passed to the result stream.
@@ -651,7 +651,7 @@ declare module "stream" {
         removeListener(event: "readable", listener: () => void): this;
         removeListener(event: "resume", listener: () => void): this;
         removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
-        [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+        [Symbol.asyncIterator](): NodeJS.AsyncIterator<any>;
         /**
          * Calls `readable.destroy()` with an `AbortError` and returns a promise that fulfills when the stream is finished.
          * @since v20.4.0
@@ -806,7 +806,7 @@ declare module "stream" {
          *
          * ```js
          * // Write 'hello, ' and then end with 'world!'.
-         * const fs = require('node:fs');
+         * import fs from 'node:fs';
          * const file = fs.createWriteStream('example.txt');
          * file.write('hello, ');
          * file.end('world!');
@@ -1250,6 +1250,25 @@ declare module "stream" {
             removeListener(event: "unpipe", listener: (src: Readable) => void): this;
             removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
         }
+        /**
+         * The utility function `duplexPair` returns an Array with two items,
+         * each being a `Duplex` stream connected to the other side:
+         *
+         * ```js
+         * const [ sideA, sideB ] = duplexPair();
+         * ```
+         *
+         * Whatever is written to one stream is made readable on the other. It provides
+         * behavior analogous to a network connection, where the data written by the client
+         * becomes readable by the server, and vice-versa.
+         *
+         * The Duplex streams are symmetrical; one or the other may be used without any
+         * difference in behavior.
+         * @param options A value to pass to both {@link Duplex} constructors,
+         * to set options such as buffering.
+         * @since v22.6.0
+         */
+        function duplexPair(options?: DuplexOptions): [Duplex, Duplex];
         type TransformCallback = (error?: Error | null, data?: any) => void;
         interface TransformOptions extends DuplexOptions {
             construct?(this: Transform, callback: (error?: Error | null) => void): void;
@@ -1304,7 +1323,7 @@ declare module "stream" {
          * stream, and `controller.error(new AbortError())` for webstreams.
          *
          * ```js
-         * const fs = require('node:fs');
+         * import fs from 'node:fs';
          *
          * const controller = new AbortController();
          * const read = addAbortSignal(
@@ -1398,8 +1417,8 @@ declare module "stream" {
          * or has experienced an error or a premature close event.
          *
          * ```js
-         * const { finished } = require('node:stream');
-         * const fs = require('node:fs');
+         * import { finished } from 'node:stream';
+         * import fs from 'node:fs';
          *
          * const rs = fs.createReadStream('archive.tar');
          *
@@ -1482,9 +1501,9 @@ declare module "stream" {
          * properly cleaning up and provide a callback when the pipeline is complete.
          *
          * ```js
-         * const { pipeline } = require('node:stream');
-         * const fs = require('node:fs');
-         * const zlib = require('node:zlib');
+         * import { pipeline } from 'node:stream';
+         * import fs from 'node:fs';
+         * import zlib from 'node:zlib';
          *
          * // Use the pipeline API to easily pipe a series of streams
          * // together and get notified when the pipeline is fully done.
@@ -1524,9 +1543,9 @@ declare module "stream" {
          * See the example below:
          *
          * ```js
-         * const fs = require('node:fs');
-         * const http = require('node:http');
-         * const { pipeline } = require('node:stream');
+         * import fs from 'node:fs';
+         * import http from 'node:http';
+         * import { pipeline } from 'node:stream';
          *
          * const server = http.createServer((req, res) => {
          *   const fileStream = fs.createReadStream('./fileNotExist.txt');

@@ -1,6 +1,6 @@
-import { _await_value } from "./_await_value.js";
+import { _ as _await_value } from "./_await_value.js";
 
-export function _async_generator(gen) {
+function _async_generator(gen) {
     var front, back;
 
     function send(key, arg) {

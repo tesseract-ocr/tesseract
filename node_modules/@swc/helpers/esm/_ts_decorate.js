@@ -1,1 +1,1 @@
-export { __decorate as _, __decorate as _ts_decorate } from "tslib";
+export { __decorate as _ } from "tslib";

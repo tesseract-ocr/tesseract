@@ -33,5 +33,6 @@ export {
   __createBinding,
   __addDisposableResource,
   __disposeResources,
+  __rewriteRelativeImportExtension,
 } from '../tslib.js';
 export * as default from '../tslib.js';

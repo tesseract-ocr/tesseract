@@ -1,6 +1,6 @@
-import { _check_private_redeclaration } from "./_check_private_redeclaration.js";
+import { _ as _check_private_redeclaration } from "./_check_private_redeclaration.js";
 
-export function _class_private_field_init(obj, privateMap, value) {
+function _class_private_field_init(obj, privateMap, value) {
     _check_private_redeclaration(obj, privateMap);
     privateMap.set(obj, value);
 }

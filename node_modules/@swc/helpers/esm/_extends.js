@@ -1,4 +1,4 @@
-export function _extends() {
+function _extends() {
     _extends = Object.assign || function assign(target) {
         for (var i = 1; i < arguments.length; i++) {
             var source = arguments[i];

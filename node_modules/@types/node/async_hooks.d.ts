@@ -77,7 +77,7 @@ declare module "async_hooks" {
      *   executionAsyncId,
      *   executionAsyncResource,
      *   createHook,
-     * } from 'async_hooks';
+     * } from 'node:async_hooks';
      * const sym = Symbol('state'); // Private symbol to avoid pollution
      *
      * createHook({

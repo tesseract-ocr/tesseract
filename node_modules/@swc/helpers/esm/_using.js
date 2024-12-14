@@ -1,6 +1,6 @@
 /* @minVersion 7.22.0 */
 
-export function _using(stack, value, isAwait) {
+function _using(stack, value, isAwait) {
     if (value === null || value === void 0) return value;
     if (Object(value) !== value) {
         throw new TypeError("using declarations can only be used with objects, functions, null, or undefined.");

@@ -1,5 +1,5 @@
-import { _define_property } from "./_define_property.js";
-import { _super_prop_base } from "./_super_prop_base.js";
+import { _ as _define_property } from "./_define_property.js";
+import { _ as _super_prop_base } from "./_super_prop_base.js";
 
 function set(target, property, value, receiver) {
     if (typeof Reflect !== "undefined" && Reflect.set) set = Reflect.set;
@@ -33,7 +33,7 @@ function set(target, property, value, receiver) {
     return set(target, property, value, receiver);
 }
 
-export function _set(target, property, value, receiver, isStrict) {
+function _set(target, property, value, receiver, isStrict) {
     var s = set(target, property, value, receiver || target);
     if (!s && isStrict) throw new Error("failed to set property");
 

@@ -1,6 +1,6 @@
-import { _type_of } from "./_type_of.js";
+import { _ as _type_of } from "./_type_of.js";
 
-export function _to_primitive(input, hint) {
+function _to_primitive(input, hint) {
     if (_type_of(input) !== "object" || input === null) return input;
 
     var prim = input[Symbol.toPrimitive];

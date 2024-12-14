@@ -1,4 +1,4 @@
-export function _iterable_to_array_limit_loose(arr, i) {
+function _iterable_to_array_limit_loose(arr, i) {
     var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]);
 
     if (_i == null) return;

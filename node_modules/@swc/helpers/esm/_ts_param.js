@@ -1,1 +1,1 @@
-export { __param as _, __param as _ts_param } from "tslib";
+export { __param as _ } from "tslib";

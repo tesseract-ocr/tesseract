@@ -1,4 +1,4 @@
-export function _initializer_warning_helper(descriptor, context) {
+function _initializer_warning_helper(descriptor, context) {
     throw new Error(
         "Decorating class property failed. Please ensure that "
             + "proposal-class-properties is enabled and set to use loose mode. "

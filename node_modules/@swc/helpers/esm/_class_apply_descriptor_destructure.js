@@ -1,4 +1,4 @@
-export function _class_apply_descriptor_destructure(receiver, descriptor) {
+function _class_apply_descriptor_destructure(receiver, descriptor) {
     if (descriptor.set) {
         if (!("__destrObj" in descriptor)) {
             descriptor.__destrObj = {

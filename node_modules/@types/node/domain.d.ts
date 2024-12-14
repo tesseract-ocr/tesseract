@@ -63,8 +63,8 @@ declare module "domain" {
          * This is the most basic way to use a domain.
          *
          * ```js
-         * const domain = require('node:domain');
-         * const fs = require('node:fs');
+         * import domain from 'node:domain';
+         * import fs from 'node:fs';
          * const d = domain.create();
          * d.on('error', (er) => {
          *   console.error('Caught error!', er);

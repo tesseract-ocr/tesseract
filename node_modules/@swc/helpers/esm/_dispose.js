@@ -14,7 +14,7 @@ function dispose_SuppressedError(suppressed, error) {
     return new dispose_SuppressedError(suppressed, error);
 }
 
-export function _dispose(stack, error, hasError) {
+function _dispose(stack, error, hasError) {
     function next() {
         while (stack.length > 0) {
             try {

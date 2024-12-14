@@ -8,7 +8,7 @@
  * It can be accessed using:
  *
  * ```js
- * const net = require('node:net');
+ * import net from 'node:net';
  * ```
  * @see [source](https://github.com/nodejs/node/blob/v22.x/lib/net.js)
  */
@@ -29,6 +29,7 @@ declare module "net" {
     interface SocketConstructorOpts {
         fd?: number | undefined;
         allowHalfOpen?: boolean | undefined;
+        onread?: OnReadOpts | undefined;
         readable?: boolean | undefined;
         writable?: boolean | undefined;
         signal?: AbortSignal;
@@ -37,20 +38,15 @@ declare module "net" {
         buffer: Uint8Array | (() => Uint8Array);
         /**
          * This function is called for every chunk of incoming data.
-         * Two arguments are passed to it: the number of bytes written to buffer and a reference to buffer.
-         * Return false from this function to implicitly pause() the socket.
+         * Two arguments are passed to it: the number of bytes written to `buffer` and a reference to `buffer`.
+         * Return `false` from this function to implicitly `pause()` the socket.
          */
-        callback(bytesWritten: number, buf: Uint8Array): boolean;
+        callback(bytesWritten: number, buffer: Uint8Array): boolean;
     }
-    interface ConnectOpts {
-        /**
-         * If specified, incoming data is stored in a single buffer and passed to the supplied callback when data arrives on the socket.
-         * Note: this will cause the streaming functionality to not provide any data, however events like 'error', 'end', and 'close' will
-         * still be emitted as normal and methods like pause() and resume() will also behave as expected.
-         */
-        onread?: OnReadOpts | undefined;
-    }
-    interface TcpSocketConnectOpts extends ConnectOpts {
+    // TODO: remove empty ConnectOpts placeholder at next major @types/node version.
+    /** @deprecated */
+    interface ConnectOpts {}
+    interface TcpSocketConnectOpts {
         port: number;
         host?: string | undefined;
         localAddress?: string | undefined;
@@ -70,7 +66,7 @@ declare module "net" {
          */
         autoSelectFamilyAttemptTimeout?: number | undefined;
     }
-    interface IpcSocketConnectOpts extends ConnectOpts {
+    interface IpcSocketConnectOpts {
         path: string;
     }
     type SocketConnectOpts = TcpSocketConnectOpts | IpcSocketConnectOpts;
@@ -532,6 +528,12 @@ declare module "net" {
          * @since v16.5.0
          */
         keepAliveInitialDelay?: number | undefined;
+        /**
+         * Optionally overrides all `net.Socket`s' `readableHighWaterMark` and `writableHighWaterMark`.
+         * @default See [stream.getDefaultHighWaterMark()](https://nodejs.org/docs/latest-v22.x/api/stream.html#streamgetdefaulthighwatermarkobjectmode).
+         * @since v18.17.0, v20.1.0
+         */
+        highWaterMark?: number | undefined;
     }
     interface DropArgument {
         localAddress?: string;
@@ -812,7 +814,7 @@ declare module "net" {
      * on port 8124:
      *
      * ```js
-     * const net = require('node:net');
+     * import net from 'node:net';
      * const server = net.createServer((c) => {
      *   // 'connection' listener.
      *   console.log('client connected');

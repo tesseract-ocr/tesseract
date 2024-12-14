@@ -45,7 +45,7 @@ declare module "assert" {
                 /** The `operator` property on the error instance. */
                 operator?: string | undefined;
                 /** If provided, the generated stack trace omits frames before this function. */
-                // eslint-disable-next-line @typescript-eslint/ban-types
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
                 stackStartFn?: Function | undefined;
             });
         }
@@ -226,7 +226,7 @@ declare module "assert" {
             expected: unknown,
             message?: string | Error,
             operator?: string,
-            // eslint-disable-next-line @typescript-eslint/ban-types
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
             stackStartFn?: Function,
         ): never;
         /**
@@ -966,7 +966,7 @@ declare module "assert" {
          * To use strict assertion mode:
          *
          * ```js
-         * import { strict as assert } from 'node:assert';COPY
+         * import { strict as assert } from 'node:assert';
          * import assert from 'node:assert/strict';
          * ```
          *

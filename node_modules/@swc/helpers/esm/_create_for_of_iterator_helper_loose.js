@@ -1,6 +1,6 @@
-import { _unsupported_iterable_to_array } from "./_unsupported_iterable_to_array.js";
+import { _ as _unsupported_iterable_to_array } from "./_unsupported_iterable_to_array.js";
 
-export function _create_for_of_iterator_helper_loose(o, allowArrayLike) {
+function _create_for_of_iterator_helper_loose(o, allowArrayLike) {
     var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
 
     if (it) return (it = it.call(o)).next.bind(it);

@@ -168,6 +168,66 @@ declare module "process" {
                 libUrl?: string | undefined;
                 lts?: string | undefined;
             }
+            interface ProcessFeatures {
+                /**
+                 * A boolean value that is `true` if the current Node.js build is caching builtin modules.
+                 * @since v12.0.0
+                 */
+                readonly cached_builtins: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build is a debug build.
+                 * @since v0.5.5
+                 */
+                readonly debug: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes the inspector.
+                 * @since v11.10.0
+                 */
+                readonly inspector: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for IPv6.
+                 * @since v0.5.3
+                 */
+                readonly ipv6: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build supports
+                 * [loading ECMAScript modules using `require()`](https://nodejs.org/docs/latest-v22.x/api/modules.md#loading-ecmascript-modules-using-require).
+                 * @since v22.10.0
+                 */
+                readonly require_module: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for TLS.
+                 * @since v0.5.3
+                 */
+                readonly tls: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for ALPN in TLS.
+                 * @since v4.8.0
+                 */
+                readonly tls_alpn: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for OCSP in TLS.
+                 * @since v0.11.13
+                 */
+                readonly tls_ocsp: boolean;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for SNI in TLS.
+                 * @since v0.5.3
+                 */
+                readonly tls_sni: boolean;
+                /**
+                 * A value that is `"strip"` if Node.js is run with `--experimental-strip-types`,
+                 * `"transform"` if Node.js is run with `--experimental-transform-types`, and `false` otherwise.
+                 * @since v22.10.0
+                 */
+                readonly typescript: "strip" | "transform" | false;
+                /**
+                 * A boolean value that is `true` if the current Node.js build includes support for libuv.
+                 * Since it's currently not possible to build Node.js without libuv, this value is always `true`.
+                 * @since v0.5.3
+                 */
+                readonly uv: boolean;
+            }
             interface ProcessVersions extends Dict<string> {
                 http_parser: string;
                 node: string;
@@ -1612,16 +1672,7 @@ declare module "process" {
                  * @since v3.0.0
                  */
                 readonly release: ProcessRelease;
-                features: {
-                    inspector: boolean;
-                    debug: boolean;
-                    uv: boolean;
-                    ipv6: boolean;
-                    tls_alpn: boolean;
-                    tls_sni: boolean;
-                    tls_ocsp: boolean;
-                    tls: boolean;
-                };
+                readonly features: ProcessFeatures;
                 /**
                  * `process.umask()` returns the Node.js process's file mode creation mask. Child
                  * processes inherit the mask from the parent process.

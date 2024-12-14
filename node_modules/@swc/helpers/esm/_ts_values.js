@@ -1,1 +1,1 @@
-export { __values as _, __values as _ts_values } from "tslib";
+export { __values as _ } from "tslib";

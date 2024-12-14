@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../../src/server/future/normalizers/request/base-path.ts"],"names":["PrefixPathnameNormalizer","BasePathPathnameNormalizer","constructor","basePath","Error"],"mappings":"AAEA,SAASA,wBAAwB,QAAQ,WAAU;AAEnD,OAAO,MAAMC,mCACHD;IAGRE,YAAYC,QAAgB,CAAE;QAC5B,IAAI,CAACA,YAAYA,aAAa,KAAK;YACjC,MAAM,IAAIC,MAAM;QAClB;QAEA,KAAK,CAACD;IACR;AACF"}

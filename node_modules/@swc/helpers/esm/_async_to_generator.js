@@ -9,7 +9,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     if (info.done) resolve(value);
     else Promise.resolve(value).then(_next, _throw);
 }
-export function _async_to_generator(fn) {
+function _async_to_generator(fn) {
     return function() {
         var self = this, args = arguments;
 

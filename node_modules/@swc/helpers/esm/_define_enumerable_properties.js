@@ -1,4 +1,4 @@
-export function _define_enumerable_properties(obj, descs) {
+function _define_enumerable_properties(obj, descs) {
     for (var key in descs) {
         var desc = descs[key];
         desc.configurable = desc.enumerable = true;

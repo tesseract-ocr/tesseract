@@ -1,4 +1,4 @@
-export function _async_iterator(iterable) {
+function _async_iterator(iterable) {
     var method, async, sync, retry = 2;
     for ("undefined" != typeof Symbol && (async = Symbol.asyncIterator, sync = Symbol.iterator); retry--;) {
         if (async && null != (method = iterable[async])) return method.call(iterable);

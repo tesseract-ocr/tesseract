@@ -1,6 +1,6 @@
-import { _array_like_to_array } from "./_array_like_to_array.js";
+import { _ as _array_like_to_array } from "./_array_like_to_array.js";
 
-export function _unsupported_iterable_to_array(o, minLen) {
+function _unsupported_iterable_to_array(o, minLen) {
     if (!o) return;
     if (typeof o === "string") return _array_like_to_array(o, minLen);
 

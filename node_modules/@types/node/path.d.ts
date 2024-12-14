@@ -11,7 +11,7 @@ declare module "path/win32" {
  * paths. It can be accessed using:
  *
  * ```js
- * const path = require('node:path');
+ * import path from 'node:path';
  * ```
  * @see [source](https://github.com/nodejs/node/blob/v22.x/lib/path.js)
  */

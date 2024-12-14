@@ -8,7 +8,7 @@
  * can be accessed using:
  *
  * ```js
- * const punycode = require('punycode');
+ * import punycode from 'node:punycode';
  * ```
  *
  * [Punycode](https://tools.ietf.org/html/rfc3492) is a character encoding scheme defined by RFC 3492 that is

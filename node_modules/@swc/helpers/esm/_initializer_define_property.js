@@ -1,4 +1,4 @@
-export function _initializer_define_property(target, property, descriptor, context) {
+function _initializer_define_property(target, property, descriptor, context) {
     if (!descriptor) return;
 
     Object.defineProperty(target, property, {

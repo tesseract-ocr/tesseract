@@ -1,7 +1,7 @@
 /**
  * The `dns.promises` API provides an alternative set of asynchronous DNS methods
  * that return `Promise` objects rather than using callbacks. The API is accessible
- * via `require('node:dns').promises` or `require('node:dns/promises')`.
+ * via `import { promises as dnsPromises } from 'node:dns'` or `import dnsPromises from 'node:dns/promises'`.
  * @since v10.6.0
  */
 declare module "dns/promises" {
@@ -60,7 +60,7 @@ declare module "dns/promises" {
      * Example usage:
      *
      * ```js
-     * const dns = require('node:dns');
+     * import dns from 'node:dns';
      * const dnsPromises = dns.promises;
      * const options = {
      *   family: 6,
@@ -96,7 +96,7 @@ declare module "dns/promises" {
      * On error, the `Promise` is rejected with an [`Error`](https://nodejs.org/docs/latest-v20.x/api/errors.html#class-error) object, where `err.code` is the error code.
      *
      * ```js
-     * const dnsPromises = require('node:dns').promises;
+     * import dnsPromises from 'node:dns';
      * dnsPromises.lookupService('127.0.0.1', 22).then((result) => {
      *   console.log(result.hostname, result.service);
      *   // Prints: localhost ssh
@@ -394,8 +394,8 @@ declare module "dns/promises" {
      * other resolvers:
      *
      * ```js
-     * const { Resolver } = require('node:dns').promises;
-     * const resolver = new Resolver();
+     * import { promises } from 'node:dns';
+     * const resolver = new promises.Resolver();
      * resolver.setServers(['4.4.4.4']);
      *
      * // This request will use the server at 4.4.4.4, independent of global settings.

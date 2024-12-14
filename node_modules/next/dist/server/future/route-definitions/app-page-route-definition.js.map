@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/server/future/route-definitions/app-page-route-definition.ts"],"names":["isAppPageRouteDefinition","definition","kind","RouteKind","APP_PAGE"],"mappings":";;;;+BAWgBA;;;eAAAA;;;2BAVU;AAUnB,SAASA,yBACdC,UAA2B;IAE3B,OAAOA,WAAWC,IAAI,KAAKC,oBAAS,CAACC,QAAQ;AAC/C"}

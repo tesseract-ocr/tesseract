@@ -1,4 +1,4 @@
-export function _defaults(obj, defaults) {
+function _defaults(obj, defaults) {
     var keys = Object.getOwnPropertyNames(defaults);
 
     for (var i = 0; i < keys.length; i++) {

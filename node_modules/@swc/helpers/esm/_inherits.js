@@ -1,6 +1,6 @@
-import { _set_prototype_of } from "./_set_prototype_of.js";
+import { _ as _set_prototype_of } from "./_set_prototype_of.js";
 
-export function _inherits(subClass, superClass) {
+function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
         throw new TypeError("Super expression must either be null or a function");
     }

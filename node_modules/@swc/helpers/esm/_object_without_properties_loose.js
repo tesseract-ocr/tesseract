@@ -1,4 +1,4 @@
-export function _object_without_properties_loose(source, excluded) {
+function _object_without_properties_loose(source, excluded) {
     if (source == null) return {};
 
     var target = {};

@@ -11,6 +11,7 @@ import {
     DOMAttributes,
     DOMElement,
     FunctionComponentElement,
+    Key,
     ReactElement,
     ReactInstance,
     ReactNode,
@@ -29,7 +30,7 @@ export function unmountComponentAtNode(container: Element | DocumentFragment): b
 export function createPortal(
     children: ReactNode,
     container: Element | DocumentFragment,
-    key?: null | string,
+    key?: Key | null,
 ): ReactPortal;
 
 export const version: string;

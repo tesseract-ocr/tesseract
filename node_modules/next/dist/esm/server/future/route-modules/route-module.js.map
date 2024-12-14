@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/server/future/route-modules/route-module.ts"],"names":["RouteModule","constructor","userland","definition"],"mappings":"AA0BA;;;CAGC,GACD,OAAO,MAAeA;IAqBpBC,YAAY,EAAEC,QAAQ,EAAEC,UAAU,EAA4B,CAAE;QAC9D,IAAI,CAACD,QAAQ,GAAGA;QAChB,IAAI,CAACC,UAAU,GAAGA;IACpB;AACF"}

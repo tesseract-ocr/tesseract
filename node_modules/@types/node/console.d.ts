@@ -6,7 +6,7 @@
  *
  * * A `Console` class with methods such as `console.log()`, `console.error()`, and `console.warn()` that can be used to write to any Node.js stream.
  * * A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstdout) and
- * [`process.stderr`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstderr). The global `console` can be used without calling `require('node:console')`.
+ * [`process.stderr`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstderr). The global `console` can be used without importing the `node:console` module.
  *
  * _**Warning**_: The global console object's methods are neither consistently
  * synchronous like the browser APIs they resemble, nor are they consistently
@@ -362,7 +362,7 @@ declare module "node:console" {
          *
          * * A `Console` class with methods such as `console.log()`, `console.error()` and `console.warn()` that can be used to write to any Node.js stream.
          * * A global `console` instance configured to write to [`process.stdout`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstdout) and
-         * [`process.stderr`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstderr). The global `console` can be used without calling `require('console')`.
+         * [`process.stderr`](https://nodejs.org/docs/latest-v22.x/api/process.html#processstderr). The global `console` can be used without importing the `node:console` module.
          *
          * _**Warning**_: The global console object's methods are neither consistently
          * synchronous like the browser APIs they resemble, nor are they consistently

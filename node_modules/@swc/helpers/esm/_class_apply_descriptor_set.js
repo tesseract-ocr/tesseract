@@ -1,4 +1,4 @@
-export function _class_apply_descriptor_set(receiver, descriptor, value) {
+function _class_apply_descriptor_set(receiver, descriptor, value) {
     if (descriptor.set) descriptor.set.call(receiver, value);
     else {
         if (!descriptor.writable) {

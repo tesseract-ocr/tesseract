@@ -8,8 +8,6 @@ import { root } from "./utils.js";
  * @typedef {import("@ast-grep/napi").SgNode} SgNode
  */
 
-const export_lentgh = "export".length;
-
 export function ast_grep() {
     const task_queue = [];
 
@@ -23,21 +21,16 @@ export function ast_grep() {
         source.prepend(`"use strict";\n\n`);
 
         if (filename.startsWith("_ts")) {
-            const match = tree.root().find(`export { $NAME as _, $NAME as $ALIAS } from "tslib"`);
+            const match = tree.root().find(`export { $NAME as _ } from "tslib"`);
             if (match) {
                 const name = match.getMatch("NAME").text();
-                const alias = match.getMatch("ALIAS").text();
-
-                if (alias !== filename) {
-                    report_ts_mismatch(tree.filename(), match);
-                }
 
                 const range = match.range();
 
                 source.update(
                     range.start.index,
                     range.end.index,
-                    `exports._ = exports.${alias} = require("tslib").${name};`,
+                    `exports._ = require("tslib").${name};`,
                 );
                 task_queue.push(
                     fs.writeFile(root("cjs", `${filename}.cjs`), source.toString(), {
@@ -54,7 +47,7 @@ export function ast_grep() {
         const match = tree.root().find({
             rule: {
                 kind: "export_statement",
-                pattern: "export function $FUNC($$$){$$$}",
+                pattern: "export { $FUNC as _ }",
             },
         });
 
@@ -65,15 +58,17 @@ export function ast_grep() {
                 report_export_mismatch(tree.filename(), match);
             }
 
-            const export_start = match.range().start.index;
-            const export_end = export_start + export_lentgh;
+            const range = match.range();
             source.update(
-                export_start,
-                export_end,
-                `exports._ = exports.${func_name} = ${func_name};`,
+                range.start.index,
+                range.end.index,
+                `exports._ = ${func_name};`,
             );
 
-            match
+            // since we match the { export x as _ } pattern,
+            // we need to find the assignment expression from the root
+            tree
+                .root()
                 .findAll({
                     rule: {
                         pattern: func_name,
@@ -84,21 +79,8 @@ export function ast_grep() {
                 .forEach((match) => {
                     const range = match.range();
 
-                    source.prependLeft(range.start.index, `exports._ = exports.${func_name} = `);
+                    source.prependLeft(range.start.index, `exports._ = `);
                 });
-
-            const export_shortname = `export { ${func_name} as _}`;
-
-            const export_alias = tree.root().find(export_shortname);
-
-            if (!export_alias) {
-                task_queue.push(
-                    fs.appendFile(tree.filename(), export_shortname, "utf-8"),
-                );
-            } else {
-                const range = export_alias.range();
-                source.remove(range.start.index, range.end.index);
-            }
         } else {
             report_noexport(tree.filename(tree.filename()));
         }
@@ -106,7 +88,7 @@ export function ast_grep() {
         // rewrite import
         tree
             .root()
-            .findAll({ rule: { pattern: `import { $BINDING } from "$SOURCE"` } })
+            .findAll({ rule: { pattern: `import { _ as $BINDING } from "$SOURCE"` } })
             .forEach((match) => {
                 const import_binding = match.getMatch("BINDING").text();
                 const import_source = match.getMatch("SOURCE").text();
@@ -160,38 +142,6 @@ export function ast_grep() {
     task_queue.push(task);
 
     return task_queue;
-}
-
-/**
- * @param {string} filename
- * @param {SgNode} match
- */
-function report_ts_mismatch(filename, match) {
-    const range = match.getMatch("ALIAS").range();
-
-    errors.push(
-        [
-            `${chalk.bold.red("error")}: mismatch exported function name.`,
-            "",
-            `${chalk.blue("-->")} ${filename}:${match.range().start.line + 1}`,
-            "",
-            match.text(),
-            chalk.red(
-                [
-                    " ".repeat(range.start.column),
-                    "^".repeat(range.end.column - range.start.column),
-                ]
-                    .join(""),
-            ),
-            `${
-                chalk.bold(
-                    "note:",
-                )
-            } The exported name should be the same as the filename.`,
-            "",
-        ]
-            .join("\n"),
-    );
 }
 
 /**

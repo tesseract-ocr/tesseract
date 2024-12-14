@@ -4,7 +4,7 @@
  * The module can be accessed using:
  *
  * ```js
- * const tls = require('node:tls');
+ * import tls from 'node:tls';
  * ```
  * @see [source](https://github.com/nodejs/node/blob/v22.x/lib/tls.js)
  */
@@ -810,6 +810,12 @@ declare module "tls" {
          */
         ALPNCallback?: ((arg: { servername: string; protocols: string[] }) => string | undefined) | undefined;
         /**
+         * Treat intermediate (non-self-signed)
+         * certificates in the trust CA certificate list as trusted.
+         * @since v22.9.0, v20.18.0
+         */
+        allowPartialTrustChain?: boolean | undefined;
+        /**
          * Optionally override the trusted CA certificates. Default is to trust
          * the well-known CAs curated by Mozilla. Mozilla's CAs are completely
          * replaced when CAs are explicitly specified using this option.
@@ -1003,8 +1009,8 @@ declare module "tls" {
      * The following illustrates a simple echo server:
      *
      * ```js
-     * const tls = require('node:tls');
-     * const fs = require('node:fs');
+     * import tls from 'node:tls';
+     * import fs from 'node:fs';
      *
      * const options = {
      *   key: fs.readFileSync('server-key.pem'),
@@ -1049,8 +1055,8 @@ declare module "tls" {
      *
      * ```js
      * // Assumes an echo server that is listening on port 8000.
-     * const tls = require('node:tls');
-     * const fs = require('node:fs');
+     * import tls from 'node:tls';
+     * import fs from 'node:fs';
      *
      * const options = {
      *   // Necessary only if the server requires client certificate authentication.
