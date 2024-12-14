@@ -193,4 +193,91 @@
   font-size: 0.875rem;
   color: #374151;
   overflow-x: auto;
+}
+
+.upload-more-prompt {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.upload-more-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.upload-more-button, .finish-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.upload-more-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.finish-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.upload-more-button:hover, .finish-button:hover {
+  opacity: 0.9;
+}
+
+.selected-files {
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.selected-files h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.selected-files ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+}
+
+.selected-files li {
+  margin: 5px 0;
+}
+
+.process-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.process-button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.process-button:hover {
+  background-color: #218838;
+}
+
+.process-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 } 

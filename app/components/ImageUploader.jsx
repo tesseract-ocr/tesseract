@@ -11,24 +11,29 @@ const ImageUploader = () => {
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [currentProcessingIndex, setCurrentProcessingIndex] = useState(0);
+  const [showUploadMore, setShowUploadMore] = useState(false);
+  const [readyToProcess, setReadyToProcess] = useState(false);
 
   const handleFileChange = (event) => {
     if (event.target.files && event.target.files.length > 0) {
       const newFiles = Array.from(event.target.files);
       setSelectedFiles(prev => [...prev, ...newFiles]);
-      processFiles(newFiles);
+      setReadyToProcess(true);
     }
   };
 
-  const processFiles = async (files) => {
+  const processFiles = async () => {
     setIsLoading(true);
+    setShowUploadMore(false);
+    setReadyToProcess(false);
     
-    for (const file of files) {
+    for (const file of selectedFiles) {
       await handleFileUpload(file);
     }
     
     setIsLoading(false);
+    setShowUploadMore(true);
+    setSelectedFiles([]); // Clear the files after processing
   };
 
   const handleFileUpload = async (file) => {
@@ -81,9 +86,36 @@ const ImageUploader = () => {
             </button>
           </div>
 
+          {selectedFiles.length > 0 && (
+            <div className="selected-files">
+              <h4>Selected Files ({selectedFiles.length}):</h4>
+              <ul>
+                {selectedFiles.map((file, index) => (
+                  <li key={index}>{file.name}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {readyToProcess && !isLoading && (
+            <div className="process-section">
+              <button 
+                onClick={processFiles}
+                className="process-button"
+              >
+                Process {selectedFiles.length} Files
+              </button>
+            </div>
+          )}
+
           {showCamera && (
             <div className="camera-container">
-              <CameraCapture onCapture={(file) => processFiles([file])} />
+              <CameraCapture 
+                onCapture={(file) => {
+                  setSelectedFiles(prev => [...prev, file]);
+                  setReadyToProcess(true);
+                }} 
+              />
             </div>
           )}
 
@@ -114,6 +146,30 @@ const ImageUploader = () => {
                     <pre className="result-text">{result.text}</pre>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {showUploadMore && !isLoading && (
+            <div className="upload-more-prompt">
+              <p>Would you like to upload more files?</p>
+              <div className="upload-more-buttons">
+                <div className="file-input-wrapper">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    multiple
+                    className="file-input"
+                  />
+                  <button className="upload-more-button">Yes, Upload More</button>
+                </div>
+                <button 
+                  className="finish-button"
+                  onClick={() => setShowUploadMore(false)}
+                >
+                  No, I'm Done
+                </button>
               </div>
             </div>
           )}

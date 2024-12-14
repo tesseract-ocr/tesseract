@@ -1,4 +1,3 @@
 {
-  "/api/ocr/route": "app/api/ocr/route.js",
   "/page": "app/page.js"
 }
