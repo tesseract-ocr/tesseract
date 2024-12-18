@@ -43,24 +43,25 @@ namespace tesseract {
 // Read a "config" file containing a set of variable, value pairs.
 // Searches the standard places: tessdata/configs, tessdata/tessconfigs
 // and also accepts a relative or absolute path name.
-void Tesseract::read_config_file(const char *filename, SetParamConstraint constraint) {
-  std::string path = datadir;
-  path += "configs/";
-  path += filename;
-  FILE *fp;
-  if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
-    fclose(fp);
-  } else {
-    path = datadir;
-    path += "tessconfigs/";
-    path += filename;
-    if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
-      fclose(fp);
-    } else {
-      path = filename;
-    }
-  }
-  ParamUtils::ReadParamsFile(path.c_str(), constraint, this->params());
+void Tesseract::read_config_file(const char *filename,
+                                 SetParamConstraint constraint) {
+  // Construct potential config file paths
+  std::vector<std::filesystem::path> config_paths = {
+      datadir / "configs" / filename,
+      datadir / "tessconfigs" / filename,
+      std::filesystem::path(filename)};
+
+  // Use the first existing file or fallback to the last (filename)
+  auto config_file = std::find_if(config_paths.begin(), config_paths.end(),
+                                  [](const std::filesystem::path &path) {
+                                    std::error_code ec;
+                                    return std::filesystem::exists(path, ec);
+                                  });
+  const std::filesystem::path &selected_path =
+      (config_file != config_paths.end()) ? *config_file : config_paths.back();
+
+  ParamUtils::ReadParamsFile(selected_path.string().c_str(), constraint,
+                             this->params());
 }
 
 // Returns false if a unicharset file for the specified language was not found
@@ -81,14 +82,11 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
                                          bool set_only_non_debug_params, TessdataManager *mgr) {
   // Set the language data path prefix
   lang = !language.empty() ? language : "eng";
-  language_data_path_prefix = datadir;
-  language_data_path_prefix += lang;
-  language_data_path_prefix += ".";
+  std::filesystem::path tessdata_path = datadir / (lang + "." + kTrainedDataSuffix);
 
   // Initialize TessdataManager.
-  std::string tessdata_path = language_data_path_prefix + kTrainedDataSuffix;
-  if (!mgr->is_loaded() && !mgr->Init(tessdata_path.c_str())) {
-    tprintf("Error opening data file %s\n", tessdata_path.c_str());
+  if (!mgr->is_loaded() && !mgr->Init(tessdata_path.string().c_str())) {
+    tprintf("Error opening data file %s\n", tessdata_path.string().c_str());
     tprintf(
         "Please make sure the TESSDATA_PREFIX environment variable is set"
         " to your \"tessdata\" directory.\n");
@@ -187,7 +185,7 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
     tprintf(
         "Error: Tesseract (legacy) engine requested, but components are "
         "not present in %s!!\n",
-        tessdata_path.c_str());
+        tessdata_path.string().c_str());
     return false;
   }
 #endif // ndef DISABLED_LEGACY_ENGINE

@@ -347,7 +347,7 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
   // Update datapath and language requested for the last valid initialization.
   datapath_ = std::move(datapath);
   if (datapath_.empty() && !tesseract_->datadir.empty()) {
-    datapath_ = tesseract_->datadir;
+    datapath_ = tesseract_->datadir.string();
   }
 
   language_ = language;
@@ -396,7 +396,7 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(std::vector<std::string> *langs) co
 void TessBaseAPI::GetAvailableLanguagesAsVector(std::vector<std::string> *langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
-    addAvailableLanguages(tesseract_->datadir, langs);
+    addAvailableLanguages(tesseract_->datadir.string().c_str(), langs);
     std::sort(langs->begin(), langs->end());
   }
 }
