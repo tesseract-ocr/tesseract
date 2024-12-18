@@ -858,7 +858,7 @@ const char *TessBaseAPI::GetInputName() {
 }
 
 const char *TessBaseAPI::GetDatapath() {
-  return tesseract_->datadir.c_str();
+  return datapath_.c_str();
 }
 
 int TessBaseAPI::GetSourceYResolution() {
