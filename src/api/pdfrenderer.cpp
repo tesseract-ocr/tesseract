@@ -192,7 +192,10 @@ static const int kMaxBytesPerCodepoint = 20;
  * PDF Renderer interface implementation
  **********************************************************************/
 TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir, bool textonly)
-    : TessResultRenderer(outputbase, "pdf"), datadir_(datadir) {
+    : TessResultRenderer(outputbase, "pdf")
+    , datadir_(datadir)
+    , rendering_image_(nullptr)
+    , rendering_dpi_(0) {
   obj_ = 0;
   textonly_ = textonly;
   offsets_.push_back(0);
@@ -329,7 +332,12 @@ static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
 }
 
 char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double height) {
-  double ppi = api->GetSourceYResolution();
+  double input_image_ppi = api->GetSourceYResolution();
+  double ppi = GetRenderingResolution(api);
+  double scale = 1;
+  if (input_image_ppi > 0) {
+    scale = ppi / input_image_ppi;
+  }
 
   // These initial conditions are all arbitrary and will be overwritten
   double old_x = 0.0, old_y = 0.0;
@@ -379,6 +387,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       int x1, y1, x2, y2;
       res_it->Baseline(RIL_TEXTLINE, &x1, &y1, &x2, &y2);
+      x1 *= scale; y1 *= scale; x2 *= scale; y2 *= scale;
       ClipBaseline(ppi, x1, y1, x2, y2, &line_x1, &line_y1, &line_x2, &line_y2);
     }
 
@@ -413,6 +422,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     {
       int word_x1, word_y1, word_x2, word_y2;
       res_it->Baseline(RIL_WORD, &word_x1, &word_y1, &word_x2, &word_y2);
+      word_x1 *= scale; word_y1 *= scale; word_x2 *= scale; word_y2 *= scale;
       GetWordBaseline(writing_direction, ppi, height, word_x1, word_y1, word_x2, word_y2, line_x1,
                       line_y1, line_x2, line_y2, &x, &y, &word_length);
     }
@@ -824,10 +834,63 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
   return true;
 }
 
+void TessPDFRenderer::ResetRenderingState(Pix *rendering_image_prev,
+                                             int rendering_dpi_prev) {
+  if (rendering_image_ != rendering_image_prev) {
+    pixDestroy(&rendering_image_);
+    rendering_image_ = rendering_image_prev;
+  }
+  rendering_dpi_ = rendering_dpi_prev;
+}
+
+Pix *TessPDFRenderer::GetRenderingImage(TessBaseAPI *api) {
+  if (!rendering_image_) {
+    Pix *source_image = api->GetInputImage();
+    int source_dpi = api->GetSourceYResolution();
+    if (!source_image || source_dpi <= 0) {
+      return nullptr;
+    }
+
+    int rendering_dpi = GetRenderingResolution(api);
+    if (rendering_dpi != source_dpi) {
+      float scale = (float)rendering_dpi / (float)source_dpi;
+      rendering_image_ = pixScale(source_image, scale, scale);
+    } else {
+      return source_image;
+    }
+  }
+  return rendering_image_;
+}
+
+int TessPDFRenderer::GetRenderingResolution(tesseract::TessBaseAPI *api) {
+  if (rendering_dpi_) {
+    return rendering_dpi_;
+  }
+  int source_dpi = api->GetSourceYResolution();
+  int rendering_dpi;
+  if (api->GetIntVariable("rendering_dpi", &rendering_dpi) &&
+      rendering_dpi > 0 && rendering_dpi != source_dpi) {
+    if (rendering_dpi < kMinCredibleResolution ||
+        rendering_dpi > kMaxCredibleResolution) {
+#if !defined(NDEBUG)
+      tprintf(
+          "Warning: User defined rendering dpi %d is outside of expected range "
+          "(%d - %d)!\n",
+          rendering_dpi, kMinCredibleResolution, kMaxCredibleResolution);
+#endif
+    }
+    rendering_dpi_ = rendering_dpi;
+    return rendering_dpi_;
+  }
+  return source_dpi;
+}
+
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
-  Pix *pix = api->GetInputImage();
+  Pix *rendering_image_prev = rendering_image_;
+  int rendering_dpi_prev = rendering_dpi_;
+  Pix *pix = GetRenderingImage(api);
   const char *filename = api->GetInputName();
-  int ppi = api->GetSourceYResolution();
+  int ppi = GetRenderingResolution(api);
   if (!pix || ppi <= 0) {
     return false;
   }
@@ -910,12 +973,14 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
     int jpg_quality;
     api->GetIntVariable("jpg_quality", &jpg_quality);
     if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize, jpg_quality)) {
+      ResetRenderingState(rendering_image_prev, rendering_dpi_prev);
       return false;
     }
     AppendData(pdf_object, objsize);
     AppendPDFObjectDIY(objsize);
     delete[] pdf_object;
   }
+  ResetRenderingState(rendering_image_prev, rendering_dpi_prev);
   return true;
 }
 
