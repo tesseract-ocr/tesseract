@@ -50,10 +50,9 @@ std::filesystem::path find_data_path(const std::string &argv0) {
   // If argv0 is set, always use it even if it is not a valid directory
   if (!argv0.empty()) {
     std::filesystem::path path(argv0);
-    if (!std::filesystem::exists(path) ||
-        !std::filesystem::is_directory(path)) {
+    if (!std::filesystem::is_directory(path)) {
       tprintf("Warning (tessdata): '%s' is not a valid directory.\n",
-              argv0.c_str());
+              argv0);
     }
     return path;
   }

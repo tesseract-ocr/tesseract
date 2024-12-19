@@ -86,7 +86,7 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
 
   // Initialize TessdataManager.
   if (!mgr->is_loaded() && !mgr->Init(tessdata_path.string().c_str())) {
-    tprintf("Error opening data file %s\n", tessdata_path.string().c_str());
+    tprintf("Error opening data file %s\n", tessdata_path.string());
     tprintf(
         "Please make sure the TESSDATA_PREFIX environment variable is set"
         " to your \"tessdata\" directory.\n");
@@ -184,8 +184,7 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
   else if (!mgr->GetComponent(TESSDATA_UNICHARSET, &fp) || !unicharset.load_from_file(&fp, false)) {
     tprintf(
         "Error: Tesseract (legacy) engine requested, but components are "
-        "not present in %s!!\n",
-        tessdata_path.string().c_str());
+        "not present in %s!!\n", tessdata_path.string());
     return false;
   }
 #endif // ndef DISABLED_LEGACY_ENGINE
