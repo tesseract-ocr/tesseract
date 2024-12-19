@@ -49,9 +49,7 @@ public:
                 NetworkIO *back_deltas) override;
 
 private:
-  void DebugWeights() override {
-    tprintf("Must override Network::DebugWeights for type %d\n", type_);
-  }
+  void DebugWeights() override;
 
   float dropout_rate_;
   uint8_t dimensions_;

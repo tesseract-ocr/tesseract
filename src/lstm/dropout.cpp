@@ -23,6 +23,7 @@
 #include "dropout.h"
 #include "networkscratch.h"
 #include "serialis.h"
+#include "tesserrstream.h"  // for tesserr
 
 namespace tesseract {
 
@@ -34,6 +35,10 @@ Dropout::Dropout(const std::string &name, int ni, float dropout_rate, uint8_t di
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
     throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
   }
+}
+
+void Dropout::DebugWeights() {
+  tesserr << "Must override Network::DebugWeights for type " << type_ << '\n';
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -72,7 +77,7 @@ void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray 
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
-  tprintf("%s: missing implementation\n", __FUNCTION__);
+  tesserr << __FUNCTION__ << ": missing implementation\n";
 
   std::random_device rd;
   std::mt19937 gen(rd());
