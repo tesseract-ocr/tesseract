@@ -33,8 +33,8 @@ TESS_API FILE *get_debugfp();
 
 // Main logging function. Trace printf.
 template <typename ... Types>
-auto tprintf(Types && ... args) {
-  return fprintf(get_debugfp(), std::forward<Types>(args)...);
+auto tprintf(const char *format, Types && ... args) {
+  return fprintf(get_debugfp(), format, std::forward<Types>(args)...);
 }
 
 } // namespace tesseract
