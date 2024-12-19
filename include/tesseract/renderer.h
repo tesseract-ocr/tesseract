@@ -241,6 +241,26 @@ public:
   // we load a custom PDF font from this location.
   TessPDFRenderer(const char *outputbase, const char *datadir,
                   bool textonly = false);
+    // Reset rendering image and dpi to previous state. Destroy scaled rendered
+    // image if exists.
+    void ResetRenderingState(Pix *rendering_image_prev, int rendering_dpi_prev);
+
+    /**
+     * Specifies an alternate image to render with the extracted text.
+     * It must be called after BeginDocument and before AddImage.
+     */
+    void SetRenderingImage(Pix *rendering_image) {
+        rendering_image_ = rendering_image;
+    }
+
+    /**
+     * Specifies the expected rendering resolution.
+     * If not set, rendering_dpi api params will be used, else the source image
+     * resolution.
+     */
+    void SetRenderingResolution(int rendering_dpi) {
+        rendering_dpi_ = rendering_dpi;
+    }
 
 protected:
   bool BeginDocumentHandler() override;
@@ -258,12 +278,24 @@ private:
   std::vector<long int> pages_;   // object number for every /Page object
   std::string datadir_;           // where to find the custom font
   bool textonly_;                 // skip images if set
+  Pix *rendering_image_;          // Image to render with the extracted text
+  int rendering_dpi_;             // Resolution of the rendering_image
   // Bookkeeping only. DIY = Do It Yourself.
   void AppendPDFObjectDIY(size_t objectsize);
   // Bookkeeping + emit data.
   void AppendPDFObject(const char *data);
   // Create the /Contents object for an entire page.
   char *GetPDFTextObjects(TessBaseAPI *api, double width, double height);
+  // Renderers can call this to get the actual image to render with extracted
+  // text. This method returns:
+  //  - the rendering image set by the caller or
+  //  - the input image scaled to the rendering_dpi field if defined or
+  //  - the input image from the api otherwise
+  Pix *GetRenderingImage(TessBaseAPI *api);
+  // Resolution of the rendering image either set manually by the caller or with
+  // the rendering_dpi api parameter.
+  int GetRenderingResolution(TessBaseAPI *api);
+
   // Turn an image into a PDF object. Only transcode if we have to.
   static bool imageToPDFObj(Pix *pix, const char *filename, long int objnum,
                             char **pdf_object, long int *pdf_object_size,
