@@ -33,8 +33,11 @@ TESS_API FILE *get_debugfp();
 
 // Main logging function. Trace printf.
 template <typename ... Types>
-auto tprintf(const char *format, Types && ... args) {
-  return fprintf(get_debugfp(), format, std::forward<Types>(args)...);
+auto tprintf(Types && ... args) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-security"
+  return fprintf(get_debugfp(), std::forward<Types>(args)...);
+#pragma clang diagnostic pop
 }
 
 } // namespace tesseract
