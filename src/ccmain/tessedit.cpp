@@ -29,6 +29,7 @@
 #include "params.h"
 #include "stopper.h"
 #include "tesseractclass.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tessvars.h"
 #include "tprintf.h"
 #ifndef DISABLED_LEGACY_ENGINE
@@ -86,10 +87,9 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
 
   // Initialize TessdataManager.
   if (!mgr->is_loaded() && !mgr->Init(tessdata_path.string().c_str())) {
-    tprintf("Error opening data file %s\n", tessdata_path.string());
-    tprintf(
+    tesserr << "Error opening data file " << tessdata_path.string() << '\n' <<
         "Please make sure the TESSDATA_PREFIX environment variable is set"
-        " to your \"tessdata\" directory.\n");
+        " to your \"tessdata\" directory.\n";
     return false;
   }
 #ifdef DISABLED_LEGACY_ENGINE
@@ -182,9 +182,8 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
   }
 #ifndef DISABLED_LEGACY_ENGINE
   else if (!mgr->GetComponent(TESSDATA_UNICHARSET, &fp) || !unicharset.load_from_file(&fp, false)) {
-    tprintf(
-        "Error: Tesseract (legacy) engine requested, but components are "
-        "not present in %s!!\n", tessdata_path.string());
+    tesserr << "Error: Tesseract (legacy) engine requested, but components are "
+        "not present in " << tessdata_path.string() << "!!\n";
     return false;
   }
 #endif // ndef DISABLED_LEGACY_ENGINE

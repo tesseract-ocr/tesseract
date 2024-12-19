@@ -11,6 +11,7 @@
 // limitations under the License.
 
 #include "ccutil.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tprintf.h"  // for tprintf
 
 #include <cstdlib>
@@ -51,8 +52,7 @@ std::filesystem::path find_data_path(const std::string &argv0) {
   if (!argv0.empty()) {
     std::filesystem::path path(argv0);
     if (!std::filesystem::is_directory(path)) {
-      tprintf("Warning (tessdata): '%s' is not a valid directory.\n",
-              argv0);
+      tesserr << "Warning (tessdata): '" << argv0 << "' is not a valid directory.\n";
     }
     return path;
   }
