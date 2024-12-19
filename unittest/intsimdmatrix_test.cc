@@ -135,4 +135,18 @@ TEST_F(IntSimdMatrixTest, AVX2) {
 #endif
 }
 
+// Tests that the AVX512VNNI implementation gets the same result as the vanilla.
+TEST_F(IntSimdMatrixTest, AVX512VNNI) {
+#if defined(HAVE_AVX512VNNI)
+  if (!SIMDDetect::IsAVX512VNNIAvailable()) {
+    GTEST_LOG_(INFO) << "No AVX512VNNI found! Not tested!";
+    GTEST_SKIP();
+  }
+  ExpectEqualResults(IntSimdMatrix::intSimdMatrixAVX512VNNI);
+#else
+  GTEST_LOG_(INFO) << "AVX512VNNI unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
 } // namespace tesseract
