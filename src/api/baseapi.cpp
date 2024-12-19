@@ -221,8 +221,8 @@ bool TessBaseAPI::SetDebugVariable(const char *name, const char *value) {
 }
 
 bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
-  auto *p = ParamUtils::FindParam<IntParam>(name, GlobalParams()->int_params,
-                                            tesseract_->params()->int_params);
+  auto *p = ParamUtils::FindParam<IntParam>(name, GlobalParams()->int_params(),
+                                            tesseract_->params()->int_params());
   if (p == nullptr) {
     return false;
   }
@@ -231,8 +231,8 @@ bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
 }
 
 bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
-  auto *p = ParamUtils::FindParam<BoolParam>(name, GlobalParams()->bool_params,
-                                             tesseract_->params()->bool_params);
+  auto *p = ParamUtils::FindParam<BoolParam>(name, GlobalParams()->bool_params(),
+                                             tesseract_->params()->bool_params());
   if (p == nullptr) {
     return false;
   }
@@ -241,14 +241,14 @@ bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
 }
 
 const char *TessBaseAPI::GetStringVariable(const char *name) const {
-  auto *p = ParamUtils::FindParam<StringParam>(name, GlobalParams()->string_params,
-                                               tesseract_->params()->string_params);
+  auto *p = ParamUtils::FindParam<StringParam>(name, GlobalParams()->string_params(),
+                                               tesseract_->params()->string_params());
   return (p != nullptr) ? p->c_str() : nullptr;
 }
 
 bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
-  auto *p = ParamUtils::FindParam<DoubleParam>(name, GlobalParams()->double_params,
-                                               tesseract_->params()->double_params);
+  auto *p = ParamUtils::FindParam<DoubleParam>(name, GlobalParams()->double_params(),
+                                               tesseract_->params()->double_params());
   if (p == nullptr) {
     return false;
   }
@@ -284,6 +284,19 @@ void TessBaseAPI::PrintFontsTable(FILE *fp) const {
 /** Print Tesseract parameters to the given file. */
 void TessBaseAPI::PrintVariables(FILE *fp) const {
   ParamUtils::PrintParams(fp, tesseract_->params());
+}
+
+// Report parameters' usage statistics, i.e. report which params have been
+// set, modified and read/checked until now during this run-time's lifetime.
+//
+// Use this method for run-time 'discovery' about which tesseract parameters
+// are actually *used* during your particular usage of the library, ergo
+// answering the question:
+// "Which of all those parameters are actually *relevant* to my use case today?"
+void TessBaseAPI::ReportParamsUsageStatistics() const {
+	tesseract::ParamsVectors *vec = tesseract_->params();
+
+	ParamUtils::ReportParamsUsageStatistics(vec);
 }
 
 /**
