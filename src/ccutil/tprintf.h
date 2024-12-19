@@ -21,26 +21,22 @@
 
 #include "params.h"           // for INT_VAR_H
 #include <tesseract/export.h> // for TESS_API
+#include <utility>            // for std::forward
 
 namespace tesseract {
-
-#if !defined(__GNUC__) && !defined(__attribute__)
-# define __attribute__(attr) // compiler without support for __attribute__
-#endif
 
 // Disable some log messages by setting log_level > 0.
 extern TESS_API INT_VAR_H(log_level);
 
-// Main logging function.
-extern TESS_API void tprintf( // Trace printf
-    const char *format, ...)  // Message
-    __attribute__((format(printf, 1, 2)));
-
 // Get file for debug output.
-FILE *get_debugfp();
+TESS_API FILE *get_debugfp();
+
+// Main logging function. Trace printf.
+template <typename ... Types>
+auto tprintf(Types && ... args) {
+  return fprintf(get_debugfp(), std::forward<Types>(args)...);
+}
 
 } // namespace tesseract
-
-#undef __attribute__
 
 #endif // define TESSERACT_CCUTIL_TPRINTF_H
