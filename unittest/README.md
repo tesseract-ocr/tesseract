@@ -82,6 +82,9 @@ To run the tests, do the following in tesseract folder
 ```
 autoreconf -fiv
 git submodule update --init
+git clone https://github.com/egorpugin/tessdata tessdata_unittest --depth 1
+cp tessdata_unittest/fonts/* test/testing/
+mv tessdata_unittest/* ../
 export TESSDATA_PREFIX=/prefix/to/path/to/tessdata
 make check
 ```
