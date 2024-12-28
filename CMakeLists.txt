@@ -306,6 +306,10 @@ elseif(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     message(STATUS "Building with static CRT.")
   endif()
+  # Workaround: When building on VS 2022 17.10 or newer, but using an older runtime,
+  # mutexes can crash
+  # https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio
+  add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 endif()
 if(CLANG) # clang all platforms
   set(CMAKE_CXX_FLAGS_RELEASE
