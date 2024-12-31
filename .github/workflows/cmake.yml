@@ -19,11 +19,9 @@ jobs:
           - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
-
+          - { name: ubuntu-24.04-gcc-12-cmake, os: ubuntu-24.04, cxx: g++-14 } #installed
           - { name: ubuntu-22.04-gcc-12-cmake, os: ubuntu-22.04, cxx: g++-12 } #installed
-          - { name: ubuntu-22.04-gcc-11-cmake, os: ubuntu-22.04, cxx: g++-11 } #installed
           - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cxx: g++-10 } #installed
-          - { name: ubuntu-20.04-gcc-9-cmake, os: ubuntu-20.04, cxx: g++-9 } #installed
 
     steps:
       - name: Install compilers on Linux
