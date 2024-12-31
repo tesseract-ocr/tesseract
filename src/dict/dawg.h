@@ -110,7 +110,7 @@ static const char kWildcard[] = "*";
 class TESS_API Dawg {
 public:
   /// Magic number to determine endianness when reading the Dawg from file.
-  static const int16_t kDawgMagicNumber = 42;
+  static constexpr int16_t kDawgMagicNumber = 42;
   /// A special unichar id that indicates that any appropriate pattern
   /// (e.g.dictionary word, 0-9 digit, etc) can be inserted instead
   /// Used for expressing patterns in punctuation and number Dawgs.
