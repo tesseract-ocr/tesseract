@@ -61,7 +61,6 @@
 #    include <sys/auxv.h>
 #  elif defined(HAVE_ELF_AUX_INFO)
 #    include <sys/auxv.h>
-#    include <sys/elf.h>
 #  endif
 #endif
 
