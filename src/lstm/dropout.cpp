@@ -62,9 +62,40 @@ bool Dropout::DeSerialize(TFile *fp) {
 // See NetworkCpp for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
+  // Resize output to match input dimensions
+  output->Resize(input.NumFeatures(), input.TimeSize(), input.BatchSize());
+
   if (IsTraining()) {
+    // Initialize the dropout mask
+    dropout_mask_.Resize(input.NumFeatures(), input.TimeSize(), input.BatchSize());
+
+    float retain_prob = 1.0f - dropout_rate_;
+
+    // Random number generator setup
+    std::mt19937 generator;  // You may need to use Tesseract's RNG
+    std::bernoulli_distribution distribution(retain_prob);
+
+    // Apply dropout mask
+    for (int b = 0; b < input.BatchSize(); ++b) {
+      for (int t = 0; t < input.TimeSize(); ++t) {
+        const float* input_features = input.f(b, t);
+        float* output_features = output->f(b, t);
+        float* mask_features = dropout_mask_.f(b, t);
+        for (int i = 0; i < input.NumFeatures(); ++i) {
+          bool retain = distribution(generator);
+          mask_features[i] = retain ? 1.0f : 0.0f;
+          // Scale the activations to maintain expected value
+          output_features[i] = input_features[i] * mask_features[i] / retain_prob;
+        }
+      }
+    }
   } else {
-    *output = input;
+    // During inference, pass input to output unchanged
+    output->CopyAll(input);
+  }
+
+  if (debug) {
+    tprintf("Dropout Forward Pass Complete.\n");
   }
 #ifndef GRAPHICS_DISABLED
   if (debug) {
@@ -77,6 +108,20 @@ void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray 
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
+  int size = deltas.Size();
+  input_deltas->Resize(size);
+
+  if (IsTraining()) {
+    for (int i = 0; i < size; ++i) {
+      (*input_deltas)(i) = deltas(i) * dropout_mask_[i];
+    }
+  } else {
+    for (int i = 0; i < size; ++i) {
+      (*input_deltas)(i) = deltas(i) * (1.0f - dropout_rate_);
+    }
+  }
+
+#if 0
   tesserr << __FUNCTION__ << ": missing implementation\n";
 
   std::random_device rd;
@@ -84,7 +129,6 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
   back_deltas->Resize(fwd_deltas, ni_);
-#if 0
   for (unsigned i = 0; i < ni_; i++) {
     if (dist(gen) >= dropout_rate_) {
       // Keep the neuron
