@@ -51,6 +51,7 @@ public:
 private:
   void DebugWeights() override;
 
+  std::vector<char> dropout_mask_;
   float dropout_rate_;
   uint8_t dimensions_;
 };
