@@ -168,7 +168,7 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       case PT_PULLOUT_IMAGE: {
         // Handle all kinds of images.
         // TODO: optionally add TYPE, for example TYPE="photo".
-        alto_str << "\t\t\t\t<Illustration ID=\"cblock_" << bcnt++ << "\"";
+        alto_str << "\t\t\t\t<Illustration ID=\"cblock_" << page_number << "_" << bcnt++ << "\"";
         AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
         alto_str << "</Illustration>\n";
         res_it->Next(RIL_BLOCK);
@@ -177,7 +177,7 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       case PT_HORZ_LINE:
       case PT_VERT_LINE:
         // Handle horizontal and vertical lines.
-        alto_str << "\t\t\t\t<GraphicalElement ID=\"cblock_" << bcnt++ << "\"";
+        alto_str << "\t\t\t\t<GraphicalElement ID=\"cblock_" << page_number << "_" << bcnt++ << "\"";
         AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
         alto_str << "</GraphicalElement >\n";
         res_it->Next(RIL_BLOCK);
@@ -190,24 +190,24 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
     }
 
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
+      alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << page_number << "_" << bcnt << "\"";
       AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
       alto_str << "\n";
     }
 
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      alto_str << "\t\t\t\t\t<TextBlock ID=\"block_" << tcnt << "\"";
+      alto_str << "\t\t\t\t\t<TextBlock ID=\"block_" << page_number << "_" << tcnt << "\"";
       AddBoxToAlto(res_it.get(), RIL_PARA, alto_str);
       alto_str << "\n";
     }
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
+      alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << page_number << "_" << lcnt << "\"";
       AddBoxToAlto(res_it.get(), RIL_TEXTLINE, alto_str);
       alto_str << "\n";
     }
 
-    alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
+    alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << page_number << "_" << wcnt << "\"";
     AddBoxToAlto(res_it.get(), RIL_WORD, alto_str);
     alto_str << " CONTENT=\"";
 
