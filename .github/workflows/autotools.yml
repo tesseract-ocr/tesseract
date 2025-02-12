@@ -18,7 +18,6 @@ jobs:
           - { name: ubuntu-24.04-gcc-14-autotools, os: ubuntu-24.04, cxx: g++-14 } #installed
           - { name: ubuntu-22.04-gcc-12-autotools, os: ubuntu-22.04, cxx: g++-12 } #installed
           - { name: ubuntu-22.04-gcc-11-autotools, os: ubuntu-22.04, cxx: g++-11 } #installed
-          - { name: ubuntu-20.04-gcc-10-autotools, os: ubuntu-20.04, cxx: g++-10 } #installed
 
     steps:
     - uses: actions/checkout@v4
