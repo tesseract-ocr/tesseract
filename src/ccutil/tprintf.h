@@ -21,6 +21,7 @@
 
 #include "params.h"           // for INT_VAR_H
 #include <tesseract/export.h> // for TESS_API
+#include <cstdarg>
 #include <utility>            // for std::forward
 
 namespace tesseract {
@@ -32,12 +33,11 @@ extern TESS_API INT_VAR_H(log_level);
 TESS_API FILE *get_debugfp();
 
 // Main logging function. Trace printf.
-template <typename ... Types>
-auto tprintf(Types && ... args) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-security"
-  return fprintf(get_debugfp(), std::forward<Types>(args)...);
-#pragma clang diagnostic pop
+inline void tprintf(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  vfprintf(get_debugfp(), format, args);
+  va_end(args);
 }
 
 } // namespace tesseract
