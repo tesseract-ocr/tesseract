@@ -146,9 +146,6 @@ static void ExtractFontName(const char* filename, std::string* fontname) {
  */
 static void addAvailableLanguages(const std::string &datadir,
                                   std::vector<std::string> *langs) {
-  if (!std::filesystem::is_directory(datadir))
-    return;
-
   for (const auto& entry :
        std::filesystem::recursive_directory_iterator(datadir,
          std::filesystem::directory_options::follow_directory_symlink |
