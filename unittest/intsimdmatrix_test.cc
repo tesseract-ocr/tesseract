@@ -22,7 +22,6 @@
 #include "include_gunit.h"
 #include "matrix.h"
 #include "simddetect.h"
-#include "tprintf.h"
 
 namespace tesseract {
 
