@@ -418,7 +418,7 @@ static bool ParseArgs(int argc, char **argv, const char **lang, const char **ima
       try {
         auto loglevel = loglevels.at(loglevel_string);
         log_level = loglevel;
-      } catch (const std::out_of_range &e) {
+      } catch (const std::out_of_range &) {
         // TODO: Allow numeric argument?
         tprintf("Error, unsupported --loglevel %s\n", loglevel_string.c_str());
         return false;
@@ -648,7 +648,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
  *
  **********************************************************************/
 
-int main1(int argc, char **argv) {
+static int main1(int argc, char **argv) {
 #if defined(__USE_GNU) && defined(HAVE_FEENABLEEXCEPT)
   // Raise SIGFPE.
 #  if defined(__clang__)
