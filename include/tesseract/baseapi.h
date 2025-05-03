@@ -147,10 +147,18 @@ public:
 
 #endif
 
-  /**
-   * Print Tesseract parameters to the given file.
+  /** 
+   * Print Tesseract parameters to the given file with descriptions of each option. 
+   * Cannot be used as Tesseract configuration file due to descriptions 
+   * (use DumpVariables instead to create config files).
    */
   void PrintVariables(FILE *fp) const;
+
+  /** 
+   * Print Tesseract parameters to the given file without descriptions. 
+   * Can be used as Tesseract configuration file.
+  */
+  void DumpVariables(FILE *fp) const;
 
   /**
    * Get value of named variable as a string, if it exists.
