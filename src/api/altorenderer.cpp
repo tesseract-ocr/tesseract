@@ -51,6 +51,20 @@ static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
   }
 }
 
+static std::string GetID(const char *prefix, int page_number, int counter) {
+  std::stringstream idstr;
+  // IDs will only have the counter for the first page to keep them consistent
+  // with the IDs assigned before this change was made.
+  // From the second page on, IDs will also contain the page number to make them unique.
+  if (page_number == 0) {
+    idstr << prefix << "_" << counter;
+  } else {
+    idstr << prefix << "_" << page_number << "_" << counter;
+  }
+
+  return idstr.str();
+}
+
 ///
 /// Append the ALTO XML for the beginning of the document
 ///
@@ -168,7 +182,7 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       case PT_PULLOUT_IMAGE: {
         // Handle all kinds of images.
         // TODO: optionally add TYPE, for example TYPE="photo".
-        alto_str << "\t\t\t\t<Illustration ID=\"cblock_" << bcnt++ << "\"";
+        alto_str << "\t\t\t\t<Illustration ID=\"" << GetID("cblock", page_number, bcnt++) << "\"";
         AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
         alto_str << "</Illustration>\n";
         res_it->Next(RIL_BLOCK);
@@ -177,7 +191,7 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       case PT_HORZ_LINE:
       case PT_VERT_LINE:
         // Handle horizontal and vertical lines.
-        alto_str << "\t\t\t\t<GraphicalElement ID=\"cblock_" << bcnt++ << "\"";
+        alto_str << "\t\t\t\t<GraphicalElement ID=\"" << GetID("cblock", page_number, bcnt++) << "\"";
         AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
         alto_str << "</GraphicalElement >\n";
         res_it->Next(RIL_BLOCK);
@@ -190,24 +204,24 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
     }
 
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      alto_str << "\t\t\t\t<ComposedBlock ID=\"cblock_" << bcnt << "\"";
+      alto_str << "\t\t\t\t<ComposedBlock ID=\"" << GetID("cblock", page_number, bcnt) << "\"";
       AddBoxToAlto(res_it.get(), RIL_BLOCK, alto_str);
       alto_str << "\n";
     }
 
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      alto_str << "\t\t\t\t\t<TextBlock ID=\"block_" << tcnt << "\"";
+      alto_str << "\t\t\t\t\t<TextBlock ID=\"" << GetID("block", page_number, tcnt) << "\"";
       AddBoxToAlto(res_it.get(), RIL_PARA, alto_str);
       alto_str << "\n";
     }
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      alto_str << "\t\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
+      alto_str << "\t\t\t\t\t\t<TextLine ID=\"" << GetID("line", page_number, lcnt) << "\"";
       AddBoxToAlto(res_it.get(), RIL_TEXTLINE, alto_str);
       alto_str << "\n";
     }
 
-    alto_str << "\t\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
+    alto_str << "\t\t\t\t\t\t\t<String ID=\"" << GetID("string", page_number, wcnt) << "\"";
     AddBoxToAlto(res_it.get(), RIL_WORD, alto_str);
     alto_str << " CONTENT=\"";
 

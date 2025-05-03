@@ -70,15 +70,6 @@ FILE *get_debugfp() {
   return debugfp;
 }
 
-// Trace printf.
-void tprintf(const char *format, ...) {
-  FILE *f = get_debugfp();
-  va_list args;           // variable args
-  va_start(args, format); // variable list
-  vfprintf(f, format, args);
-  va_end(args);
-}
-
 TessErrStream tesserr;
 
 } // namespace tesseract

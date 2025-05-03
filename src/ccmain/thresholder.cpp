@@ -207,7 +207,10 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     tprintf("\nimage width: %d  height: %d  ppi: %d\n", pix_w, pix_h, yres_);
   }
 
-  if (method == ThresholdMethod::Sauvola) {
+  if (method == ThresholdMethod::Sauvola && pix_w > 6 && pix_h > 6) {
+    // pixSauvolaBinarizeTiled requires half_window_size >= 2.
+    // Therefore window_size must be at least 4 which requires
+    // pix_w and pix_h to be at least 7.
     int window_size;
     double window_size_factor;
     api->GetDoubleVariable("thresholding_window_size", &window_size_factor);

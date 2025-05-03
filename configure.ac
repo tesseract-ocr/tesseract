@@ -221,9 +221,9 @@ fi
 # additional checks for RVV targets
 if test x$check_for_rvv = x1; then
   AC_MSG_NOTICE([checking how to detect RVV availability])
-  AC_CHECK_FUNCS([getauxval])
+  AC_CHECK_FUNCS([getauxval elf_aux_info])
 
-  if test $ac_cv_func_getauxval = no; then
+  if test $ac_cv_func_getauxval = no && test $ac_cv_func_elf_aux_info = no; then
       AC_MSG_WARN([RVV is available, but we don't know how to check for it.  Will not be able to use RVV.])
   fi
 fi

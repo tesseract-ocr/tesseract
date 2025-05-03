@@ -25,7 +25,6 @@
 #include "classify.h"
 #include "intproto.h"
 #include "params.h"
-#include "tprintf.h"
 
 #include <cmath> // for M_PI
 #include <cstdio>
