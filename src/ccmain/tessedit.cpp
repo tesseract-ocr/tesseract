@@ -83,6 +83,7 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
                                          bool set_only_non_debug_params, TessdataManager *mgr) {
   // Set the language data path prefix
   lang = !language.empty() ? language : "eng";
+  language_data_path_prefix = datadir.string();
   std::filesystem::path tessdata_path = datadir / (lang + "." + kTrainedDataSuffix);
 
   // Initialize TessdataManager.
