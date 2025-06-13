@@ -544,11 +544,9 @@ public:
 
       if (offset < 0) {
         for (ptr = current ? current : next; offset++ < 0; ptr = ptr->prev) {
-          ;
         }
       } else {
         for (ptr = current ? current : prev; offset-- > 0; ptr = ptr->next) {
-          ;
         }
       }
 

@@ -450,7 +450,6 @@ public:
         ptr = prev;
       } else {
         for (ptr = current ? current : prev; offset-- > 0; ptr = ptr->next) {
-          ;
         }
       }
 
