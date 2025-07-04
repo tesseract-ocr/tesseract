@@ -959,7 +959,7 @@ void UNICHARSET::post_load_setup() {
 
   // Compute default script. Use the highest-counting alpha script, that is
   // not the common script, as that still contains some "alphas".
-  int script_table_size = static_cast<int>(script_names_.size());
+  size_t script_table_size = script_names_.size();
   int *script_counts = new int[script_table_size];
   memset(script_counts, 0, sizeof(*script_counts) * script_table_size);
   for (unsigned id = 0; id < unichars.size(); ++id) {
@@ -968,9 +968,9 @@ void UNICHARSET::post_load_setup() {
     }
   }
   default_sid_ = 0;
-  for (int s = 1; s < script_table_size; ++s) {
-    if (script_counts[s] > script_counts[default_sid_] && s != common_sid_) {
-      default_sid_ = s;
+  for (size_t s = 1; s < script_table_size; ++s) {
+    if (script_counts[s] > script_counts[default_sid_] && static_cast<int>(s) != common_sid_) {
+      default_sid_ = static_cast<int>(s);
     }
   }
   delete[] script_counts;
