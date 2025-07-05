@@ -48,18 +48,6 @@ const float kHanRatioInJapanese = 0.3;
 
 const float kNonAmbiguousMargin = 1.0;
 
-// General scripts
-static const char *han_script = "Han";
-static const char *latin_script = "Latin";
-static const char *katakana_script = "Katakana";
-static const char *hiragana_script = "Hiragana";
-static const char *hangul_script = "Hangul";
-
-// Pseudo-scripts Name
-const char *ScriptDetector::korean_script_ = "Korean";
-const char *ScriptDetector::japanese_script_ = "Japanese";
-const char *ScriptDetector::fraktur_script_ = "Fraktur";
-
 void OSResults::update_best_orientation() {
   float first = orientations[0];
   float second = orientations[1];
@@ -450,14 +438,16 @@ ScriptDetector::ScriptDetector(const std::vector<int> *allowed_scripts, OSResult
   osr_ = osr;
   tess_ = tess;
   allowed_scripts_ = allowed_scripts;
-  katakana_id_ = tess_->unicharset.add_script(katakana_script);
-  hiragana_id_ = tess_->unicharset.add_script(hiragana_script);
-  han_id_ = tess_->unicharset.add_script(han_script);
-  hangul_id_ = tess_->unicharset.add_script(hangul_script);
-  japanese_id_ = tess_->unicharset.add_script(japanese_script_);
-  korean_id_ = tess_->unicharset.add_script(korean_script_);
-  latin_id_ = tess_->unicharset.add_script(latin_script);
-  fraktur_id_ = tess_->unicharset.add_script(fraktur_script_);
+  // General scripts
+  katakana_id_ = tess_->unicharset.add_script("Katakana");
+  hiragana_id_ = tess_->unicharset.add_script("Hiragana");
+  han_id_ = tess_->unicharset.add_script("Han");
+  hangul_id_ = tess_->unicharset.add_script("Hangul");
+  latin_id_ = tess_->unicharset.add_script("Latin");
+  // Pseudo-scripts
+  fraktur_id_ = tess_->unicharset.add_script("Fraktur");
+  japanese_id_ = tess_->unicharset.add_script("Japanese");
+  korean_id_ = tess_->unicharset.add_script("Korean");
 }
 
 // Score the given blob and return true if it is now sure of the script after
