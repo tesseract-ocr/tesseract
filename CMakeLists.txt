@@ -399,6 +399,13 @@ if(SW_BUILD)
   sw_execute()
 else()
   find_package(PkgConfig)
+  if(APPLE)
+    if(DEFINED ENV{HOMEBREW_PREFIX})
+      set(HOMEBREW_PREFIX $ENV{HOMEBREW_PREFIX})
+      set(PKG_CONFIG_PATH "${HOMEBREW_PREFIX}/opt/icu4c/lib/pkgconfig:${HOMEBREW_PREFIX}/opt/libarchive/lib/pkgconfig")
+      set(ENV{PKG_CONFIG_PATH} "${PKG_CONFIG_PATH}")
+    endif()
+  endif()
   # Check for required library. option -DLeptonica_DIR=path => cmake hint where
   # to find leptonica
   find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
