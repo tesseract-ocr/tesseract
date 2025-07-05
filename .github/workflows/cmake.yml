@@ -2,9 +2,17 @@ name: cmake
 # cmake build of tesseract and training tools on ubuntu and macOS homebrew using Ninja.
 # test command line version of tesseract. run basicapitest.
 on:
-  #push:
+  push:
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
+  pull_request:
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
   schedule:
     - cron: 0 21 * * *
+  workflow_dispatch:
 
 jobs:
   basictests:
