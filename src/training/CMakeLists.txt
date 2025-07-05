@@ -5,10 +5,6 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-if(UNIX AND NOT ANDROID)
-  set(LIB_pthread pthread)
-endif()
-
 if(SW_BUILD)
   set(ICU_FOUND 1)
 else() # NOT SW_BUILD
@@ -326,7 +322,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(lstmeval lstmeval.cpp)
-  target_link_libraries(lstmeval unicharset_training ${LIB_pthread})
+  target_link_libraries(lstmeval unicharset_training)
   project_group(lstmeval "Training Tools")
   install(
     TARGETS lstmeval
@@ -342,7 +338,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(lstmtraining lstmtraining.cpp)
-  target_link_libraries(lstmtraining unicharset_training ${LIB_pthread})
+  target_link_libraries(lstmtraining unicharset_training)
   project_group(lstmtraining "Training Tools")
   install(
     TARGETS lstmtraining
