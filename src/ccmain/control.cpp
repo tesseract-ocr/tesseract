@@ -353,7 +353,7 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
       }
 
       // Count dict words.
-      if (page_res_it.word()->best_choice->permuter() == USER_DAWG_PERM) {
+      if (page_res_it.word()->best_choice && page_res_it.word()->best_choice->permuter() == USER_DAWG_PERM) {
         ++(stats_.dict_words);
       }
 
