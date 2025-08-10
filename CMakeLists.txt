@@ -648,19 +648,11 @@ endif()
 # LIBRARY tesseract
 # ##############################################################################
 
-file(
-  GLOB
-  TESSERACT_SRC
-  src/ccmain/*.cpp
-  src/ccstruct/*.cpp
-  src/ccutil/*.cpp
-  src/classify/*.cpp
-  src/cutil/*.cpp
-  src/dict/*.cpp
-  src/lstm/*.cpp
-  src/textord/*.cpp
-  src/viewer/*.cpp
-  src/wordrec/*.cpp)
+# Include source file lists
+include(cmake/SourceLists.cmake)
+
+# Build the core source file list
+set(TESSERACT_SRC ${TESSERACT_SRC_CORE})
 
 if(DISABLED_LEGACY_ENGINE)
   # prepend path to list of source files
@@ -741,8 +733,8 @@ if(DISABLED_LEGACY_ENGINE)
   list(REMOVE_ITEM TESSERACT_SRC ${TESSERACT_SRC_LEGACY})
 endif(DISABLED_LEGACY_ENGINE)
 
-list(APPEND arch_files src/arch/dotproduct.cpp src/arch/simddetect.cpp
-     src/arch/intsimdmatrix.cpp)
+# Use architecture files from SourceLists.cmake
+set(arch_files ${TESSERACT_SRC_ARCH})
 
 if(DOTPRODUCT_FLAGS)
   set_source_files_properties(src/arch/dotproduct.cpp
@@ -786,21 +778,8 @@ if(HAVE_NEON)
   endif()
 endif(HAVE_NEON)
 
-file(
-  GLOB_RECURSE
-  TESSERACT_HDR
-  include/*
-  src/arch/*.h
-  src/ccmain/*.h
-  src/ccstruct/*.h
-  src/ccutil/*.h
-  src/classify/*.h
-  src/cutil/*.h
-  src/dict/*.h
-  src/lstm/*.h
-  src/textord/*.h
-  src/viewer/*.h
-  src/wordrec/*.h)
+# Use explicit header file lists from SourceLists.cmake
+set(TESSERACT_HDR ${TESSERACT_HDR_INCLUDE} ${TESSERACT_HDR_INTERNAL})
 
 set(TESSERACT_SRC
     ${TESSERACT_SRC}
