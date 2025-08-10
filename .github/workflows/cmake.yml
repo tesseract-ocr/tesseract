@@ -96,6 +96,7 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
+               -DENABLE_UNITY_BUILD=ON \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'macOS'
