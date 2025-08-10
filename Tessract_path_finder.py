@@ -11,8 +11,7 @@ except ImportError:
     winreg = None
 
 def get_tessdata_paths(verbose=False):
-    """
-    Find all tessdata directory paths on the system (Windows and Linux).
+    """Find all tessdata directory paths on the system (Windows and Linux).
     
     Args:
         verbose (bool): If True, prints search progress
@@ -41,8 +40,7 @@ def get_tessdata_paths(verbose=False):
     return paths
 
 def get_primary_tessdata_path(verbose=False):
-    """
-    Get the primary (first/best) tessdata directory path.
+    """Get the primary (first/best) tessdata directory path.
     
     Args:
         verbose (bool): If True, prints search progress
@@ -54,12 +52,13 @@ def get_primary_tessdata_path(verbose=False):
     return paths[0] if paths else None
 
 def _find_tessdata_windows(verbose=False):
-    """Find tessdata paths on Windows systems"""
+    """Find tessdata paths on Windows systems."""
     paths = []
     
     # 1. Environment variable
     env_path = os.environ.get('TESSDATA_PREFIX')
-    if env_path and os.path.isdir(env_path) and _is_valid_tessdata_dir(env_path):
+    if (env_path and os.path.isdir(env_path) and 
+        _is_valid_tessdata_dir(env_path)):
         paths.append(env_path)
         if verbose:
             print(f"Found via ENV: {env_path}")
@@ -135,12 +134,13 @@ def _find_tessdata_windows(verbose=False):
     return paths
 
 def _find_tessdata_linux(verbose=False):
-    """Find tessdata paths on Linux systems"""
+    """Find tessdata paths on Linux systems."""
     paths = []
     
     # 1. Environment variable
     env_path = os.environ.get('TESSDATA_PREFIX')
-    if env_path and os.path.isdir(env_path) and _is_valid_tessdata_dir(env_path):
+    if (env_path and os.path.isdir(env_path) and 
+        _is_valid_tessdata_dir(env_path)):
         paths.append(env_path)
         if verbose:
             print(f"Found via ENV: {env_path}")
@@ -225,7 +225,7 @@ def _get_tessdata_from_registry():
     return paths
 
 def _find_tesseract_binaries_windows():
-    """Find tesseract binaries on Windows"""
+    """Find tesseract binaries on Windows."""
     binaries = []
     
     # Method 1: which/where command
@@ -268,7 +268,7 @@ def _find_tesseract_binaries_windows():
     return binaries
 
 def _find_tesseract_binaries_linux():
-    """Find tesseract binaries on Linux"""
+    """Find tesseract binaries on Linux."""
     binaries = []
     
     # Method 1: which command
@@ -302,7 +302,7 @@ def _find_tesseract_binaries_linux():
     return binaries
 
 def _search_for_binaries_windows(root_dir, binary_name, max_depth=3):
-    """Search for binary files on Windows"""
+    """Search for binary files on Windows."""
     found = []
     
     def _search(current_dir, depth):
@@ -313,7 +313,8 @@ def _search_for_binaries_windows(root_dir, binary_name, max_depth=3):
             for entry in os.listdir(current_dir):
                 entry_path = os.path.join(current_dir, entry)
                 
-                if os.path.isfile(entry_path) and entry.lower() == binary_name.lower():
+                if (os.path.isfile(entry_path) and 
+                    entry.lower() == binary_name.lower()):
                     found.append(entry_path)
                 elif os.path.isdir(entry_path):
                     _search(entry_path, depth + 1)
@@ -324,7 +325,7 @@ def _search_for_binaries_windows(root_dir, binary_name, max_depth=3):
     return found
 
 def _search_for_binaries_linux(root_dir, binary_name, max_depth=3):
-    """Search for binary files on Linux"""
+    """Search for binary files on Linux."""
     found = []
     
     def _search(current_dir, depth):
@@ -338,7 +339,8 @@ def _search_for_binaries_linux(root_dir, binary_name, max_depth=3):
                 if os.path.isfile(entry_path) and entry == binary_name:
                     if os.access(entry_path, os.X_OK):
                         found.append(entry_path)
-                elif os.path.isdir(entry_path) and not os.path.islink(entry_path):
+                elif (os.path.isdir(entry_path) and 
+                      not os.path.islink(entry_path)):
                     if any(bin_dir in entry for bin_dir in ['bin', 'sbin']):
                         _search(entry_path, depth + 1)
         except (PermissionError, OSError):
@@ -348,7 +350,7 @@ def _search_for_binaries_linux(root_dir, binary_name, max_depth=3):
     return found
 
 def _comprehensive_windows_search():
-    """Search Windows filesystem for tessdata"""
+    """Search Windows filesystem for tessdata."""
     found_paths = []
     
     # Get all available drives
@@ -369,9 +371,10 @@ def _comprehensive_windows_search():
         for search_dir in search_dirs:
             if os.path.exists(search_dir):
                 try:
-                    paths = _search_tessdata_recursive_windows(search_dir, max_depth=4)
+                    paths = _search_tessdata_recursive_windows(
+                        search_dir, max_depth=4)
                     found_paths.extend(paths)
-                except:
+                except (PermissionError, OSError):
                     continue
     
     return list(set(found_paths))
@@ -403,7 +406,7 @@ def _comprehensive_linux_search():
     return list(set(found_paths))
 
 def _search_tessdata_recursive_windows(root_dir, max_depth=4):
-    """Recursive search for tessdata on Windows"""
+    """Recursive search for tessdata on Windows."""
     found = []
     
     def _search(current_dir, depth):
@@ -419,7 +422,9 @@ def _search_tessdata_recursive_windows(root_dir, max_depth=4):
                 entry_path = os.path.join(current_dir, entry)
                 if os.path.isdir(entry_path):
                     # Skip system directories
-                    skip_dirs = {'windows', 'system32', 'syswow64', '$recycle.bin'}
+                    skip_dirs = {
+                        'windows', 'system32', 'syswow64', '$recycle.bin'
+                    }
                     if entry.lower() not in skip_dirs:
                         _search(entry_path, depth + 1)
         except (PermissionError, OSError):
