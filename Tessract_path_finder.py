@@ -1,9 +1,14 @@
+"""Universal Tessdata Path Finder for Windows and Linux systems."""
 import os
 import shutil
 import subprocess
 import glob
 import platform
-import winreg
+
+try:
+    import winreg
+except ImportError:
+    winreg = None
 
 def get_tessdata_paths(verbose=False):
     """
@@ -81,9 +86,10 @@ def _find_tessdata_windows(verbose=False):
             "../share/tesseract-ocr/tessdata"
         ]
         
-        for rel in relative_paths:
-            path = os.path.normpath(os.path.join(bin_dir, rel))
-            if os.path.isdir(path) and _is_valid_tessdata_dir(path) and path not in paths:
+        for rel_path in relative_paths:
+            path = os.path.normpath(os.path.join(bin_dir, rel_path))
+            if (os.path.isdir(path) and _is_valid_tessdata_dir(path) and 
+                path not in paths):
                 paths.append(path)
                 if verbose:
                     print(f"Found via binary: {path}")
@@ -101,7 +107,8 @@ def _find_tessdata_windows(verbose=False):
     ]
     
     for path in common_windows_paths:
-        if path and os.path.isdir(path) and _is_valid_tessdata_dir(path) and path not in paths:
+        if (path and os.path.isdir(path) and _is_valid_tessdata_dir(path) and 
+            path not in paths):
             paths.append(path)
             if verbose:
                 print(f"Found in common location: {path}")
@@ -152,9 +159,10 @@ def _find_tessdata_linux(verbose=False):
             "tessdata"
         ]
         
-        for rel in relative_paths:
-            path = os.path.normpath(os.path.join(bin_dir, rel))
-            if os.path.isdir(path) and _is_valid_tessdata_dir(path) and path not in paths:
+        for rel_path in relative_paths:
+            path = os.path.normpath(os.path.join(bin_dir, rel_path))
+            if (os.path.isdir(path) and _is_valid_tessdata_dir(path) and 
+                path not in paths):
                 paths.append(path)
                 if verbose:
                     print(f"Found via binary: {path}")
@@ -186,8 +194,11 @@ def _find_tessdata_linux(verbose=False):
     return paths
 
 def _get_tessdata_from_registry():
-    """Get tessdata path from Windows registry"""
+    """Get tessdata path from Windows registry."""
     paths = []
+    
+    if winreg is None:
+        return paths
     
     try:
         # Common registry locations for Tesseract
@@ -202,7 +213,8 @@ def _get_tessdata_from_registry():
                 with winreg.OpenKey(hkey, subkey) as key:
                     install_path, _ = winreg.QueryValueEx(key, "InstallPath")
                     tessdata_path = os.path.join(install_path, "tessdata")
-                    if os.path.isdir(tessdata_path) and _is_valid_tessdata_dir(tessdata_path):
+                    if (os.path.isdir(tessdata_path) and 
+                        _is_valid_tessdata_dir(tessdata_path)):
                         paths.append(tessdata_path)
             except (FileNotFoundError, OSError):
                 continue
@@ -273,7 +285,8 @@ def _find_tesseract_binaries_linux():
     ]
     
     for path in common_paths:
-        if os.path.isfile(path) and os.access(path, os.X_OK) and path not in binaries:
+        if (os.path.isfile(path) and os.access(path, os.X_OK) and 
+            path not in binaries):
             binaries.append(path)
     
     # Method 3: Search filesystem
@@ -441,11 +454,11 @@ def _search_tessdata_recursive_linux(root_dir, max_depth=5):
     return found
 
 def _check_windows_user_locations():
-    """Check Windows user-specific locations"""
+    """Check Windows user-specific locations."""
     paths = []
     user_home = os.path.expanduser("~")
     appdata = os.environ.get('APPDATA', '')
-    localappdata = os.path.get('LOCALAPPDATA', '')
+    localappdata = os.environ.get('LOCALAPPDATA', '')
     
     locations = [
         os.path.join(user_home, "tessdata"),
@@ -455,13 +468,14 @@ def _check_windows_user_locations():
     ]
     
     for location in locations:
-        if location and os.path.isdir(location) and _is_valid_tessdata_dir(location):
+        if (location and os.path.isdir(location) and 
+            _is_valid_tessdata_dir(location)):
             paths.append(location)
     
     return paths
 
 def _check_linux_user_locations():
-    """Check Linux user-specific locations"""
+    """Check Linux user-specific locations."""
     paths = []
     home = os.path.expanduser("~")
     
@@ -494,7 +508,8 @@ def _get_tessdata_from_tesseract():
                 if 'tessdata' in line.lower():
                     parts = line.split()
                     for part in parts:
-                        if 'tessdata' in part and os.path.isdir(part) and _is_valid_tessdata_dir(part):
+                        if ('tessdata' in part and os.path.isdir(part) and 
+                            _is_valid_tessdata_dir(part)):
                             paths.append(part)
         except:
             continue
