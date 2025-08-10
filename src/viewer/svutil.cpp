@@ -61,8 +61,6 @@
 
 namespace tesseract {
 
-const int kMaxMsgSize = 4096;
-
 // Starts a new process.
 void SVSync::StartProcess(const char *executable, const char *args) {
   std::string proc;

@@ -34,6 +34,9 @@
 
 namespace tesseract {
 
+// Maximum message size for ScrollView network communication
+const int kMaxMsgSize = 4096;
+
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
 public:
