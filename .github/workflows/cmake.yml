@@ -53,9 +53,7 @@ jobs:
            brew install leptonica
            # brew install libarchive
            brew install pango
-           brew install icu4c && brew link icu4c
            brew install cabextract
-           brew install ninja
            ninja --version
            cmake --version
            clang++ --version
@@ -96,6 +94,7 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
+               -DENABLE_UNITY_BUILD=ON \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'macOS'

@@ -1,0 +1,584 @@
+# Source file lists for tesseract
+# This file contains all source files organized by module
+
+# API module sources
+set(TESSERACT_SRC_API
+    src/api/altorenderer.cpp
+    src/api/baseapi.cpp
+    src/api/capi.cpp
+    src/api/hocrrenderer.cpp
+    src/api/lstmboxrenderer.cpp
+    src/api/pagerenderer.cpp
+    src/api/pdfrenderer.cpp
+    src/api/renderer.cpp
+    src/api/wordstrboxrenderer.cpp
+)
+
+# Architecture-specific sources
+set(TESSERACT_SRC_ARCH
+    src/arch/dotproduct.cpp
+    src/arch/simddetect.cpp
+    src/arch/intsimdmatrix.cpp
+)
+
+# Optional architecture-specific sources (conditionally added)
+set(TESSERACT_SRC_ARCH_AVX
+    src/arch/dotproductavx.cpp
+)
+
+set(TESSERACT_SRC_ARCH_AVX2
+    src/arch/intsimdmatrixavx2.cpp
+    src/arch/dotproductavx.cpp
+)
+
+set(TESSERACT_SRC_ARCH_AVX512F
+    src/arch/dotproductavx512.cpp
+)
+
+set(TESSERACT_SRC_ARCH_FMA
+    src/arch/dotproductfma.cpp
+)
+
+set(TESSERACT_SRC_ARCH_SSE41
+    src/arch/dotproductsse.cpp
+    src/arch/intsimdmatrixsse.cpp
+)
+
+set(TESSERACT_SRC_ARCH_NEON
+    src/arch/dotproductneon.cpp
+    src/arch/intsimdmatrixneon.cpp
+)
+
+# CCMain module sources
+set(TESSERACT_SRC_CCMAIN
+    src/ccmain/adaptions.cpp
+    src/ccmain/applybox.cpp
+    src/ccmain/control.cpp
+    src/ccmain/docqual.cpp
+    src/ccmain/equationdetect.cpp
+    src/ccmain/fixspace.cpp
+    src/ccmain/fixxht.cpp
+    src/ccmain/linerec.cpp
+    src/ccmain/ltrresultiterator.cpp
+    src/ccmain/mutableiterator.cpp
+    src/ccmain/osdetect.cpp
+    src/ccmain/output.cpp
+    src/ccmain/pageiterator.cpp
+    src/ccmain/pagesegmain.cpp
+    src/ccmain/pagewalk.cpp
+    src/ccmain/par_control.cpp
+    src/ccmain/paragraphs.cpp
+    src/ccmain/paramsd.cpp
+    src/ccmain/pgedit.cpp
+    src/ccmain/recogtraining.cpp
+    src/ccmain/reject.cpp
+    src/ccmain/resultiterator.cpp
+    src/ccmain/superscript.cpp
+    src/ccmain/tessbox.cpp
+    src/ccmain/tessedit.cpp
+    src/ccmain/tesseractclass.cpp
+    src/ccmain/tessvars.cpp
+    src/ccmain/tfacepp.cpp
+    src/ccmain/thresholder.cpp
+    src/ccmain/werdit.cpp
+)
+
+# CCStruct module sources
+set(TESSERACT_SRC_CCSTRUCT
+    src/ccstruct/blamer.cpp
+    src/ccstruct/blobbox.cpp
+    src/ccstruct/blobs.cpp
+    src/ccstruct/blread.cpp
+    src/ccstruct/boxread.cpp
+    src/ccstruct/boxword.cpp
+    src/ccstruct/ccstruct.cpp
+    src/ccstruct/coutln.cpp
+    src/ccstruct/detlinefit.cpp
+    src/ccstruct/dppoint.cpp
+    src/ccstruct/fontinfo.cpp
+    src/ccstruct/image.cpp
+    src/ccstruct/imagedata.cpp
+    src/ccstruct/linlsq.cpp
+    src/ccstruct/matrix.cpp
+    src/ccstruct/mod128.cpp
+    src/ccstruct/normalis.cpp
+    src/ccstruct/ocrblock.cpp
+    src/ccstruct/ocrpara.cpp
+    src/ccstruct/ocrrow.cpp
+    src/ccstruct/otsuthr.cpp
+    src/ccstruct/pageres.cpp
+    src/ccstruct/params_training_featdef.cpp
+    src/ccstruct/pdblock.cpp
+    src/ccstruct/points.cpp
+    src/ccstruct/polyaprx.cpp
+    src/ccstruct/polyblk.cpp
+    src/ccstruct/quadlsq.cpp
+    src/ccstruct/quspline.cpp
+    src/ccstruct/ratngs.cpp
+    src/ccstruct/rect.cpp
+    src/ccstruct/rejctmap.cpp
+    src/ccstruct/seam.cpp
+    src/ccstruct/split.cpp
+    src/ccstruct/statistc.cpp
+    src/ccstruct/stepblob.cpp
+    src/ccstruct/werd.cpp
+)
+
+# CCUtil module sources
+set(TESSERACT_SRC_CCUTIL
+    src/ccutil/ambigs.cpp
+    src/ccutil/bitvector.cpp
+    src/ccutil/ccutil.cpp
+    src/ccutil/errcode.cpp
+    src/ccutil/indexmapbidi.cpp
+    src/ccutil/params.cpp
+    src/ccutil/scanutils.cpp
+    src/ccutil/serialis.cpp
+    src/ccutil/tessdatamanager.cpp
+    src/ccutil/tprintf.cpp
+    src/ccutil/unichar.cpp
+    src/ccutil/unicharcompress.cpp
+    src/ccutil/unicharmap.cpp
+    src/ccutil/unicharset.cpp
+)
+
+# Classify module sources
+set(TESSERACT_SRC_CLASSIFY
+    src/classify/adaptive.cpp
+    src/classify/adaptmatch.cpp
+    src/classify/blobclass.cpp
+    src/classify/classify.cpp
+    src/classify/cluster.cpp
+    src/classify/clusttool.cpp
+    src/classify/cutoffs.cpp
+    src/classify/featdefs.cpp
+    src/classify/float2int.cpp
+    src/classify/fpoint.cpp
+    src/classify/intfeaturespace.cpp
+    src/classify/intfx.cpp
+    src/classify/intmatcher.cpp
+    src/classify/intproto.cpp
+    src/classify/kdtree.cpp
+    src/classify/mf.cpp
+    src/classify/mfoutline.cpp
+    src/classify/mfx.cpp
+    src/classify/normfeat.cpp
+    src/classify/normmatch.cpp
+    src/classify/ocrfeatures.cpp
+    src/classify/outfeat.cpp
+    src/classify/picofeat.cpp
+    src/classify/protos.cpp
+    src/classify/shapeclassifier.cpp
+    src/classify/shapetable.cpp
+    src/classify/tessclassifier.cpp
+    src/classify/trainingsample.cpp
+)
+
+# CUtil module sources
+set(TESSERACT_SRC_CUTIL
+    src/cutil/oldlist.cpp
+)
+
+# Dict module sources
+set(TESSERACT_SRC_DICT
+    src/dict/context.cpp
+    src/dict/dawg.cpp
+    src/dict/dawg_cache.cpp
+    src/dict/dict.cpp
+    src/dict/hyphen.cpp
+    src/dict/permdawg.cpp
+    src/dict/stopper.cpp
+    src/dict/trie.cpp
+)
+
+# LSTM module sources
+set(TESSERACT_SRC_LSTM
+    src/lstm/convolve.cpp
+    src/lstm/fullyconnected.cpp
+    src/lstm/functions.cpp
+    src/lstm/input.cpp
+    src/lstm/lstm.cpp
+    src/lstm/lstmrecognizer.cpp
+    src/lstm/maxpool.cpp
+    src/lstm/network.cpp
+    src/lstm/networkio.cpp
+    src/lstm/parallel.cpp
+    src/lstm/plumbing.cpp
+    src/lstm/recodebeam.cpp
+    src/lstm/reconfig.cpp
+    src/lstm/reversed.cpp
+    src/lstm/series.cpp
+    src/lstm/stridemap.cpp
+    src/lstm/weightmatrix.cpp
+)
+
+# TextOrd module sources
+set(TESSERACT_SRC_TEXTORD
+    src/textord/alignedblob.cpp
+    src/textord/baselinedetect.cpp
+    src/textord/bbgrid.cpp
+    src/textord/blkocc.cpp
+    src/textord/blobgrid.cpp
+    src/textord/ccnontextdetect.cpp
+    src/textord/cjkpitch.cpp
+    src/textord/colfind.cpp
+    src/textord/colpartition.cpp
+    src/textord/colpartitiongrid.cpp
+    src/textord/colpartitionset.cpp
+    src/textord/devanagari_processing.cpp
+    src/textord/drawtord.cpp
+    src/textord/edgblob.cpp
+    src/textord/edgloop.cpp
+    src/textord/equationdetectbase.cpp
+    src/textord/fpchop.cpp
+    src/textord/gap_map.cpp
+    src/textord/imagefind.cpp
+    src/textord/linefind.cpp
+    src/textord/makerow.cpp
+    src/textord/oldbasel.cpp
+    src/textord/pithsync.cpp
+    src/textord/pitsync1.cpp
+    src/textord/scanedg.cpp
+    src/textord/sortflts.cpp
+    src/textord/strokewidth.cpp
+    src/textord/tabfind.cpp
+    src/textord/tablefind.cpp
+    src/textord/tablerecog.cpp
+    src/textord/tabvector.cpp
+    src/textord/textlineprojection.cpp
+    src/textord/textord.cpp
+    src/textord/topitch.cpp
+    src/textord/tordmain.cpp
+    src/textord/tospace.cpp
+    src/textord/tovars.cpp
+    src/textord/underlin.cpp
+    src/textord/wordseg.cpp
+    src/textord/workingpartset.cpp
+)
+
+# Viewer module sources
+set(TESSERACT_SRC_VIEWER
+    src/viewer/scrollview.cpp
+    src/viewer/svmnode.cpp
+    src/viewer/svutil.cpp
+)
+
+# WordRec module sources
+set(TESSERACT_SRC_WORDREC
+    src/wordrec/associate.cpp
+    src/wordrec/chop.cpp
+    src/wordrec/chopper.cpp
+    src/wordrec/drawfx.cpp
+    src/wordrec/findseam.cpp
+    src/wordrec/gradechop.cpp
+    src/wordrec/language_model.cpp
+    src/wordrec/lm_consistency.cpp
+    src/wordrec/lm_pain_points.cpp
+    src/wordrec/lm_state.cpp
+    src/wordrec/outlines.cpp
+    src/wordrec/params_model.cpp
+    src/wordrec/pieces.cpp
+    src/wordrec/plotedges.cpp
+    src/wordrec/render.cpp
+    src/wordrec/segsearch.cpp
+    src/wordrec/tface.cpp
+    src/wordrec/wordclass.cpp
+    src/wordrec/wordrec.cpp
+)
+
+# Legacy engine sources (excluded when DISABLED_LEGACY_ENGINE is ON)
+set(TESSERACT_SRC_LEGACY
+    src/ccmain/adaptions.cpp
+    src/ccmain/docqual.cpp
+    src/ccmain/equationdetect.cpp
+    src/ccmain/fixspace.cpp
+    src/ccmain/fixxht.cpp
+    src/ccmain/osdetect.cpp
+    src/ccmain/par_control.cpp
+    src/ccmain/recogtraining.cpp
+    src/ccmain/superscript.cpp
+    src/ccmain/tessbox.cpp
+    src/ccmain/tfacepp.cpp
+    src/ccstruct/fontinfo.cpp
+    src/ccstruct/params_training_featdef.cpp
+    src/ccutil/ambigs.cpp
+    src/ccutil/bitvector.cpp
+    src/ccutil/indexmapbidi.cpp
+    src/classify/adaptive.cpp
+    src/classify/adaptmatch.cpp
+    src/classify/blobclass.cpp
+    src/classify/cluster.cpp
+    src/classify/clusttool.cpp
+    src/classify/cutoffs.cpp
+    src/classify/featdefs.cpp
+    src/classify/float2int.cpp
+    src/classify/fpoint.cpp
+    src/classify/intfeaturespace.cpp
+    src/classify/intfx.cpp
+    src/classify/intmatcher.cpp
+    src/classify/intproto.cpp
+    src/classify/kdtree.cpp
+    src/classify/mf.cpp
+    src/classify/mfoutline.cpp
+    src/classify/mfx.cpp
+    src/classify/normfeat.cpp
+    src/classify/normmatch.cpp
+    src/classify/ocrfeatures.cpp
+    src/classify/outfeat.cpp
+    src/classify/picofeat.cpp
+    src/classify/protos.cpp
+    src/classify/shapeclassifier.cpp
+    src/classify/shapetable.cpp
+    src/classify/tessclassifier.cpp
+    src/classify/trainingsample.cpp
+    src/dict/permdawg.cpp
+    src/dict/hyphen.cpp
+    src/wordrec/associate.cpp
+    src/wordrec/chop.cpp
+    src/wordrec/chopper.cpp
+    src/wordrec/drawfx.cpp
+    src/wordrec/findseam.cpp
+    src/wordrec/gradechop.cpp
+    src/wordrec/language_model.cpp
+    src/wordrec/lm_consistency.cpp
+    src/wordrec/lm_pain_points.cpp
+    src/wordrec/lm_state.cpp
+    src/wordrec/outlines.cpp
+    src/wordrec/params_model.cpp
+    src/wordrec/pieces.cpp
+    src/wordrec/plotedges.cpp
+    src/wordrec/render.cpp
+    src/wordrec/segsearch.cpp
+    src/wordrec/wordclass.cpp
+)
+
+# Header files
+set(TESSERACT_HDR_INCLUDE
+    include/tesseract/baseapi.h
+    include/tesseract/capi.h
+    include/tesseract/export.h
+    include/tesseract/ltrresultiterator.h
+    include/tesseract/ocrclass.h
+    include/tesseract/osdetect.h
+    include/tesseract/pageiterator.h
+    include/tesseract/publictypes.h
+    include/tesseract/renderer.h
+    include/tesseract/resultiterator.h
+    include/tesseract/unichar.h
+)
+
+# Internal header files
+set(TESSERACT_HDR_INTERNAL
+    src/api/pdf_ttf.h
+    src/arch/dotproduct.h
+    src/arch/intsimdmatrix.h
+    src/arch/simddetect.h
+    src/ccmain/control.h
+    src/ccmain/docqual.h
+    src/ccmain/equationdetect.h
+    src/ccmain/fixspace.h
+    src/ccmain/mutableiterator.h
+    src/ccmain/output.h
+    src/ccmain/paragraphs.h
+    src/ccmain/paragraphs_internal.h
+    src/ccmain/paramsd.h
+    src/ccmain/pgedit.h
+    src/ccmain/reject.h
+    src/ccmain/tesseractclass.h
+    src/ccmain/tessvars.h
+    src/ccmain/thresholder.h
+    src/ccmain/werdit.h
+    src/ccstruct/blamer.h
+    src/ccstruct/blobbox.h
+    src/ccstruct/blobs.h
+    src/ccstruct/blread.h
+    src/ccstruct/boxread.h
+    src/ccstruct/boxword.h
+    src/ccstruct/ccstruct.h
+    src/ccstruct/coutln.h
+    src/ccstruct/crakedge.h
+    src/ccstruct/debugpixa.h
+    src/ccstruct/detlinefit.h
+    src/ccstruct/dppoint.h
+    src/ccstruct/fontinfo.h
+    src/ccstruct/image.h
+    src/ccstruct/imagedata.h
+    src/ccstruct/linlsq.h
+    src/ccstruct/matrix.h
+    src/ccstruct/mod128.h
+    src/ccstruct/normalis.h
+    src/ccstruct/ocrblock.h
+    src/ccstruct/ocrpara.h
+    src/ccstruct/ocrrow.h
+    src/ccstruct/otsuthr.h
+    src/ccstruct/pageres.h
+    src/ccstruct/params_training_featdef.h
+    src/ccstruct/pdblock.h
+    src/ccstruct/points.h
+    src/ccstruct/polyaprx.h
+    src/ccstruct/polyblk.h
+    src/ccstruct/quadlsq.h
+    src/ccstruct/quadratc.h
+    src/ccstruct/quspline.h
+    src/ccstruct/ratngs.h
+    src/ccstruct/rect.h
+    src/ccstruct/rejctmap.h
+    src/ccstruct/seam.h
+    src/ccstruct/split.h
+    src/ccstruct/statistc.h
+    src/ccstruct/stepblob.h
+    src/ccstruct/werd.h
+    src/ccutil/ambigs.h
+    src/ccutil/bitvector.h
+    src/ccutil/ccutil.h
+    src/ccutil/clst.h
+    src/ccutil/elst.h
+    src/ccutil/elst2.h
+    src/ccutil/errcode.h
+    src/ccutil/fileerr.h
+    src/ccutil/genericvector.h
+    src/ccutil/genericheap.h
+    src/ccutil/helpers.h
+    src/ccutil/host.h
+    src/ccutil/indexmapbidi.h
+    src/ccutil/kdpair.h
+    src/ccutil/lsterr.h
+    src/ccutil/object_cache.h
+    src/ccutil/params.h
+    src/ccutil/qrsequence.h
+    src/ccutil/scanutils.h
+    src/ccutil/serialis.h
+    src/ccutil/sorthelper.h
+    src/ccutil/tessdatamanager.h
+    src/ccutil/tesserrstream.h
+    src/ccutil/tesstypes.h
+    src/ccutil/tprintf.h
+    src/ccutil/unicity_table.h
+    src/ccutil/unicharcompress.h
+    src/ccutil/unicharmap.h
+    src/ccutil/unicharset.h
+    src/ccutil/universalambigs.h
+    src/classify/adaptive.h
+    src/classify/classify.h
+    src/classify/cluster.h
+    src/classify/clusttool.h
+    src/classify/featdefs.h
+    src/classify/float2int.h
+    src/classify/fpoint.h
+    src/classify/intfeaturespace.h
+    src/classify/intfx.h
+    src/classify/intmatcher.h
+    src/classify/intproto.h
+    src/classify/kdtree.h
+    src/classify/mf.h
+    src/classify/mfdefs.h
+    src/classify/mfoutline.h
+    src/classify/mfx.h
+    src/classify/normfeat.h
+    src/classify/normmatch.h
+    src/classify/ocrfeatures.h
+    src/classify/outfeat.h
+    src/classify/picofeat.h
+    src/classify/protos.h
+    src/classify/shapeclassifier.h
+    src/classify/shapetable.h
+    src/classify/tessclassifier.h
+    src/classify/trainingsample.h
+    src/cutil/bitvec.h
+    src/cutil/oldlist.h
+    src/dict/dawg.h
+    src/dict/dawg_cache.h
+    src/dict/dict.h
+    src/dict/matchdefs.h
+    src/dict/stopper.h
+    src/dict/trie.h
+    src/lstm/convolve.h
+    src/lstm/fullyconnected.h
+    src/lstm/functions.h
+    src/lstm/input.h
+    src/lstm/lstm.h
+    src/lstm/lstmrecognizer.h
+    src/lstm/maxpool.h
+    src/lstm/network.h
+    src/lstm/networkio.h
+    src/lstm/networkscratch.h
+    src/lstm/parallel.h
+    src/lstm/plumbing.h
+    src/lstm/recodebeam.h
+    src/lstm/reconfig.h
+    src/lstm/reversed.h
+    src/lstm/series.h
+    src/lstm/static_shape.h
+    src/lstm/stridemap.h
+    src/lstm/weightmatrix.h
+    src/textord/alignedblob.h
+    src/textord/baselinedetect.h
+    src/textord/bbgrid.h
+    src/textord/blkocc.h
+    src/textord/blobgrid.h
+    src/textord/ccnontextdetect.h
+    src/textord/cjkpitch.h
+    src/textord/colfind.h
+    src/textord/colpartition.h
+    src/textord/colpartitiongrid.h
+    src/textord/colpartitionset.h
+    src/textord/devanagari_processing.h
+    src/textord/drawtord.h
+    src/textord/edgblob.h
+    src/textord/edgloop.h
+    src/textord/equationdetectbase.h
+    src/textord/fpchop.h
+    src/textord/gap_map.h
+    src/textord/imagefind.h
+    src/textord/linefind.h
+    src/textord/makerow.h
+    src/textord/oldbasel.h
+    src/textord/pithsync.h
+    src/textord/pitsync1.h
+    src/textord/scanedg.h
+    src/textord/sortflts.h
+    src/textord/strokewidth.h
+    src/textord/tabfind.h
+    src/textord/tablefind.h
+    src/textord/tablerecog.h
+    src/textord/tabvector.h
+    src/textord/textlineprojection.h
+    src/textord/textord.h
+    src/textord/topitch.h
+    src/textord/tordmain.h
+    src/textord/tovars.h
+    src/textord/underlin.h
+    src/textord/wordseg.h
+    src/textord/workingpartset.h
+    src/viewer/scrollview.h
+    src/viewer/svmnode.h
+    src/viewer/svutil.h
+    src/wordrec/associate.h
+    src/wordrec/chop.h
+    src/wordrec/drawfx.h
+    src/wordrec/findseam.h
+    src/wordrec/language_model.h
+    src/wordrec/lm_consistency.h
+    src/wordrec/lm_pain_points.h
+    src/wordrec/lm_state.h
+    src/wordrec/outlines.h
+    src/wordrec/params_model.h
+    src/wordrec/plotedges.h
+    src/wordrec/render.h
+    src/wordrec/wordrec.h
+)
+
+# Combine all core source files
+set(TESSERACT_SRC_CORE
+    ${TESSERACT_SRC_API}
+    ${TESSERACT_SRC_CCMAIN}
+    ${TESSERACT_SRC_CCSTRUCT}
+    ${TESSERACT_SRC_CCUTIL}
+    ${TESSERACT_SRC_CLASSIFY}
+    ${TESSERACT_SRC_CUTIL}
+    ${TESSERACT_SRC_DICT}
+    ${TESSERACT_SRC_LSTM}
+    ${TESSERACT_SRC_TEXTORD}
+    ${TESSERACT_SRC_VIEWER}
+    ${TESSERACT_SRC_WORDREC}
+)

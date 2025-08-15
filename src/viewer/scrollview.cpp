@@ -43,7 +43,6 @@
 namespace tesseract {
 
 const int kSvPort = 8461;
-const int kMaxMsgSize = 4096;
 const int kMaxIntPairSize = 45; // Holds %d,%d, for up to 64 bit.
 
 struct SVPolyLineBuffer {
