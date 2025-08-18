@@ -152,6 +152,17 @@ public:
    */
   void PrintVariables(FILE *fp) const;
 
+  /*
+  * Report parameters' usage statistics, i.e. report which params have been
+  * set, modified and read/checked until now during this run-time's lifetime.
+  *
+  * Use this method for run-time 'discovery' about which tesseract parameters
+  * are actually *used* during your particular usage of the library, ergo
+  * answering the question:
+  * "Which of all those parameters are actually *relevant* to my use case today?"
+  */
+  void ReportParamsUsageStatistics() const;
+
   /**
    * Get value of named variable as a string, if it exists.
    */
