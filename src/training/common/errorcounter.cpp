@@ -417,7 +417,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
       }
     }
     tprintf("Multi-unichar shape use:\n");
-    for (int u = 0; u < multi_unichar_counts_.size(); ++u) {
+    for (unsigned u = 0; u < multi_unichar_counts_.size(); ++u) {
       if (multi_unichar_counts_[u] > 0) {
         tprintf("%d multiple answers for unichar: %s\n", multi_unichar_counts_[u],
                 unicharset_.id_to_unichar(u));
