@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  tesseract-bot:
+    build: .
+    container_name: tesseract-telegram-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      # Optional: Mount config file
+      - ./config.py:/app/config.py:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Optional: Add resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M

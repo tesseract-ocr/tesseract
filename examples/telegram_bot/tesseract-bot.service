@@ -1,0 +1,22 @@
+[Unit]
+Description=Tesseract Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=nobody
+WorkingDirectory=/path/to/tesseract/examples/telegram_bot
+Environment=TELEGRAM_BOT_TOKEN=your_bot_token_here
+ExecStart=/usr/bin/python3 tesseract_bot.py
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target

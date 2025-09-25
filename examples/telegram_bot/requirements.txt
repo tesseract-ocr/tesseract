@@ -1,0 +1,16 @@
+# Requirements for Tesseract Telegram Bot
+
+# Telegram Bot API
+python-telegram-bot>=20.0
+
+# Image processing
+Pillow>=9.0.0
+
+# OCR integration
+pytesseract>=0.3.9
+
+# HTTP requests
+requests>=2.25.0
+
+# Optional: For better image preprocessing
+opencv-python>=4.5.0

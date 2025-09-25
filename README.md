@@ -83,6 +83,12 @@ Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract
 
 Documentation of Tesseract generated from source code by doxygen can be found on [tesseract-ocr.github.io](https://tesseract-ocr.github.io/).
 
+## Examples
+
+The `examples/` directory contains practical examples of using Tesseract:
+
+- **[Telegram Bot](examples/telegram_bot/)** - A complete Telegram bot that performs OCR on images sent by users. Supports multiple languages and provides an easy-to-use interface for OCR via Telegram messaging.
+
 ## Support
 
 Before you submit an issue, please review **[the guidelines for this repository](https://github.com/tesseract-ocr/tesseract/blob/main/CONTRIBUTING.md)**.
