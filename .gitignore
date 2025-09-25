@@ -19,6 +19,10 @@
 # ignore local configuration
 config.*
 config/*
+
+# Telegram Bot - prevent accidental commit of sensitive data
+examples/telegram_bot/config.py
+examples/telegram_bot/.env
 Makefile
 Makefile.in
 *.m4
