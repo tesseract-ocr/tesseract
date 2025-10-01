@@ -17,7 +17,7 @@ jobs:
           - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
 
@@ -113,7 +113,7 @@ jobs:
           - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
 
