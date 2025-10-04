@@ -49,7 +49,9 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   std::string text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE *best_choice = res_it.word()->best_choice;
-  ASSERT_HOST(best_choice != nullptr);
+  if (best_choice == nullptr) {
+    return nullptr; // No recognition results available
+  }
   if (level == RIL_SYMBOL) {
     text = res_it.word()->BestUTF8(blob_index_, false);
   } else if (level == RIL_WORD) {
@@ -61,7 +63,9 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       do {            // for each text line in a paragraph
         do {          // for each word in a text line
           best_choice = res_it.word()->best_choice;
-          ASSERT_HOST(best_choice != nullptr);
+          if (best_choice == nullptr) {
+            break; // Skip words without recognition results
+          }
           text += best_choice->unichar_string();
           text += " ";
           res_it.forward();
@@ -104,16 +108,20 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
     case RIL_BLOCK:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.block() == res_it.prev_block());
       break;
     case RIL_PARA:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.block() == res_it.prev_block() &&
                res_it.row()->row->para() == res_it.prev_row()->row->para());
@@ -121,20 +129,26 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
     case RIL_TEXTLINE:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.row() == res_it.prev_row());
       break;
     case RIL_WORD:
       best_choice = res_it.word()->best_choice;
-      mean_certainty = best_choice->certainty();
-      certainty_count = 1;
+      if (best_choice != nullptr) {
+        mean_certainty = best_choice->certainty();
+        certainty_count = 1;
+      }
       break;
     case RIL_SYMBOL:
       best_choice = res_it.word()->best_choice;
-      mean_certainty = best_choice->certainty(blob_index_);
-      certainty_count = 1;
+      if (best_choice != nullptr) {
+        mean_certainty = best_choice->certainty(blob_index_);
+        certainty_count = 1;
+      }
   }
   if (certainty_count > 0) {
     mean_certainty /= certainty_count;
@@ -226,8 +240,8 @@ StrongScriptDirection LTRResultIterator::WordDirection() const {
 
 // Returns true if the current word was found in a dictionary.
 bool LTRResultIterator::WordIsFromDictionary() const {
-  if (it_->word() == nullptr) {
-    return false; // Already at the end!
+  if (it_->word() == nullptr || it_->word()->best_choice == nullptr) {
+    return false; // Already at the end or no recognition results!
   }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == SYSTEM_DAWG_PERM || permuter == FREQ_DAWG_PERM || permuter == USER_DAWG_PERM;
@@ -243,8 +257,8 @@ int LTRResultIterator::BlanksBeforeWord() const {
 
 // Returns true if the current word is numeric.
 bool LTRResultIterator::WordIsNumeric() const {
-  if (it_->word() == nullptr) {
-    return false; // Already at the end!
+  if (it_->word() == nullptr || it_->word()->best_choice == nullptr) {
+    return false; // Already at the end or no recognition results!
   }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == NUMBER_PERM;
@@ -315,8 +329,11 @@ char *LTRResultIterator::WordNormedUTF8Text() const {
   if (it_->word() == nullptr) {
     return nullptr; // Already at the end!
   }
-  std::string ocr_text;
   WERD_CHOICE *best_choice = it_->word()->best_choice;
+  if (best_choice == nullptr) {
+    return nullptr; // No recognition results available
+  }
+  std::string ocr_text;
   const UNICHARSET *unicharset = it_->word()->uch_set;
   for (unsigned i = 0; i < best_choice->length(); ++i) {
     ocr_text += unicharset->get_normed_unichar(best_choice->unichar_id(i));
@@ -341,7 +358,7 @@ const char *LTRResultIterator::WordLattice(int *lattice_size) const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSuperscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUPERSCRIPT;
   }
   return false;
@@ -351,7 +368,7 @@ bool LTRResultIterator::SymbolIsSuperscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSubscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUBSCRIPT;
   }
   return false;
@@ -361,7 +378,7 @@ bool LTRResultIterator::SymbolIsSubscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsDropcap() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_DROPCAP;
   }
   return false;
