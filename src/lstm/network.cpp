@@ -253,7 +253,7 @@ Network *Network::CreateFromFile(TFile *fp) {
       network = new Convolve(name, ni, 0, 0);
       break;
     case NT_DROPOUT:
-      network = new Dropout(name, ni, 0.5f, 1);
+      network = new Dropout(name, ni, 0.5f);
       break;
     case NT_INPUT:
       network = new Input(name, ni, no);
