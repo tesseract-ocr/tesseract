@@ -27,10 +27,9 @@
 
 namespace tesseract {
 
-Dropout::Dropout(const std::string &name, int ni, float dropout_rate, uint8_t dimensions)
+Dropout::Dropout(const std::string &name, int ni, float dropout_rate)
     : Network(NT_DROPOUT, name, ni, 0),
-      dropout_rate_(dropout_rate),
-      dimensions_(dimensions)
+      dropout_rate_(dropout_rate)
 {
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
     throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
@@ -43,15 +42,12 @@ void Dropout::DebugWeights() {
 
 // Writes to the given file. Returns false in case of error.
 bool Dropout::Serialize(TFile *fp) const {
-  return Network::Serialize(fp) && fp->Serialize(&dropout_rate_) && fp->Serialize(&dimensions_);
+  return Network::Serialize(fp) && fp->Serialize(&dropout_rate_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Dropout::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&dropout_rate_)) {
-    return false;
-  }
-  if (!fp->DeSerialize(&dimensions_)) {
     return false;
   }
   no_ = ni_;
@@ -62,6 +58,15 @@ bool Dropout::DeSerialize(TFile *fp) {
 // See NetworkCpp for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
+  if (IsTraining() && dropout_rate_ > 0) {
+    // Apply dropout: randomly zero out neurons
+    // Generate random mask, apply to input
+  } else {
+    // Inference mode: scale by (1 - dropout_rate)
+    // or just pass through unchanged
+    *output = input;
+  }
+#if 0
   // Resize output to match input dimensions
   output->Resize(input.NumFeatures(), input.TimeSize(), input.BatchSize());
 
@@ -102,12 +107,20 @@ void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray 
     DisplayForward(*output);
   }
 #endif
+#endif
 }
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
+  if (IsTraining() && dropout_rate_ > 0) {
+    // Apply same mask from forward pass
+    // Multiply deltas by the same mask
+  } else {
+    *back_deltas = fwd_deltas;
+  }
+#if 0
   int size = deltas.Size();
   input_deltas->Resize(size);
 
@@ -120,6 +133,7 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *
       (*input_deltas)(i) = deltas(i) * (1.0f - dropout_rate_);
     }
   }
+#endif
 
 #if 0
   tesserr << __FUNCTION__ << ": missing implementation\n";

@@ -19,6 +19,7 @@
 #include "networkbuilder.h"
 
 #include "convolve.h"
+#include "dropout.h"
 #include "fullyconnected.h"
 #include "input.h"
 #include "lstm.h"
@@ -28,6 +29,7 @@
 #include "reconfig.h"
 #include "reversed.h"
 #include "series.h"
+#include "tesserrstream.h"  // for tesserr
 #include "unicharset.h"
 
 namespace tesseract {
@@ -104,6 +106,8 @@ Network *NetworkBuilder::BuildFromString(const StaticShape &input_shape, const c
       return ParseS(input_shape, str);
     case 'C':
       return ParseC(input_shape, str);
+    case 'D':
+      return ParseD(input_shape, str);
     case 'M':
       return ParseM(input_shape, str);
     case 'L':
@@ -293,6 +297,22 @@ Network *NetworkBuilder::ParseC(const StaticShape &input_shape, const char **str
   StaticShape fc_input = convolve->OutputShape(input_shape);
   series->AddToStack(new FullyConnected("ConvNL", fc_input.depth(), d, type));
   return series;
+}
+
+// Parses a network that begins with 'D'.
+Network *NetworkBuilder::ParseD(const StaticShape &input_shape, const char **str) {
+  if ((*str)[1] != 'o') {
+    tesserr << "Invalid Do spec!:" << *str << '\n';
+    return nullptr;
+  }
+  char *end;
+  float dropout_rate = strtof(*str + 2, &end);
+  if (dropout_rate < 0 || dropout_rate > 1) {
+    tesserr << "Invalid dropout rate! Must be between 0.0 and 1.0: " << dropout_rate << '\n';
+    return nullptr;
+  }
+  *str = end;
+  return new Dropout("Dropout", input_shape.depth(), dropout_rate);
 }
 
 // Parses a network that begins with 'M'.
