@@ -128,5 +128,20 @@ if(TESSDATA_PREFIX)
 endif()
 
 ########################################
+# FUNCTION print_configuration_summary
+########################################
+function(print_configuration_summary)
+    message(STATUS "----------------------------------------")
+    message(STATUS "  Tesseract Configuration Summary")
+    message(STATUS "----------------------------------------")
+    message(STATUS "  CMake version: ${CMAKE_VERSION}")
+    message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "  Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+    message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "----------------------------------------")
+endfunction()
+
+# Call the summary function
+print_configuration_summary()
 
 ################################################################################
