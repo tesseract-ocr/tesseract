@@ -89,19 +89,18 @@ bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
       "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
       "\t\t<sourceImageInformation>\n"
       "\t\t\t<fileName>");
-
     AppendString(api->GetInputName());
-
     AppendString(
       "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
       "\t\t<OCRProcessing ID=\"OCR_0\">\n"
       "\t\t\t<ocrProcessingStep>\n"
       "\t\t\t\t<processingSoftware>\n"
-      "\t\t\t\t\t<softwareName>tesseract ");
+      "\t\t\t\t\t<softwareName>Tesseract</softwareName>\n"
+      "\t\t\t\t\t<softwareVersion>");
     AppendString(TessBaseAPI::Version());
     AppendString(
-      "</softwareName>\n"
+      "</softwareVersion>\n"
       "\t\t\t\t</processingSoftware>\n"
       "\t\t\t</ocrProcessingStep>\n"
       "\t\t</OCRProcessing>\n"
