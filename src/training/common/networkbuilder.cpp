@@ -307,8 +307,8 @@ Network *NetworkBuilder::ParseD(const StaticShape &input_shape, const char **str
   }
   char *end;
   float dropout_rate = strtof(*str + 2, &end);
-  if (dropout_rate < 0 || dropout_rate > 1) {
-    tesserr << "Invalid dropout rate! Must be between 0.0 and 1.0: " << dropout_rate << '\n';
+  if (dropout_rate < 0 || dropout_rate >= 1) {
+    tesserr << "Invalid dropout rate! Must be in [0.0, 1.0): " << dropout_rate << '\n';
     return nullptr;
   }
   *str = end;
