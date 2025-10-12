@@ -18,8 +18,6 @@
 #  include "config_auto.h"
 #endif
 
-#include <random>
-
 #include "dropout.h"
 #include "networkscratch.h"
 #include "serialis.h"
@@ -28,7 +26,8 @@
 namespace tesseract {
 
 Dropout::Dropout(const std::string &name, int ni, float dropout_rate)
-    : Network(NT_DROPOUT, name, ni, 0),
+    : Network(NT_DROPOUT, name, ni, ni),
+      dropout_mask_(),
       dropout_rate_(dropout_rate)
 {
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
@@ -37,11 +36,14 @@ Dropout::Dropout(const std::string &name, int ni, float dropout_rate)
 }
 
 void Dropout::DebugWeights() {
+  // Dropout doesn't typically have weights to display like other layers.
   tesserr << "Must override Network::DebugWeights for type " << type_ << '\n';
+  tesserr << "Dropout layer '" << name_ << "': rate=" << dropout_rate_ << '\n';
 }
 
 // Writes to the given file. Returns false in case of error.
 bool Dropout::Serialize(TFile *fp) const {
+  // Note: dropout_mask_ is runtime data, not serialized.
   return Network::Serialize(fp) && fp->Serialize(&dropout_rate_);
 }
 
@@ -58,9 +60,38 @@ bool Dropout::DeSerialize(TFile *fp) {
 // See NetworkCpp for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
                        NetworkScratch *scratch, NetworkIO *output) {
+  // Resize output to match input dimensions.
+  // Start by copying input structure and potentially data.
+  *output = input;
+
   if (IsTraining() && dropout_rate_ > 0) {
+#if 0
     // Apply dropout: randomly zero out neurons
-    // Generate random mask, apply to input
+    float keep_prob = 1.0f - static_cast<float>(dropout_rate_);
+    int32_t batch_size = input.BatchSize();
+    int32_t total_elements_per_sample = input.Width() * input.Height() * input.Depth();
+    int32_t total_elements = batch_size * total_elements_per_sample;
+    int num_elements = height * width;
+
+    // Resize mask storage
+    dropout_mask_.resize(num_elements, 0);
+
+    const float* input_data = input.f(0);
+    float* output_data = output->f(0);
+
+    // Generate mask and apply dropout
+    for (int i = 0; i < num_elements; ++i) {
+      float random_val = static_cast<float>(random_.UnsignedRand(1000000)) / 1000000.0f;
+
+      if (random_val < keep_prob) {
+        dropout_mask_[i] = 1;  // Keep neuron
+        output_data[i] = input_data[i] / keep_prob;
+      } else {
+        dropout_mask_[i] = 0;  // Drop neuron
+        output_data[i] = 0.0f;
+      }
+    }
+#endif
   } else {
     // Inference mode: scale by (1 - dropout_rate)
     // or just pass through unchanged
