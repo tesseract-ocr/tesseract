@@ -91,9 +91,6 @@ jobs:
         shell: bash
         run: |
              set -e
-             export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
-             export LDFLAGS="-L/usr/local/opt/icu4c/lib"
-             export CPPFLAGS="-I/usr/local/opt/icu4c/include"
              mkdir build
              mkdir inst
              cmake \
