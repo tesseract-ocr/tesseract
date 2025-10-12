@@ -23,7 +23,7 @@ jobs:
       matrix:
         config:
           - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
-          - { name: macos-14-gcc-14-cmake, os: macos-14, cxx: g++-14 } #installed
+          - { name: macos-15-gcc-14-cmake, os: macos-15, cxx: g++ } #installed
           - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
@@ -51,8 +51,16 @@ jobs:
         run: |
            brew install autoconf automake
            brew install leptonica
-           # brew install libarchive
+           # if ! brew list libarchive &>/dev/null; then
+           #   brew install libarchive
+           # fi
            brew install pango
+           if ! brew list icu4c &>/dev/null; then
+             brew install icu4c
+           fi
+           if ! brew list curl &>/dev/null; then
+             brew install curl
+           fi
            brew install cabextract
            ninja --version
            cmake --version

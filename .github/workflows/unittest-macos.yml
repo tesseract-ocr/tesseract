@@ -25,7 +25,14 @@ jobs:
     - name: Install dependencies (macOS Homebrew)
       run: |
            brew install autoconf automake cabextract libtool
-           brew install curl icu4c leptonica libarchive pango
+           brew install leptonica libarchive pango
+           if ! brew list icu4c &>/dev/null; then
+             brew install icu4c
+           fi
+           if ! brew list curl &>/dev/null; then
+             brew install curl
+           fi
+
     - name: Setup
       run: |
            ./autogen.sh
