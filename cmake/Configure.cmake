@@ -128,17 +128,39 @@ if(TESSDATA_PREFIX)
 endif()
 
 ########################################
-# FUNCTION print_configuration_summary
+# FUNCTION: print_configuration_summary
 ########################################
 function(print_configuration_summary)
-    message(STATUS "----------------------------------------")
-    message(STATUS "  Tesseract Configuration Summary")
-    message(STATUS "----------------------------------------")
-    message(STATUS "  CMake version: ${CMAKE_VERSION}")
-    message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
-    message(STATUS "  Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-    message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
-    message(STATUS "----------------------------------------")
+    message(STATUS "")
+    message(STATUS "========== Tesseract Build Summary ==========")
+    message(STATUS "CMake version      : ${CMAKE_VERSION}")
+    message(STATUS "Tesseract version  : ${PACKAGE_VERSION}")
+    message(STATUS "Build type         : ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Compiler           : ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+    message(STATUS "Install prefix     : ${CMAKE_INSTALL_PREFIX}")
+    message(STATUS "Build directory    : ${CMAKE_BINARY_DIR}")
+    message(STATUS "---------------------------------------------")
+
+    if (GRAPHICS_DISABLED)
+        message(STATUS "Graphics disabled  : YES")
+    else()
+        message(STATUS "Graphics disabled  : NO")
+    endif()
+
+    if (FAST_FLOAT)
+        message(STATUS "Fast float enabled : YES")
+    else()
+        message(STATUS "Fast float enabled : NO")
+    endif()
+
+    if (DISABLED_LEGACY_ENGINE)
+        message(STATUS "Legacy engine      : DISABLED")
+    else()
+        message(STATUS "Legacy engine      : ENABLED")
+    endif()
+
+    message(STATUS "=============================================")
+    message(STATUS "")
 endfunction()
 
 # Call the summary function
