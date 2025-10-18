@@ -1,0 +1,22 @@
+from PIL import Image
+import pytesseract
+from docx import Document
+
+# Cargar imagen
+image_path = "ruta/a/tu/imagen.png"  # Cambia esto por la ruta real del archivo
+image = Image.open(image_path)
+
+# Extraer texto usando OCR
+extracted_text = pytesseract.image_to_string(image)
+
+# Reemplazar el texto incorrecto
+corrected_text = extracted_text.replace("promoción 2026", "promoción 2025")
+
+# Crear documento Word
+doc = Document()
+doc.add_heading("INFORME", level=1)
+doc.add_paragraph(corrected_text)
+
+# Guardar el documento
+doc.save("Informe_Corregido_2025.docx")
+print("Documento guardado como 'Informe_Corregido_2025.docx'")
