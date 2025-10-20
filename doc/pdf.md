@@ -44,7 +44,6 @@ are going to be able to (or even have to) modify the font entries, so
 they require that the font being embedded be valid, and to be honest
 the font Tesseract embeds isn't valid (for this purpose).
 
-
 To see why lets look at how text is specified in a PDF file:
 
 `(Test) Tj`
