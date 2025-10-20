@@ -1,5 +1,3 @@
-
-
 Design notes from Ken Sharp, with light editing.
 
 We think one solution is a font with a single glyph (.notdef) and a
@@ -11,7 +9,7 @@ size as the one you currently use.
 I'm working on such a font now, the CIDToGIDMap is trivial, you just
 create a stream object which contains 128k bytes (2 bytes per possible
 CID and your CIDs range from 0 to 65535) and where you currently have
-"/CIDToGIDMap /Identity" you would have "/CIDToGIDMap <object> 0 R".
+`"/CIDToGIDMap /Identity"` you would have `"/CIDToGIDMap <object> 0 R"`.
 
 Note that if, in future, you were to use a different (ie not 2 byte)
 CMap for character codes you could trivially extend the CIDToGIDMap.
@@ -49,7 +47,7 @@ the font Tesseract embeds isn't valid (for this purpose).
 
 To see why lets look at how text is specified in a PDF file:
 
-(Test) Tj
+`(Test) Tj`
 
 Now that looks like text but actually it isn't. Each of those bytes is
 a 'character code'. When it comes to rendering the text a complex
@@ -95,7 +93,7 @@ So for a TrueType CIDFont, character-code->CID->GID->glyf-program.
 Looking at the PDF file I was supplied with we see that it contains
 text like :
 
-<0x0075> Tj
+`<0x0075> Tj`
 
 So we start by taking the character code (117) and look it up in the
 CMap. Well you don't supply a CMap, you just use the Identity-H one
