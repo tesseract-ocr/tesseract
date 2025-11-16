@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini IA Devoirs / Fiches</title>
+</head>
+<body>
+    <h1>Bienvenue sur ton mini assistant scolaire</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Sélectionne ton option :</label><br>
+        <input type="radio" name="option" value="fiche" checked> Fiches de révision<br>
+        <input type="radio" name="option" value="devoirs"> Devoirs<br><br>
+        
+        <input type="file" name="file" accept="image/*" required><br><br>
+        <button type="submit">Envoyer</button>
+    </form>
+    <hr>
+    <pre>{{ result }}</pre>
+</body>
+</html>
