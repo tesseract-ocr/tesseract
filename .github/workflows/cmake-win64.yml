@@ -17,7 +17,7 @@ on:
 
 env:
   ILOC: d:/a/local
-  png_ver: 1644
+  png_ver: 1651
 
 jobs:
   build:
@@ -89,7 +89,7 @@ jobs:
       - name: Build and Install libtiff
         shell: cmd
         run: |
-             git clone -c advice.detachedHead=false -b "v4.6.0" --depth 1 https://gitlab.com/libtiff/libtiff.git
+             git clone -c advice.detachedHead=false -b "v4.7.1" --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
              cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
              cmake --build build --target install
