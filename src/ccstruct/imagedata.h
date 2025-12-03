@@ -23,7 +23,6 @@
 #include "points.h" // for FCOORD
 
 #include <mutex>  // for std::mutex
-#include <thread> // for std::thread
 
 struct Pix;
 
@@ -202,18 +201,20 @@ public:
     std::lock_guard<std::mutex> lock(general_mutex_);
     return memory_used_;
   }
-  // If the given index is not currently loaded, loads it using a separate
-  // thread. Note: there are 4 cases:
-  // Document uncached: IsCached() returns false, total_pages_ < 0.
-  // Required page is available: IsPageAvailable returns true. In this case,
-  // total_pages_ > 0 and
-  // pages_offset_ <= index%total_pages_ <= pages_offset_+pages_.size()
-  // Pages are loaded, but the required one is not.
-  // The requested page is being loaded by LoadPageInBackground. In this case,
-  // index == pages_offset_. Once the loading starts, the pages lock is held
-  // until it completes, at which point IsPageAvailable will unblock and return
-  // true.
-  void LoadPageInBackground(int index);
+
+  // If the given index is not currently loaded, loads it.
+  // Note: there are 4 cases:
+  // - Document uncached: IsCached() returns false, total_pages_ < 0.
+  // - Required page is available: IsPageAvailable returns true. In this case,
+  //   total_pages_ > 0 and
+  //   pages_offset_ <= index%total_pages_ <= pages_offset_+pages_.size()
+  // - Pages are loaded, but the required one is not.
+  // - The requested page is being loaded by LoadPage. In this case,
+  //   index == pages_offset_. Once the loading starts, the pages lock is
+  //   held until it completes, at which point IsPageAvailable will unblock
+  //   and return true.
+  void LoadPage(const int index);
+
   // Returns a pointer to the page with the given index, modulo the total
   // number of pages. Blocks until the background load is completed.
   TESS_API
@@ -275,9 +276,6 @@ private:
   // Mutex that protects other data members that callers want to access without
   // waiting for a load operation.
   mutable std::mutex general_mutex_;
-
-  // Thread which loads document.
-  std::thread thread;
 };
 
 // A collection of DocumentData that knows roughly how much memory it is using.
