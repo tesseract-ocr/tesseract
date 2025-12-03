@@ -41,14 +41,15 @@ body:
       options:
         - Windows 11
         - Windows 10
+        - macOS 26 Tahoe
+        - macOS 15 Sequoia
         - macOS 14 Sonoma
         - macOS 13 Ventura
-        - macOS 12 Monterey
-        - macOS 11 Big Sur
         - Ubuntu 24.04 Noble
         - Ubuntu 22.04 Jammy
+        - Debian 13 Trixie
         - Debian 12 Bookworm
-        - Debian 11 Bullseye
+        - RHEL 10
         - RHEL 9
         - RHEL 8
   - type: textarea

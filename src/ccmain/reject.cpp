@@ -21,8 +21,6 @@
 #  include "config_auto.h"
 #endif
 
-#include "reject.h"
-
 #ifdef DISABLED_LEGACY_ENGINE
 
 #  include "tesseractclass.h"
@@ -37,6 +35,8 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 } // namespace tesseract
 
 #else
+
+#  include "reject.h"
 
 #  include "control.h"
 #  include "docqual.h"
