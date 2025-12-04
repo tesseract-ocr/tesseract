@@ -22,7 +22,7 @@ jobs:
       if: matrix.os == 'ubuntu-22.04'
       run: sudo dnf -y install cmake gcc lld which flex bison clang clang-tools-extra git
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master

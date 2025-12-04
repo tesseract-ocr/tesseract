@@ -18,7 +18,7 @@ jobs:
           - { name: macos-latest-gcc-unittest, os: macos-latest, cxx: g++ }
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 

@@ -20,7 +20,7 @@ jobs:
           - { name: ubuntu-22.04-gcc-11-autotools, os: ubuntu-22.04, cxx: g++-11 } #installed
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 
