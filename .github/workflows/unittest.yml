@@ -26,7 +26,7 @@ jobs:
           - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
           - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++' }
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 

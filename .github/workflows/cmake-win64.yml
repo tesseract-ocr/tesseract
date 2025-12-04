@@ -27,7 +27,7 @@ jobs:
       - uses: ilammy/setup-nasm@v1
       - uses: microsoft/setup-msbuild@v2
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - run: git fetch --prune --unshallow --tags
