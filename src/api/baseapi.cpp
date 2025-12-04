@@ -146,14 +146,19 @@ static void ExtractFontName(const char* filename, std::string* fontname) {
  */
 static void addAvailableLanguages(const std::string &datadir,
                                   std::vector<std::string> *langs) {
-  for (const auto& entry :
-       std::filesystem::recursive_directory_iterator(datadir,
-         std::filesystem::directory_options::follow_directory_symlink |
-         std::filesystem::directory_options::skip_permission_denied)) {
-    auto path = entry.path().lexically_relative(datadir);
-    if (path.extension() == ".traineddata") {
-      langs->push_back(path.replace_extension("").string());
+  try {
+    for (const auto& entry :
+         std::filesystem::recursive_directory_iterator(datadir,
+           std::filesystem::directory_options::follow_directory_symlink |
+           std::filesystem::directory_options::skip_permission_denied)) {
+      auto path = entry.path().lexically_relative(datadir);
+      if (path.extension() == ".traineddata") {
+        langs->push_back(path.replace_extension("").string());
+      }
     }
+  } catch (const std::filesystem::filesystem_error&) {
+    // Silently handle filesystem errors (e.g., missing directory, corrupted filesystem)
+    // The function will return with whatever languages were found so far
   }
 }
 
