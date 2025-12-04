@@ -81,7 +81,7 @@ jobs:
 
     - name: Publish Test Report
       if: always() && matrix.os != 'windows-2022'
-      uses: mikepenz/action-junit-report@v4
+      uses: mikepenz/action-junit-report@v6
       with:
         check_name: test (${{ matrix.os }})
         report_paths: .sw/test/results.xml
