@@ -1,2 +1,8 @@
-tesseract:
-  build: .
+version: "3.9"
+
+services:
+  tesseract:
+    build:
+      context: .
+    container_name: tesseract
+    image: tesseract:latest
