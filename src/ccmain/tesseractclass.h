@@ -926,6 +926,7 @@ public:
   BOOL_VAR_H(tessedit_flip_0O);
   double_VAR_H(tessedit_lower_flip_hyphen);
   double_VAR_H(tessedit_upper_flip_hyphen);
+  BOOL_VAR_H(tsv_lang_info);
   BOOL_VAR_H(rej_trust_doc_dawg);
   BOOL_VAR_H(rej_1Il_use_dict_word);
   BOOL_VAR_H(rej_1Il_trust_permuter_type);
