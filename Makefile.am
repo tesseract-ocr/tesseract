@@ -269,6 +269,7 @@ endif
 # Rules for src/ccstruct.
 
 noinst_HEADERS += src/ccstruct/blamer.h
+noinst_HEADERS += src/ccstruct/blob_bounds_calculator.h
 noinst_HEADERS += src/ccstruct/blobbox.h
 noinst_HEADERS += src/ccstruct/blobs.h
 noinst_HEADERS += src/ccstruct/blread.h
@@ -312,6 +313,7 @@ noinst_HEADERS += src/ccstruct/params_training_featdef.h
 endif
 
 libtesseract_la_SOURCES += src/ccstruct/blamer.cpp
+libtesseract_la_SOURCES += src/ccstruct/blob_bounds_calculator.cpp
 libtesseract_la_SOURCES += src/ccstruct/blobbox.cpp
 libtesseract_la_SOURCES += src/ccstruct/blobs.cpp
 libtesseract_la_SOURCES += src/ccstruct/blread.cpp
@@ -1176,6 +1178,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += bitvector_test
 endif # !DISABLED_LEGACY_ENGINE
 endif # ENABLE_TRAINING
+check_PROGRAMS += blob_bounds_calculator_test
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
@@ -1287,6 +1290,10 @@ bitvector_test_SOURCES = unittest/bitvector_test.cc
 bitvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
 bitvector_test_LDADD = $(TRAINING_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
+
+blob_bounds_calculator_test_SOURCES = unittest/blob_bounds_calculator_test.cc
+blob_bounds_calculator_test_CPPFLAGS = $(unittest_CPPFLAGS)
+blob_bounds_calculator_test_LDADD = $(TESS_LIBS)
 
 cleanapi_test_SOURCES = unittest/cleanapi_test.cc
 cleanapi_test_CPPFLAGS = $(unittest_CPPFLAGS)
