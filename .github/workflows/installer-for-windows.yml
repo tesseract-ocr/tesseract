@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v6
     - name: Build Tesseract installer (64 bit)
       run: nsis/build.sh x86_64
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: Tesseract Installer for Windows (64 bit)
         path: dist
