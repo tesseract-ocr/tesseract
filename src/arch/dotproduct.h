@@ -19,25 +19,34 @@
 
 #include "tesstypes.h"
 
+// Added for Issue #4393
+#if defined(_MSC_VER)
+#  define TESS_RESTRICT __restrict
+#elif defined(__GNUC__) || defined(__clang__)
+#  define TESS_RESTRICT __restrict__
+#else
+#  define TESS_RESTRICT
+#endif
+
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
-TFloat DotProductNative(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductNative(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
-TFloat DotProductAVX(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductAVX(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 // Uses Intel AVX512F intrinsics to access the SIMD instruction set.
-TFloat DotProductAVX512F(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductAVX512F(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 // Use Intel FMA.
-TFloat DotProductFMA(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductFMA(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductSSE(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 // Use NEON intrinsics.
-TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n);
+TFloat DotProductNEON(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n);
 
 } // namespace tesseract.
 

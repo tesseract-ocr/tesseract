@@ -26,7 +26,7 @@ namespace tesseract {
 
 #if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
 
-float DotProductNEON(const float *u, const float *v, int n) {
+float DotProductNEON(const float* TESS_RESTRICT u, const float* TESS_RESTRICT v, int n) {
   float32x4_t result0123 = vdupq_n_f32(0.0f);
   float32x4_t result4567 = vdupq_n_f32(0.0f);
   while (n > 7) {
@@ -53,7 +53,7 @@ float DotProductNEON(const float *u, const float *v, int n) {
 #else
 
 // Computes and returns the dot product of the two n-vectors u and v.
-TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n) {
+TFloat DotProductNEON(const TFloat* TESS_RESTRICT u, const TFloat* TESS_RESTRICT v, int n) {
   TFloat total = 0;
 #if defined(OPENMP_SIMD) || defined(_OPENMP)
 #pragma omp simd reduction(+:total)
