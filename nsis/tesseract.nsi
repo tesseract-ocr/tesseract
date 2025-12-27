@@ -1198,7 +1198,16 @@ Function .onInit
   SetRegView 64
 !endif
   Call PreventMultipleInstances
-  !insertmacro MUI_LANGDLL_DISPLAY
+
+  ${If} ${Silent}
+    ; Silent mode: Set defaults to skip dialogs
+    StrCpy $LANGUAGE ${LANG_ENGLISH}
+    StrCpy $MultiUser.InstallMode "AllUsers"
+  ${Else}
+    ; Interactive mode: Show language dialog
+    !insertmacro MUI_LANGDLL_DISPLAY
+  ${EndIf}
+  
   ;RequestExecutionLevel admin
   !insertmacro MULTIUSER_INIT
 
@@ -1229,7 +1238,7 @@ Function .onInit
       StrCmp $0 0 0 +3
         !insertmacro REMOVE_REGKEY ${OLD_KEY}
         Goto SkipUnInstall
-      messagebox mb_ok "Uninstaller failed:\n$0\n\nYou need to remove program manually."
+      messagebox mb_ok "Uninstaller failed:\n$0\n\nYou need to remove program manually." /SD IDOK
   SkipUnInstall:
     ;InitPluginsDir
     ;File /oname=$PLUGINSDIR\splash.bmp "${NSISDIR}\Contrib\Graphics\Header\nsis.bmp"
@@ -1422,7 +1431,7 @@ Function un.onInit
 FunctionEnd
 
 Function .onInstFailed
-  MessageBox MB_OK "Installation failed."
+  MessageBox MB_OK "Installation failed." /SD IDOK
 FunctionEnd
 
 !ifdef SHOW_README
