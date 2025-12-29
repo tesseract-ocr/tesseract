@@ -706,7 +706,9 @@ void ResultIterator::AppendUTF8WordText(std::string *text) const {
   if (!it_->word()) {
     return;
   }
-  ASSERT_HOST(it_->word()->best_choice != nullptr);
+  if (it_->word()->best_choice == nullptr) {
+    return; // No recognition results available
+  }
   bool reading_direction_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
   if (at_beginning_of_minor_run_) {
     *text += reading_direction_is_ltr ? kLRM : kRLM;
