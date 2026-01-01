@@ -217,13 +217,13 @@ void make_baseline_spline(TO_ROW *row,      // row to fit
 bool segment_baseline(                      // split baseline
     TO_ROW *row,                            // row to fit
     TO_BLOCK *block,                        // block it came from
-    int32_t &segments,                      // no fo segments
+    int32_t &segments,                      // no of segments
     int32_t *xstarts                        // coords of segments
 );
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
     TO_BLOCK *block,            // block it came from
-    int32_t &segments,          // no fo segments
+    int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 );
 void assign_blobs_to_rows( // find lines

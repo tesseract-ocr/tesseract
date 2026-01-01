@@ -473,7 +473,7 @@ Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
 }
 
 ///
-/// Fit the baseline points into the existings polygon
+/// Fit the baseline points into the existing polygon
 ///
 Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
                                 tesseract::WritingDirection writing_direction) {

@@ -577,7 +577,7 @@ int16_t C_OUTLINE::turn_direction() const { // winding number
  * Reverse the direction of an outline.
  */
 
-void C_OUTLINE::reverse() {      // reverse drection
+void C_OUTLINE::reverse() {      // reverse direction
   DIR128 halfturn = MODULUS / 2; // amount to shift
   DIR128 stepdir;                // direction of step
   int16_t stepindex;             // index to cstep

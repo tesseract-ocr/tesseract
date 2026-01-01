@@ -48,7 +48,7 @@ static BOOL_VAR(equationdetect_save_seed_image, false, "Save the seed image");
 static BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image");
 
 ///////////////////////////////////////////////////////////////////////////
-// Utility ColParition sort functions.
+// Utility ColPartition sort functions.
 ///////////////////////////////////////////////////////////////////////////
 static int SortCPByTopReverse(const void *p1, const void *p2) {
   const ColPartition *cp1 = *static_cast<ColPartition *const *>(p1);
@@ -599,7 +599,7 @@ float EquationDetect::ComputeForegroundDensity(const TBOX &tbox) {
 bool EquationDetect::CheckSeedFgDensity(const float density_th, ColPartition *part) {
   ASSERT_HOST(part);
 
-  // Split part horizontall, and check for each sub part.
+  // Split part horizontally, and check for each sub part.
   std::vector<TBOX> sub_boxes;
   SplitCPHorLite(part, &sub_boxes);
   float parts_passed = 0.0;
@@ -1438,7 +1438,7 @@ void EquationDetect::PrintSpecialBlobsDensity(const ColPartition *part) const {
   ASSERT_HOST(part);
   TBOX box(part->bounding_box());
   int h = pixGetHeight(lang_tesseract_->BestPix());
-  tprintf("Printing special blobs density values for ColParition (t=%d,b=%d) ", h - box.top(),
+  tprintf("Printing special blobs density values for ColPartition (t=%d,b=%d) ", h - box.top(),
           h - box.bottom());
   box.print();
   tprintf("blobs count = %d, density = ", part->boxes_count());

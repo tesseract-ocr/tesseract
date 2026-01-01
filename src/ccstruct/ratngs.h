@@ -552,7 +552,7 @@ public:
   // Note that for Japanese, Hiragana and Katakana are simply treated as Han.
   int GetTopScriptID() const;
 
-  // Fixes the state_ for a chop at the given blob_posiiton.
+  // Fixes the state_ for a chop at the given blob_position.
   void UpdateStateForSplit(int blob_position);
 
   // Returns the sum of all the state elements, being the total number of blobs.
@@ -569,7 +569,7 @@ public:
   // one displayed) and waits for a click in the window.
   void DisplaySegmentation(TWERD *word);
 
-  WERD_CHOICE &operator+=(        // concatanate
+  WERD_CHOICE &operator+=(        // concatenate
       const WERD_CHOICE &second); // second on first
 
   WERD_CHOICE &operator=(const WERD_CHOICE &source);
