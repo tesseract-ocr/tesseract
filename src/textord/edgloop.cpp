@@ -127,7 +127,7 @@ int16_t loop_bounding_box( // get bounding box
   realstart = start;
   botleft = topright = ICOORD(edgept->pos.x(), edgept->pos.y());
   leftmost = edgept->pos.x();
-  length = 0; // coutn length
+  length = 0; // count length
   do {
     edgept = edgept->next;
     if (edgept->pos.x() < botleft.x()) {

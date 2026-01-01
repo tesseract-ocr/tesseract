@@ -1041,7 +1041,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
                                 tesseract_->tessedit_page_number);
   }
 
-  // At this point we are officially in autodection territory.
+  // At this point we are officially in autodetection territory.
   // That means any data in stdin must be buffered, to make it
   // seekable.
   std::string buf;

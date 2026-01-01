@@ -133,7 +133,7 @@ void TabFind::SetBlockRuleEdges(TO_BLOCK *block) {
 }
 
 // Sets the left and right rule and crossing_rules for the blobs in the given
-// list by fiding the next outermost tabvectors for each blob.
+// list by finding the next outermost tabvectors for each blob.
 void TabFind::SetBlobRuleEdges(BLOBNBOX_LIST *blobs) {
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
