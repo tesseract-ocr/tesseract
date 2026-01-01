@@ -121,7 +121,7 @@ BOOL TessResultRendererEndDocument(TessResultRenderer *renderer) {
   return static_cast<int>(renderer->EndDocument());
 }
 
-const char *TessResultRendererExtension(TessResultRenderer *renderer) {
+const char *TessResultRendererExtention(TessResultRenderer *renderer) {
   return renderer->file_extension();
 }
 
