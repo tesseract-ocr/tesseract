@@ -50,8 +50,7 @@ body:
         - Debian 12 Bookworm
         - RHEL 10
         - RHEL 9
-    - type: textarea
-    attributes:
+  - type: textarea    attributes:
       label: Other Operating System
       placeholder: Enter the name and version of the OS
   - type: textarea
