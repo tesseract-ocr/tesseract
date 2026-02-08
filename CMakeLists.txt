@@ -84,6 +84,18 @@ if(WIN32)
 else()
   option(SW_BUILD "Build with sw" OFF)
 endif()
+
+# Apple's toolchains dont populate CMAKE_SYSTEM_PROCESSOR when crosscompiling
+# instead it uses CMAKE_OSX_ARCHITECTURES which can contain multiple architectures
+if(APPLE AND NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_OSX_ARCHITECTURES)
+  list(LENGTH CMAKE_OSX_ARCHITECTURES NO_OF_ARCH)
+  if(NO_OF_ARCH GREATER 1)
+    message(FATAL_ERROR "Apple's universal build for ${NO_OF_ARCH} architectures not supported. CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+  endif()
+  set(CMAKE_SYSTEM_PROCESSOR "${CMAKE_OSX_ARCHITECTURES}" CACHE STRING "Target processor" FORCE)
+  message(STATUS "CMAKE_SYSTEM_PROCESSOR set to '${CMAKE_SYSTEM_PROCESSOR}' from CMAKE_OSX_ARCHITECTURES")
+endif()
+
 option(OPENMP_BUILD "Build with openmp support" OFF) # see issue #1662
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
