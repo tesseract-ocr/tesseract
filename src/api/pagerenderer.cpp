@@ -683,7 +683,7 @@ bool TessPAGERenderer::AddImageHandler(TessBaseAPI *api) {
 /// Append the PAGE XML for the end of the document
 ///
 bool TessPAGERenderer::EndDocumentHandler() {
-  AppendString("\t\t</Page>\n</PcGts>\n");
+  AppendString("</PcGts>\n");
   return true;
 }
 
@@ -1123,6 +1123,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
   reading_order_str << page_str.str();
   page_str.str("");
+  reading_order_str << "\t</Page>\n";
   const std::string &text = reading_order_str.str();
   reading_order_str.str("");
 
