@@ -57,7 +57,7 @@ body:
   - type: textarea
     attributes:
       label: uname -a
-      placeholder: "Paste the output of the command: umame -a (if available in your system)."
+      placeholder: "Paste the output of the command: uname -a (if available in your system)."
 
   - type: textarea
     attributes:
