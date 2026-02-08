@@ -94,7 +94,8 @@ Tesseract requires **traineddata files** to function. Minimum required:
 
 **Installation:**
 ```bash
-# Download individual files to TESSDATA_PREFIX directory
+# Download individual files (to /usr/local/share/tessdata/ or your TESSDATA_PREFIX path)
+cd /usr/local/share/tessdata/  # Or wherever you want to install
 wget https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
 wget https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata
 
@@ -145,9 +146,9 @@ tesseract input.png output      # OCR image, creates output.txt
 tesseract input.png output pdf  # Create searchable PDF
 ```
 
-Test files available in `test/testing/`:
+Test files available in `test/testing/` (requires test submodule):
 - `phototest.tif` - English test image
-- `devatest.png` - Hindi/Devanagari test image
+- `devatest.png` - Hindi/Devanagari test image (different format intentional)
 
 ## Project Structure
 
@@ -335,7 +336,7 @@ When making code changes, follow these steps:
 mkdir build && cd build && cmake .. && make -j8 && ctest
 
 # Format code:
-clang-format -i src/**/*.cpp src/**/*.h
+find src -name '*.cpp' -o -name '*.h' | xargs clang-format -i
 
 # Check test results:
 cat test-suite.log                    # autotools
