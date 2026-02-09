@@ -130,7 +130,7 @@ static Pta *DestroyAndCreatePta(Pta *pts) {
 ///
 static Pta *RecalcPolygonline(Pta *pts, bool upper) {
   int num_pts, num_bin, index = 0;
-  int y, x0, y0, x1, y1;
+  int x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
   NUMA *bin_line;
   Pta *pts_recalc;
@@ -140,7 +140,7 @@ static Pta *RecalcPolygonline(Pta *pts, bool upper) {
   bin_line = numaCreate(num_bin + 1);
 
   for (int p = 0; p <= num_bin; ++p) {
-    bin_line->array[p] = -1.;
+    bin_line->array[p] = -1.0f;
   }
 
   num_pts = ptaGetCount(pts);
@@ -156,11 +156,11 @@ static Pta *RecalcPolygonline(Pta *pts, bool upper) {
     ptaGetIPt(pts, index + 1, &x1, &y1);
     for (int p = x0 - x_min; p <= x1 - x_min; ++p) {
       if (!upper) {
-        if (bin_line->array[p] == -1. || y0 > bin_line->array[p]) {
+        if (bin_line->array[p] == -1.0f || y0 > bin_line->array[p]) {
           bin_line->array[p] = y0;
         }
       } else {
-        if (bin_line->array[p] == -1. || y0 < bin_line->array[p]) {
+        if (bin_line->array[p] == -1.0f || y0 < bin_line->array[p]) {
           bin_line->array[p] = y0;
         }
       }
@@ -170,19 +170,18 @@ static Pta *RecalcPolygonline(Pta *pts, bool upper) {
 
   pts_recalc = ptaCreate(0);
 
-  for (int p = 0; p <= num_bin; ++p) {
-    if (p == 0) {
-      y = bin_line->array[p];
-      ptaAddPt(pts_recalc, x_min + p, y);
-    } else if (p == num_bin) {
+  int y = static_cast<int>(bin_line->array[0]);
+  ptaAddPt(pts_recalc, x_min, y);
+  for (int p = 1; p <= num_bin; ++p) {
+    if (p == num_bin) {
       ptaAddPt(pts_recalc, x_min + p, y);
       break;
-    } else if (y != bin_line->array[p]) {
-      if (y != -1.) {
+    } else if (y != static_cast<int>(bin_line->array[p])) {
+      if (y != -1) {
         ptaAddPt(pts_recalc, x_min + p, y);
       }
-      y = bin_line->array[p];
-      if (y != -1.) {
+      y = static_cast<int>(bin_line->array[p]);
+      if (y != -1) {
         ptaAddPt(pts_recalc, x_min + p, y);
       }
     }
@@ -383,8 +382,7 @@ static void AddBaselinePtsToPAGE(Pta *baseline_pts, std::stringstream &str) {
 ///
 /// Sort baseline points ascending and deleting duplicates
 ///
-static Pta *SortBaseline(Pta *baseline_pts,
-                         tesseract::WritingDirection writing_direction) {
+static Pta *SortBaseline(Pta *baseline_pts) {
   int num_pts, index = 0;
   float x0, y0, x1, y1;
   Pta *sorted_baseline_pts;
@@ -1022,7 +1020,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
         SimplifyLinePolygon(line_bottom_ltr_pts, 5, 0 + ttb_flag);
 
         // Fit linepolygon matching the baselinepoints
-        line_baseline_pts = SortBaseline(line_baseline_pts, writing_direction);
+        line_baseline_pts = SortBaseline(line_baseline_pts);
 
         // Fitting baseline into polygon is currently deactivated because
         // it tends to push the baseline directly under superscripts,
