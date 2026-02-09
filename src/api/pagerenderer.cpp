@@ -858,7 +858,9 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
-      std::string textline = res_it->GetUTF8Text(RIL_TEXTLINE);
+      char *utf8text = res_it->GetUTF8Text(RIL_TEXTLINE);
+      std::string textline = utf8text;
+      delete[] utf8text;
       if (textline.back() == '\n') {
         textline.erase(textline.length() - 1);
       }
