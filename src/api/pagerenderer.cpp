@@ -97,7 +97,7 @@ static void AddPointToWordPolygon(
 ///
 /// Transpose polygonline, destroy old and return new pts
 ///
-Pta *TransposePolygonline(Pta *pts) {
+static Pta *TransposePolygonline(Pta *pts) {
   Pta *pts_transposed;
 
   pts_transposed = ptaTranspose(pts);
@@ -108,7 +108,7 @@ Pta *TransposePolygonline(Pta *pts) {
 ///
 /// Reverse polygonline, destroy old and return new pts
 ///
-Pta *ReversePolygonline(Pta *pts, int type) {
+static Pta *ReversePolygonline(Pta *pts, int type) {
   Pta *pts_reversed;
 
   pts_reversed = ptaReverse(pts, type);
@@ -119,7 +119,7 @@ Pta *ReversePolygonline(Pta *pts, int type) {
 ///
 /// Destroy old and create new pts
 ///
-Pta *DestroyAndCreatePta(Pta *pts) {
+static Pta *DestroyAndCreatePta(Pta *pts) {
   ptaDestroy(&pts);
   return ptaCreate(0);
 }
@@ -128,7 +128,7 @@ Pta *DestroyAndCreatePta(Pta *pts) {
 /// Recalculate linepolygon
 /// Create a hull for overlapping areas
 ///
-Pta *RecalcPolygonline(Pta *pts, bool upper) {
+static Pta *RecalcPolygonline(Pta *pts, bool upper) {
   int num_pts, num_bin, index = 0;
   int y, x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
@@ -196,7 +196,7 @@ Pta *RecalcPolygonline(Pta *pts, bool upper) {
 ///
 /// Create a rectangle hull around a single line
 ///
-Pta *PolygonToBoxCoords(Pta *pts) {
+static Pta *PolygonToBoxCoords(Pta *pts) {
   Pta *pts_box;
   float x_min, y_min, x_max, y_max;
 
@@ -383,8 +383,8 @@ static void AddBaselinePtsToPAGE(Pta *baseline_pts, std::stringstream &str) {
 ///
 /// Sort baseline points ascending and deleting duplicates
 ///
-Pta *SortBaseline(Pta *baseline_pts,
-                  tesseract::WritingDirection writing_direction) {
+static Pta *SortBaseline(Pta *baseline_pts,
+                         tesseract::WritingDirection writing_direction) {
   int num_pts, index = 0;
   float x0, y0, x1, y1;
   Pta *sorted_baseline_pts;
@@ -412,8 +412,8 @@ Pta *SortBaseline(Pta *baseline_pts,
 /// Clip baseline to range of the exsitings polygon and simplifies the baseline
 /// linepolygon
 ///
-Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
-                             tesseract::WritingDirection writing_direction) {
+static Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
+                                    tesseract::WritingDirection writing_direction) {
   int num_pts;
   float m, b, x0, y0, x1, y1;
   float x_min, y_min, x_max, y_max;
@@ -477,8 +477,9 @@ Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
 ///
 /// Fit the baseline points into the existing polygon
 ///
-Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
-                                tesseract::WritingDirection writing_direction) {
+#if 0 // unused
+static Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
+                                       tesseract::WritingDirection writing_direction) {
   int num_pts, num_bin, x0, y0, x1, y1;
   float m, b;
   float x_min, y_min, x_max, y_max;
@@ -599,9 +600,10 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
     return baseline_recalc_pts;
   }
 }
+#endif
 
 /// Convert writing direction to string representation
-const char *WritingDirectionToStr(int wd) {
+static const char *WritingDirectionToStr(int wd) {
   switch (wd) {
     case 0:
       return "left-to-right";
