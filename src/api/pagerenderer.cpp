@@ -822,7 +822,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
       float deskew_angle;
       res_it->Orientation(&orientation_block, &writing_direction_block,
                           &textline_order_block, &deskew_angle);
-      block_conf = ((res_it->Confidence(RIL_BLOCK)) / 100.);
+      block_conf = res_it->Confidence(RIL_BLOCK) / 100;
       page_str << "\t\t<TextRegion id=\"r" << rcnt << "\" " << "custom=\""
                << "readingOrder {index:" << rcnt << ";} ";
       if (writing_direction_block != WRITING_DIRECTION_LEFT_TO_RIGHT) {
@@ -862,7 +862,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
-      line_conf = ((res_it->Confidence(RIL_TEXTLINE)) / 100.);
+      line_conf = res_it->Confidence(RIL_TEXTLINE) / 100;
       char *utf8text = res_it->GetUTF8Text(RIL_TEXTLINE);
       std::string textline = utf8text;
       delete[] utf8text;
@@ -892,7 +892,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
 
-    float word_conf = ((res_it->Confidence(RIL_WORD)) / 100.);
+    float word_conf = res_it->Confidence(RIL_WORD) / 100;
 
     // Create word stream if word level output is active
     if (LEVELFLAG > 0) {
