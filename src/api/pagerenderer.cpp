@@ -188,6 +188,7 @@ Pta *RecalcPolygonline(Pta *pts, bool upper) {
     }
   }
 
+  numaDestroy(&bin_line);
   ptaDestroy(&pts);
   return pts_recalc;
 }
@@ -469,6 +470,7 @@ Pta *ClipAndSimplifyBaseline(Pta *bottom_pts, Pta *baseline_pts,
     ptaAddPt(baseline_clipped_pts, x_max, y_min);
   }
 
+  ptaDestroy(&baseline_pts);
   return baseline_clipped_pts;
 }
 
@@ -588,6 +590,7 @@ Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
   }
   // Return recalculated baseline if this fails return the bottom line as
   // baseline
+  numaDestroy(&bin_line);
   ptaDestroy(&baseline_clipped_pts);
   if (ptaGetCount(baseline_recalc_pts) < 2) {
     ptaDestroy(&baseline_recalc_pts);
@@ -1018,8 +1021,9 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
 
         // Fit linepolygon matching the baselinepoints
         line_baseline_pts = SortBaseline(line_baseline_pts, writing_direction);
-        // Fitting baseline into polygon is currently deactivated
-        // it tends to push the baseline directly under superscritpts
+
+        // Fitting baseline into polygon is currently deactivated because
+        // it tends to push the baseline directly under superscripts,
         // but the baseline is always inside the polygon maybe it will be useful
         // for something line_baseline_pts =
         // FitBaselineIntoLinePolygon(line_bottom_ltr_pts, line_baseline_pts,
