@@ -1091,11 +1091,11 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
           block_top_pts = TransposePolygonline(block_top_pts);
         }
         ptaGetMinMax(block_top_pts, &x1, &y1, &x2, &y2);
-        page_str << (l_uint32)x1 << "," << (l_uint32)y1;
-        page_str << " " << (l_uint32)x2 << "," << (l_uint32)y1;
-        page_str << " " << (l_uint32)x2 << "," << (l_uint32)y2;
-        page_str << " " << (l_uint32)x1 << "," << (l_uint32)y2;
-        page_str << "\"/>\n";
+        page_str << static_cast<uint32_t>(x1) << "," << static_cast<uint32_t>(y1) << ' '
+                 << static_cast<uint32_t>(x2) << "," << static_cast<uint32_t>(y1) << ' '
+                 << static_cast<uint32_t>(x2) << "," << static_cast<uint32_t>(y2) << ' '
+                 << static_cast<uint32_t>(x1) << "," << static_cast<uint32_t>(y2)
+                 << "\"/>\n";
         block_top_pts = DestroyAndCreatePta(block_top_pts);
         block_bottom_pts = DestroyAndCreatePta(block_bottom_pts);
       }
