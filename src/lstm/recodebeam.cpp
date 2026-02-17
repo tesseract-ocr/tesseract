@@ -34,6 +34,11 @@ const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
 
 static const char *kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
 
+// The minimum diplopia key is the minimum score (key) from
+// the network output to qualify as a likely 'real' character
+// for the purposes of identifying possible diplopia.
+static const float kMinDiplopiaKey = 0.25f;
+
 // Prints debug details of the node.
 void RecodeNode::Print(int null_char, const UNICHARSET &unicharset,
                        int depth) const {
@@ -188,7 +193,7 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts,
                                                std::vector<int> *ends,
                                                std::vector<int> *char_bounds_,
                                                int maxWidth) {
-  char_bounds_->push_back(0);
+  char_bounds_->push_back((*starts)[0]);
   for (unsigned i = 0; i < ends->size(); ++i) {
     int middle = ((*starts)[i + 1] - (*ends)[i]) / 2;
     char_bounds_->push_back((*ends)[i] + middle);
@@ -588,8 +593,8 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
       }
       rating -= cert;
     }
-    starts.push_back(t);
     if (t < width) {
+      starts.push_back(t);
       int unichar_id = best_nodes[t]->unichar_id;
       if (unichar_id == UNICHAR_SPACE && !certs->empty() &&
           best_nodes[t]->permuter != NO_PERM) {
@@ -604,8 +609,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
       }
       unichar_ids->push_back(unichar_id);
       xcoords->push_back(t);
-      do {
-        double cert = best_nodes[t++]->certainty;
+      t++;
+      while (t < width && best_nodes[t]->duplicate) {
+        double cert = best_nodes[t]->certainty;
         // Special-case NO-PERM space to forget the certainty of the previous
         // nulls. See long comment in ContinueContext.
         if (cert < certainty || (unichar_id == UNICHAR_SPACE &&
@@ -613,7 +619,8 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
           certainty = cert;
         }
         rating -= cert;
-      } while (t < width && best_nodes[t]->duplicate);
+        t++;
+      }
       ends.push_back(t);
       certs->push_back(certainty);
       ratings->push_back(rating);
@@ -685,18 +692,46 @@ void RecodeBeamSearch::ComputeTopN(const float *outputs, int num_outputs,
       }
     }
   }
+  float top_key = 0.0f;
+  float second_key = 0.0f;
+  bool found_first_code = false;
+  bool found_second_code = false;
   while (!top_heap_.empty()) {
     TopPair entry;
     top_heap_.Pop(&entry);
+    if (in_possible_diplopia_ && entry.data() == first_diplopia_code_) {
+      found_first_code = true;
+    }
+    if (in_possible_diplopia_ && entry.data() == second_diplopia_code_) {
+      found_second_code = true;
+    }
     if (top_heap_.size() > 1) {
       top_n_flags_[entry.data()] = TN_TOPN;
     } else {
       top_n_flags_[entry.data()] = TN_TOP2;
       if (top_heap_.empty()) {
         top_code_ = entry.data();
+        top_key = entry.key();
       } else {
         second_code_ = entry.data();
+        second_key = entry.key();
       }
+    }
+  }
+  // Need to identify if we are in a potential diplopia situation
+  // or if we already are, then determine if it is ended.
+  if (in_possible_diplopia_) {
+    if (!found_first_code && !found_second_code) {
+      in_possible_diplopia_ = false;
+      first_diplopia_code_ = -1;
+      second_diplopia_code_ = -1;
+    }
+  }
+  if (!in_possible_diplopia_) {
+    if (top_code_ != null_char_ && second_code_ != null_char_ && top_key > kMinDiplopiaKey && second_key > kMinDiplopiaKey) {
+      in_possible_diplopia_ = true;
+      first_diplopia_code_ = top_code_;
+      second_diplopia_code_ = second_code_;
     }
   }
   top_n_flags_[null_char_] = TN_TOP2;
@@ -1204,6 +1239,10 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     if (UpdateHeapIfMatched(&node, heap)) {
       return;
     }
+    // Check to see if node is possible diplopia.
+    if (!AddToHeapIsAllowed(&node)) {
+      return;
+    }
     RecodePair entry(score, node);
     heap->Push(&entry);
     ASSERT_HOST(entry.data().dawgs == nullptr);
@@ -1256,6 +1295,21 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode *new_node,
     }
   }
   return false;
+}
+
+// Determines if node can be added to heap based on possible diplopia status.
+bool RecodeBeamSearch::AddToHeapIsAllowed(RecodeNode *new_node) {
+  if (!in_possible_diplopia_) {
+    return true;
+  }
+  const RecodeNode *prev_node = new_node->prev;
+  if (prev_node != nullptr && prev_node->code == first_diplopia_code_ && new_node->code == second_diplopia_code_) {
+    return false;
+  }
+  if (prev_node != nullptr && prev_node->code == second_diplopia_code_ && new_node->code == first_diplopia_code_) {
+    return false;
+  }
+  return true;
 }
 
 // Computes and returns the code-hash for the given code and prev.
