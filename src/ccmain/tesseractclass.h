@@ -762,6 +762,7 @@ public:
   BOOL_VAR_H(tessedit_do_invert);
   double_VAR_H(invert_threshold);
   INT_VAR_H(tessedit_pageseg_mode);
+  INT_VAR_H(preprocess_graynorm_mode);
   INT_VAR_H(thresholding_method);
   BOOL_VAR_H(thresholding_debug);
   double_VAR_H(thresholding_window_size);
