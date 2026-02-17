@@ -1,5 +1,5 @@
 name: tesseract
-version: git
+adopt-info: tesseract
 summary: open source optical character recognition engine
 description: |
   Tesseract has unicode (UTF-8) support, and can recognize more than 100
@@ -19,32 +19,99 @@ apps:
   tesseract:
     command: usr/local/bin/tesseract
     environment:
-      TESSDATA_PREFIX: $SNAP_USER_COMMON
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/local/lib
     plugs:
       - home
       - removable-media
 
+      # For recognition of remote images
+      - network
+
 parts:
   tesseract:
+    after: [leptonica]
     source: .
+    override-pull: |
+      craftctl default
+      "${CRAFT_PROJECT_DIR}/snap/local/selective-checkout" \
+        --beta-tag-pattern='-beta-[[:digit:]]+$'
     plugin: autotools
     build-packages:
       - pkg-config
-      - libpng-dev
-      - libjpeg-dev
+      - libarchive-dev
+      - libcurl4-gnutls-dev
       - libtiff-dev
-      - zlib1g-dev
-      - libicu-dev
-      - libpango1.0-dev
-      - libcairo2-dev
+
+      # Dependencies of the selective-checkout scriptlet
+      - curl
+      - git
+      - jq
     stage-packages:
+      - libarchive13
+      - libcurl3-gnutls
       - libgomp1
-    after: [leptonica]
+      - libtiff5
+    autotools-configure-parameters:
+      # Disable unused features to reduce snap size and built time
+      - --disable-dependency-tracking
+      - --disable-doc
+      - --disable-static
+      - --disable-training
+
+      # Enable core features
+      - --with-archive
+      - --with-curl
+
+      # Fix incorrect compiled-in datadir
+      - CPPFLAGS=-DTESSDATA_PREFIX=\"\\\"/snap/$CRAFT_PROJECT_NAME/current/usr/local/share\\\"\"
+    override-build: |
+      patch -p1 < "${CRAFT_PROJECT_DIR}/snap/local/implement-fallback-config-loading.patch"
+      craftctl default
+    prime:
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      - -usr/local/include
+      - -usr/local/lib/pkgconfig
+      - -usr/share/lintian
+      - -usr/share/man
+
   leptonica:
-    source: https://github.com/DanBloomberg/leptonica/archive/1.83.1.tar.gz
+    source: https://github.com/DanBloomberg/leptonica.git
+    source-tag: 1.84.1
+    source-depth: 1
     plugin: autotools
+    build-packages:
+      - libjpeg-dev
+      - libopenjp2-7-dev
+      - libpng-dev
+      - libtiff-dev
+      - libwebp-dev
+      - pkg-config
+      - zlib1g-dev
     stage-packages:
       - libjbig0
       - libjpeg-turbo8
       - libopenjp2-7
+      - libpng16-16
       - libtiff5
+      - libwebp7
+      - libwebpmux3
+      - zlib1g
+    autotools-configure-parameters:
+      # Reduce part build time
+      - --disable-programs
+      - --disable-static
+      - --disable-dependency-tracking
+
+      # Ensure features are built
+      - --with-libpng
+      - --with-jpeg
+      - --with-libtiff
+      - --with-libwebp
+      - --with-libopenjpeg
+    prime:
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/*.so*
+      - usr/local/lib/*.so*
+      - usr/share/doc/*/copyright*
