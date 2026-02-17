@@ -85,8 +85,10 @@ void BoxChar::TranslateBoxes(int xshift, int yshift, std::vector<BoxChar *> *box
   for (auto &boxe : *boxes) {
     Box *box = boxe->box_;
     if (box != nullptr) {
-      box->x += xshift;
-      box->y += yshift;
+      int32_t box_x;
+      int32_t box_y;
+      boxGetGeometry(box, &box_x, &box_y, nullptr, nullptr);
+      boxSetGeometry(box, box_x + xshift, box_y + yshift, -1, -1);
     }
   }
 }
@@ -130,10 +132,18 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
       continue;
     }
     if (prev_i != SIZE_MAX) {
+      int32_t box_x;
+      int32_t box_y;
+      boxGetGeometry(box, &box_x, &box_y, nullptr, nullptr);
       Box *prev_box = (*boxes)[prev_i]->box_;
-      int shift = box->x - prev_box->x;
+      int32_t prev_box_x;
+      int32_t prev_box_y;
+      int32_t prev_box_w;
+      int32_t prev_box_h;
+      boxGetGeometry(prev_box, &prev_box_x, &prev_box_y, &prev_box_w, &prev_box_h);
+      int shift = box_x - prev_box_x;
       if (vertical_rules) {
-        shift = box->y - prev_box->y;
+        shift = box_y - prev_box_y;
       } else if (rtl_rules) {
         shift = -shift;
       }
@@ -143,15 +153,15 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
         // a box outside the image by making the width and height 1.
         int width = 1;
         int height = 1;
-        int x = prev_box->x + prev_box->w;
-        int y = prev_box->y;
+        int x = prev_box_x + prev_box_w;
+        int y = prev_box_y;
         if (vertical_rules) {
-          x = prev_box->x;
-          y = prev_box->y + prev_box->h;
+          x = prev_box_x;
+          y = prev_box_y + prev_box_h;
         } else if (rtl_rules) {
-          x = prev_box->x - width;
+          x = prev_box_x - width;
           if (x < 0) {
-            tprintf("prev x = %d, width=%d\n", prev_box->x, width);
+            tprintf("prev x = %d, width=%d\n", prev_box_x, width);
             x = 0;
           }
         }
@@ -185,27 +195,38 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules, std::vector<BoxC
     if (box == nullptr) {
       Box *prev = (*boxes)[i - 1]->box_;
       Box *next = (*boxes)[i + 1]->box_;
+      int32_t prev_x;
+      int32_t prev_y;
+      int32_t prev_w;
+      int32_t prev_h;
+      int32_t next_x;
+      int32_t next_y;
+      int32_t next_w;
+      int32_t next_h;
       ASSERT_HOST(prev != nullptr && next != nullptr);
-      int top = std::min(prev->y, next->y);
-      int bottom = std::max(prev->y + prev->h, next->y + next->h);
-      int left = prev->x + prev->w;
-      int right = next->x;
+      boxGetGeometry(prev, &prev_x, &prev_y, &prev_w, &prev_h);
+      boxGetGeometry(next, &next_x, &next_y, &next_w, &next_h);
+      int top = std::min(prev_y, next_y);
+      int bottom = std::max(prev_y + prev_h, next_y + next_h);
+      int left = prev_x + prev_w;
+      int right = next_x;
       if (vertical_rules) {
-        top = prev->y + prev->h;
-        bottom = next->y;
-        left = std::min(prev->x, next->x);
-        right = std::max(prev->x + prev->w, next->x + next->w);
+        top = prev_y + prev_h;
+        bottom = next_y;
+        left = std::min(prev_x, next_x);
+        right = std::max(prev_x + prev_w, next_x + next_w);
       } else if (rtl_rules) {
         // With RTL we have to account for BiDi.
         // Right becomes the min left of all prior boxes back to the first
         // space or newline.
-        right = prev->x;
-        left = next->x + next->w;
+        right = prev_x;
+        left = next_x + next_w;
         for (int j = i - 2; j >= 0 && (*boxes)[j]->ch_ != " " && (*boxes)[j]->ch_ != "\t"; --j) {
           prev = (*boxes)[j]->box_;
           ASSERT_HOST(prev != nullptr);
-          if (prev->x < right) {
-            right = prev->x;
+          boxGetGeometry(prev, &prev_x, nullptr, nullptr, nullptr);
+          if (prev_x < right) {
+            right = prev_x;
           }
         }
         // Left becomes the max right of all next boxes forward to the first
@@ -213,8 +234,9 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules, std::vector<BoxC
         for (size_t j = i + 2;
              j < boxes->size() && (*boxes)[j]->box_ != nullptr && (*boxes)[j]->ch_ != "\t"; ++j) {
           next = (*boxes)[j]->box_;
-          if (next->x + next->w > left) {
-            left = next->x + next->w;
+          boxGetGeometry(next, &next_x, nullptr, &next_w, nullptr);
+          if (next_x + next_w > left) {
+            left = next_x + next_w;
           }
         }
       }
@@ -276,8 +298,14 @@ bool BoxChar::MostlyVertical(const std::vector<BoxChar *> &boxes) {
   for (size_t i = 1; i < boxes.size(); ++i) {
     if (boxes[i - 1]->box_ != nullptr && boxes[i]->box_ != nullptr &&
         boxes[i - 1]->page_ == boxes[i]->page_) {
-      int dx = boxes[i]->box_->x - boxes[i - 1]->box_->x;
-      int dy = boxes[i]->box_->y - boxes[i - 1]->box_->y;
+      int32_t x0;
+      int32_t y0;
+      boxGetGeometry(boxes[i]->box_, &x0, &y0, nullptr, nullptr);
+      int32_t x1;
+      int32_t y1;
+      boxGetGeometry(boxes[i - 1]->box_, &x1, &y1, nullptr, nullptr);
+      int dx = x0 - x1;
+      int dy = y0 - y1;
       if (abs(dx) > abs(dy) * kMinNewlineRatio || abs(dy) > abs(dx) * kMinNewlineRatio) {
         total_dx += static_cast<int64_t>(dx) * dx;
         total_dy += static_cast<int64_t>(dy) * dy;
@@ -338,8 +366,14 @@ std::string BoxChar::GetTesseractBoxStr(int height, const std::vector<BoxChar *>
       tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
       return "";
     }
-    int nbytes = snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n", boxe->ch_.c_str(), box->x,
-                          height - box->y - box->h, box->x + box->w, height - box->y, boxe->page_);
+    int32_t box_x;
+    int32_t box_y;
+    int32_t box_w;
+    int32_t box_h;
+    boxGetGeometry(const_cast<Box *>(box), &box_x, &box_y, &box_w, &box_h);
+    int nbytes = snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n",
+                          boxe->ch_.c_str(), box_x, height - box_y - box_h,
+                          box_x + box_w, height - box_y, boxe->page_);
     output.append(buffer, nbytes);
   }
   return output;
