@@ -40,12 +40,32 @@ bool FCOORD::normalise() { // Convert to unit vec
   return true;
 }
 
+// Deserialize an ICOORD.
+// For compatibility reasons it uses unsigned 16 bit coordinates
+// instead of 32 bit coordinates.
 bool ICOORD::DeSerialize(TFile *f) {
-  return f->DeSerialize(&xcoord) && f->DeSerialize(&ycoord);
+  bool success = false;
+  uint16_t coord;
+  if (f->DeSerialize(&coord)) {
+    xcoord = coord;
+    if (f->DeSerialize(&coord)) {
+      ycoord = coord;
+      success = true;
+    }
+  }
+  return success;
 }
 
+// Serialize an ICOORD.
+// For compatibility reasons it uses unsigned 16 bit coordinates
+// instead of 32 bit coordinates.
 bool ICOORD::Serialize(TFile *f) const {
-  return f->Serialize(&xcoord) && f->Serialize(&ycoord);
+  uint16_t coord;
+  coord = xcoord;
+  auto success = f->Serialize(&coord);
+  coord = ycoord;
+  success = success && f->Serialize(&coord);
+  return success;
 }
 
 // Set from the given x,y, shrinking the vector to fit if needed.
