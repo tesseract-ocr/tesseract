@@ -92,6 +92,12 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
   int error_count = 0;
   while (error_count < total_pages_) {
     const ImageData *trainingdata = test_data_.GetPageBySerial(eval_iteration);
+    std::vector<int> truth_labels;
+    if (!trainer.EncodeString(trainingdata->transcription(), &truth_labels)) {
+      eval_iteration++;
+      continue;
+    }
+    std::string truth_text = trainer.DecodeLabels(truth_labels);
     trainer.SetIteration(++eval_iteration);
     NetworkIO fwd_outputs, targets;
     Trainability result = trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets);
@@ -100,7 +106,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
       word_error += trainer.NewSingleError(tesseract::ET_WORD_RECERR);
       ++error_count;
       if (verbosity > 1 || (verbosity > 0 && result != PERFECT)) {
-        tprintf("Truth:%s\n", trainingdata->transcription().c_str());
+        tprintf("Truth:%s\n", truth_text.c_str());
         std::vector<int> ocr_labels;
         std::vector<int> xcoords;
         trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
