@@ -127,7 +127,7 @@ bool Tesseract::ProcessTargetWord(const TBOX &word_box, const TBOX &target_word_
         if (config_fp == nullptr) {
           tprintf("Error, failed to open file \"%s\"\n", backup_config_file_);
         } else {
-          ParamUtils::PrintParams(config_fp, params());
+          ParamUtils::PrintParams(config_fp, params(), false);
           fclose(config_fp);
         }
         ParamUtils::ReadParamsFile(word_config, SET_PARAM_CONSTRAINT_DEBUG_ONLY, params());
