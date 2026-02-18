@@ -575,6 +575,14 @@ public:
   char *GetTSVText(int page_number);
 
   /**
+   * Make a TSV-formatted string from the internal data structures.
+   * Allows additional column with detected language.
+   * page_number is 0-based but will appear in the output as 1-based.
+   * Returned string must be freed with the delete [] operator.
+   */
+  char *GetTSVText(int page_number, bool lang_info);
+
+  /**
    * Make a box file for LSTM training from the internal data structures.
    * Constructs coordinates in the original image - not just the rectangle.
    * page_number is a 0-based page index that will appear in the box file.

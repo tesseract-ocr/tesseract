@@ -548,9 +548,9 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
 
     api.GetBoolVariable("tessedit_create_tsv", &b);
     if (b) {
-      bool font_info;
-      api.GetBoolVariable("hocr_font_info", &font_info);
-      auto renderer = std::make_unique<tesseract::TessTsvRenderer>(outputbase, font_info);
+      bool lang_info;
+      api.GetBoolVariable("tsv_lang_info", &lang_info);
+      auto renderer = std::make_unique<tesseract::TessTsvRenderer>(outputbase, lang_info);
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
