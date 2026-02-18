@@ -395,4 +395,80 @@ TEST(TesseractInstanceTest, TestMultipleTessInstanceVariables) {
   }
 }
 
+// Test that PAGE XML output properly closes all Page tags for multi-page documents.
+TEST_F(TesseractTest, PAGEXMLMultiPageClosingTags) {
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng") == -1) {
+    GTEST_SKIP();
+  }
+  
+  // Simulate two pages by calling GetPAGEText twice
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  CHECK(src_pix);
+  api.SetInputName("page1.tif");
+  api.SetImage(src_pix);
+  
+  char *page1 = api.GetPAGEText(0);
+  ASSERT_TRUE(page1 != nullptr);
+  
+  // Each page should have exactly one opening and one closing Page tag
+  std::string page1_str(page1);
+  size_t open_count = 0;
+  size_t close_count = 0;
+  size_t pos = 0;
+  
+  // Count opening <Page tags
+  while ((pos = page1_str.find("<Page", pos)) != std::string::npos) {
+    open_count++;
+    pos += 5;
+  }
+  
+  // Count closing </Page> tags
+  pos = 0;
+  while ((pos = page1_str.find("</Page>", pos)) != std::string::npos) {
+    close_count++;
+    pos += 7;
+  }
+  
+  // Each individual page output should have matching Page tags
+  EXPECT_EQ(open_count, 1) << "Each page should have exactly one opening <Page tag";
+  EXPECT_EQ(close_count, 1) << "Each page should have exactly one closing </Page> tag";
+  EXPECT_EQ(open_count, close_count) << "Opening and closing Page tags should match";
+  
+  // Verify the closing tag is present and not part of PcGts
+  EXPECT_THAT(page1_str, HasSubstr("</Page>"));
+  EXPECT_THAT(page1_str, ::testing::Not(HasSubstr("</PcGts>"))) 
+      << "Individual page output should not contain document envelope";
+  
+  delete[] page1;
+  
+  // Test a second page to ensure each page closes properly
+  api.SetInputName("page2.tif");
+  api.SetImage(src_pix);
+  char *page2 = api.GetPAGEText(1);
+  ASSERT_TRUE(page2 != nullptr);
+  
+  std::string page2_str(page2);
+  open_count = 0;
+  close_count = 0;
+  pos = 0;
+  
+  while ((pos = page2_str.find("<Page", pos)) != std::string::npos) {
+    open_count++;
+    pos += 5;
+  }
+  
+  pos = 0;
+  while ((pos = page2_str.find("</Page>", pos)) != std::string::npos) {
+    close_count++;
+    pos += 7;
+  }
+  
+  EXPECT_EQ(open_count, 1) << "Second page should have exactly one opening <Page tag";
+  EXPECT_EQ(close_count, 1) << "Second page should have exactly one closing </Page> tag";
+  
+  delete[] page2;
+  src_pix.destroy();
+}
+
 } // namespace tesseract

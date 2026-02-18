@@ -146,6 +146,13 @@ struct Pixa;
 /* General free functions */
 
 TESS_API const char *TessVersion();
+
+/**
+ * Frees the memory allocated for the text string returned by
+ * TessBaseAPIGetUTF8Text, TessBaseAPIGetHOCRText, etc.
+ *
+ * @param text The pointer to the string to be freed.
+ */
 TESS_API void TessDeleteText(const char *text);
 TESS_API void TessDeleteTextArray(char **arr);
 TESS_API void TessDeleteIntArray(const int *arr);
@@ -184,7 +191,29 @@ TESS_API int TessResultRendererImageNum(TessResultRenderer *renderer);
 
 /* Base API */
 
+/**
+ * Creates a new instance of the Tesseract API.
+ *
+ * The lifecycle of the instance is:
+ * 1. TessBaseAPICreate()
+ * 2. TessBaseAPIInit3() (or similar)
+ * 3. TessBaseAPISetImage2() (or similar)
+ * 4. TessBaseAPIGetUTF8Text() (or similar)
+ * 5. TessDeleteText()
+ * 6. TessBaseAPIEnd() (optional, clears internal structures)
+ * 7. TessBaseAPIDelete()
+ *
+ * The returned handle must be freed using TessBaseAPIDelete.
+ *
+ * @return A pointer to the new TessBaseAPI instance, or NULL on failure.
+ */
 TESS_API TessBaseAPI *TessBaseAPICreate();
+
+/**
+ * Frees the memory associated with a TessBaseAPI instance.
+ *
+ * @param handle The TessBaseAPI instance to be freed.
+ */
 TESS_API void TessBaseAPIDelete(TessBaseAPI *handle);
 
 TESS_API void TessBaseAPISetInputName(TessBaseAPI *handle, const char *name);
@@ -221,6 +250,20 @@ TESS_API int TessBaseAPIInit1(TessBaseAPI *handle, const char *datapath,
                               char **configs, int configs_size);
 TESS_API int TessBaseAPIInit2(TessBaseAPI *handle, const char *datapath,
                               const char *language, TessOcrEngineMode oem);
+
+/**
+ * Initializes the Tesseract engine.
+ *
+ * This function (or one of the other Init functions) must be called
+ * before processing any images.
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param datapath The path to the tessdata directory. If NULL, the function
+ *                 attempts to use the TESSDATA_PREFIX environment variable
+ *                 or a compile-time default.
+ * @param language The language code(s) (e.g., "eng", "eng+deu").
+ * @return 0 on success, -1 on failure.
+ */
 TESS_API int TessBaseAPIInit3(TessBaseAPI *handle, const char *datapath,
                               const char *language);
 
@@ -265,6 +308,18 @@ TESS_API void TessBaseAPISetImage(TessBaseAPI *handle,
                                   const unsigned char *imagedata, int width,
                                   int height, int bytes_per_pixel,
                                   int bytes_per_line);
+
+/**
+ * Sets the input image for recognition using a Leptonica Pix structure.
+ *
+ * @note Tesseract does NOT take ownership of the Pix structure. The caller
+ * remains responsible for the memory and must call pixDestroy() on the
+ * Pix pointer after it is no longer needed by the API (e.g. after recognition
+ * or after clearing/ending the API).
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param pix A pointer to the Leptonica Pix structure.
+ */
 TESS_API void TessBaseAPISetImage2(TessBaseAPI *handle, struct Pix *pix);
 
 TESS_API void TessBaseAPISetSourceResolution(TessBaseAPI *handle, int ppi);
@@ -320,18 +375,103 @@ TESS_API TessResultIterator *TessBaseAPIGetIterator(TessBaseAPI *handle);
 TESS_API TessMutableIterator *TessBaseAPIGetMutableIterator(
     TessBaseAPI *handle);
 
+/**
+ * Recognizes the image and returns the result as a UTF-8 encoded string.
+ *
+ * The caller is responsible for freeing the returned string using
+ * TessDeleteText.
+ *
+ * @param handle The TessBaseAPI instance.
+ * @return A newly allocated string containing the recognized text, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetUTF8Text(TessBaseAPI *handle);
+
+/**
+ * Returns the HOCR text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetHOCRText(TessBaseAPI *handle, int page_number);
 
+/**
+ * Returns the ALTO XML text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetAltoText(TessBaseAPI *handle, int page_number);
+
+/**
+ * Returns the PAGE XML text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetPAGEText(TessBaseAPI *handle, int page_number);
+
+/**
+ * Returns the TSV text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetTsvText(TessBaseAPI *handle, int page_number);
 
+/**
+ * Returns the box file text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetBoxText(TessBaseAPI *handle, int page_number);
+
+/**
+ * Returns the LSTM box file text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetLSTMBoxText(TessBaseAPI *handle, int page_number);
+
+/**
+ * Returns the WordStr box file text for the page.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @param page_number The page number (0-based).
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetWordStrBoxText(TessBaseAPI *handle,
                                             int page_number);
 
+/**
+ * Returns the UNLV format text.
+ *
+ * The caller is responsible for freeing the returned string using TessDeleteText().
+ *
+ * @param handle The TessBaseAPI instance.
+ * @return A newly allocated string, or NULL on error.
+ */
 TESS_API char *TessBaseAPIGetUNLVText(TessBaseAPI *handle);
 TESS_API int TessBaseAPIMeanTextConf(TessBaseAPI *handle);
 

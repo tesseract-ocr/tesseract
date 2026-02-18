@@ -37,12 +37,14 @@ namespace tesseract {
 // Returns -1 if the unichar_id is not found
 int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
                                         const ShapeTable &shape_table, UNICHAR_ID unichar_id) {
-  for (unsigned r = 0; r < results.size(); ++r) {
-    const auto shape_id = results[r].shape_id;
+  size_t r = 0;
+  for (const auto &result : results) {
+    const auto shape_id = result.shape_id;
     const Shape &shape = shape_table.GetShape(shape_id);
     if (shape.ContainsUnichar(unichar_id)) {
       return r;
     }
+    ++r;
   }
   return -1;
 }
@@ -53,10 +55,12 @@ int ShapeRating::FirstResultWithUnichar(const std::vector<ShapeRating> &results,
 // Returns -1 if the unichar_id is not found
 int UnicharRating::FirstResultWithUnichar(const std::vector<UnicharRating> &results,
                                           UNICHAR_ID unichar_id) {
-  for (unsigned r = 0; r < results.size(); ++r) {
-    if (results[r].unichar_id == unichar_id) {
+  size_t r = 0;
+  for (const auto &result : results) {
+    if (result.unichar_id == unichar_id) {
       return r;
     }
+    ++r;
   }
   return -1;
 }
@@ -122,8 +126,8 @@ void Shape::AddToShape(int unichar_id, int font_id) {
 // Adds everything in other to this.
 void Shape::AddShape(const Shape &other) {
   for (const auto &unichar : other.unichars_) {
-    for (unsigned f = 0; f < unichar.font_ids.size(); ++f) {
-      AddToShape(unichar.unichar_id, unichar.font_ids[f]);
+    for (auto font_id : unichar.font_ids) {
+      AddToShape(unichar.unichar_id, font_id);
     }
   }
   unichars_sorted_ = unichars_.size() <= 1;
@@ -267,7 +271,7 @@ int ShapeTable::NumFonts() const {
     for (auto shape_id : shape_table_) {
       const Shape &shape = *shape_id;
       for (int c = 0; c < shape.size(); ++c) {
-        for (int font_id : shape[c].font_ids) {
+        for (auto font_id : shape[c].font_ids) {
           if (font_id >= num_fonts_) {
             num_fonts_ = font_id + 1;
           }
@@ -405,7 +409,7 @@ int ShapeTable::FindShape(int unichar_id, int font_id) const {
         if (font_id < 0) {
           return s; // We don't care about the font.
         }
-        for (int f : shape[c].font_ids) {
+        for (auto f : shape[c].font_ids) {
           if (f == font_id) {
             return s;
           }
@@ -428,14 +432,13 @@ void ShapeTable::GetFirstUnicharAndFont(unsigned shape_id, int *unichar_id, int 
 int ShapeTable::BuildFromShape(const Shape &shape, const ShapeTable &master_shapes) {
   BitVector shape_map(master_shapes.NumShapes());
   for (int u_ind = 0; u_ind < shape.size(); ++u_ind) {
-    for (unsigned f_ind = 0; f_ind < shape[u_ind].font_ids.size(); ++f_ind) {
+    for (auto font_id : shape[u_ind].font_ids) {
       int c = shape[u_ind].unichar_id;
-      int f = shape[u_ind].font_ids[f_ind];
-      int master_id = master_shapes.FindShape(c, f);
+      int master_id = master_shapes.FindShape(c, font_id);
       if (master_id >= 0) {
         shape_map.SetBit(master_id);
-      } else if (FindShape(c, f) < 0) {
-        AddShape(c, f);
+      } else if (FindShape(c, font_id) < 0) {
+        AddShape(c, font_id);
       }
     }
   }
@@ -630,19 +633,19 @@ bool ShapeTable::MergeEqualUnichars(int merge_id1, int merge_id2, unsigned shape
   const Shape &merge2 = GetShape(merge_id2);
   const Shape &shape = GetShape(shape_id);
   for (int cs = 0; cs < shape.size(); ++cs) {
-    int unichar_id = shape[cs].unichar_id;
+    auto unichar_id = shape[cs].unichar_id;
     if (!merge1.ContainsUnichar(unichar_id) && !merge2.ContainsUnichar(unichar_id)) {
       return false; // Shape has a unichar that appears in neither merge.
     }
   }
   for (int cm1 = 0; cm1 < merge1.size(); ++cm1) {
-    int unichar_id1 = merge1[cm1].unichar_id;
+    auto unichar_id1 = merge1[cm1].unichar_id;
     if (!shape.ContainsUnichar(unichar_id1)) {
       return false; // Merge has a unichar that is not in shape.
     }
   }
   for (int cm2 = 0; cm2 < merge2.size(); ++cm2) {
-    int unichar_id2 = merge2[cm2].unichar_id;
+    auto unichar_id2 = merge2[cm2].unichar_id;
     if (!shape.ContainsUnichar(unichar_id2)) {
       return false; // Merge has a unichar that is not in shape.
     }
@@ -655,7 +658,7 @@ bool ShapeTable::CommonUnichars(unsigned shape_id1, unsigned shape_id2) const {
   const Shape &shape1 = GetShape(shape_id1);
   const Shape &shape2 = GetShape(shape_id2);
   for (int c1 = 0; c1 < shape1.size(); ++c1) {
-    int unichar_id1 = shape1[c1].unichar_id;
+    auto unichar_id1 = shape1[c1].unichar_id;
     if (shape2.ContainsUnichar(unichar_id1)) {
       return true;
     }
@@ -725,7 +728,7 @@ void ShapeTable::AddShapeToResults(const ShapeRating &shape_rating, std::vector<
   for (int u = 0; u < shape.size(); ++u) {
     int result_index =
         AddUnicharToResults(shape[u].unichar_id, shape_rating.rating, unichar_map, results);
-    for (int font_id : shape[u].font_ids) {
+    for (auto font_id : shape[u].font_ids) {
       (*results)[result_index].fonts.emplace_back(font_id,
                                                   IntCastRounded(shape_rating.rating * INT16_MAX));
     }

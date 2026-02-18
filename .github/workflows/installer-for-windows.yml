@@ -18,10 +18,10 @@ jobs:
   build64:
     runs-on: [ubuntu-24.04]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Build Tesseract installer (64 bit)
       run: nsis/build.sh x86_64
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: Tesseract Installer for Windows (64 bit)
         path: dist

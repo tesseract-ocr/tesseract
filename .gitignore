@@ -115,3 +115,7 @@ times.txt
 
 /*.snap
 /*_source.tar.bz2
+
+# CodeQL and build artifacts
+_codeql_detected_source_root
+install-sh

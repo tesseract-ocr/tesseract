@@ -6,7 +6,7 @@ on:
     - cron: 0 17 * * *
 jobs:
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -17,7 +17,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
     - uses: msys2/setup-msys2@v2

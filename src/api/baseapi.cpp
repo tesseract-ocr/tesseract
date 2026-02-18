@@ -150,10 +150,9 @@ static void addAvailableLanguages(const std::string &datadir,
        std::filesystem::recursive_directory_iterator(datadir,
          std::filesystem::directory_options::follow_directory_symlink |
          std::filesystem::directory_options::skip_permission_denied)) {
-    auto path = entry.path().lexically_relative(datadir).string();
-    auto extPos = path.rfind(".traineddata");
-    if (extPos != std::string::npos) {
-      langs->push_back(path.substr(0, extPos));
+    auto path = entry.path().lexically_relative(datadir);
+    if (path.extension() == ".traineddata") {
+      langs->push_back(path.replace_extension("").string());
     }
   }
 }
@@ -1042,7 +1041,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
                                 tesseract_->tessedit_page_number);
   }
 
-  // At this point we are officially in autodection territory.
+  // At this point we are officially in autodetection territory.
   // That means any data in stdin must be buffered, to make it
   // seekable.
   std::string buf;

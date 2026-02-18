@@ -91,7 +91,7 @@ FPSEGPT::FPSEGPT(           // constructor
   double mean;                    // mean pitch
   double total;                   // total dists
   double factor;                  // cost function
-  FPSEGPT_IT pred_it = prev_list; // for previuos segment
+  FPSEGPT_IT pred_it = prev_list; // for previous segment
 
   cost = FLT_MAX;
   pred = nullptr;

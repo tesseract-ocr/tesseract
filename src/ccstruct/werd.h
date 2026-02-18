@@ -174,7 +174,7 @@ public:
   // Extracts all the noise outlines and stuffs the pointers into the given
   // vector of outlines. Afterwards, the outlines vector owns the pointers.
   void GetNoiseOutlines(std::vector<C_OUTLINE *> *outlines);
-  // Adds the selected outlines to the indcated real blobs, and puts the rest
+  // Adds the selected outlines to the indicated real blobs, and puts the rest
   // back in rej_cblobs where they came from. Where the target_blobs entry is
   // nullptr, a run of wanted outlines is put into a single new blob.
   // Ownership of the outlines is transferred back to the word. (Hence

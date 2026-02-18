@@ -612,9 +612,9 @@ void Dict::init_active_dawgs(DawgPositionVector *active_dawgs, bool ambigs_mode)
   if (hyphenated()) {
     *active_dawgs = hyphen_active_dawgs_;
     if (dawg_debug_level >= 3) {
-      for (unsigned i = 0; i < hyphen_active_dawgs_.size(); ++i) {
+      for (const auto &dawg : hyphen_active_dawgs_) {
         tprintf("Adding hyphen beginning dawg [%d, " REFFORMAT "]\n",
-                hyphen_active_dawgs_[i].dawg_index, hyphen_active_dawgs_[i].dawg_ref);
+                dawg.dawg_index, dawg.dawg_ref);
       }
     }
   } else {
@@ -633,12 +633,12 @@ void Dict::default_dawgs(DawgPositionVector *dawg_pos_vec, bool suppress_pattern
       if (dawg_ty == DAWG_TYPE_PUNCTUATION) {
         dawg_pos_vec->push_back(DawgPosition(-1, NO_EDGE, i, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning punc dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
+          tprintf("Adding beginning punc dawg [%u, " REFFORMAT "]\n", i, NO_EDGE);
         }
       } else if (!punc_dawg_available || !subsumed_by_punc) {
         dawg_pos_vec->push_back(DawgPosition(i, NO_EDGE, -1, NO_EDGE, false));
         if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
+          tprintf("Adding beginning dawg [%u, " REFFORMAT "]\n", i, NO_EDGE);
         }
       }
     }
@@ -900,9 +900,9 @@ bool Dict::valid_punctuation(const WERD_CHOICE &word) {
       new_word.append_unichar_id(Dawg::kPatternUnicharID, 1, 0.0, 0.0);
     }
   }
-  for (unsigned i = 0; i < dawgs_.size(); ++i) {
-    if (dawgs_[i] != nullptr && dawgs_[i]->type() == DAWG_TYPE_PUNCTUATION &&
-        dawgs_[i]->word_in_dawg(new_word)) {
+  for (auto dawg : dawgs_) {
+    if (dawg != nullptr && dawg->type() == DAWG_TYPE_PUNCTUATION &&
+        dawg->word_in_dawg(new_word)) {
       return true;
     }
   }

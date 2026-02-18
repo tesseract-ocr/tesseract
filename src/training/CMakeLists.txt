@@ -1,13 +1,12 @@
 #
-# tesseract
+# tesseract training tools
 #
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
   cmake_policy(SET CMP0074 NEW)
 endif()
 
-if(UNIX AND NOT ANDROID)
-  set(LIB_pthread pthread)
-endif()
+# Include build optimizations
+include(BuildOptimizations)
 
 if(SW_BUILD)
   set(ICU_FOUND 1)
@@ -119,6 +118,9 @@ add_library(common_training ${COMMON_TRAINING_SRC})
 target_include_directories(common_training PUBLIC common
                                                   ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(common_training PUBLIC libtesseract)
+
+# Apply modern build optimizations
+apply_training_optimizations(common_training)
 install(
   TARGETS common_training
   RUNTIME DESTINATION bin
@@ -326,7 +328,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(lstmeval lstmeval.cpp)
-  target_link_libraries(lstmeval unicharset_training ${LIB_pthread})
+  target_link_libraries(lstmeval unicharset_training)
   project_group(lstmeval "Training Tools")
   install(
     TARGETS lstmeval
@@ -342,7 +344,7 @@ if(ICU_FOUND)
   # ############################################################################
 
   add_executable(lstmtraining lstmtraining.cpp)
-  target_link_libraries(lstmtraining unicharset_training ${LIB_pthread})
+  target_link_libraries(lstmtraining unicharset_training)
   project_group(lstmtraining "Training Tools")
   install(
     TARGETS lstmtraining

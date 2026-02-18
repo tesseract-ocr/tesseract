@@ -17,7 +17,7 @@ jobs:
           - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -30,7 +30,13 @@ jobs:
     - name: Install dependencies
       run: |
            brew install autoconf automake cabextract libtool
-           brew install curl icu4c leptonica libarchive pango
+           brew install leptonica libarchive pango
+           if ! brew list icu4c &>/dev/null; then
+             brew install icu4c
+           fi
+           if ! brew list curl &>/dev/null; then
+             brew install curl
+           fi
 
     - name: Setup Tesseract
       run: |
@@ -113,7 +119,7 @@ jobs:
           - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 

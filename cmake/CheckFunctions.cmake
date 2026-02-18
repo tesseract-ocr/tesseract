@@ -18,7 +18,7 @@ function(check_leptonica_tiff_support)
   # check if leptonica was build with tiff support set result to
   # LEPT_TIFF_RESULT
   set(TIFF_TEST
-  "#include \"leptonica/allheaders.h\"\n"
+  "#include \"allheaders.h\"\n"
   "int main() {\n"
   "  l_uint8 *data = NULL;\n"
   "  size_t size = 0;\n"

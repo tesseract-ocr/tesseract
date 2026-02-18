@@ -5,6 +5,7 @@ on:
   #push:
   schedule:
     - cron: 0 23 * * *
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,18 +13,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-latest]
 
     steps:
       - name: Checkout Tesseract Source (--head from main branch)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
-      - name: Visual Studio Setup
-        shell: cmd
-        run: |
-             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+     # - name: Visual Studio Setup
+     #   shell: cmd
+     #   run: |
+     #        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: Install vcpkg
         run: |

@@ -75,7 +75,7 @@ enum REJ_FLAGS {
   /* Reject modes generated after MM_ACCEPT but before QUALITY_ACCEPT */
   R_BAD_QUALITY, // TEMP Quality metrics bad for WERD
 
-  /* Reject modes generated after QUALITY_ACCEPT but before MINIMAL_REJ accep*/
+  /* Reject modes generated after QUALITY_ACCEPT but before MINIMAL_REJ accept */
   R_DOC_REJ,   // TEMP Document rejection
   R_BLOCK_REJ, // TEMP Block rejection
   R_ROW_REJ,   // TEMP Row rejection

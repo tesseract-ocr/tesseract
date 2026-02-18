@@ -370,7 +370,7 @@ void WERD_CHOICE::punct_stripped(unsigned *start, unsigned *end) const {
   while (*start < length() && unicharset()->get_ispunctuation(unichar_id(*start))) {
     (*start)++;
   }
-  while (*end > 0 && unicharset()->get_ispunctuation(unichar_id(*end - 1))) {
+  while (*end > *start && unicharset()->get_ispunctuation(unichar_id(*end - 1))) {
     (*end)--;
   }
 }
@@ -660,7 +660,7 @@ int WERD_CHOICE::GetTopScriptID() const {
   return max_sid;
 }
 
-// Fixes the state_ for a chop at the given blob_posiiton.
+// Fixes the state_ for a chop at the given blob_position.
 void WERD_CHOICE::UpdateStateForSplit(int blob_position) {
   int total_chunks = 0;
   for (unsigned i = 0; i < length_; ++i) {

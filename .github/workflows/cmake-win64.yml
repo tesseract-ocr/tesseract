@@ -2,14 +2,22 @@
 # Build Tesseract on Windows using cmake. No Training Tools.
 name: cmake-win64
 on:
-  #push:
+  push:
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
   schedule:
     - cron: 0 5 * * *
   workflow_dispatch:
 
 env:
   ILOC: d:/a/local
-  png_ver: 1644
+  png_ver: 1651
 
 jobs:
   build:
@@ -19,7 +27,7 @@ jobs:
       - uses: ilammy/setup-nasm@v1
       - uses: microsoft/setup-msbuild@v2
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - run: git fetch --prune --unshallow --tags
@@ -81,7 +89,7 @@ jobs:
       - name: Build and Install libtiff
         shell: cmd
         run: |
-             git clone -c advice.detachedHead=false -b "v4.6.0" --depth 1 https://gitlab.com/libtiff/libtiff.git
+             git clone -c advice.detachedHead=false -b "v4.7.1" --depth 1 https://gitlab.com/libtiff/libtiff.git
              cd libtiff
              cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -Dtiff-tools=OFF -Dtiff-tests=OFF -Dtiff-contrib=OFF -Dtiff-docs=OFF
              cmake --build build --target install
@@ -104,11 +112,11 @@ jobs:
       - name: Build and Install tesseract
         shell: cmd
         run: |
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
+             cmake -Bbuild -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DENABLE_LTO=ON -DBUILD_TRAINING_TOOLS=OFF -DFAST_FLOAT=ON -DGRAPHICS_DISABLED=ON -DOPENMP_BUILD=OFF
              cmake --build build --target install
 
       - name: Upload Build Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: tesseract-${{ steps.get_version.outputs.version }}-${{steps.get_version.outputs.stamp}}-VS2019_win64
           path: ${{env.ILOC}}

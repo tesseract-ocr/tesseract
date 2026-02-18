@@ -2,9 +2,17 @@ name: cmake
 # cmake build of tesseract and training tools on ubuntu and macOS homebrew using Ninja.
 # test command line version of tesseract. run basicapitest.
 on:
-  #push:
+  push:
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
+  pull_request:
+    paths:
+      - cmake/**
+      - '**/CMakeLists.txt'
   schedule:
     - cron: 0 21 * * *
+  workflow_dispatch:
 
 jobs:
   basictests:
@@ -15,13 +23,12 @@ jobs:
       matrix:
         config:
           - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
-          - { name: macos-14-gcc-14-cmake, os: macos-14, cxx: g++-14 } #installed
+          - { name: macos-15-gcc-14-cmake, os: macos-15, cxx: g++ } #installed
           - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
           - { name: ubuntu-24.04-gcc-12-cmake, os: ubuntu-24.04, cxx: g++-14 } #installed
           - { name: ubuntu-22.04-gcc-12-cmake, os: ubuntu-22.04, cxx: g++-12 } #installed
-          - { name: ubuntu-20.04-gcc-10-cmake, os: ubuntu-20.04, cxx: g++-10 } #installed
 
     steps:
       - name: Install compilers on Linux
@@ -44,11 +51,17 @@ jobs:
         run: |
            brew install autoconf automake
            brew install leptonica
-           # brew install libarchive
+           # if ! brew list libarchive &>/dev/null; then
+           #   brew install libarchive
+           # fi
            brew install pango
-           brew install icu4c && brew link icu4c
+           if ! brew list icu4c &>/dev/null; then
+             brew install icu4c
+           fi
+           if ! brew list curl &>/dev/null; then
+             brew install curl
+           fi
            brew install cabextract
-           brew install ninja
            ninja --version
            cmake --version
            clang++ --version
@@ -56,7 +69,7 @@ jobs:
         if: runner.os == 'macOS'
 
       - name: Checkout Source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
              submodules: recursive
 
@@ -78,9 +91,6 @@ jobs:
         shell: bash
         run: |
              set -e
-             export PKG_CONFIG_PATH=$(brew --prefix)/opt/icu4c/lib/pkgconfig:$(brew --prefix)/opt/libarchive/lib/pkgconfig:/$(brew --prefix)/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH
-             export LDFLAGS="-L/usr/local/opt/icu4c/lib"
-             export CPPFLAGS="-I/usr/local/opt/icu4c/include"
              mkdir build
              mkdir inst
              cmake \
@@ -89,6 +99,7 @@ jobs:
                -G Ninja \
                -DCMAKE_BUILD_TYPE=Release \
                -DOPENMP_BUILD=OFF \
+               -DENABLE_UNITY_BUILD=ON \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'macOS'
