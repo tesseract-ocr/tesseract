@@ -1103,6 +1103,27 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
 
 SectionGroupEnd
 
+Section -SecAddEnvPath
+  ; Check if the installer is running in "Current User" mode
+  StrCmp $MultiUser.InstallMode "CurrentUser" SetUserPath 0
+
+  ; If "All Users" mode, verify that the current process is actually elevated
+  UserInfo::GetAccountType
+  Pop $0
+  StrCmp $0 "Admin" SetSystemPath SetUserPath
+
+  SetSystemPath:
+    EnVar::SetHKLM
+    Goto UpdatePath
+
+  SetUserPath:
+    EnVar::SetHKCU
+
+  UpdatePath:
+    EnVar::AddValue "Path" "$INSTDIR"
+    Pop $0 ; Clean up the stack (returns 0 on success)
+SectionEnd
+
 ;--------------------------------
 ;Descriptions
   ; At first we need to localize installer for languages which supports well in tesseract: Eng, Spa, Ger, Ita, Dutch + Russian (it is authors native language)
@@ -1175,6 +1196,24 @@ Section -un.Main UNSEC0000
   RMDir "$INSTDIR\doc"
   RMDir /r "$INSTDIR\tessdata"
   RMDir "$INSTDIR"
+
+  # remove from PATH
+  StrCmp $MultiUser.InstallMode "CurrentUser" UnSetUserPath 0
+
+  UserInfo::GetAccountType
+  Pop $0
+  StrCmp $0 "Admin" UnSetSystemPath UnSetUserPath
+
+  UnSetSystemPath:
+    EnVar::SetHKLM
+    Goto RemovePath
+
+  UnSetUserPath:
+    EnVar::SetHKCU
+
+  RemovePath:
+    EnVar::DeleteValue "Path" "$INSTDIR"
+    Pop $0
 SectionEnd
 
 Function PageReinstall
