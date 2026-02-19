@@ -1103,7 +1103,7 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
 
 SectionGroupEnd
 
-Section -SecAddEnvPath
+Section /o "Add to PATH environment variable" SecAddEnvPath
   ; Check if the installer is running in "Current User" mode
   StrCmp $MultiUser.InstallMode "CurrentUser" SetUserPath 0
 
@@ -1135,6 +1135,7 @@ SectionEnd
   LangString DESC_SEC0001 ${LANG_ENGLISH} "Installation files."
   ;LangString DESC_SecHelp ${LANG_ENGLISH} "Help information."
   LangString DESC_SecCS    ${LANG_ENGLISH} "Add shortcuts to Start menu."
+  LangString DESC_SecAddEnvPath ${LANG_ENGLISH} "Allows running Tesseract from any command prompt."
 
   LangString DESC_SEC0001 ${LANG_FRENCH} "Fichier d'installation."
   ;LangString DESC_SecHelp ${LANG_FRENCH} "Aide."
@@ -1164,6 +1165,7 @@ SectionEnd
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SEC0001} $(DESC_SEC0001)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCS} $(DESC_SecCS)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecAddEnvPath} $(DESC_SecAddEnvPath)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
@@ -1451,6 +1453,17 @@ Function .onInit
     Vietnamese: !insertmacro SelectSection ${SecLang_vie}
 
     lang_end:
+
+    ; --- Command Line Parsing ---
+    ${GetParameters} $R0
+
+    ; Check for "Add to PATH environment variable" flag (case-insensitive)
+    ClearErrors
+    ${GetOptions} $R0 "/ADDENVPATH" $R1
+    ${IfNot} ${Errors}
+      !insertmacro SelectSection ${SecAddEnvPath}
+    ${EndIf}
+    ; ----------------------------
 FunctionEnd
 
 Function un.onInit
