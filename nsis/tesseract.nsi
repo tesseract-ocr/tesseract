@@ -171,6 +171,7 @@ Var OLD_KEY
 !insertmacro MUI_LANGUAGE "French"
 !insertmacro MUI_LANGUAGE "German"
 !insertmacro MUI_LANGUAGE "Italian"
+!insertmacro MUI_LANGUAGE "Portuguese"
 !insertmacro MUI_LANGUAGE "Russian"
 !insertmacro MUI_LANGUAGE "Slovak"
 !insertmacro MUI_LANGUAGE "Spanish"
@@ -1113,7 +1114,13 @@ SectionGroupEnd
 
   LangString DESC_SEC0001 ${LANG_ENGLISH} "Installation files."
   ;LangString DESC_SecHelp ${LANG_ENGLISH} "Help information."
-  LangString DESC_SecCS    ${LANG_ENGLISH} "Add shortcuts to Start menu."
+  LangString DESC_SecScrollView ${LANG_ENGLISH} "Extracts the Java-based ScrollView JAR files, which are used primarily by developers for debugging OCR results."
+  LangString DESC_SecTr ${LANG_ENGLISH} "Deploys the additional executables required for users who require training on custom Tesseract OCR models."
+  LangString DESC_SecCS ${LANG_ENGLISH} "Add shortcuts to Start menu."
+  LangString DESC_SecGrp_LD ${LANG_ENGLISH} "Deploys the foundational English language pack and the Orientation and Script Detection (OSD) module."
+  LangString DESC_SecGrp_ASD ${LANG_ENGLISH} "An optional group of sections that download script-level data files."
+  LangString DESC_SecGrp_ALD ${LANG_ENGLISH} "An optional group containing dozens of specific language packs."
+  LangString DESC_SecAddEnvPath ${LANG_ENGLISH} "Allows running Tesseract from any command prompt."
 
   LangString DESC_SEC0001 ${LANG_FRENCH} "Fichier d'installation."
   ;LangString DESC_SecHelp ${LANG_FRENCH} "Aide."
@@ -1126,6 +1133,15 @@ SectionGroupEnd
   LangString DESC_SEC0001 ${LANG_ITALIAN} "File di installazione."
   ;LangString DESC_SecHelp ${LANG_ITALIAN} "Guida di informazioni."
   LangString DESC_SecCS    ${LANG_ITALIAN} "Aggiungere collegamenti al menu Start."
+
+  LangString DESC_SEC0001 ${LANG_PORTUGUESE} "Arquivos de instalação."
+  ;LangString DESC_SecHelp ${LANG_PORTUGUESE} "Informação de ajuda."
+  LangString DESC_SecScrollView ${LANG_PORTUGUESE} "Extrai os arquivos JAR do ScrollView baseados em Java, que são usados ​​principalmente por desenvolvedores."
+  LangString DESC_SecTr ${LANG_PORTUGUESE} "Instala os executáveis ​​adicionais necessários para usuários que precisam treinar modelos OCR."
+  LangString DESC_SecCS ${LANG_PORTUGUESE} "Adiciona atalhos ao Menu iniciar."
+  LangString DESC_SecGrp_LD ${LANG_PORTUGUESE} "Instala o pacote básico de idioma inglês e o módulo de Orientação e Detecção de Roteiro (OSD)."
+  LangString DESC_SecGrp_ASD ${LANG_PORTUGUESE} "Um grupo opcional de seções que baixam arquivos de dados em nível de script."
+  LangString DESC_SecGrp_ALD ${LANG_PORTUGUESE} "Um grupo opcional contendo dezenas de pacotes de idiomas específicos."
 
   LangString DESC_SEC0001 ${LANG_SLOVAK} "Súbory inštalácie."
   ;LangString DESC_SecHelp ${LANG_ENGLISH} "Pomocné informácie."
@@ -1142,7 +1158,12 @@ SectionGroupEnd
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SEC0001} $(DESC_SEC0001)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecScrollView} $(DESC_SecScrollView)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecTr} $(DESC_SecTr)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCS} $(DESC_SecCS)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_LD} $(DESC_SecGrp_LD)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_ASD} $(DESC_SecGrp_ASD)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_ALD} $(DESC_SecGrp_ALD)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
