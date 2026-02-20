@@ -1128,7 +1128,7 @@ SectionGroupEnd
   LangString DESC_SecCS    ${LANG_ITALIAN} "Aggiungere collegamenti al menu Start."
 
   LangString DESC_SEC0001 ${LANG_SLOVAK} "Súbory inštalácie."
-  ;LangString DESC_SecHelp ${LANG_ENGLISH} "Pomocné informácie."
+  ;LangString DESC_SecHelp ${LANG_SLOVAK} "Pomocné informácie."
   LangString DESC_SecCS    ${LANG_SLOVAK} "Pridať odkaz do Start menu."
 
   LangString DESC_SEC0001 ${LANG_SPANISH} "Los archivos de instalación."
