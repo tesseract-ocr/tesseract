@@ -171,8 +171,8 @@ Var OLD_KEY
 !insertmacro MUI_LANGUAGE "French"
 !insertmacro MUI_LANGUAGE "German"
 !insertmacro MUI_LANGUAGE "Italian"
-!insertmacro MUI_LANGUAGE "Russian"
 !insertmacro MUI_LANGUAGE "Portuguese"
+!insertmacro MUI_LANGUAGE "Russian"
 !insertmacro MUI_LANGUAGE "Slovak"
 !insertmacro MUI_LANGUAGE "Spanish"
 !insertmacro MUI_LANGUAGE "SpanishInternational"
@@ -1142,10 +1142,9 @@ SectionGroupEnd
   LangString DESC_SecGrp_LD ${LANG_PORTUGUESE} "Instala o pacote básico de idioma inglês e o módulo de Orientação e Detecção de Roteiro (OSD)."
   LangString DESC_SecGrp_ASD ${LANG_PORTUGUESE} "Um grupo opcional de seções que baixam arquivos de dados em nível de script."
   LangString DESC_SecGrp_ALD ${LANG_PORTUGUESE} "Um grupo opcional contendo dezenas de pacotes de idiomas específicos."
-  ;LangString DESC_SecAddEnvPath ${LANG_PORTUGUESE} "Permite executar o Tesseract a partir de qualquer linha de comando."
 
   LangString DESC_SEC0001 ${LANG_SLOVAK} "Súbory inštalácie."
-  ;LangString DESC_SecHelp ${LANG_SLOVAK} "Pomocné informácie."
+  ;LangString DESC_SecHelp ${LANG_ENGLISH} "Pomocné informácie."
   LangString DESC_SecCS    ${LANG_SLOVAK} "Pridať odkaz do Start menu."
 
   LangString DESC_SEC0001 ${LANG_SPANISH} "Los archivos de instalación."
