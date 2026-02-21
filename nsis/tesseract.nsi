@@ -1262,6 +1262,7 @@ Function .onInit
   ;done:
     ; Make selection based on System language ID
     System::Call 'kernel32::GetSystemDefaultLangID() i .r0'
+    IntOp $0 $0 & 0xFFFF ; Mask the value to 16 bits to ensure only the LANGID is kept
     ;http://msdn.microsoft.com/en-us/library/dd318693%28v=VS.85%29.aspx
     StrCmp $0 "1078" Afrikaans
     StrCmp $0 "1052" Albanian
