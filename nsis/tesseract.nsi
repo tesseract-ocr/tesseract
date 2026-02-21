@@ -1122,7 +1122,10 @@ Section /o "Add to PATH environment variable" SecAddEnvPath
 
   UpdatePath:
     EnVar::AddValue "Path" "$INSTDIR"
-    Pop $0 ; Clean up the stack (returns 0 on success)
+    Pop $0 ; Returns 0 on success, non-zero on error
+    StrCmp $0 "0" +3 0
+    DetailPrint "Warning: Failed to add installation directory to PATH (EnVar::AddValue returned $0)."
+    MessageBox MB_ICONEXCLAMATION "Warning: The installer could not add Tesseract to the PATH environment variable.$\r$\nYou may need to add '$INSTDIR' to PATH manually."
 SectionEnd
 
 ;--------------------------------
@@ -1236,6 +1239,8 @@ Section -un.Main UNSEC0000
   RemovePath:
     EnVar::DeleteValue "Path" "$INSTDIR"
     Pop $0
+    StrCmp $0 "0" +2 0
+    DetailPrint "Warning: failed to remove $INSTDIR from PATH (EnVar::DeleteValue result: $0)"
 SectionEnd
 
 Function PageReinstall
