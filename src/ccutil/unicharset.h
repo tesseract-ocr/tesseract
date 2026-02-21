@@ -27,6 +27,8 @@
 #include "serialis.h"
 
 #include <functional> // for std::function
+#include <unordered_map> // for script name -> id mapping
+#include <vector> // for id -> script name mapping
 
 namespace tesseract {
 
@@ -322,15 +324,9 @@ public:
 
   // Clear the UNICHARSET (all the previous data is lost).
   void clear() {
-    if (script_table != nullptr) {
-      for (int i = 0; i < script_table_size_used; ++i) {
-        delete[] script_table[i];
-      }
-      delete[] script_table;
-      script_table = nullptr;
-      script_table_size_used = 0;
-    }
-    script_table_size_reserved = 0;
+    // Clear script storage - no manual memory management needed with STL containers
+    script_name_to_id_.clear();
+    script_names_.clear();
     delete_pointers_in_unichars();
     unichars.clear();
     ids.clear();
@@ -879,22 +875,21 @@ public:
 
   // Return the (current) number of scripts in the script table
   int get_script_table_size() const {
-    return script_table_size_used;
+    return static_cast<int>(script_names_.size());
   }
 
   // Return the script string from its id
   const char *get_script_from_script_id(int id) const {
-    if (id >= script_table_size_used || id < 0) {
+    if (id >= static_cast<int>(script_names_.size()) || id < 0) {
       return null_script;
     }
-    return script_table[id];
+    return script_names_[id].c_str();
   }
 
   // Returns the id from the name of the script, or 0 if script is not found.
-  // Note that this is an expensive operation since it involves iteratively
-  // comparing strings in the script table.  To avoid dependency on STL, we
-  // won't use a hash.  Instead, the calling function can use this to lookup
-  // and save the ID for relevant scripts for fast comparisons later.
+  // Note that this is now an efficient O(1) hash map lookup operation.
+  // The calling function can use this to lookup and save the ID for relevant
+  // scripts for fast comparisons later.
   int get_script_id_from_name(const char *script_name) const;
 
   // Return true if the given script is the null script
@@ -903,7 +898,7 @@ public:
   }
 
   // Uniquify the given script. For two scripts a and b, if strcmp(a, b) == 0,
-  // then the returned pointer will be the same.
+  // then the returned id will be the same.
   // The script parameter is copied and thus can be a temporary.
   int add_script(const char *script);
 
@@ -1065,9 +1060,9 @@ private:
 
   std::vector<UNICHAR_SLOT> unichars;
   UNICHARMAP ids;
-  char **script_table;
-  int script_table_size_used;
-  int script_table_size_reserved;
+  // Hash map for efficient script name to id lookup and vector for id to name lookup
+  std::unordered_map<std::string, int> script_name_to_id_;
+  std::vector<std::string> script_names_;
   // True if the unichars have their tops/bottoms set.
   bool top_bottom_set_;
   // True if the unicharset has significant upper/lower case chars.
@@ -1078,7 +1073,7 @@ private:
   // True if the set contains chars that would be changed by the cleanup.
   bool old_style_included_;
 
-  // A few convenient script name-to-id mapping without using hash.
+  // A few convenient script name-to-id mapping for common scripts.
   // These are initialized when unicharset file is loaded.  Anything
   // missing from this list can be looked up using get_script_id_from_name.
   int null_sid_;
