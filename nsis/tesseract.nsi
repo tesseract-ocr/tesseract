@@ -16,7 +16,6 @@
 ; https://nsis.sourceforge.io/Docs/Modern%20UI%202/Readme.html
 
 ; TODO:
-; * Fix PreventMultipleInstances.
 ; * Add Tesseract icon and images for installer.
 
 SetCompressor /FINAL /SOLID lzma
@@ -1456,12 +1455,13 @@ FunctionEnd
 
 ; Prevent running multiple instances of the installer
 Function PreventMultipleInstances
-  ; TODO: Does not work.
   Push $R0
-  System::Call 'kernel32::CreateMutexA(i 0, i 0, t ${PRODUCT_NAME}) ?e'
+  System::Call 'kernel32::CreateMutex(p 0, i 0, t "${PRODUCT_NAME}") p .r1 ?e'
   Pop $R0
-  StrCmp $R0 0 +3
+  ; 183 is the Windows error code for ERROR_ALREADY_EXISTS
+  StrCmp $R0 183 0 +4
     MessageBox MB_OK|MB_ICONEXCLAMATION "The installer is already running." /SD IDOK
+    Pop $R0
     Abort
   Pop $R0
 FunctionEnd
