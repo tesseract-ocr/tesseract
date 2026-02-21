@@ -147,6 +147,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !include MUI2.nsh
 !include LogicLib.nsh
 !include winmessages.nsh # include for some of the windows messages defines
+!include FileFunc.nsh
 
 # Variables
 Var StartMenuGroup
@@ -1115,9 +1116,11 @@ Section /o "Add to PATH environment variable" SecAddEnvPath
 
   SetSystemPath:
     EnVar::SetHKLM
+    WriteRegDWORD HKLM "${REGKEY}" "AddedToEnvPath" 1
     Goto UpdatePath
 
   SetUserPath:
+    WriteRegDWORD HKCU "${REGKEY}" "AddedToEnvPath" 1
     EnVar::SetHKCU
 
   UpdatePath:
@@ -1166,6 +1169,7 @@ SectionEnd
   LangString DESC_SecGrp_LD ${LANG_PORTUGUESE} "Instala o pacote básico de idioma inglês e o módulo de Orientação e Detecção de Roteiro (OSD)."
   LangString DESC_SecGrp_ASD ${LANG_PORTUGUESE} "Um grupo opcional de seções que baixam arquivos de dados em nível de script."
   LangString DESC_SecGrp_ALD ${LANG_PORTUGUESE} "Um grupo opcional contendo dezenas de pacotes de idiomas específicos."
+  LangString DESC_SecAddEnvPath ${LANG_PORTUGUESE} "Permite executar o Tesseract a partir de qualquer linha de comando."
 
   LangString DESC_SEC0001 ${LANG_SLOVAK} "Súbory inštalácie."
   ;LangString DESC_SecHelp ${LANG_SLOVAK} "Pomocné informácie."
@@ -1222,7 +1226,8 @@ Section -un.Main UNSEC0000
   RMDir /r "$INSTDIR\tessdata"
   RMDir "$INSTDIR"
 
-  # remove from PATH
+  # remove from PATH only if we added it during installation
+  ClearErrors
   StrCmp $MultiUser.InstallMode "CurrentUser" UnSetUserPath 0
 
   UserInfo::GetAccountType
@@ -1230,17 +1235,29 @@ Section -un.Main UNSEC0000
   StrCmp $0 "Admin" UnSetSystemPath UnSetUserPath
 
   UnSetSystemPath:
-    EnVar::SetHKLM
-    Goto RemovePath
+    ReadRegDWORD $1 HKLM "${REGKEY}" "AddedToEnvPath"
+    ${If} $1 == 1
+      EnVar::SetHKLM
+      Goto RemovePath
+    ${EndIf}
+    Goto SkipPathRemoval
 
   UnSetUserPath:
-    EnVar::SetHKCU
+    ReadRegDWORD $1 HKCU "${REGKEY}" "AddedToEnvPath"
+    ${If} $1 == 1
+      EnVar::SetHKCU
+      Goto RemovePath
+    ${EndIf}
+    Goto SkipPathRemoval
 
   RemovePath:
     EnVar::DeleteValue "Path" "$INSTDIR"
     Pop $0
     StrCmp $0 "0" +2 0
     DetailPrint "Warning: failed to remove $INSTDIR from PATH (EnVar::DeleteValue result: $0)"
+
+  SkipPathRemoval:
+
 SectionEnd
 
 Function PageReinstall
