@@ -12,11 +12,15 @@ Plugins/x86-unicode/INetC.dll:
 	curl -OsS https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
 	unzip Inetc.zip $@
 
+Plugins/x86-unicode/EnVar.dll:
+	curl -OsS https://nsis.sourceforge.io/mediawiki/images/7/7f/EnVar_plugin.zip
+	unzip EnVar_plugin.zip $@
+
 winpath.exe: winpath.cpp
 	x86_64-w64-mingw32-g++ -Os -o $@ $<
 	x86_64-w64-mingw32-strip --strip-unneeded $@
 
-winsetup: Plugins/x86-unicode/INetC.dll winpath.exe
+winsetup: Plugins/x86-unicode/INetC.dll Plugins/x86-unicode/EnVar.dll winpath.exe
 	makensis -DCROSSBUILD -DSHARED -DSIGNCODE=$(SIGNCODE) -DSRCDIR=$(top_srcdir) -DVERSION=${gitrev} $(shell test "$(host_cpu)" = x86_64 && echo "-DW64") -NOCD $(top_srcdir)/nsis/tesseract.nsi
 
 endif
