@@ -1,0 +1,55 @@
+import pytesseract
+from PIL import Image
+import speech_recognition as sr
+
+class Korius:
+    def __init__(self):
+        self.responses = {
+            "сайн уу": "Сайн байна! Танд юу хэрэгтэй вэ?",
+            "танд баярлалаа": "Танд баярлалаа! Дахин асууж болох уу?",
+            "хаанаас мэдээлэл авах вэ": "Танд хүссэн мэдээллийг өгч чадна!",
+        }
+
+    def respond(self, user_input):
+        return self.responses.get(user_input.lower(), "Уучлаарай, би ойлгосонгүй.")
+
+    def translate_image(self, image_path):
+        """Зургийн текстийг таних болон орчуулах функц."""
+        # Зурагнаас текст таних
+        text = pytesseract.image_to_string(Image.open(image_path))
+        return text
+
+    def translate_video(self, video_path):
+        """Видеоны яриаг текстэд хөрвүүлэх функц."""
+        # Яриаг текстэд хөрвүүлэх
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(video_path) as source:
+            audio = recognizer.record(source)
+            try:
+                text = recognizer.recognize_google(audio)
+                return text
+            except sr.UnknownValueError:
+                return "Яриаг таньж чадсангүй."
+            except sr.RequestError:
+                return "Сервертэй холбогдож чадсангүй."
+
+# Кориусын объект үүсгэх
+korius = Korius()
+
+# Хэрэглэгчийн оролт
+while True:
+    user_input = input("Танд ямар асуулт байна? ")
+    if user_input.lower() == "гарах":
+        print("Баяртай!")
+        break
+    print(korius.respond(user_input))
+
+    # Зургийн текстийг таних
+    if user_input.lower().startswith("зургаа орчуул"):
+        image_path = user_input.split(" ")[2]  # Зургийн замыг авах
+        print(korius.translate_image(image_path))
+
+    # Видеоны яриаг орчуул
+    elif user_input.lower().startswith("видео орчуул"):
+        video_path = user_input.split(" ")[2]  # Видеоны замыг авах
+        print(korius.translate_video(video_path))
