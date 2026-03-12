@@ -720,6 +720,43 @@ void ResultIterator::AppendUTF8WordText(std::string *text) const {
   AppendSuffixMarks(text);
 }
 
+// Returns false if the word's first character belongs to a non-space-delimited
+// script (Han, Thai, Hangul, Hiragana, Katakana) or to a Unicode block that
+// contains characters with Script=Common which are used exclusively in CJK
+// contexts (e.g. U+30FC KATAKANA-HIRAGANA PROLONGED SOUND MARK, U+3002
+// IDEOGRAPHIC FULL STOP).  Used to suppress spurious spaces between
+// characters in languages that do not use spaces as word delimiters.
+static bool IsWordSpaceDelimited(const WERD_RES *word) {
+  if (!word || !word->best_choice || word->best_choice->length() == 0 ||
+      !word->uch_set) {
+    return true; // safe default: treat as space-delimited
+  }
+  const UNICHAR_ID uid = word->best_choice->unichar_id(0);
+  // Script-level check: covers Han, Thai, Hangul, Hiragana, Katakana.
+  if (!word->uch_set->IsSpaceDelimited(uid)) {
+    return false;
+  }
+  // Block-level fallback for characters that share Script=Common with Latin
+  // but belong to CJK-specific blocks.  id_to_unichar_ext resolves any
+  // private Tesseract encodings to their canonical Unicode UTF-8 form before
+  // the codepoint check.
+  const char *utf8 = word->uch_set->id_to_unichar_ext(uid);
+  if (utf8 == nullptr || utf8[0] == '\0') {
+    return true;
+  }
+  // All target ranges start at U+3000; single-byte UTF-8 (ASCII, U+0000-U+007F)
+  // can never match, so skip the UNICHAR decode entirely for Latin text.
+  if ((unsigned char)utf8[0] < 0x80) {
+    return true;
+  }
+  const int cp = UNICHAR(utf8, -1).first_uni();
+  return !((cp >= 0x3000 && cp <= 0x303F) || // CJK Symbols and Punctuation
+           (cp >= 0x3040 && cp <= 0x309F) || // Hiragana block (Script=Common marks)
+           (cp >= 0x30A0 && cp <= 0x30FF) || // Katakana block (Script=Common marks)
+           (cp >= 0xFE30 && cp <= 0xFE4F) || // CJK Compatibility Forms
+           (cp >= 0xFF00 && cp <= 0xFF9F));   // Halfwidth and Fullwidth Forms
+}
+
 void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
   if (Empty(RIL_WORD)) {
     Next(RIL_WORD);
@@ -743,15 +780,26 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
   }
 
   int words_appended = 0;
+  bool prev_is_space_delimited = true;
   do {
-    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() : (words_appended > 0);
-    for (int i = 0; i < numSpaces; ++i) {
-      *text += " ";
+    const bool curr_is_space_delimited = IsWordSpaceDelimited(it_->word());
+    int num_spaces;
+    if (preserve_interword_spaces_) {
+      num_spaces = it_->word()->word->space();
+    } else if (words_appended > 0 &&
+               !prev_is_space_delimited && !curr_is_space_delimited) {
+      num_spaces = 0;
+    } else {
+      num_spaces = (words_appended > 0) ? 1 : 0;
+    }
+    prev_is_space_delimited = curr_is_space_delimited;
+    for (int i = 0; i < num_spaces; ++i) {
+      *text += ' ';
     }
     AppendUTF8WordText(text);
-    words_appended++;
+    ++words_appended;
     if (BidiDebug(2)) {
-      tprintf("Num spaces=%d, text=%s\n", numSpaces, text->c_str());
+      tprintf("Num spaces=%d, text=%s\n", num_spaces, text->c_str());
     }
   } while (Next(RIL_WORD) && !IsAtBeginningOf(RIL_TEXTLINE));
   if (BidiDebug(1)) {
