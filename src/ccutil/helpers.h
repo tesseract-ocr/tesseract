@@ -198,11 +198,32 @@ inline int IntCastRounded(float x) {
 inline void ReverseN(void *ptr, int num_bytes) {
   assert(num_bytes == 1 || num_bytes == 2 || num_bytes == 4 || num_bytes == 8);
   char *cptr = static_cast<char *>(ptr);
-  int halfsize = num_bytes / 2;
-  for (int i = 0; i < halfsize; ++i) {
-    char tmp = cptr[i];
-    cptr[i] = cptr[num_bytes - 1 - i];
-    cptr[num_bytes - 1 - i] = tmp;
+  switch (num_bytes) {
+    case 2: {
+      char tmp = cptr[0];
+      cptr[0] = cptr[1];
+      cptr[1] = tmp;
+      break;
+    }
+    case 4: {
+      char tmp = cptr[0];
+      cptr[0] = cptr[3];
+      cptr[3] = tmp;
+      tmp = cptr[1];
+      cptr[1] = cptr[2];
+      cptr[2] = tmp;
+      break;
+    }
+    case 8: {
+      for (int i = 0; i < 4; ++i) {
+        char tmp = cptr[i];
+        cptr[i] = cptr[7 - i];
+        cptr[7 - i] = tmp;
+      }
+      break;
+    }
+    default:
+      break;
   }
 }
 
