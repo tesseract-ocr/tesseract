@@ -783,13 +783,13 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
     return -1;
   }
   delete page_res_;
+  recognition_done_ = true;
   if (block_list_->empty()) {
     page_res_ = new PAGE_RES(false, block_list_, &tesseract_->prev_word_best_choice_);
     return 0; // Empty page.
   }
 
   tesseract_->SetBlackAndWhitelist();
-  recognition_done_ = true;
 #ifndef DISABLED_LEGACY_ENGINE
   if (tesseract_->tessedit_resegment_from_line_boxes) {
     page_res_ = tesseract_->ApplyBoxes(input_file_.c_str(), true, block_list_);

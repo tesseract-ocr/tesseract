@@ -55,6 +55,9 @@ public:
   Tesseract *osd_tesseract() const {
     return osd_tesseract_;
   }
+  bool recognition_done() const {
+    return recognition_done_;
+  }
 };
 
 std::string GetCleanedTextResult(tesseract::TessBaseAPI *tess, Image pix) {
@@ -244,6 +247,39 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
 
   delete[] result;
   src_pix.destroy();
+}
+
+// Tests that all output formats return valid results on an empty page.
+// Regression test for https://github.com/tesseract-ocr/tesseract/issues/4112
+TEST_F(TesseractTest, EmptyPageOutputConsistency) {
+  FriendlyTessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+  }
+  // Create a blank white image (no text to detect).
+  Image blank_pix = pixCreate(200, 200, 8);
+  CHECK(blank_pix);
+  pixSetAll(blank_pix);
+  api.SetImage(blank_pix);
+  EXPECT_EQ(api.Recognize(nullptr), 0);
+  EXPECT_TRUE(api.recognition_done());
+
+  // All output formats should return non-null, even on an empty page.
+  char *hocr = api.GetHOCRText(0);
+  EXPECT_TRUE(hocr != nullptr);
+  delete[] hocr;
+
+  char *utf8 = api.GetUTF8Text();
+  EXPECT_TRUE(utf8 != nullptr);
+  delete[] utf8;
+
+  char *tsv = api.GetTSVText(0);
+  EXPECT_TRUE(tsv != nullptr);
+  delete[] tsv;
+
+  blank_pix.destroy();
 }
 
 // Tests that Tesseract gets exactly the right answer on some page numbers.
