@@ -765,6 +765,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   delete page_res_;
   if (block_list_->empty()) {
     page_res_ = new PAGE_RES(false, block_list_, &tesseract_->prev_word_best_choice_);
+    recognition_done_ = true;
     return 0; // Empty page.
   }
 
