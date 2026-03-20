@@ -450,8 +450,8 @@ AS_IF([test "$enable_doc" != "no"], [
   # XML_CATALOG_FILES for xsltproc.
   if $have_asciidoc && $have_xsltproc; then
     AM_CONDITIONAL([ASCIIDOC], true)
-    XML_CATALOG_FILES=
     if $have_brew; then
+      XML_CATALOG_FILES=
       catalog_file=$brew_prefix/etc/xml/catalog
       if test -f $catalog_file; then
         AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
