@@ -477,6 +477,12 @@ TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
   font_info_ = font_info;
 }
 
+void TessHOcrRenderer::SetInputLanguages(const char *languages) {
+  if (languages) {
+    input_languages_ = languages;
+  }
+}
+
 bool TessHOcrRenderer::BeginDocumentHandler() {
   AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -496,8 +502,13 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   if (font_info_) {
     AppendString(" ocrp_font ocrp_fsize");
   }
+  AppendString("'/>\n");
+  if (!input_languages_.empty()) {
+    AppendString("  <meta name='ocr-langs' content='");
+    AppendString(input_languages_.c_str());
+    AppendString("' />\n");
+  }
   AppendString(
-      "'/>\n"
       " </head>\n"
       " <body>\n");
 
