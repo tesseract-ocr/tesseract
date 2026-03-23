@@ -25,7 +25,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: ilammy/setup-nasm@v1
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
         uses: actions/checkout@v6
         with:
