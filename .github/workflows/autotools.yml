@@ -16,7 +16,7 @@ jobs:
         config:
           - { name: ubuntu-22.04-clang-15-autotools, os: ubuntu-22.04, cxx: clang++-15 } #installed
 
-          - { name: ubuntu-24.04-gcc-14-autotools, os: ubuntu-24.04, cxx: g++-14 } #installed
+          - { name: ubuntu-24.04-gcc-14-autotools, os: ubuntu-24.04, cxx: g++-14, docs: true } #installed
           - { name: ubuntu-22.04-gcc-12-autotools, os: ubuntu-22.04, cxx: g++-12 } #installed
           - { name: ubuntu-22.04-gcc-11-autotools, os: ubuntu-22.04, cxx: g++-11 } #installed
 
@@ -43,18 +43,40 @@ jobs:
            sudo apt-get install cabextract libarchive-dev -y
            sudo apt-get install libcurl4-openssl-dev libcurl4 curl -y
 
+    - name: Install documentation tools
+      if: matrix.config.docs
+      run: |
+           sudo apt-get install -y asciidoctor
+           sudo gem install asciidoctor-pdf
+
     - name: Setup Tesseract
       run: |
            ./autogen.sh
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+           ./configure '--disable-shared' '--disable-openmp' ${{ matrix.config.docs && '--enable-doc' || '--disable-doc' }} 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
 
     - name: Make and Install Tesseract
       run: |
            make -j 8
            sudo make install install
+
+    - name: Build documentation
+      if: matrix.config.docs
+      run: |
+           make html pdf
+
+    - name: Upload documentation artifacts
+      if: matrix.config.docs
+      uses: actions/upload-artifact@v4
+      with:
+        name: tesseract-docs
+        path: |
+          doc/*.html
+          doc/*.pdf
+          doc/*.1
+          doc/*.5
 
     - name: Make and Install Training Tools
       run: |
