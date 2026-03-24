@@ -438,33 +438,18 @@ fi
 # ----------------------------------------
 
 AM_CONDITIONAL([ASCIIDOC], false)
-AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
 AC_ARG_ENABLE([doc],
               AS_HELP_STRING([--disable-doc], [disable build of documentation])
               [],
               [: m4_divert_text([DEFAULTS], [enable_doc=check])])
 AS_IF([test "$enable_doc" != "no"], [
-  AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
-  AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
-  # macOS with Homebrew requires the environment variable
-  # XML_CATALOG_FILES for xsltproc.
-  if $have_asciidoc && $have_xsltproc; then
+  AC_CHECK_PROG([have_asciidoctor], asciidoctor, true, false)
+  if $have_asciidoctor; then
     AM_CONDITIONAL([ASCIIDOC], true)
-    XML_CATALOG_FILES=
-    if $have_brew; then
-      catalog_file=$brew_prefix/etc/xml/catalog
-      if test -f $catalog_file; then
-        AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
-        XML_CATALOG_FILES=file:$catalog_file
-      else
-        AC_MSG_WARN([Missing file $catalog_file.])
-      fi
-    fi
-    AC_SUBST([XML_CATALOG_FILES])
   else
     AS_IF([test "x$enable_doc" != xcheck], [
       AC_MSG_FAILURE(
-        [--enable-doc was given, but test for asciidoc and xsltproc failed])
+        [--enable-doc was given, but test for asciidoctor failed])
     ])
   fi
 ])
@@ -583,7 +568,7 @@ AM_COND_IF([ASCIIDOC], [
   AS_IF([test "$enable_doc" = "no"], [
     echo "Documentation will not be built because it was disabled."
   ], [
-    echo "Documentation will not be built because asciidoc or xsltproc is missing."
+    echo "Documentation will not be built because asciidoctor is missing."
   ])
 ])
 
