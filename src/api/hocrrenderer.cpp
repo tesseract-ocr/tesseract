@@ -18,9 +18,12 @@
  **********************************************************************/
 
 #include <tesseract/baseapi.h> // for TessBaseAPI
+#include <cstring>             // for strcmp
 #include <locale>              // for std::locale::classic
 #include <memory>              // for std::unique_ptr
 #include <sstream>             // for std::stringstream
+#include <unordered_map>       // for std::unordered_map
+#include <unordered_set>       // for std::unordered_set
 #include <tesseract/renderer.h>
 #include "helpers.h"        // for copy_string
 #include "tesseractclass.h" // for Tesseract
@@ -483,6 +486,54 @@ void TessHOcrRenderer::SetInputLanguages(const char *languages) {
   }
 }
 
+static const std::unordered_map<std::string, std::string> &Iso639Map() {
+  static const auto *map = new std::unordered_map<std::string, std::string>{
+      {"afr", "af"}, {"amh", "am"}, {"ara", "ar"}, {"asm", "as"},
+      {"aze", "az"}, {"bel", "be"}, {"ben", "bn"}, {"bod", "bo"},
+      {"bos", "bs"}, {"bre", "br"}, {"bul", "bg"}, {"cat", "ca"},
+      {"ceb", "ceb"}, {"ces", "cs"}, {"chi_sim", "zh"}, {"chi_tra", "zh"},
+      {"chr", "chr"}, {"cos", "co"}, {"cym", "cy"}, {"dan", "da"},
+      {"deu", "de"}, {"div", "dv"}, {"dzo", "dz"}, {"ell", "el"},
+      {"eng", "en"}, {"enm", "en"}, {"epo", "eo"}, {"est", "et"},
+      {"eus", "eu"}, {"fao", "fo"}, {"fas", "fa"}, {"fil", "fil"},
+      {"fin", "fi"}, {"fra", "fr"}, {"frk", "de"}, {"frm", "fr"},
+      {"fry", "fy"}, {"gla", "gd"}, {"gle", "ga"}, {"glg", "gl"},
+      {"grc", "el"}, {"guj", "gu"}, {"hat", "ht"}, {"heb", "he"},
+      {"hin", "hi"}, {"hrv", "hr"}, {"hun", "hu"}, {"hye", "hy"},
+      {"iku", "iu"}, {"ind", "id"}, {"isl", "is"}, {"ita", "it"},
+      {"jav", "jv"}, {"jpn", "ja"}, {"kan", "kn"}, {"kat", "ka"},
+      {"kaz", "kk"}, {"khm", "km"}, {"kir", "ky"}, {"kmr", "ku"},
+      {"kor", "ko"}, {"lao", "lo"}, {"lat", "la"}, {"lav", "lv"},
+      {"lit", "lt"}, {"ltz", "lb"}, {"mal", "ml"}, {"mar", "mr"},
+      {"mkd", "mk"}, {"mlt", "mt"}, {"mon", "mn"}, {"mri", "mi"},
+      {"msa", "ms"}, {"mya", "my"}, {"nep", "ne"}, {"nld", "nl"},
+      {"nor", "no"}, {"oci", "oc"}, {"ori", "or"}, {"pan", "pa"},
+      {"pol", "pl"}, {"por", "pt"}, {"pus", "ps"}, {"que", "qu"},
+      {"ron", "ro"}, {"rus", "ru"}, {"san", "sa"}, {"sin", "si"},
+      {"slk", "sk"}, {"slv", "sl"}, {"snd", "sd"}, {"spa", "es"},
+      {"sqi", "sq"}, {"srp", "sr"}, {"sun", "su"}, {"swa", "sw"},
+      {"swe", "sv"}, {"syr", "syr"}, {"tam", "ta"}, {"tat", "tt"},
+      {"tel", "te"}, {"tgk", "tg"}, {"tha", "th"}, {"tir", "ti"},
+      {"ton", "to"}, {"tur", "tr"}, {"uig", "ug"}, {"ukr", "uk"},
+      {"urd", "ur"}, {"uzb", "uz"}, {"vie", "vi"}, {"yid", "yi"},
+      {"yor", "yo"}, {"zho", "zh"},
+  };
+  return *map;
+}
+
+static const std::unordered_set<std::string> &ScriptNames() {
+  static const auto *set = new std::unordered_set<std::string>{
+      "Arabic", "Armenian", "Bengali", "Canadian_Aboriginal", "Cherokee",
+      "Cyrillic", "Devanagari", "Ethiopic", "Fraktur", "Georgian", "Greek",
+      "Gujarati", "Gurmukhi", "HanS", "HanS_vert", "HanT", "HanT_vert",
+      "Hangul", "Hangul_vert", "Hebrew", "Japanese", "Japanese_vert",
+      "Kannada", "Khmer", "Lao", "Latin", "Malayalam", "Myanmar", "Oriya",
+      "Sinhala", "Syriac", "Tamil", "Telugu", "Thaana", "Thai", "Tibetan",
+      "Vietnamese",
+  };
+  return *set;
+}
+
 bool TessHOcrRenderer::BeginDocumentHandler() {
   AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -504,9 +555,43 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   }
   AppendString("'/>\n");
   if (!input_languages_.empty()) {
-    AppendString("  <meta name='ocr-langs' content='");
-    AppendString(input_languages_.c_str());
-    AppendString("' />\n");
+    std::string langs;
+    std::string scripts;
+    const auto &iso_map = Iso639Map();
+    const auto &script_set = ScriptNames();
+    std::istringstream stream(input_languages_);
+    std::string token;
+    while (std::getline(stream, token, '+')) {
+      if (token.empty()) {
+        continue;
+      }
+      if (script_set.count(token)) {
+        if (!scripts.empty()) {
+          scripts += ' ';
+        }
+        scripts += token;
+      } else {
+        if (!langs.empty()) {
+          langs += ' ';
+        }
+        auto it = iso_map.find(token);
+        if (it != iso_map.end()) {
+          langs += it->second;
+        } else {
+          langs += token;
+        }
+      }
+    }
+    if (!langs.empty()) {
+      AppendString("  <meta name='ocr-langs' content='");
+      AppendString(langs.c_str());
+      AppendString("' />\n");
+    }
+    if (!scripts.empty()) {
+      AppendString("  <meta name='ocr-scripts' content='");
+      AppendString(scripts.c_str());
+      AppendString("' />\n");
+    }
   }
   AppendString(
       " </head>\n"
