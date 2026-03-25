@@ -481,13 +481,15 @@ TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
 }
 
 void TessHOcrRenderer::SetInputLanguages(const char *languages) {
-  if (languages) {
+  if (languages && languages[0] != '\0') {
     input_languages_ = languages;
+  } else {
+    input_languages_.clear();
   }
 }
 
 static const std::unordered_map<std::string, std::string> &Iso639Map() {
-  static const auto *map = new std::unordered_map<std::string, std::string>{
+  static const std::unordered_map<std::string, std::string> map{
       {"afr", "af"}, {"amh", "am"}, {"ara", "ar"}, {"asm", "as"},
       {"aze", "az"}, {"bel", "be"}, {"ben", "bn"}, {"bod", "bo"},
       {"bos", "bs"}, {"bre", "br"}, {"bul", "bg"}, {"cat", "ca"},
@@ -518,11 +520,35 @@ static const std::unordered_map<std::string, std::string> &Iso639Map() {
       {"urd", "ur"}, {"uzb", "uz"}, {"vie", "vi"}, {"yid", "yi"},
       {"yor", "yo"}, {"zho", "zh"},
   };
-  return *map;
+  return map;
+}
+
+// Look up a model name in the ISO 639 map, trying progressively shorter
+// prefixes by stripping trailing _suffix parts. This handles compound
+// model names like deu_latf -> deu -> "de", chi_tra_vert -> chi_tra -> "zh".
+static std::string LookupIso639(const std::string &model) {
+  const auto &iso_map = Iso639Map();
+  auto it = iso_map.find(model);
+  if (it != iso_map.end()) {
+    return it->second;
+  }
+  std::string prefix = model;
+  while (true) {
+    auto pos = prefix.rfind('_');
+    if (pos == std::string::npos) {
+      break;
+    }
+    prefix = prefix.substr(0, pos);
+    it = iso_map.find(prefix);
+    if (it != iso_map.end()) {
+      return it->second;
+    }
+  }
+  return model;
 }
 
 static const std::unordered_set<std::string> &ScriptNames() {
-  static const auto *set = new std::unordered_set<std::string>{
+  static const std::unordered_set<std::string> set{
       "Arabic", "Armenian", "Bengali", "Canadian_Aboriginal", "Cherokee",
       "Cyrillic", "Devanagari", "Ethiopic", "Fraktur", "Georgian", "Greek",
       "Gujarati", "Gurmukhi", "HanS", "HanS_vert", "HanT", "HanT_vert",
@@ -531,7 +557,7 @@ static const std::unordered_set<std::string> &ScriptNames() {
       "Sinhala", "Syriac", "Tamil", "Telugu", "Thaana", "Thai", "Tibetan",
       "Vietnamese",
   };
-  return *set;
+  return set;
 }
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
@@ -557,7 +583,6 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   if (!input_languages_.empty()) {
     std::string langs;
     std::string scripts;
-    const auto &iso_map = Iso639Map();
     const auto &script_set = ScriptNames();
     std::istringstream stream(input_languages_);
     std::string token;
@@ -574,22 +599,19 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
         if (!langs.empty()) {
           langs += ' ';
         }
-        auto it = iso_map.find(token);
-        if (it != iso_map.end()) {
-          langs += it->second;
-        } else {
-          langs += token;
-        }
+        langs += LookupIso639(token);
       }
     }
     if (!langs.empty()) {
+      std::string escaped_langs = HOcrEscape(langs.c_str());
       AppendString("  <meta name='ocr-langs' content='");
-      AppendString(langs.c_str());
+      AppendString(escaped_langs.c_str());
       AppendString("' />\n");
     }
     if (!scripts.empty()) {
+      std::string escaped_scripts = HOcrEscape(scripts.c_str());
       AppendString("  <meta name='ocr-scripts' content='");
-      AppendString(scripts.c_str());
+      AppendString(escaped_scripts.c_str());
       AppendString("' />\n");
     }
   }
