@@ -44,6 +44,10 @@
 #include "tesserrstream.h"  // for tesserr
 #include "tessvars.h"
 #include "werdit.h"
+#include "fontclassifier.grpc.pb.h"
+#include <grpcpp/grpcpp.h>
+#include <vector>
+#include "allheaders.h"  // Leptonica
 
 const char *const kBackUpConfigFile = "tempconfigdata.config";
 #ifndef DISABLED_LEGACY_ENGINE
@@ -252,6 +256,11 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
     }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
+    // Send the raw word image to Python gRPC for font classification
+    if (word->word->pix != nullptr) {
+        SendImageToPython(word->word->pix);
+    }
+
     classify_word_and_language(pass_n, pr_it, word);
     if (tessedit_dump_choices || debug_noise_removal) {
       tprintf("Pass%d: %s [%s]\n", pass_n, word->word->best_choice->unichar_string().c_str(),
@@ -285,6 +294,73 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
  * @param target_word_box specifies just to extract a rectangle
  * @param dopasses 0 - all, 1 just pass 1, 2 passes 2 and higher
  */
+
+static std::vector<uint8_t> ExtractPixBytes(Pix* pix) {
+    std::vector<uint8_t> buffer;
+    if (!pix) return buffer;
+
+    int depth = pixGetDepth(pix);
+    Pix* gray = pix;
+
+    // Convert to 8-bit grayscale if needed
+    if (depth != 8) {
+        gray = pixConvertTo8(pix, 0);
+    }
+
+    int w = pixGetWidth(gray);
+    int h = pixGetHeight(gray);
+    int wpl = pixGetWpl(gray);
+
+    l_uint32* data = pixGetData(gray);
+    buffer.resize(w * h);
+
+    for (int y = 0; y < h; y++) {
+        l_uint32* row = data + y * wpl;
+        for (int x = 0; x < w; x++) {
+            buffer[y * w + x] = GET_DATA_BYTE(row, x);
+        }
+    }
+
+    if (gray != pix) {
+        pixDestroy(&gray);
+    }
+
+    return buffer;
+}
+
+static void SendImageToPython(Pix* pix) {
+    if (!pix) return;
+
+    int w = pixGetWidth(pix);
+    int h = pixGetHeight(pix);
+
+    std::vector<uint8_t> buffer = ExtractPixBytes(pix);
+    if (buffer.empty()) return;
+
+    FontClassifier::ImageRequest req;
+    req.set_width(w);
+    req.set_height(h);
+    req.set_channels(1);
+    req.set_pixels(buffer.data(), buffer.size());
+
+    auto channel = grpc::CreateChannel(
+        "localhost:50051", grpc::InsecureChannelCredentials());
+    auto stub = FontClassifier::NewStub(channel);
+
+    FontClassifier::ClassificationResponse reply;
+    grpc::ClientContext ctx;
+
+    grpc::Status status = stub->ClassifyImage(&ctx, req, &reply);
+
+    if (status.ok()) {
+        printf("[gRPC] Font prediction: %s (%.3f)\n",
+               reply.label().c_str(),
+               reply.confidence());
+    } else {
+        fprintf(stderr, "[gRPC ERROR] %s\n",
+                status.error_message().c_str());
+    }
+}
 
 bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
                                 const TBOX *target_word_box, const char *word_config,
