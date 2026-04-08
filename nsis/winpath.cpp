@@ -16,8 +16,9 @@
 // the location of the winpath executable.
 
 #include <process.h>    // _spawnvp
-#include <stdlib.h>     // _putenv_s
-#include <string.h>     // strcpy, strcat
+#include <stdio.h>      // snprintf
+#include <stdlib.h>     // _putenv_s, getenv
+#include <string.h>     // strrchr
 
 static char path[4096];
 
@@ -28,9 +29,14 @@ int main(int argc, char *argv[]) {
     if (last != nullptr) {
       *last = '\0';
     }
-    strcpy(path, dir);
-    strcat(path, ";");
-    strcat(path, getenv("PATH"));
+    const char *env_path = getenv("PATH");
+    if (env_path == nullptr) {
+      env_path = "";
+    }
+    int result = snprintf(path, sizeof(path), "%s;%s", dir, env_path);
+    if (result < 0 || result >= (int)sizeof(path)) {
+      return 1;
+    }
     _putenv_s("PATH", path);
     _spawnvp(_P_WAIT, argv[1], argv + 1);
     //~ _spawnvp(_P_OVERLAY, argv[1], argv + 1);
