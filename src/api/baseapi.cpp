@@ -33,7 +33,7 @@
 #include "equationdetect.h" // for EquationDetect, destructor of equ_detect_
 #endif // ndef DISABLED_LEGACY_ENGINE
 #include "errcode.h" // for ASSERT_HOST
-#include "helpers.h" // for IntCastRounded, chomp_string
+#include "helpers.h" // for IntCastRounded, chomp_string, copy_string
 #include "host.h"    // for MAX_PATH
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
@@ -41,9 +41,6 @@
 #endif
 #include "mutableiterator.h" // for MutableIterator
 #include "normalis.h"        // for kBlnBaselineOffset, kBlnXHeight
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
 #include "pageres.h"         // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"      // for DetectParagraphs
 #include "params.h"          // for BoolParam, IntParam, DoubleParam, Stri...
@@ -67,6 +64,7 @@
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
 #include <cstring>  // for strcmp, strcpy
+#include <filesystem> // for std::filesystem
 #include <fstream>  // for size_t
 #include <iostream> // for std::cin
 #include <locale>   // for std::locale::classic
@@ -85,15 +83,9 @@
 #endif
 
 #if defined(_WIN32)
-#  include <fcntl.h>
-#  include <io.h>
-#else
-#  include <dirent.h> // for closedir, opendir, readdir, DIR, dirent
-#  include <libgen.h>
-#  include <sys/stat.h> // for stat, S_IFDIR
-#  include <sys/types.h>
-#  include <unistd.h>
-#endif // _WIN32
+#  include <fcntl.h> // for _O_BINARY
+#  include <io.h>    // for _setmode
+#endif
 
 namespace tesseract {
 
@@ -152,61 +144,17 @@ static void ExtractFontName(const char* filename, std::string* fontname) {
 
 /* Add all available languages recursively.
  */
-static void addAvailableLanguages(const std::string &datadir, const std::string &base,
+static void addAvailableLanguages(const std::string &datadir,
                                   std::vector<std::string> *langs) {
-  auto base2 = base;
-  if (!base2.empty()) {
-    base2 += "/";
-  }
-  const size_t extlen = sizeof(kTrainedDataSuffix);
-#ifdef _WIN32
-  WIN32_FIND_DATA data;
-  HANDLE handle = FindFirstFile((datadir + base2 + "*").c_str(), &data);
-  if (handle != INVALID_HANDLE_VALUE) {
-    BOOL result = TRUE;
-    for (; result;) {
-      char *name = data.cFileName;
-      // Skip '.', '..', and hidden files
-      if (name[0] != '.') {
-        if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
-          addAvailableLanguages(datadir, base2 + name, langs);
-        } else {
-          size_t len = strlen(name);
-          if (len > extlen && name[len - extlen] == '.' &&
-              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
-            name[len - extlen] = '\0';
-            langs->push_back(base2 + name);
-          }
-        }
-      }
-      result = FindNextFile(handle, &data);
+  for (const auto& entry :
+       std::filesystem::recursive_directory_iterator(datadir,
+         std::filesystem::directory_options::follow_directory_symlink |
+         std::filesystem::directory_options::skip_permission_denied)) {
+    auto path = entry.path().lexically_relative(datadir);
+    if (path.extension() == ".traineddata") {
+      langs->push_back(path.replace_extension("").string());
     }
-    FindClose(handle);
   }
-#else // _WIN32
-  DIR *dir = opendir((datadir + base).c_str());
-  if (dir != nullptr) {
-    dirent *de;
-    while ((de = readdir(dir))) {
-      char *name = de->d_name;
-      // Skip '.', '..', and hidden files
-      if (name[0] != '.') {
-        struct stat st;
-        if (stat((datadir + base2 + name).c_str(), &st) == 0 && (st.st_mode & S_IFDIR) == S_IFDIR) {
-          addAvailableLanguages(datadir, base2 + name, langs);
-        } else {
-          size_t len = strlen(name);
-          if (len > extlen && name[len - extlen] == '.' &&
-              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
-            name[len - extlen] = '\0';
-            langs->push_back(base2 + name);
-          }
-        }
-      }
-    }
-    closedir(dir);
-  }
-#endif
 }
 
 TessBaseAPI::TessBaseAPI()
@@ -241,27 +189,6 @@ TessBaseAPI::~TessBaseAPI() {
  */
 const char *TessBaseAPI::Version() {
   return TESSERACT_VERSION_STR;
-}
-
-/**
- * If compiled with OpenCL AND an available OpenCL
- * device is deemed faster than serial code, then
- * "device" is populated with the cl_device_id
- * and returns sizeof(cl_device_id)
- * otherwise *device=nullptr and returns 0.
- */
-size_t TessBaseAPI::getOpenCLDevice(void **data) {
-#ifdef USE_OPENCL
-  ds_device device = OpenclDevice::getDeviceSelection();
-  if (device.type == DS_DEVICE_OPENCL_DEVICE) {
-    *data = new cl_device_id;
-    memcpy(*data, &device.oclDeviceID, sizeof(cl_device_id));
-    return sizeof(cl_device_id);
-  }
-#endif
-
-  *data = nullptr;
-  return 0;
 }
 
 /**
@@ -398,10 +325,6 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
     delete tesseract_;
     tesseract_ = nullptr;
   }
-#ifdef USE_OPENCL
-  OpenclDevice od;
-  od.InitEnv();
-#endif
   bool reset_classifier = true;
   if (tesseract_ == nullptr) {
     reset_classifier = false;
@@ -421,7 +344,7 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
   }
 
   // Update datapath and language requested for the last valid initialization.
-  datapath_ = datapath;
+  datapath_ = std::move(datapath);
   if (datapath_.empty() && !tesseract_->datadir.empty()) {
     datapath_ = tesseract_->datadir;
   }
@@ -472,7 +395,7 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(std::vector<std::string> *langs) co
 void TessBaseAPI::GetAvailableLanguagesAsVector(std::vector<std::string> *langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
-    addAvailableLanguages(tesseract_->datadir, "", langs);
+    addAvailableLanguages(tesseract_->datadir, langs);
     std::sort(langs->begin(), langs->end());
   }
 }
@@ -1137,7 +1060,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
                                 tesseract_->tessedit_page_number);
   }
 
-  // At this point we are officially in autodection territory.
+  // At this point we are officially in autodetection territory.
   // That means any data in stdin must be buffered, to make it
   // seekable.
   std::string buf;
@@ -1200,6 +1123,10 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
         return error("curl_easy_setopt");
       }
       curlcode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
+      if (curlcode != CURLE_OK) {
+        return error("curl_easy_setopt");
+      }
+      curlcode = curl_easy_setopt(curl, CURLOPT_USERAGENT, "Tesseract OCR");
       if (curlcode != CURLE_OK) {
         return error("curl_easy_setopt");
       }
@@ -1449,9 +1376,7 @@ char *TessBaseAPI::GetUTF8Text() {
     const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
     text += para_text.get();
   } while (it->Next(RIL_PARA));
-  char *result = new char[text.length() + 1];
-  strncpy(result, text.c_str(), text.length() + 1);
-  return result;
+  return copy_string(text);
 }
 
 static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::string &text) {
@@ -1473,7 +1398,9 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     return nullptr;
   }
 
+#if !defined(NDEBUG)
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
+#endif
   int page_id = page_number + 1; // we use 1-based page numbers.
 
   int page_num = page_id;
@@ -1555,6 +1482,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     tsv_str += "\t" + std::to_string(res_it->Confidence(RIL_WORD));
     tsv_str += "\t";
 
+#if !defined(NDEBUG)
     // Increment counts if at end of block/paragraph/textline.
     if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD)) {
       lcnt++;
@@ -1565,18 +1493,19 @@ char *TessBaseAPI::GetTSVText(int page_number) {
     if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) {
       bcnt++;
     }
+#endif
 
     do {
       tsv_str += std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     tsv_str += "\n"; // end of row
+#if !defined(NDEBUG)
     wcnt++;
+#endif
   }
 
-  char *ret = new char[tsv_str.length() + 1];
-  strcpy(ret, tsv_str.c_str());
-  return ret;
+  return copy_string(tsv_str);
 }
 
 /** The 5 numbers output for each box (the usual 4 and a page number.) */
@@ -1824,10 +1753,7 @@ char *TessBaseAPI::GetOsdText(int page_number) {
          << "Orientation confidence: " << orient_conf << "\n"
          << "Script: " << script_name << "\n"
          << "Script confidence: " << script_conf << "\n";
-  const std::string &text = stream.str();
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
-  return result;
+  return copy_string(stream.str());
 }
 
 #endif // ndef DISABLED_LEGACY_ENGINE
@@ -2258,6 +2184,13 @@ int TessBaseAPI::FindLines() {
   // and for OCR.
   tesseract_->PrepareForTessOCR(block_list_, osd_tess, &osr);
   return 0;
+}
+
+/**
+ * Return average gradient of lines on page.
+ */
+float TessBaseAPI::GetGradient() {
+  return tesseract_->gradient();
 }
 
 /** Delete the pageres and clear the block list ready for a new page. */

@@ -34,6 +34,7 @@
 #include "helpers.h"
 #include "linlsq.h"
 #include "makerow.h"
+#include "tesserrstream.h"  // for tesserr
 #include "textord.h"
 #include "tprintf.h"
 #include "underlin.h"
@@ -671,9 +672,10 @@ bool BaselineBlock::ComputeLineSpacing() {
     }
   }
   if (debug_level_ > 0) {
-    tprintf("Spacing %g, in %zu rows, %d gaps fitted out of %d non-trivial\n",
-            line_spacing_, row_positions.size(), fitting_gaps,
-            non_trivial_gaps);
+    tesserr << "Spacing " << line_spacing_ << ", in "
+            << row_positions.size() << " rows, "
+            << fitting_gaps << " gaps fitted out of "
+            << non_trivial_gaps << " non-trivial\n";
   }
   return fitting_gaps > non_trivial_gaps * kMinFittingLinespacings;
 }

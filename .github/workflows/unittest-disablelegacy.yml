@@ -10,14 +10,15 @@ on:
 jobs:
   linux:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ g++, clang++ ]
-        os: [ ubuntu-20.04 ]
+        compiler: [ g++, clang++-18 ]
+        os: [ ubuntu-24.04 ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -30,7 +31,6 @@ jobs:
 
     - name: Setup
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure
@@ -39,12 +39,12 @@ jobs:
 
     - name: Make and Install Tesseract
       run: |
-           make -j 8
+           make
            sudo make install install
 
     - name: Make and Install Training Tools
       run: |
-           make training -j 8
+           make training
            sudo make install training-install
 
     - name: Display Version
@@ -68,7 +68,7 @@ jobs:
 
     - name: Make and run Unit Tests
       run: |
-           make check -j 4
+           make check
 
     - name: Display Unit Tests Report
       run: |

@@ -11,13 +11,13 @@ body:
         Please use [our forum](https://groups.google.com/g/tesseract-ocr).
 
         Please follow these rules:
+        * Check that your Operating Systems is [supported](https://tesseract-ocr.github.io/tessdoc/supported-operating-systems.html).
         * Don't open an issue for [Tesseract version which was released more than a year ago](https://tesseract-ocr.github.io/tessdoc/ReleaseNotes.html).
         * Don't open an issue which involves 3rd party tools that use Tesseract as a library. Only report about an issue with the Tesseract command line tool or the C/C++ API.
         * Please provide the input image.
         * Also provide output files (txt and/or tsv, hocr, pdf). You can make a zip archive that will contain these files, so GitHub will let you upload them.
         * Don't attach a screenshot of the command line and output. Instead, copy the text and paste it in your bug report.
 
-        Windows versions 7, 8, 8.1 are not supported.
   - type: textarea
     attributes:
       label: Current Behavior
@@ -41,16 +41,15 @@ body:
       options:
         - Windows 11
         - Windows 10
+        - macOS 26 Tahoe
+        - macOS 15 Sequoia
         - macOS 14 Sonoma
-        - macOS 13 Ventura
-        - macOS 12 Monterey
-        - macOS 11 Big Sur
+        - Ubuntu 24.04 Noble
         - Ubuntu 22.04 Jammy
-        - Ubuntu 20.04 Focal
+        - Debian 13 Trixie
         - Debian 12 Bookworm
-        - Debian 11 Bullseye
+        - RHEL 10
         - RHEL 9
-        - RHEL 8
   - type: textarea
     attributes:
       label: Other Operating System
@@ -58,7 +57,7 @@ body:
   - type: textarea
     attributes:
       label: uname -a
-      placeholder: "Paste the output of the command: umame -a (if available in your system)."
+      placeholder: "Paste the output of the command: uname -a (if available in your system)."
 
   - type: textarea
     attributes:

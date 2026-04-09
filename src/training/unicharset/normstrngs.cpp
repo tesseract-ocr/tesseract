@@ -3,7 +3,6 @@
  * Description: Utilities to normalize and manipulate UTF-32 and
  *              UTF-8 strings.
  * Author:      Ranjith Unnikrishnan
- * Created:     Thu July 4 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,15 +35,23 @@
 namespace tesseract {
 
 static bool is_hyphen_punc(const char32 ch) {
-  static const int kNumHyphenPuncUnicodes = 13;
-  static const char32 kHyphenPuncUnicodes[kNumHyphenPuncUnicodes] = {
-      '-',    0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015, // hyphen..horizontal bar
-      0x207b,                                                 // superscript minus
-      0x208b,                                                 // subscript minus
-      0x2212,                                                 // minus sign
-      0xfe58,                                                 // small em dash
-      0xfe63,                                                 // small hyphen-minus
-      0xff0d,                                                 // fullwidth hyphen-minus
+  static const char32 kHyphenPuncUnicodes[] = {
+      '-',
+      0x2010, // hyphen
+      0x2011, // non-breaking hyphen
+      0x2012, // figure dash
+      0x2013, // en dash
+      0x2014, // em dash
+      0x2015, // horizontal bar
+      // how about 0x2043 hyphen bullet?
+      // how about 0x2500 box drawings light horizontal?
+      0x207b, // superscript minus
+      0x208b, // subscript minus
+      0x2212, // minus sign
+      0xfe58, // small em dash
+      0xfe63, // small hyphen-minus
+      0xff0d, // fullwidth hyphen-minus
+      0x2e17  // double oblique hyphen (Fraktur)
   };
   for (int kHyphenPuncUnicode : kHyphenPuncUnicodes) {
     if (kHyphenPuncUnicode == ch) {
@@ -55,16 +62,16 @@ static bool is_hyphen_punc(const char32 ch) {
 }
 
 static bool is_single_quote(const char32 ch) {
-  static const int kNumSingleQuoteUnicodes = 8;
-  static const char32 kSingleQuoteUnicodes[kNumSingleQuoteUnicodes] = {
+  static const char32 kSingleQuoteUnicodes[] = {
       '\'', '`',
       0x2018, // left single quotation mark (English, others)
       0x2019, // right single quotation mark (Danish, Finnish, Swedish, Norw.)
               // We may have to introduce a comma set with 0x201a
-      0x201B, // single high-reveresed-9 quotation mark (PropList.txt)
+      0x201A, // single low-9 quotation mark (German)
+      0x201B, // single high-reversed-9 quotation mark (PropList.txt)
       0x2032, // prime
       0x300C, // left corner bracket (East Asian languages)
-      0xFF07, // fullwidth apostrophe
+      0xFF07  // fullwidth apostrophe
   };
   for (int kSingleQuoteUnicode : kSingleQuoteUnicodes) {
     if (kSingleQuoteUnicode == ch) {
@@ -75,17 +82,17 @@ static bool is_single_quote(const char32 ch) {
 }
 
 static bool is_double_quote(const char32 ch) {
-  static const int kNumDoubleQuoteUnicodes = 8;
-  static const char32 kDoubleQuoteUnicodes[kNumDoubleQuoteUnicodes] = {
+  static const char32 kDoubleQuoteUnicodes[] = {
       '"',
       0x201C, // left double quotation mark (English, others)
       0x201D, // right double quotation mark (Danish, Finnish, Swedish, Norw.)
       0x201F, // double high-reversed-9 quotation mark (PropList.txt)
       0x2033, // double prime
+      0x201E, // double low-9 quotation mark (German)
       0x301D, // reversed double prime quotation mark (East Asian langs,
               // horiz.)
       0x301E, // close double prime (East Asian languages written horizontally)
-      0xFF02, // fullwidth quotation mark
+      0xFF02  // fullwidth quotation mark
   };
   for (int kDoubleQuoteUnicode : kDoubleQuoteUnicodes) {
     if (kDoubleQuoteUnicode == ch) {

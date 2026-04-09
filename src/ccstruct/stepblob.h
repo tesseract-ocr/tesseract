@@ -36,8 +36,7 @@ class C_BLOB;
 class DENORM;
 
 ELISTIZEH(C_BLOB)
-
-class TESS_API C_BLOB : public ELIST_LINK {
+class TESS_API C_BLOB : public ELIST<C_BLOB>::LINK {
 public:
   C_BLOB() = default;
   explicit C_BLOB(C_OUTLINE_LIST *outline_list);
@@ -121,9 +120,7 @@ public:
     return blob;
   }
 
-  static int SortByXMiddle(const void *v1, const void *v2) {
-    const C_BLOB *blob1 = *static_cast<const C_BLOB *const *>(v1);
-    const C_BLOB *blob2 = *static_cast<const C_BLOB *const *>(v2);
+  static int SortByXMiddle(const C_BLOB *blob1, const C_BLOB *blob2) {
     return blob1->bounding_box().x_middle() - blob2->bounding_box().x_middle();
   }
 

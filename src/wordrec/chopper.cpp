@@ -344,7 +344,7 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
     // TODO(rays) it may eventually help to allow italic_blob to be true,
     seam = chop_numbered_blob(word->chopped_word, *blob_number, italic_blob, word->seam_array);
     if (seam != nullptr) {
-      return seam; // Success!
+      break; // Success!
     }
     if (blob_choices[*blob_number] == nullptr) {
       return nullptr;

@@ -109,7 +109,7 @@ public:
 
 // AMBIG_SPEC_LIST stores a list of dangerous ambigs that
 // start with the same unichar (e.g. r->t rn->m rr1->m).
-class AmbigSpec : public ELIST_LINK {
+class AmbigSpec : public ELIST<AmbigSpec>::LINK {
 public:
   AmbigSpec();
   ~AmbigSpec() = default;
@@ -117,9 +117,7 @@ public:
   // Comparator function for sorting AmbigSpec_LISTs. The lists will
   // be sorted by their wrong_ngram arrays. Example of wrong_ngram vectors
   // in a sorted AmbigSpec_LIST: [9 1 3], [9 3 4], [9 8], [9, 8 1].
-  static int compare_ambig_specs(const void *spec1, const void *spec2) {
-    const AmbigSpec *s1 = *static_cast<const AmbigSpec *const *>(spec1);
-    const AmbigSpec *s2 = *static_cast<const AmbigSpec *const *>(spec2);
+  static int compare_ambig_specs(const AmbigSpec *s1, const AmbigSpec *s2) {
     int result = UnicharIdArrayUtils::compare(s1->wrong_ngram, s2->wrong_ngram);
     if (result != 0) {
       return result;

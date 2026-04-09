@@ -36,7 +36,7 @@ class ColSegment;
 ELISTIZEH(ColSegment)
 CLISTIZEH(ColSegment)
 
-class ColSegment : public ELIST_LINK {
+class ColSegment : public ELIST<ColSegment>::LINK {
 public:
   ColSegment();
   ~ColSegment() = default;
@@ -329,7 +329,7 @@ protected:
   void GrowTableToIncludeLines(const TBOX &table_box, const TBOX &search_range,
                                TBOX *result_box);
   // Checks whether the horizontal line belong to the table by looking at the
-  // side spacing of extra ColParitions that will be included in the table
+  // side spacing of extra ColPartitions that will be included in the table
   // due to expansion
   bool HLineBelongsToTable(const ColPartition &part, const TBOX &table_box);
 

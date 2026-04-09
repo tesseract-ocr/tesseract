@@ -139,6 +139,12 @@ protected:
   // This method will grow the output buffer if needed.
   void AppendData(const char *s, int len);
 
+  template <typename T>
+  auto AppendData(T &&d) {
+    AppendData(d.data(), d.size());
+    return d.size();
+  }
+
 private:
   TessResultRenderer *next_;   // Can link multiple renderers together
   FILE *fout_;                 // output file pointer
@@ -191,6 +197,23 @@ protected:
 private:
   bool begin_document;
 };
+
+/**
+ * Renders Tesseract output into a PAGE XML text string
+ */
+class TESS_API TessPAGERenderer : public TessResultRenderer {
+public:
+  explicit TessPAGERenderer(const char *outputbase);
+
+protected:
+  bool BeginDocumentHandler() override;
+  bool AddImageHandler(TessBaseAPI *api) override;
+  bool EndDocumentHandler() override;
+
+private:
+  bool begin_document;
+};
+
 
 /**
  * Renders Tesseract output into a TSV string

@@ -52,7 +52,7 @@ public:
   // tface.cpp
   void program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
-  void program_editdown(int32_t elasped_time);
+  void program_editdown(int32_t elapsed_time);
   int end_recog();
   int dict_word(const WERD_CHOICE &word);
 
@@ -169,7 +169,7 @@ private:
 };
 
 /* ccmain/tstruct.cpp *********************************************************/
-class FRAGMENT : public ELIST_LINK {
+class FRAGMENT : public ELIST<FRAGMENT>::LINK {
 public:
   FRAGMENT() { // constructor
   }
@@ -246,7 +246,7 @@ public:
   void program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void cc_recog(WERD_RES *word);
-  void program_editdown(int32_t elasped_time);
+  void program_editdown(int32_t elapsed_time);
   void set_pass1();
   void set_pass2();
   int end_recog();

@@ -10,14 +10,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if defined(_WIN32)
-#  include <io.h> // for _access
-#endif
-
 #include "ccutil.h"
+#include "tprintf.h"  // for tprintf
 
 #include <cstdlib>
-#include <cstring> // for std::strrchr
+#include <cstring>    // for std::strrchrA
+#include <filesystem> // for std::filesystem
 
 namespace tesseract {
 
@@ -46,7 +44,13 @@ CCUtil::~CCUtil() = default;
 void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   imagebasename = basename; /**< name of image */
 
-  char *tessdata_prefix = getenv("TESSDATA_PREFIX");
+  const char *tessdata_prefix = getenv("TESSDATA_PREFIX");
+
+  // Ignore TESSDATA_PREFIX if there is no matching filesystem entry.
+  if (tessdata_prefix != nullptr && !std::filesystem::exists(tessdata_prefix)) {
+    tprintf("Warning: TESSDATA_PREFIX %s does not exist, ignore it\n", tessdata_prefix);
+    tessdata_prefix = nullptr;
+  }
 
   if (!argv0.empty()) {
     /* Use tessdata prefix from the command line. */
@@ -55,7 +59,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
     /* Use tessdata prefix from the environment. */
     datadir = tessdata_prefix;
 #if defined(_WIN32)
-  } else if (datadir.empty() || _access(datadir.c_str(), 0) != 0) {
+  } else if (datadir.empty() || !std::filesystem::exists(datadir)) {
     /* Look for tessdata in directory of executable. */
     char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
@@ -65,7 +69,7 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
         *separator = '\0';
         std::string subdir = path;
         subdir += "/tessdata";
-        if (_access(subdir.c_str(), 0) == 0) {
+        if (std::filesystem::exists(subdir)) {
           datadir = subdir;
         }
       }
@@ -77,17 +81,19 @@ void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   if (datadir.empty()) {
 #if defined(TESSDATA_PREFIX)
     // Use tessdata prefix which was compiled in.
-    datadir = TESSDATA_PREFIX "/tessdata";
+    datadir = TESSDATA_PREFIX "/tessdata/";
+    // Note that some software (for example conda) patches TESSDATA_PREFIX
+    // in the binary, so it might be shorter. Recalculate its length.
+    datadir.resize(std::strlen(datadir.c_str()));
 #else
     datadir = "./";
 #endif /* TESSDATA_PREFIX */
   }
 
   // check for missing directory separator
-  const char *lastchar = datadir.c_str();
-  lastchar += datadir.length() - 1;
-  if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0)) {
-    datadir += "/";
+  const char lastchar = datadir.back();
+  if (lastchar != '/' && lastchar != '\\') {
+    datadir += '/';
   }
 }
 

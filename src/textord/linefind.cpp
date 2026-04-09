@@ -27,9 +27,6 @@
 #include "edgblob.h"
 #include "linefind.h"
 #include "tabvector.h"
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
 
 #include <algorithm>
 
@@ -469,48 +466,33 @@ static void GetLineMasks(int resolution, Image src_pix, Image *pix_vline, Image 
   }
   int closing_brick = max_line_width / 3;
 
-// only use opencl if compiled w/ OpenCL and selected device is opencl
-#ifdef USE_OPENCL
-  if (OpenclDevice::selectedDeviceIsOpenCL()) {
-    // OpenCL pixGetLines Operation
-    int clStatus =
-        OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix), pixGetHeight(src_pix), src_pix);
-    bool getpixclosed = pix_music_mask != nullptr;
-    OpenclDevice::pixGetLinesCL(nullptr, src_pix, pix_vline, pix_hline, &pix_closed, getpixclosed,
-                                closing_brick, closing_brick, max_line_width, max_line_width,
-                                min_line_length, min_line_length);
-  } else {
-#endif
-    // Close up small holes, making it less likely that false alarms are found
-    // in thickened text (as it will become more solid) and also smoothing over
-    // some line breaks and nicks in the edges of the lines.
-    pix_closed = pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
-    if (pixa_display != nullptr) {
-      pixaAddPix(pixa_display, pix_closed, L_CLONE);
-    }
-    // Open up with a big box to detect solid areas, which can then be
-    // subtracted. This is very generous and will leave in even quite wide
-    // lines.
-    Image pix_solid = pixOpenBrick(nullptr, pix_closed, max_line_width, max_line_width);
-    if (pixa_display != nullptr) {
-      pixaAddPix(pixa_display, pix_solid, L_CLONE);
-    }
-    pix_hollow = pixSubtract(nullptr, pix_closed, pix_solid);
-
-    pix_solid.destroy();
-
-    // Now open up in both directions independently to find lines of at least
-    // 1 inch/kMinLineLengthFraction in length.
-    if (pixa_display != nullptr) {
-      pixaAddPix(pixa_display, pix_hollow, L_CLONE);
-    }
-    *pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
-    *pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
-
-    pix_hollow.destroy();
-#ifdef USE_OPENCL
+  // Close up small holes, making it less likely that false alarms are found
+  // in thickened text (as it will become more solid) and also smoothing over
+  // some line breaks and nicks in the edges of the lines.
+  pix_closed = pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
+  if (pixa_display != nullptr) {
+    pixaAddPix(pixa_display, pix_closed, L_CLONE);
   }
-#endif
+  // Open up with a big box to detect solid areas, which can then be
+  // subtracted. This is very generous and will leave in even quite wide
+  // lines.
+  Image pix_solid = pixOpenBrick(nullptr, pix_closed, max_line_width, max_line_width);
+  if (pixa_display != nullptr) {
+    pixaAddPix(pixa_display, pix_solid, L_CLONE);
+  }
+  pix_hollow = pixSubtract(nullptr, pix_closed, pix_solid);
+
+  pix_solid.destroy();
+
+  // Now open up in both directions independently to find lines of at least
+  // 1 inch/kMinLineLengthFraction in length.
+  if (pixa_display != nullptr) {
+    pixaAddPix(pixa_display, pix_hollow, L_CLONE);
+  }
+  *pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
+  *pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
+
+  pix_hollow.destroy();
 
   // Lines are sufficiently rare, that it is worth checking for a zero image.
   bool v_empty = pix_vline->isZero();

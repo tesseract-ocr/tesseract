@@ -250,7 +250,7 @@ private:
     std::lock_guard<std::mutex> lock(general_mutex_);
     memory_used_ = memory_used;
   }
-  // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+  // Locks the pages_mutex_ and loads as many pages as will fit into max_memory_
   // starting at index pages_offset_.
   bool ReCachePages();
 

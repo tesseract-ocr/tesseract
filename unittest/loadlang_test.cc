@@ -118,6 +118,9 @@ TEST_P(LoadLanguage, dan) {
 TEST_P(LoadLanguage, deu) {
   LangLoader("deu", GetParam());
 }
+TEST_P(LoadLanguage, deu_latf) {
+  LangLoader("deu_latf", GetParam());
+}
 TEST_P(LoadLanguage, div) {
   LangLoader("div", GetParam());
 }
@@ -156,9 +159,6 @@ TEST_P(LoadLanguage, fin) {
 }
 TEST_P(LoadLanguage, fra) {
   LangLoader("fra", GetParam());
-}
-TEST_P(LoadLanguage, frk) {
-  LangLoader("frk", GetParam());
 }
 TEST_P(LoadLanguage, frm) {
   LangLoader("frm", GetParam());

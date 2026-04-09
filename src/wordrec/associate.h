@@ -32,7 +32,7 @@ namespace tesseract {
 
 class WERD_RES;
 
-// Statisitcs about character widths, gaps and seams.
+// Statistics about character widths, gaps and seams.
 struct AssociateStats {
   AssociateStats() {
     Clear();
@@ -55,13 +55,13 @@ struct AssociateStats {
 
   float shape_cost;               // cost of blob shape
   bool bad_shape;                 // true if the shape of the blob is unacceptable
-  float full_wh_ratio;            // width-to-hight ratio + gap on the right
-  float full_wh_ratio_total;      // sum of width-to-hight ratios
+  float full_wh_ratio;            // width-to-height ratio + gap on the right
+  float full_wh_ratio_total;      // sum of width-to-height ratios
                                   // on the path terminating at this blob
   float full_wh_ratio_var;        // variance of full_wh_ratios on the path
   bool bad_fixed_pitch_right_gap; // true if there is no gap before
                                   // the blob on the right
-  bool bad_fixed_pitch_wh_ratio;  // true if the blobs has width-to-hight
+  bool bad_fixed_pitch_wh_ratio;  // true if the blobs has width-to-height
                                   // ratio > kMaxFixedPitchCharAspectRatio
   int gap_sum;                    // sum of gaps within the blob
 };

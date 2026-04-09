@@ -25,19 +25,19 @@ protected:
   const size_t ListSize = 5;
 };
 
-class Clst : public CLIST_LINK {
+class Clst {
 public:
   Clst(unsigned n) : value(n) {}
   unsigned value;
 };
 
-class Elst : public ELIST_LINK {
+class Elst : public ELIST<Elst>::LINK {
 public:
   Elst(unsigned n) : value(n) {}
   unsigned value;
 };
 
-class Elst2 : public ELIST2_LINK {
+class Elst2 : public ELIST2<Elst2>::LINK {
 public:
   Elst2(unsigned n) : value(n) {}
   unsigned value;
@@ -51,7 +51,7 @@ TEST_F(ListTest, TestCLIST) {
   Clst_CLIST list;
   EXPECT_TRUE(list.empty());
   EXPECT_EQ(list.length(), 0);
-  auto it = CLIST_ITERATOR(&list);
+  auto it = Clst_CLIST::ITERATOR(&list);
   for (unsigned i = 0; i < ListSize; i++) {
     auto *lst = new Clst(i);
     it.add_to_end(lst);
@@ -82,7 +82,7 @@ TEST_F(ListTest, TestELIST) {
   Elst_LIST list;
   EXPECT_TRUE(list.empty());
   EXPECT_EQ(list.length(), 0);
-  auto it = ELIST_ITERATOR(&list);
+  auto it = ELIST<Elst>::ITERATOR(&list);
   for (unsigned i = 0; i < ListSize; i++) {
     auto *elst = new Elst(i);
     it.add_to_end(elst);
@@ -113,7 +113,7 @@ TEST_F(ListTest, TestELIST2) {
   Elst2_LIST list;
   EXPECT_TRUE(list.empty());
   EXPECT_EQ(list.length(), 0);
-  auto it = ELIST2_ITERATOR(&list);
+  auto it = ELIST2<Elst2>::ITERATOR(&list);
   for (unsigned i = 0; i < ListSize; i++) {
     auto *lst = new Elst2(i);
     it.add_to_end(lst);

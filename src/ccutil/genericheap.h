@@ -131,7 +131,7 @@ public:
       Pair hole_pair = heap_[new_size];
       heap_.resize(new_size);
       int hole_index = SiftDown(0, hole_pair);
-      heap_[hole_index] = hole_pair;
+      heap_[hole_index] = std::move(hole_pair);
     } else {
       heap_.resize(new_size);
     }
@@ -195,7 +195,7 @@ public:
     Pair hole_pair = heap_[index];
     index = SiftDown(index, hole_pair);
     index = SiftUp(index, hole_pair);
-    heap_[index] = hole_pair;
+    heap_[index] = std::move(hole_pair);
   }
 
 private:

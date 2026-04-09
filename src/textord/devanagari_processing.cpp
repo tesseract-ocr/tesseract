@@ -38,15 +38,16 @@ INT_VAR(devanagari_split_debuglevel, 0, "Debug level for split shiro-rekha proce
 BOOL_VAR(devanagari_split_debugimage, 0,
          "Whether to create a debug image for split shiro-rekha process.");
 
-ShiroRekhaSplitter::ShiroRekhaSplitter() {
-  orig_pix_ = nullptr;
-  segmentation_block_list_ = nullptr;
-  splitted_image_ = nullptr;
-  global_xheight_ = kUnspecifiedXheight;
-  perform_close_ = false;
-  debug_image_ = nullptr;
-  pageseg_split_strategy_ = NO_SPLIT;
-  ocr_split_strategy_ = NO_SPLIT;
+ShiroRekhaSplitter::ShiroRekhaSplitter() :
+  orig_pix_(nullptr),
+  splitted_image_(nullptr),
+  pageseg_split_strategy_(NO_SPLIT),
+  ocr_split_strategy_(NO_SPLIT),
+  debug_image_(nullptr),
+  segmentation_block_list_(nullptr),
+  global_xheight_(kUnspecifiedXheight),
+  perform_close_(false)
+{
 }
 
 ShiroRekhaSplitter::~ShiroRekhaSplitter() {

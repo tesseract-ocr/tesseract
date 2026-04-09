@@ -268,7 +268,7 @@ bool UNICHARSET::encode_string(const char *str, bool give_up_on_failure,
     }
   }
   if (lengths != nullptr) {
-    *lengths = best_lengths;
+    *lengths = std::move(best_lengths);
   }
   if (encoded_length != nullptr) {
     *encoded_length = str_pos;
@@ -824,7 +824,7 @@ bool UNICHARSET::load_via_fgets(
     stream >> std::setw(255) >> unichar >> std::hex >> properties >> std::dec;
     // stream.flags(std::ios::dec);
     if (stream.fail()) {
-      fprintf(stderr, "%s:%u failed\n", __FILE__, __LINE__);
+      fprintf(stderr, "%s:%d failed\n", __FILE__, __LINE__);
       return false;
     }
     auto position = stream.tellg();

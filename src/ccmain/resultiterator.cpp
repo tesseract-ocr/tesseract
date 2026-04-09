@@ -20,6 +20,7 @@
 
 #include <tesseract/resultiterator.h>
 
+#include "helpers.h"  // for copy_string
 #include "pageres.h"
 #include "tesseractclass.h"
 #include "unicharset.h"
@@ -681,10 +682,7 @@ char *ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       }
     } break;
   }
-  int length = text.length() + 1;
-  char *result = new char[length];
-  strncpy(result, text.c_str(), length);
-  return result;
+  return copy_string(text);
 }
 std::vector<std::vector<std::vector<std::pair<const char *, float>>>>
     *ResultIterator::GetRawLSTMTimesteps() const {

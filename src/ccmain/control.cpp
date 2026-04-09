@@ -41,6 +41,7 @@
 #endif
 #include "sorthelper.h"
 #include "tesseractclass.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tessvars.h"
 #include "werdit.h"
 
@@ -51,13 +52,14 @@ const char *const kBackUpConfigFile = "tempconfigdata.config";
 const double kMinRefitXHeightFraction = 0.5;
 #endif // ! DISABLED_LEGACY_ENGINE
 
+namespace tesseract {
+
 /**
  * Make a word from the selected blobs and run Tess on them.
  *
  * @param page_res recognise blobs
  * @param selection_box within this box
  */
-namespace tesseract {
 
 void Tesseract::recog_pseudo_word(PAGE_RES *page_res, TBOX &selection_box) {
   PAGE_RES_IT *it = make_pseudo_word(page_res, selection_box);
@@ -480,8 +482,8 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
     std::vector<WERD_CHOICE *> overrides_word1;
     std::vector<WERD_CHOICE *> overrides_word2;
 
-    const auto orig_w1_str = w_prev->best_choice->unichar_string();
-    const auto orig_w2_str = w->best_choice->unichar_string();
+    const auto &orig_w1_str = w_prev->best_choice->unichar_string();
+    const auto &orig_w2_str = w->best_choice->unichar_string();
     WERD_CHOICE prev_best(w->uch_set);
     {
       int w1start, w1end;
@@ -555,8 +557,8 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         }
         continue;
       }
-      const auto new_w1_str = overrides_word1[best_idx]->unichar_string();
-      const auto new_w2_str = overrides_word2[best_idx]->unichar_string();
+      const auto &new_w1_str = overrides_word1[best_idx]->unichar_string();
+      const auto &new_w2_str = overrides_word2[best_idx]->unichar_string();
       if (new_w1_str != orig_w1_str) {
         w_prev->ReplaceBestChoice(overrides_word1[best_idx]);
       }
@@ -949,6 +951,7 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
   }
   real_word->AddSelectedOutlines(wanted, wanted_blobs, wanted_outlines, nullptr);
   AssignDiacriticsToNewBlobs(outlines, pass, real_word, pr_it, &word_wanted, &target_blobs);
+  // TODO: check code.
   int non_overlapped = 0;
   int non_overlapped_used = 0;
   for (unsigned i = 0; i < word_wanted.size(); ++i) {
@@ -960,7 +963,7 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next
     }
   }
   if (debug_noise_removal) {
-    tprintf("Used %d/%d overlapped %d/%d non-overlaped diacritics on word:", num_overlapped_used,
+    tprintf("Used %d/%d overlapped %d/%d non-overlapped diacritics on word:", num_overlapped_used,
             num_overlapped, non_overlapped_used, non_overlapped);
     real_word->bounding_box().print();
   }
@@ -1121,9 +1124,9 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
                                             C_BLOB *blob,
                                             const std::vector<C_OUTLINE *> &outlines,
                                             int num_outlines, std::vector<bool> *ok_outlines) {
-  std::string best_str;
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
+    std::string best_str;
     float target_c2;
     target_cert = ClassifyBlobAsWord(pass, pr_it, blob, best_str, &target_c2);
     if (debug_noise_removal) {
@@ -1311,7 +1314,11 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
   PointerVector<WERD_RES> best_words;
   // Points to the best result. May be word or in lang_words.
   const WERD_RES *word = word_data->word;
-  clock_t start_t = clock();
+  clock_t total_time = 0;
+  const bool timing_debug = tessedit_timing_debug;
+  if (timing_debug) {
+    total_time = clock();
+  }
   const bool debug = classify_debug_level > 0 || multilang_debug_level > 0;
   if (debug) {
     tprintf("%s word with lang %s at:", word->done ? "Already done" : "Processing",
@@ -1363,10 +1370,10 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
   } else {
     tprintf("no best words!!\n");
   }
-  clock_t ocr_t = clock();
-  if (tessedit_timing_debug) {
-    tprintf("%s (ocr took %.2f sec)\n", word_data->word->best_choice->unichar_string().c_str(),
-            static_cast<double>(ocr_t - start_t) / CLOCKS_PER_SEC);
+  if (timing_debug) {
+    total_time = clock() - total_time;
+    tesserr << word_data->word->best_choice->unichar_string()
+            << " (ocr took " << 1000 * total_time / CLOCKS_PER_SEC << " ms)\n";
   }
 }
 
@@ -1797,9 +1804,6 @@ not_a_word:
 }
 
 bool Tesseract::check_debug_pt(WERD_RES *word, int location) {
-  bool show_map_detail = false;
-  int16_t i;
-
   if (!test_pt) {
     return false;
   }
@@ -1811,6 +1815,7 @@ bool Tesseract::check_debug_pt(WERD_RES *word, int location) {
     if (location < 0) {
       return true; // For breakpoint use
     }
+    bool show_map_detail = false;
     tessedit_rejection_debug.set_value(true);
     debug_x_ht_level.set_value(2);
     tprintf("\n\nTESTWD::");
@@ -1864,7 +1869,7 @@ bool Tesseract::check_debug_pt(WERD_RES *word, int location) {
       tprintf("\n");
       if (show_map_detail) {
         tprintf("\"%s\"\n", word->best_choice->unichar_string().c_str());
-        for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
+        for (unsigned i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
           tprintf("**** \"%c\" ****\n", word->best_choice->unichar_string()[i]);
           word->reject_map[i].full_print(debug_fp);
         }
@@ -1891,13 +1896,12 @@ static void find_modal_font( // good chars in word
     int16_t *font_out,       // output font
     int8_t *font_count       // output count
 ) {
-  int16_t font;  // font index
-  int32_t count; // pile count
-
   if (fonts->get_total() > 0) {
-    font = static_cast<int16_t>(fonts->mode());
+    // font index
+    int16_t font = static_cast<int16_t>(fonts->mode());
     *font_out = font;
-    count = fonts->pile_count(font);
+    // pile count
+    int32_t count = fonts->pile_count(font);
     *font_count = count < INT8_MAX ? count : INT8_MAX;
     fonts->add(font, -*font_count);
   } else {

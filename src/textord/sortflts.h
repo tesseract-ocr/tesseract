@@ -23,7 +23,7 @@
 
 namespace tesseract {
 
-class SORTED_FLOAT : public ELIST_LINK {
+class SORTED_FLOAT : public ELIST<SORTED_FLOAT>::LINK {
   friend class SORTED_FLOATS;
 
 public:

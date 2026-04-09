@@ -16,7 +16,6 @@
 #include "include_gunit.h"
 #include "log.h" // for LOG
 #include "serialis.h"
-#include "tprintf.h"
 #include "unicharcompress.h"
 
 namespace tesseract {
@@ -210,7 +209,7 @@ TEST_F(UnicharcompressTest, DoesLigaturesWithDoubles) {
   LoadUnicharset("por.unicharset");
   ExpectCorrect("por");
   // Check that any unichar-id that is encoded with multiple codes has the
-  // correct encoded_nulll_char_ in between.
+  // correct encoded_null_char_ in between.
   for (int u = 0; u <= unicharset_.size(); ++u) {
     RecodedCharID code;
     int len = compressed_.EncodeUnichar(u, &code);

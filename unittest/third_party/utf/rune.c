@@ -12,9 +12,9 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 #include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include "third_party/utf/utf.h"
-#include "third_party/utf/utfdef.h"
 
 enum {
   Bit1 = 7,
@@ -74,7 +74,7 @@ int charntorune(Rune *rune, const char *str, int length) {
    * one character sequence (7-bit value)
    *	00000-0007F => T1
    */
-  c = *(uchar *)str;
+  c = *(uint8_t *)str;
   if (c < Tx) {
     *rune = c;
     return 1;
@@ -89,7 +89,7 @@ int charntorune(Rune *rune, const char *str, int length) {
    * two character sequence (11-bit value)
    *	0080-07FF => T2 Tx
    */
-  c1 = *(uchar *)(str + 1) ^ Tx;
+  c1 = *(uint8_t *)(str + 1) ^ Tx;
   if (c1 & Testx)
     goto bad;
   if (c < T3) {
@@ -111,7 +111,7 @@ int charntorune(Rune *rune, const char *str, int length) {
    * three character sequence (16-bit value)
    *	0800-FFFF => T3 Tx Tx
    */
-  c2 = *(uchar *)(str + 2) ^ Tx;
+  c2 = *(uint8_t *)(str + 2) ^ Tx;
   if (c2 & Testx)
     goto bad;
   if (c < T4) {
@@ -129,7 +129,7 @@ int charntorune(Rune *rune, const char *str, int length) {
    * four character sequence (21-bit value)
    *	10000-1FFFFF => T4 Tx Tx Tx
    */
-  c3 = *(uchar *)(str + 3) ^ Tx;
+  c3 = *(uint8_t *)(str + 3) ^ Tx;
   if (c3 & Testx)
     goto bad;
   if (c < T5) {
@@ -168,7 +168,7 @@ int chartorune(Rune *rune, const char *str) {
    * one character sequence
    *	00000-0007F => T1
    */
-  c = *(uchar *)str;
+  c = *(uint8_t *)str;
   if (c < Tx) {
     *rune = c;
     return 1;
@@ -178,7 +178,7 @@ int chartorune(Rune *rune, const char *str) {
    * two character sequence
    *	0080-07FF => T2 Tx
    */
-  c1 = *(uchar *)(str + 1) ^ Tx;
+  c1 = *(uint8_t *)(str + 1) ^ Tx;
   if (c1 & Testx)
     goto bad;
   if (c < T3) {
@@ -195,7 +195,7 @@ int chartorune(Rune *rune, const char *str) {
    * three character sequence
    *	0800-FFFF => T3 Tx Tx
    */
-  c2 = *(uchar *)(str + 2) ^ Tx;
+  c2 = *(uint8_t *)(str + 2) ^ Tx;
   if (c2 & Testx)
     goto bad;
   if (c < T4) {
@@ -210,7 +210,7 @@ int chartorune(Rune *rune, const char *str) {
    * four character sequence (21-bit value)
    *	10000-1FFFFF => T4 Tx Tx Tx
    */
-  c3 = *(uchar *)(str + 3) ^ Tx;
+  c3 = *(uint8_t *)(str + 3) ^ Tx;
   if (c3 & Testx)
     goto bad;
   if (c < T5) {
@@ -304,7 +304,7 @@ int runelen(Rune rune) {
 
 int runenlen(const Rune *r, int nrune) {
   int nb;
-  ulong c; /* Rune is signed, so use unsigned for range check. */
+  unsigned long c; /* Rune is signed, so use unsigned for range check. */
 
   nb = 0;
   while (nrune--) {
@@ -325,7 +325,7 @@ int runenlen(const Rune *r, int nrune) {
 
 int fullrune(const char *str, int n) {
   if (n > 0) {
-    int c = *(uchar *)str;
+    int c = *(uint8_t *)str;
     if (c < Tx)
       return 1;
     if (n > 1) {

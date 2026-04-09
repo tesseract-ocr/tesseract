@@ -43,7 +43,7 @@ const double kMaxPerimeterWidthRatio = 8.0;
  **********************************************************************/
 static void position_outline( // put in place
     C_OUTLINE *outline,       // thing to place
-    C_OUTLINE_LIST *destlist  // desstination list
+    C_OUTLINE_LIST *destlist  // destination list
 ) {
   C_OUTLINE_IT it = destlist; // iterator
                               // iterator on children

@@ -64,7 +64,7 @@ ELISTIZEH(TabConstraint)
 // on a list of constraints. The list itself is cooperatively owned
 // by the TabVectors of the constraints on the list and managed
 // by implicit reference counting via the elements of the list.
-class TabConstraint : public ELIST_LINK {
+class TabConstraint : public ELIST<TabConstraint>::LINK {
 public:
   // This empty constructor is here only so that the class can be ELISTIZED.
   // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
@@ -102,7 +102,7 @@ private:
 
 // Class to hold information about a single vector
 // that represents a tab stop or a rule line.
-class TabVector : public ELIST2_LINK {
+class TabVector : public ELIST2<TabVector>::LINK {
 public:
   // TODO(rays) fix this in elst.h line 1076, where it should use the
   // copy constructor instead of operator=.
@@ -286,9 +286,7 @@ public:
   }
 
   // Sort function for E2LIST::sort to sort by sort_key_.
-  static int SortVectorsByKey(const void *v1, const void *v2) {
-    const TabVector *tv1 = *static_cast<const TabVector *const *>(v1);
-    const TabVector *tv2 = *static_cast<const TabVector *const *>(v2);
+  static int SortVectorsByKey(const TabVector *tv1, const TabVector *tv2) {
     return tv1->sort_key_ - tv2->sort_key_;
   }
 

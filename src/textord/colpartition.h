@@ -64,7 +64,7 @@ CLISTIZEH(ColPartition)
  * to a given y-coordinate range, eventually, a ColPartitionSet of ColPartitions
  * emerges, which represents the columns over a wide y-coordinate range.
  */
-class TESS_API ColPartition : public ELIST2_LINK {
+class TESS_API ColPartition : public ELIST2<ColPartition>::LINK {
 public:
   // This empty constructor is here only so that the class can be ELISTIZED.
   // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
@@ -709,9 +709,7 @@ public:
   bool IsInSameColumnAs(const ColPartition &part) const;
 
   // Sort function to sort by bounding box.
-  static int SortByBBox(const void *p1, const void *p2) {
-    const ColPartition *part1 = *static_cast<const ColPartition *const *>(p1);
-    const ColPartition *part2 = *static_cast<const ColPartition *const *>(p2);
+  static int SortByBBox(const ColPartition *part1, const ColPartition *part2) {
     int mid_y1 = part1->bounding_box_.y_middle();
     int mid_y2 = part2->bounding_box_.y_middle();
     if ((part2->bounding_box_.bottom() <= mid_y1 &&

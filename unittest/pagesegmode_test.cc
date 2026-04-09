@@ -9,13 +9,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if defined(_WIN32)
-#  include <io.h> // for _access
-#else
-#  include <unistd.h> // for access
-#endif
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
+#include <filesystem>
 #include <string>
 #include "helpers.h"
 #include "include_gunit.h"
@@ -23,15 +19,6 @@
 #include "log.h"
 
 namespace tesseract {
-
-// Replacement for std::filesystem::exists (C++-17)
-static bool file_exists(const char *filename) {
-#if defined(_WIN32)
-  return _access(filename, 0) == 0;
-#else
-  return access(filename, 0) == 0;
-#endif
-}
 
 // The fixture for testing Tesseract.
 class PageSegModeTest : public testing::Test {
@@ -86,7 +73,7 @@ protected:
 // and differently to line and block mode.
 TEST_F(PageSegModeTest, WordTest) {
   std::string filename = file::JoinPath(TESTING_DIR, "segmodeimg.tif");
-  if (!file_exists(filename.c_str())) {
+  if (!std::filesystem::exists(filename)) {
     LOG(INFO) << "Skip test because of missing " << filename << '\n';
     GTEST_SKIP();
   } else {

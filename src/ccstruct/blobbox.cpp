@@ -883,7 +883,7 @@ void vertical_cblob_projection( // project outlines
 /**********************************************************************
  * vertical_coutline_projection
  *
- * Compute the vertical projection of a outline from its outlines
+ * Compute the vertical projection of an outline from its outlines
  * and add to the given STATS.
  **********************************************************************/
 

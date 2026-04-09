@@ -26,6 +26,7 @@
 #include <tesseract/unichar.h>
 #include "pageres.h"
 #include "tesseractclass.h"
+#include "tesserrstream.h"  // for tesserr
 #include "unicharset.h"
 
 #ifndef DISABLED_LEGACY_ENGINE
@@ -258,10 +259,10 @@ void Tesseract::MaximallyChopWord(const std::vector<TBOX> &boxes, BLOCK *block, 
   }
   const double e = exp(1.0); // The base of natural logs.
   unsigned blob_number;
-  int right_chop_index = 0;
   if (!assume_fixed_pitch_char_segment) {
     // We only chop if the language is not fixed pitch like CJK.
     SEAM *seam = nullptr;
+    int right_chop_index = 0;
     while ((seam = chop_one_blob(boxes, blob_choices, word_res, &blob_number)) != nullptr) {
       word_res->InsertSeam(blob_number, seam);
       BLOB_CHOICE *left_choice = blob_choices[blob_number];
@@ -652,9 +653,10 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
     if (choices_pos + length == choices_length && text_index + 1 == target_text.size()) {
       // This is a complete match. If the rating is good record a new best.
       if (applybox_debug > 2) {
-        tprintf("Complete match, rating = %g, best=%g, seglength=%zu, best=%zu\n",
-                rating + choice_rating, *best_rating, segmentation->size(),
-                best_segmentation->size());
+        tesserr << "Complete match, rating = " << rating + choice_rating
+                << ", best=" << *best_rating
+                << ", seglength=" << segmentation->size()
+                << ", best=" << best_segmentation->size() << '\n';
       }
       if (best_segmentation->empty() || rating + choice_rating < *best_rating) {
         *best_segmentation = *segmentation;
@@ -685,6 +687,7 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
 void Tesseract::TidyUp(PAGE_RES *page_res) {
   int ok_blob_count = 0;
   int bad_blob_count = 0;
+  // TODO: check usage of ok_word_count.
   int ok_word_count = 0;
   int unlabelled_words = 0;
   PAGE_RES_IT pr_it(page_res);

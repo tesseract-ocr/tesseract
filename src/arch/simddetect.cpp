@@ -61,7 +61,13 @@
 #    include <sys/auxv.h>
 #  elif defined(HAVE_ELF_AUX_INFO)
 #    include <sys/auxv.h>
-#    include <sys/elf.h>
+#  endif
+#endif
+
+#if defined(HAVE_RVV)
+#  if defined(HAVE_GETAUXVAL) || defined(HAVE_ELF_AUX_INFO)
+#    include <sys/auxv.h>
+#    define HWCAP_RV(letter) (1ul << ((letter) - 'A'))
 #  endif
 #endif
 
@@ -89,6 +95,8 @@ bool SIMDDetect::neon_available_ = true;
 #elif defined(HAVE_NEON)
 // If true, then Neon has been detected.
 bool SIMDDetect::neon_available_;
+#elif defined(HAVE_RVV)
+bool SIMDDetect::rvv_available_;
 #else
 // If true, then AVX has been detected.
 bool SIMDDetect::avx_available_;
@@ -231,6 +239,17 @@ SIMDDetect::SIMDDetect() {
 #  endif
 #endif
 
+#if defined(HAVE_RVV)
+#  if defined(HAVE_GETAUXVAL)
+  const unsigned long hwcap = getauxval(AT_HWCAP);
+  rvv_available_ = hwcap & HWCAP_RV('V');
+#  elif defined(HAVE_ELF_AUX_INFO)
+  unsigned long hwcap = 0;
+  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  rvv_available_ = hwcap & HWCAP_RV('V');
+#  endif
+#endif
+
   // Select code for calculation of dot product based on autodetection.
   if (false) {
     // This is a dummy to support conditional compilation.
@@ -258,6 +277,10 @@ SIMDDetect::SIMDDetect() {
   } else if (neon_available_) {
     // NEON detected.
     SetDotProduct(DotProductNEON, &IntSimdMatrix::intSimdMatrixNEON);
+#endif
+#if defined(HAVE_RVV)
+  } else if (rvv_available_) {
+    SetDotProduct(DotProductGeneric, &IntSimdMatrix::intSimdMatrixRVV);
 #endif
   }
 

@@ -51,7 +51,7 @@ static const int kSampleScaleSize = 3;
 static const int kSampleRandomSize = kSampleYShiftSize * kSampleScaleSize - 2;
 // ASSERT_IS_PRIME(kSampleRandomSize) !!
 
-class TESS_API TrainingSample : public ELIST_LINK {
+class TESS_API TrainingSample : public ELIST<TrainingSample>::LINK {
 public:
   TrainingSample()
       : class_id_(INVALID_UNICHAR_ID)

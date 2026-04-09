@@ -386,7 +386,7 @@ bool StringRenderer::GetClusterStrings(std::vector<std::string> *cluster_text) {
         // decided to use an unmapped glyph.
         text = LigatureTable::Get()->AddLigatures(text, nullptr);
       }
-      start_byte_to_text[start_byte_index] = text;
+      start_byte_to_text[start_byte_index] = std::move(text);
     }
   } while (pango_layout_iter_next_run(run_iter));
   pango_layout_iter_free(run_iter);

@@ -8,7 +8,8 @@
 #
 # ##############################################################################
 
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+# Require CMake 3.18 for modern features like precompiled headers, unity builds, and better target management
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 # In-source builds are disabled.
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -83,12 +84,23 @@ if(WIN32)
 else()
   option(SW_BUILD "Build with sw" OFF)
 endif()
+
+# Apple's toolchains dont populate CMAKE_SYSTEM_PROCESSOR when crosscompiling
+# instead it uses CMAKE_OSX_ARCHITECTURES which can contain multiple architectures
+if(APPLE AND NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_OSX_ARCHITECTURES)
+  list(LENGTH CMAKE_OSX_ARCHITECTURES NO_OF_ARCH)
+  if(NO_OF_ARCH GREATER 1)
+    message(FATAL_ERROR "Apple's universal build for ${NO_OF_ARCH} architectures not supported. CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+  endif()
+  set(CMAKE_SYSTEM_PROCESSOR "${CMAKE_OSX_ARCHITECTURES}" CACHE STRING "Target processor" FORCE)
+  message(STATUS "CMAKE_SYSTEM_PROCESSOR set to '${CMAKE_SYSTEM_PROCESSOR}' from CMAKE_OSX_ARCHITECTURES")
+endif()
+
 option(OPENMP_BUILD "Build with openmp support" OFF) # see issue #1662
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(ENABLE_LTO "Enable link-time optimization" OFF)
 option(FAST_FLOAT "Enable float for LSTM" ON)
-option(ENABLE_OPENCL "Enable unsupported experimental OpenCL support" OFF)
 option(ENABLE_NATIVE
        "Enable optimization for host CPU (could break HW compatibility)" OFF)
 # see
@@ -101,11 +113,12 @@ option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
 option(DISABLE_CURL "Disable build with libcurl (if available)" OFF)
 option(INSTALL_CONFIGS "Install tesseract configs" ON)
 
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
-  if(WIN32 AND MSVC)
-    option(WIN32_MT_BUILD "Build with MT flag for MSVC" OFF)
-  endif()
-endif()
+# Build optimization options
+option(ENABLE_UNITY_BUILD "Enable Unity/Jumbo builds for faster compilation" OFF)
+option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers for faster compilation" ON)
+option(ENABLE_CCACHE "Enable ccache for faster incremental builds" ON)
+option(ENABLE_NINJA_POOL "Enable Ninja job pools to manage parallelism" ON)
+
 
 # ##############################################################################
 #
@@ -283,10 +296,12 @@ endif()
 # Compiler specific environment
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
   set(CMAKE_CXX_FLAGS_DEBUG
-      "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -Og")
+      "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG -pedantic -Og -Wno-unknown-pragmas")
 elseif(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE) # strdup
+  add_definitions(-D_USE_MATH_DEFINES) # Enable M_PI and other math constants
+  add_definitions(-DNOMINMAX) # Prevent min/max macro conflicts
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
   if(NOT CLANG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -307,6 +322,10 @@ elseif(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     message(STATUS "Building with static CRT.")
   endif()
+  # Workaround: When building on VS 2022 17.10 or newer, but using an older runtime,
+  # mutexes can crash
+  # https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio
+  add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 endif()
 if(CLANG) # clang all platforms
   set(CMAKE_CXX_FLAGS_RELEASE
@@ -321,7 +340,10 @@ if(OPENMP_BUILD
   set(OPENMP_BUILD OFF)
 endif()
 if(OPENMP_BUILD)
-  find_package(OpenMP QUIET)
+  if(MSVC)  # supported from cmake 3.30
+    set(OpenMP_RUNTIME_MSVC "llvm")
+  endif(MSVC)
+  find_package(OpenMP)
   # https://stackoverflow.com/questions/12399422
   # how-to-set-linker-flags-for-openmp-in-cmakes-try-compile-function
   if(NOT OpenMP_FOUND
@@ -372,6 +394,47 @@ add_definitions("-DCMAKE_BUILD")
 
 # ##############################################################################
 #
+# Build optimizations
+#
+# ##############################################################################
+
+# Setup ccache if available and enabled
+if(ENABLE_CCACHE)
+  find_program(CCACHE_PROGRAM ccache)
+  if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    # Configure ccache for better performance
+    set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
+    set(ENV{CCACHE_CPP2} "true")
+  else()
+    message(STATUS "ccache not found, disabling ccache support")
+    set(ENABLE_CCACHE OFF)
+  endif()
+endif()
+
+# Setup Ninja job pools for better resource management
+if(ENABLE_NINJA_POOL AND CMAKE_GENERATOR STREQUAL "Ninja")
+  include(ProcessorCount)
+  ProcessorCount(N)
+  if(N GREATER 1)
+    # Use 75% of available cores for compilation, rest for linking
+    math(EXPR COMPILE_JOBS "${N} * 3 / 4")
+    math(EXPR LINK_JOBS "${N} - ${COMPILE_JOBS}")
+    if(LINK_JOBS LESS 1)
+      set(LINK_JOBS 1)
+    endif()
+
+    set_property(GLOBAL PROPERTY JOB_POOLS "compile=${COMPILE_JOBS};link=${LINK_JOBS}")
+    set(CMAKE_JOB_POOL_COMPILE compile)
+    set(CMAKE_JOB_POOL_LINK link)
+    message(STATUS "Ninja job pools: compile=${COMPILE_JOBS}, link=${LINK_JOBS}")
+  endif()
+endif()
+
+# ##############################################################################
+#
 # packages
 #
 # ##############################################################################
@@ -393,6 +456,13 @@ if(SW_BUILD)
   sw_execute()
 else()
   find_package(PkgConfig)
+  if(APPLE)
+    if(DEFINED ENV{HOMEBREW_PREFIX})
+      set(HOMEBREW_PREFIX $ENV{HOMEBREW_PREFIX})
+      set(PKG_CONFIG_PATH "${HOMEBREW_PREFIX}/opt/icu4c/lib/pkgconfig:${HOMEBREW_PREFIX}/opt/libarchive/lib/pkgconfig")
+      set(ENV{PKG_CONFIG_PATH} "${PKG_CONFIG_PATH}")
+    endif()
+  endif()
   # Check for required library. option -DLeptonica_DIR=path => cmake hint where
   # to find leptonica
   find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
@@ -460,18 +530,6 @@ else()
   endif(DISABLE_CURL)
 endif()
 
-if(ENABLE_OPENCL)
-  find_package(OpenCL)
-  if(OpenCL_FOUND)
-    include_directories(${OpenCL_INCLUDE_DIRS})
-    message(STATUS "OpenCL_INCLUDE_DIRS: ${OpenCL_INCLUDE_DIRS}")
-    message(STATUS "OpenCL_LIBRARY: ${OpenCL_LIBRARY}")
-    set(USE_OPENCL ON)
-  else()
-    set(USE_OPENCL OFF)
-  endif(OpenCL_FOUND)
-endif(ENABLE_OPENCL)
-
 # ##############################################################################
 #
 # configure
@@ -484,9 +542,7 @@ else()
   set(DOTPRODUCT_FLAGS "${DOTPRODUCT_FLAGS} -O3 -ffast-math")
 endif()
 
-if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-  set(CMAKE_INSTALL_LIBDIR lib)
-endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+include (GNUInstallDirs)
 
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
@@ -497,13 +553,13 @@ if(GRAPHICS_DISABLED)
 endif()
 set(CMAKE_REQUIRED_INCLUDES
     ${CMAKE_REQUIRED_INCLUDES} "${CMAKE_PREFIX_PATH}/include"
-    "${CMAKE_INSTALL_PREFIX}/include")
+    ${CMAKE_INSTALL_INCLUDEDIR})
 include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-set(LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+set(INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
+set(LIBRARY_DIRS ${CMAKE_INSTALL_LIBDIR})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/tesseract/version.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/tesseract/version.h @ONLY)
@@ -534,6 +590,7 @@ message(STATUS "General configuration for Tesseract ${PACKAGE_VERSION}")
 message(STATUS "--------------------------------------------------------")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE} ${BUILD_ARCH}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Used standard: C++${CMAKE_CXX_STANDARD}")
 message(STATUS "CXX compiler options: ${COMPILER_FLAGS}")
 get_directory_property(DirCompDefs COMPILE_DEFINITIONS)
@@ -565,14 +622,19 @@ message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
 message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
-if(ENABLE_OPENCL)
-  message(
-    STATUS
-      "Enable unsupported experimental OpenCL [ENABLE_OPENCL]: ${USE_OPENCL}")
-endif(ENABLE_OPENCL)
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message(
   STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
+message(STATUS "--------------------------------------------------------")
+message(STATUS "Modern build optimizations:")
+message(STATUS "Unity build [ENABLE_UNITY_BUILD]: ${ENABLE_UNITY_BUILD}")
+message(STATUS "Precompiled headers [ENABLE_PRECOMPILED_HEADERS]: ${ENABLE_PRECOMPILED_HEADERS}")
+message(STATUS "ccache [ENABLE_CCACHE]: ${ENABLE_CCACHE}")
+if(CMAKE_GENERATOR STREQUAL "Ninja")
+  message(STATUS "Ninja job pools [ENABLE_NINJA_POOL]: ${ENABLE_NINJA_POOL}")
+else()
+  message(STATUS "Ninja job pools [ENABLE_NINJA_POOL]: Disabled (not using Ninja)")
+endif()
 message(STATUS "--------------------------------------------------------")
 message(STATUS)
 
@@ -598,20 +660,11 @@ endif()
 # LIBRARY tesseract
 # ##############################################################################
 
-file(
-  GLOB
-  TESSERACT_SRC
-  src/ccmain/*.cpp
-  src/ccstruct/*.cpp
-  src/ccutil/*.cpp
-  src/classify/*.cpp
-  src/cutil/*.cpp
-  src/dict/*.cpp
-  src/lstm/*.cpp
-  src/opencl/*.cpp
-  src/textord/*.cpp
-  src/viewer/*.cpp
-  src/wordrec/*.cpp)
+# Include source file lists
+include(cmake/SourceLists.cmake)
+
+# Build the core source file list
+set(TESSERACT_SRC ${TESSERACT_SRC_CORE})
 
 if(DISABLED_LEGACY_ENGINE)
   # prepend path to list of source files
@@ -692,8 +745,8 @@ if(DISABLED_LEGACY_ENGINE)
   list(REMOVE_ITEM TESSERACT_SRC ${TESSERACT_SRC_LEGACY})
 endif(DISABLED_LEGACY_ENGINE)
 
-list(APPEND arch_files src/arch/dotproduct.cpp src/arch/simddetect.cpp
-     src/arch/intsimdmatrix.cpp)
+# Use architecture files from SourceLists.cmake
+set(arch_files ${TESSERACT_SRC_ARCH})
 
 if(DOTPRODUCT_FLAGS)
   set_source_files_properties(src/arch/dotproduct.cpp
@@ -737,22 +790,8 @@ if(HAVE_NEON)
   endif()
 endif(HAVE_NEON)
 
-file(
-  GLOB_RECURSE
-  TESSERACT_HDR
-  include/*
-  src/arch/*.h
-  src/ccmain/*.h
-  src/ccstruct/*.h
-  src/ccutil/*.h
-  src/classify/*.h
-  src/cutil/*.h
-  src/dict/*.h
-  src/lstm/*.h
-  src/opencl/*.h
-  src/textord/*.h
-  src/viewer/*.h
-  src/wordrec/*.h)
+# Use explicit header file lists from SourceLists.cmake
+set(TESSERACT_HDR ${TESSERACT_HDR_INCLUDE} ${TESSERACT_HDR_INTERNAL})
 
 set(TESSERACT_SRC
     ${TESSERACT_SRC}
@@ -760,6 +799,7 @@ set(TESSERACT_SRC
     src/api/capi.cpp
     src/api/renderer.cpp
     src/api/altorenderer.cpp
+    src/api/pagerenderer.cpp
     src/api/hocrrenderer.cpp
     src/api/lstmboxrenderer.cpp
     src/api/pdfrenderer.cpp
@@ -784,6 +824,7 @@ set(TESSERACT_CONFIGS
     tessdata/configs/lstmbox
     tessdata/configs/lstmdebug
     tessdata/configs/makebox
+    tessdata/configs/page
     tessdata/configs/pdf
     tessdata/configs/quiet
     tessdata/configs/rebox
@@ -804,6 +845,55 @@ set(LIBTESSFILES ${TESSERACT_SRC} ${arch_files} ${arch_files_opt}
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${LIBTESSFILES})
 
 add_library(libtesseract ${LIBTESSFILES})
+
+# Apply modern optimizations to the main library
+if(ENABLE_UNITY_BUILD)
+  set_target_properties(libtesseract PROPERTIES UNITY_BUILD ON)
+  set_target_properties(libtesseract PROPERTIES UNITY_BUILD_BATCH_SIZE 16)
+  message(STATUS "Unity build enabled for libtesseract with batch size 16")
+endif()
+
+# Apply precompiled headers to reduce compilation time
+if(ENABLE_PRECOMPILED_HEADERS)
+  target_precompile_headers(libtesseract PRIVATE
+    <vector>
+    <string>
+    <memory>
+    <algorithm>
+    <iostream>
+    <cstdlib>
+    <cstring>
+    <cmath>
+  )
+
+  # Exclude architecture-specific files from PCH due to custom compiler flags
+  set(ARCH_FILES_NO_PCH
+    src/arch/dotproduct.cpp
+    src/arch/dotproductavx.cpp
+    src/arch/dotproductavx512.cpp
+    src/arch/dotproductfma.cpp
+    src/arch/dotproductsse.cpp
+    src/arch/dotproductneon.cpp
+    src/arch/intsimdmatrixavx2.cpp
+    src/arch/intsimdmatrixsse.cpp
+    src/arch/intsimdmatrixneon.cpp
+  )
+
+  foreach(file ${ARCH_FILES_NO_PCH})
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+      set_source_files_properties("${file}" PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+    endif()
+  endforeach()
+
+  message(STATUS "Precompiled headers enabled for libtesseract (excluding architecture-specific files)")
+endif()
+
+# Configure build pools for Ninja
+if(ENABLE_NINJA_POOL AND CMAKE_GENERATOR STREQUAL "Ninja")
+  set_target_properties(libtesseract PROPERTIES JOB_POOL_COMPILE compile)
+  set_target_properties(libtesseract PROPERTIES JOB_POOL_LINK link)
+endif()
+
 target_include_directories(
   libtesseract BEFORE
   PRIVATE src
@@ -816,7 +906,6 @@ target_include_directories(
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/cutil>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/dict>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/lstm>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/opencl>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/textord>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/viewer>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/wordrec>
@@ -831,9 +920,6 @@ endif()
 target_link_libraries(libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 if(OpenMP_CXX_FOUND)
   target_link_libraries(libtesseract PUBLIC OpenMP::OpenMP_CXX)
-endif()
-if(OpenCL_FOUND)
-  target_link_libraries(libtesseract PUBLIC OpenCL::OpenCL)
 endif()
 if(LibArchive_FOUND)
   target_link_libraries(libtesseract PUBLIC ${LibArchive_LIBRARIES})
@@ -851,7 +937,7 @@ set_target_properties(
                           ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set_target_properties(
   libtesseract PROPERTIES SOVERSION
-                          ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+                          ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set_target_properties(
   libtesseract
@@ -915,7 +1001,9 @@ if(BUILD_TESTS
    AND EXISTS
        ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
 )
+  enable_testing()
   add_subdirectory(unittest/third_party/googletest)
+  add_subdirectory(unittest)
 endif()
 
 if(BUILD_TRAINING_TOOLS)
@@ -949,12 +1037,19 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
   RENAME tesseract.pc)
 install(TARGETS tesseract DESTINATION bin)
+if (MSVC)
+  install(FILES $<TARGET_PDB_FILE:${PROJECT_NAME}> DESTINATION bin OPTIONAL)
+endif()
 install(
   TARGETS libtesseract
   EXPORT TesseractTargets
   RUNTIME DESTINATION bin
+  RUNTIME DESTINATION bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if (MSVC AND BUILD_SHARED_LIBS)
+  install(FILES $<TARGET_PDB_FILE:libtesseract> DESTINATION bin OPTIONAL)
+endif()
 install(
   EXPORT TesseractTargets
   NAMESPACE Tesseract::
@@ -980,9 +1075,9 @@ install(
 
 if(INSTALL_CONFIGS)
   install(FILES ${TESSERACT_CONFIGS}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/configs)
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/tessdata/configs)
   install(FILES ${TESSERACT_TESSCONFIGS}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/tessdata/tessconfigs)
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/tessdata/tessconfigs)
 endif()
 
 # ##############################################################################

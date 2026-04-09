@@ -23,6 +23,7 @@
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
+#include "tesserrstream.h"
 #include "trainingsample.h"
 #include "trainingsampleset.h"
 #include "unicity_table.h"
@@ -50,7 +51,10 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
   std::vector<UnicharRating> results;
 
-  clock_t start = clock();
+  clock_t total_time = 0;
+  if (report_level > 1) {
+    total_time = clock();
+  }
   unsigned total_samples = 0;
   double unscaled_error = 0.0;
   // Set a number of samples on which to run the classify debug mode.
@@ -85,7 +89,6 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
     }
     ++total_samples;
   }
-  const double total_time = 1.0 * (clock() - start) / CLOCKS_PER_SEC;
   // Create the appropriate error report.
   unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table, *it,
                                         unichar_error, fonts_report);
@@ -94,8 +97,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
   }
   if (report_level > 1 && total_samples > 0) {
     // It is useful to know the time in microseconds/char.
-    tprintf("Errors computed in %.2fs at %.1f μs/char\n", total_time,
-            1000000.0 * total_time / total_samples);
+    total_time = 1000 * (clock() - total_time) / CLOCKS_PER_SEC;
+    tesserr << "Errors computed in " << total_time << "  ms at "
+            << 1000 * total_time / total_samples << " μs/char\n";
   }
   return unscaled_error;
 }
@@ -114,7 +118,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
   ErrorCounter new_counter(new_classifier->GetUnicharset(), fontsize);
   std::vector<UnicharRating> results;
 
+#if !defined(NDEBUG)
   int total_samples = 0;
+#endif
   int error_samples = 25;
   int total_new_errors = 0;
   // Iterate over all the samples, accumulating errors.
@@ -145,7 +151,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
         }
       }
     }
+#if !defined(NDEBUG)
     ++total_samples;
+#endif
   }
   tprintf("Total new errors = %d\n", total_new_errors);
 }

@@ -86,8 +86,4 @@ void ERRCODE::error(         // handle error
   }
 }
 
-void ERRCODE::error(const char *caller, TessErrorLogCode action) const {
-  error(caller, action, nullptr);
-}
-
 } // namespace tesseract

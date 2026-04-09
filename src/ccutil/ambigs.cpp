@@ -39,12 +39,9 @@ static const char kIllegalUnicharMsg[] = "Illegal unichar %s in ambiguity specif
 //   UNICHAR_LEN * (MAX_AMBIG_SIZE + 1) for each part of the ambig
 const int kMaxAmbigStringSize = UNICHAR_LEN * (MAX_AMBIG_SIZE + 1);
 
-AmbigSpec::AmbigSpec() {
+AmbigSpec::AmbigSpec() : correct_ngram_id(INVALID_UNICHAR_ID), type(NOT_AMBIG), wrong_ngram_size(0) {
   wrong_ngram[0] = INVALID_UNICHAR_ID;
   correct_fragments[0] = INVALID_UNICHAR_ID;
-  correct_ngram_id = INVALID_UNICHAR_ID;
-  type = NOT_AMBIG;
-  wrong_ngram_size = 0;
 }
 
 // Initializes the ambigs by adding a nullptr pointer to each table.
@@ -270,10 +267,10 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     return true;
   }
   int i;
-  char *token;
   char *next_token;
-  if (!(token = strtok_r(buffer, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", test_ambig_part_size) || *test_ambig_part_size <= 0) {
+  char *token = strtok_r(buffer, kAmbigDelimiters, &next_token);
+  if (!token || sscanf(token, "%d", test_ambig_part_size) != 1 ||
+      *test_ambig_part_size <= 0) {
     if (debug_level) {
       tprintf(kIllegalMsg, line_num);
     }
@@ -300,7 +297,8 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
   test_unichar_ids[i] = INVALID_UNICHAR_ID;
 
   if (i != *test_ambig_part_size || !(token = strtok_r(nullptr, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", replacement_ambig_part_size) || *replacement_ambig_part_size <= 0) {
+      sscanf(token, "%d", replacement_ambig_part_size) != 1 ||
+      *replacement_ambig_part_size <= 0) {
     if (debug_level) {
       tprintf(kIllegalMsg, line_num);
     }
@@ -341,7 +339,8 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     // Note that if m > 1, an ngram will be inserted into the
     // modified word, not the individual unigrams. Tesseract
     // has limited support for ngram unichar (e.g. dawg permuter).
-    if (!(token = strtok_r(nullptr, kAmbigDelimiters, &next_token)) || !sscanf(token, "%d", type)) {
+    token = strtok_r(nullptr, kAmbigDelimiters, &next_token);
+    if (!token || sscanf(token, "%d", type) != 1) {
       if (debug_level) {
         tprintf(kIllegalMsg, line_num);
       }

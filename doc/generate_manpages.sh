@@ -25,9 +25,9 @@ if [[ -z "${asciidoc}" ]] || [[ -z "${xsltproc}" ]]; then
 else
   for src in *.asc; do
     pagename=${src/.asc/}
-    (${asciidoc} -d manpage ${src} &&
-     ${asciidoc} -d manpage -b docbook ${src} &&
-       ${xsltproc} --nonet ${man_xslt} ${pagename}.xml) ||
+    (${asciidoc} -d manpage "${src}" &&
+     ${asciidoc} -d manpage -b docbook "${src}" &&
+       ${xsltproc} --nonet ${man_xslt} "${pagename}".xml) ||
        echo "Error generating ${pagename}"
   done
 fi

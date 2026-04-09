@@ -223,7 +223,7 @@ void ROW::plot(        // draw it
  **********************************************************************/
 
 ROW &ROW::operator=(const ROW &source) {
-  this->ELIST_LINK::operator=(source);
+  this->ELIST<ROW>::LINK::operator=(source);
   kerning = source.kerning;
   spacing = source.spacing;
   xheight = source.xheight;

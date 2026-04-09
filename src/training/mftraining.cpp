@@ -249,7 +249,7 @@ int main(int argc, char **argv) {
   }
   std::string inttemp_file = file_prefix;
   inttemp_file += "inttemp";
-  std::string pffmtable_file = file_prefix;
+  std::string pffmtable_file = std::move(file_prefix);
   pffmtable_file += "pffmtable";
   CLASS_STRUCT *float_classes = SetUpForFloat2Int(*unicharset, mf_classes);
   // Now write the inttemp and pffmtable.

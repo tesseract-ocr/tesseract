@@ -70,7 +70,7 @@ int Wordrec::end_recog() {
  * This function holds any necessary post processing for the Wise Owl
  * program.
  */
-void Wordrec::program_editdown(int32_t elasped_time) {
+void Wordrec::program_editdown(int32_t elapsed_time) {
 #ifndef DISABLED_LEGACY_ENGINE
   EndAdaptiveClassifier();
 #endif // ndef DISABLED_LEGACY_ENGINE
@@ -97,7 +97,7 @@ int Wordrec::dict_word(const WERD_CHOICE &word) {
 void Wordrec::set_pass1() {
   chop_ok_split.set_value(70.0);
   language_model_->getParamsModel().SetPass(ParamsModel::PTRAIN_PASS1);
-  SettupPass1();
+  SetupPass1();
 }
 
 /**
@@ -108,7 +108,7 @@ void Wordrec::set_pass1() {
 void Wordrec::set_pass2() {
   chop_ok_split.set_value(pass2_ok_split);
   language_model_->getParamsModel().SetPass(ParamsModel::PTRAIN_PASS2);
-  SettupPass2();
+  SetupPass2();
 }
 
 /**

@@ -27,13 +27,15 @@
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "tprintf.h"    // for tprintf
+#include "tesserrstream.h" // for tesserr
 
 #include "helpers.h"  // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "serialis.h" // for TFile
 
 #include <allheaders.h> // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 
-#include <cinttypes> // for PRId64
+#include <cinttypes>    // for PRId64
+#include <fstream>      // for std::ifstream
 
 namespace tesseract {
 
@@ -524,7 +526,8 @@ void DocumentData::Shuffle() {
   TRand random;
   // Different documents get shuffled differently, but the same for the same
   // name.
-  random.set_seed(document_name_.c_str());
+  std::hash<std::string> hasher;
+  random.set_seed(static_cast<uint64_t>(hasher(document_name_)));
   int num_pages = pages_.size();
   // Execute one random swap for each page in the document.
   for (int i = 0; i < num_pages; ++i) {
@@ -534,7 +537,7 @@ void DocumentData::Shuffle() {
   }
 }
 
-// Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+// Locks the pages_mutex_ and loads as many pages as will fit into max_memory_
 // starting at index pages_offset_.
 bool DocumentData::ReCachePages() {
   std::lock_guard<std::mutex> lock(pages_mutex_);
@@ -546,6 +549,31 @@ bool DocumentData::ReCachePages() {
     delete page;
   }
   pages_.clear();
+#if !defined(TESSERACT_IMAGEDATA_AS_PIX)
+  auto name_size = document_name_.size();
+  if (name_size > 4 && document_name_.substr(name_size - 4) == ".png") {
+    // PNG image given instead of LSTMF file.
+    std::string gt_name = document_name_.substr(0, name_size - 3) + "gt.txt";
+    std::ifstream t(gt_name);
+    std::string line;
+    std::getline(t, line);
+    t.close();
+    ImageData *image_data = ImageData::Build(document_name_.c_str(), 0, "", nullptr, 0, line.c_str(), nullptr);
+    Image image = pixRead(document_name_.c_str());
+    image_data->SetPix(image);
+    pages_.push_back(image_data);
+    loaded_pages = 1;
+    pages_offset_ %= loaded_pages;
+    set_total_pages(loaded_pages);
+    set_memory_used(memory_used() + image_data->MemoryUsed());
+#if 0
+    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
+            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
+            document_name_.c_str());
+#endif
+    return !pages_.empty();
+  }
+#endif
   TFile fp;
   if (!fp.Open(document_name_.c_str(), reader_) ||
       !fp.DeSerializeSize(&loaded_pages) || loaded_pages <= 0) {
@@ -592,9 +620,10 @@ bool DocumentData::ReCachePages() {
     pages_.clear();
   } else if (loaded_pages > 1) {
     // Avoid lots of messages for training with single line images.
-    tprintf("Loaded %zu/%d lines (%d-%zu) of document %s\n", pages_.size(),
-            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
-            document_name_.c_str());
+    tesserr << "Loaded " << pages_.size() << '/' << loaded_pages << " lines ("
+            << pages_offset_ + 1 << '-'
+            << pages_offset_ + pages_.size() << ") of document "
+            << document_name_ << '\n';
   }
   set_total_pages(loaded_pages);
   return !pages_.empty();

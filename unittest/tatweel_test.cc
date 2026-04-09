@@ -9,12 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if defined(_WIN32)
-#  include <io.h> // for _access
-#else
-#  include <unistd.h> // for access
-#endif
-
+#include <filesystem>
 #include "dawg.h"
 #include "include_gunit.h"
 #include "trie.h"
@@ -22,15 +17,6 @@
 #include "util/utf8/unicodetext.h" // for UnicodeText
 
 namespace tesseract {
-
-// Replacement for std::filesystem::exists (C++-17)
-static bool file_exists(const char *filename) {
-#if defined(_WIN32)
-  return _access(filename, 0) == 0;
-#else
-  return access(filename, 0) == 0;
-#endif
-}
 
 class TatweelTest : public ::testing::Test {
 protected:
@@ -41,7 +27,7 @@ protected:
 
   TatweelTest() {
     std::string filename = TestDataNameToPath("ara.wordlist");
-    if (file_exists(filename.c_str())) {
+    if (std::filesystem::exists(filename)) {
       std::string wordlist("\u0640");
       CHECK_OK(file::GetContents(filename, &wordlist, file::Defaults()));
       // Put all the unicodes in the unicharset_.
@@ -77,7 +63,7 @@ TEST_F(TatweelTest, DictIgnoresTatweel) {
   // This test verifies that the dictionary ignores the Tatweel character.
   tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "ara", SYSTEM_DAWG_PERM, unicharset_.size(), 0);
   std::string filename = TestDataNameToPath("ara.wordlist");
-  if (!file_exists(filename.c_str())) {
+  if (!std::filesystem::exists(filename)) {
     LOG(INFO) << "Skip test because of missing " << filename;
     GTEST_SKIP();
   } else {
@@ -91,7 +77,7 @@ TEST_F(TatweelTest, UnicharsetLoadKeepsTatweel) {
   // This test verifies that a load of an existing unicharset keeps any
   // existing tatweel for backwards compatibility.
   std::string filename = TestDataNameToPath("ara.unicharset");
-  if (!file_exists(filename.c_str())) {
+  if (!std::filesystem::exists(filename)) {
     LOG(INFO) << "Skip test because of missing " << filename;
     GTEST_SKIP();
   } else {

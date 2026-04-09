@@ -105,13 +105,8 @@ const int kMinLeaderCount = 5;
  * Sort function to sort rows in y from page top.
  */
 static int row_y_order(       // sort function
-    const void *item1, // items to compare
-    const void *item2) {
-  // converted ptr
-  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW *const *>(item1);
-  // converted ptr
-  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW *const *>(item2);
-
+    const TO_ROW *row1, // items to compare
+    const TO_ROW *row2) {
   if (row1->parallel_c() > row2->parallel_c()) {
     return -1;
   } else if (row1->parallel_c() < row2->parallel_c()) {
@@ -2083,7 +2078,7 @@ void make_baseline_spline(TO_ROW *row, // row to fit
 bool segment_baseline( // split baseline
     TO_ROW *row,       // row to fit
     TO_BLOCK *block,   // block it came from
-    int32_t &segments, // no fo segments
+    int32_t &segments, // no of segments
     int32_t *xstarts   // coords of segments
 ) {
   bool needs_curve; // needs curved line
@@ -2180,7 +2175,7 @@ bool segment_baseline( // split baseline
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
     TO_BLOCK *block,            // block it came from
-    int32_t &segments,          // no fo segments
+    int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 ) {
   int blobcount;         // no of blobs
@@ -2485,8 +2480,8 @@ OVERLAP_STATE most_overlapping_row( // find best row
       row_it->forward();
       test_row = row_it->data();
       if (test_row->min_y() <= top && test_row->max_y() >= bottom) {
-        merge_top = test_row->max_y() > row->max_y() ? test_row->max_y() : row->max_y();
-        merge_bottom = test_row->min_y() < row->min_y() ? test_row->min_y() : row->min_y();
+        merge_top = std::max(test_row->max_y(),row->max_y());
+        merge_bottom = std::min(test_row->min_y(),row->min_y());
         if (merge_top - merge_bottom <= rowsize) {
           if (testing_blob && textord_debug_blob) {
             tprintf("Merging rows at (%g,%g), (%g,%g)\n", row->min_y(), row->max_y(),
@@ -2540,13 +2535,8 @@ OVERLAP_STATE most_overlapping_row( // find best row
  * Sort function to sort blobs in x from page left.
  */
 int blob_x_order(      // sort function
-    const void *item1, // items to compare
-    const void *item2) {
-  // converted ptr
-  const BLOBNBOX *blob1 = *reinterpret_cast<const BLOBNBOX *const *>(item1);
-  // converted ptr
-  const BLOBNBOX *blob2 = *reinterpret_cast<const BLOBNBOX *const *>(item2);
-
+    const BLOBNBOX *blob1, // items to compare
+    const BLOBNBOX *blob2) {
   if (blob1->bounding_box().left() < blob2->bounding_box().left()) {
     return -1;
   } else if (blob1->bounding_box().left() > blob2->bounding_box().left()) {

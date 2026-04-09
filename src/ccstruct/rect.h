@@ -123,7 +123,7 @@ public:
     }
   }
 
-  TDimension width() const { // how high is it?
+  TDimension width() const { // how wide is it?
     if (!null_box()) {
       return top_right.x() - bot_left.x();
     } else {

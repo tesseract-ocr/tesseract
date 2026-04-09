@@ -38,9 +38,6 @@
 #include "scrollview.h"
 #include "series.h"
 #include "statistc.h"
-#ifdef INCLUDE_TENSORFLOW
-#  include "tfnetwork.h"
-#endif
 #include "tprintf.h"
 
 namespace tesseract {
@@ -287,11 +284,7 @@ Network *Network::CreateFromFile(TFile *fp) {
       network = new Series(name);
       break;
     case NT_TENSORFLOW:
-#ifdef INCLUDE_TENSORFLOW
-      network = new TFNetwork(name);
-#else
-      tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
-#endif
+      tprintf("Unsupported TensorFlow model\n");
       break;
     // All variants of FullyConnected.
     case NT_SOFTMAX:

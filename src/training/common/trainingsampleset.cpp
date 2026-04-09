@@ -28,6 +28,7 @@
 #include "intfeaturemap.h"
 #include "intfeaturespace.h"
 #include "shapetable.h"
+#include "tesserrstream.h"  // for tesserr
 #include "trainingsample.h"
 #include "trainingsampleset.h"
 #include "unicity_table.h"
@@ -566,8 +567,9 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
     int font_id = samples_[s]->font_id();
     int class_id = samples_[s]->class_id();
     if (font_id < 0 || font_id >= font_id_map_.SparseSize()) {
-      tprintf("Font id = %d/%d, class id = %d/%d on sample %zu\n", font_id,
-              font_id_map_.SparseSize(), class_id, unicharset_size_, s);
+      tesserr << "Font id = " << font_id << '/' << font_id_map_.SparseSize()
+              << ", class id = " << class_id << '/' << unicharset_size_
+              << " on sample " << s << '\n';
     }
     ASSERT_HOST(font_id >= 0 && font_id < font_id_map_.SparseSize());
     ASSERT_HOST(class_id >= 0 && class_id < unicharset_size_);

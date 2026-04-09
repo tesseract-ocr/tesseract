@@ -35,7 +35,7 @@ using PartSetVector = std::vector<ColPartitionSet *>;
 // Its main use is in holding a candidate partitioning of the width of the
 // image into columns, where each member ColPartition is a single column.
 // ColPartitionSets are used in building the column layout of a page.
-class ColPartitionSet : public ELIST_LINK {
+class ColPartitionSet : public ELIST<ColPartitionSet>::LINK {
 public:
   ColPartitionSet() = default;
   explicit ColPartitionSet(ColPartition_LIST *partitions);
@@ -142,7 +142,7 @@ private:
   // |        Double     width    heading                              |
   // |-----------------------------------------------------------------|
   // |-------------------------------| |-------------------------------|
-  // |   Common width ColParition    | |  Common width ColPartition    |
+  // |   Common width ColPartition   | |  Common width ColPartition    |
   // |-------------------------------| |-------------------------------|
   // the layout with two common-width columns has better coverage than the
   // double width heading, because the coverage is "good," even though less in

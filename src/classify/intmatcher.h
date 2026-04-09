@@ -22,7 +22,7 @@
 
 namespace tesseract {
 
-// Character fragments could be present in the trained templaes
+// Character fragments could be present in the trained templates
 // but turned on/off on the language-by-language basis or depending
 // on particular properties of the corpus (e.g. when we expect the
 // images to have low exposure).

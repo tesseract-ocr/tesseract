@@ -19,7 +19,6 @@
 #include "include_gunit.h"
 
 #include "helpers.h"
-#include "tprintf.h"
 
 #include "functions.h"
 #include "lang_model_helpers.h"

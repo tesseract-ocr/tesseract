@@ -31,6 +31,7 @@
 #include "ratngs.h"              // for WERD_CHOICE
 #include "rect.h"                // for TBOX
 #include "statistc.h"            // for STATS
+#include "tesserrstream.h"       // for tesserr
 #include "tprintf.h"             // for tprintf
 #include "unicharset.h"          // for UNICHARSET
 #include "werd.h"                // for WERD, W_REP_CHAR
@@ -74,8 +75,8 @@ static bool AcceptableRowArgs(int debug_level, int min_num_rows, const char *fun
                               const std::vector<RowScratchRegisters> *rows, int row_start,
                               int row_end) {
   if (row_start < 0 || static_cast<size_t>(row_end) > rows->size() || row_start > row_end) {
-    tprintf("Invalid arguments rows[%d, %d) while rows is of size %zu.\n", row_start, row_end,
-            rows->size());
+    tesserr << "Invalid arguments rows[" << row_start << ", " << row_end
+            << ") while rows is of size " << rows->size() << ".\n";
     return false;
   }
   if (row_end - row_start < min_num_rows) {
@@ -915,10 +916,9 @@ struct GeometricClassifierState {
     tolerance = InterwordSpace(*r, r_start, r_end);
     CalculateTabStops(r, r_start, r_end, tolerance, &left_tabs, &right_tabs);
     if (debug_level >= 3) {
-      tprintf(
-          "Geometry: TabStop cluster tolerance = %d; "
-          "%zu left tabs; %zu right tabs\n",
-          tolerance, left_tabs.size(), right_tabs.size());
+      tesserr << "Geometry: TabStop cluster tolerance = " << tolerance << "; "
+              << left_tabs.size() << " left tabs; "
+              << right_tabs.size() << " right tabs\n";
     }
     ltr = (*r)[r_start].ri_->ltr;
   }
@@ -1402,7 +1402,7 @@ void ParagraphModelSmearer::CalculateOpenModels(int row_start, int row_end) {
           push_back_new(still_open, m);
         }
       }
-      OpenModels(row + 1) = still_open;
+      OpenModels(row + 1) = std::move(still_open);
     }
   }
 }
@@ -2407,8 +2407,8 @@ static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it, RowI
   // Set up text, lword_text, and rword_text (mostly for debug printing).
   std::string fake_text;
   PageIterator pit(static_cast<const PageIterator &>(it));
-  bool first_word = true;
   if (!pit.Empty(RIL_WORD)) {
+    bool first_word = true;
     do {
       fake_text += "x";
       if (first_word) {
@@ -2610,7 +2610,6 @@ void DetectParagraphs(int debug_level, bool after_text_recognition,
 
   // Run the paragraph detection algorithm.
   std::vector<PARA *> row_owners;
-  std::vector<PARA *> the_paragraphs;
   if (!is_image_block) {
     DetectParagraphs(debug_level, &row_infos, &row_owners, block->para_list(), models);
   } else {

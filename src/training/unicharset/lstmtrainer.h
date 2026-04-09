@@ -84,7 +84,8 @@ using TestCallback = std::function<std::string(int, const double *,
 class TESS_UNICHARSET_TRAINING_API LSTMTrainer : public LSTMRecognizer {
 public:
   LSTMTrainer();
-  LSTMTrainer(const char *model_base, const char *checkpoint_name,
+  LSTMTrainer(const std::string &model_base,
+              const std::string &checkpoint_name,
               int debug_interval, int64_t max_memory);
   virtual ~LSTMTrainer();
 
@@ -118,10 +119,6 @@ public:
   bool InitNetwork(const char *network_spec, int append_index, int net_flags,
                    float weight_range, float learning_rate, float momentum,
                    float adam_beta);
-  // Initializes a trainer from a serialized TFNetworkModel proto.
-  // Returns the global step of TensorFlow graph or 0 if failed.
-  // Building a compatible TF graph: See tfnetwork.proto.
-  int InitTensorFlowNetwork(const std::string &tf_proto);
   // Resets all the iteration counters for fine tuning or training a head,
   // where we want the error reporting to reset.
   void InitIterations();

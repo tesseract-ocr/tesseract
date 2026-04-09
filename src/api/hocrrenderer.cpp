@@ -21,10 +21,8 @@
 #include <locale>              // for std::locale::classic
 #include <memory>              // for std::unique_ptr
 #include <sstream>             // for std::stringstream
-#ifdef _WIN32
-#  include "host.h" // windows.h for MultiByteToWideChar, ...
-#endif
 #include <tesseract/renderer.h>
+#include "helpers.h"        // for copy_string
 #include "tesseractclass.h" // for Tesseract
 
 namespace tesseract {
@@ -149,23 +147,6 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   if (input_file_.empty()) {
     SetInputName(nullptr);
   }
-
-#ifdef _WIN32
-  // convert input name from ANSI encoding to utf-8
-  int str16_len =
-      MultiByteToWideChar(CP_ACP, 0, input_file_.c_str(), -1, nullptr, 0);
-  wchar_t *uni16_str = new WCHAR[str16_len];
-  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_.c_str(), -1, uni16_str,
-                                  str16_len);
-  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr,
-                                     0, nullptr, nullptr);
-  char *utf8_str = new char[utf8_len];
-  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str, utf8_len,
-                      nullptr, nullptr);
-  input_file_ = utf8_str;
-  delete[] uni16_str;
-  delete[] utf8_str;
-#endif
 
   std::stringstream hocr_str;
   // Use "C" locale (needed for double values x_size and x_descenders).
@@ -480,10 +461,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   }
   hocr_str << "  </div>\n";
 
-  const std::string &text = hocr_str.str();
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
-  return result;
+  return copy_string(hocr_str.str());
 }
 
 /**********************************************************************
@@ -514,9 +492,9 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "  <meta name='ocr-system' content='tesseract " TESSERACT_VERSION_STR
       "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word ocrp_wconf");
+      " ocr_line ocrx_word ocrp_dir ocrp_lang ocrp_wconf");
   if (font_info_) {
-    AppendString(" ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
+    AppendString(" ocrp_font ocrp_fsize");
   }
   AppendString(
       "'/>\n"

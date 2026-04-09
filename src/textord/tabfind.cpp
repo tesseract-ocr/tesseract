@@ -67,8 +67,8 @@ TabFind::TabFind(int gridsize, const ICOORD &bleft, const ICOORD &tright, TabVec
     : AlignedBlob(gridsize, bleft, tright)
     , resolution_(resolution)
     , image_origin_(0, tright.y() - 1)
-    , v_it_(&vectors_) {
-  width_cb_ = nullptr;
+    , v_it_(&vectors_)
+    , width_cb_(nullptr) {
   v_it_.add_list_after(vlines);
   SetVerticalSkewAndParallelize(vertical_x, vertical_y);
   using namespace std::placeholders; // for _1
@@ -133,7 +133,7 @@ void TabFind::SetBlockRuleEdges(TO_BLOCK *block) {
 }
 
 // Sets the left and right rule and crossing_rules for the blobs in the given
-// list by fiding the next outermost tabvectors for each blob.
+// list by finding the next outermost tabvectors for each blob.
 void TabFind::SetBlobRuleEdges(BLOBNBOX_LIST *blobs) {
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
@@ -562,7 +562,7 @@ ScrollView *TabFind::FindTabBoxes(int min_gutter_width, double tabfind_aligned_g
   left_tab_boxes_.clear();
   right_tab_boxes_.clear();
   // For every bbox in the grid, determine whether it uses a tab on an edge.
-  GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> gsearch(this);
+  BlobGridSearch gsearch(this);
   gsearch.StartFullSearch();
   BLOBNBOX *bbox;
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {

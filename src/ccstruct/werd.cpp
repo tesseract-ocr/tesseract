@@ -355,7 +355,7 @@ WERD *WERD::shallow_copy() {
  */
 
 WERD &WERD::operator=(const WERD &source) {
-  this->ELIST2_LINK::operator=(source);
+  this->ELIST2<WERD>::LINK::operator=(source);
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;
@@ -374,9 +374,7 @@ WERD &WERD::operator=(const WERD &source) {
  *  order of left edge.
  */
 
-int word_comparator(const void *word1p, const void *word2p) {
-  const WERD *word1 = *reinterpret_cast<const WERD *const *>(word1p);
-  const WERD *word2 = *reinterpret_cast<const WERD *const *>(word2p);
+int word_comparator(const WERD *word1, const WERD *word2) {
   return word1->bounding_box().left() - word2->bounding_box().left();
 }
 
@@ -515,7 +513,7 @@ void WERD::GetNoiseOutlines(std::vector<C_OUTLINE *> *outlines) {
   }
 }
 
-// Adds the selected outlines to the indcated real blobs, and puts the rest
+// Adds the selected outlines to the indicated real blobs, and puts the rest
 // back in rej_cblobs where they came from. Where the target_blobs entry is
 // nullptr, a run of wanted outlines is put into a single new blob.
 // Ownership of the outlines is transferred back to the word. (Hence

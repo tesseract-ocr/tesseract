@@ -18,6 +18,7 @@
 
 #include <tesseract/baseapi.h> // for TessBaseAPI
 #include <tesseract/renderer.h>
+#include "helpers.h"        // for copy_string
 #include "tesseractclass.h" // for Tesseract
 
 namespace tesseract {
@@ -81,10 +82,8 @@ char *TessBaseAPI::GetLSTMBoxText(int page_number = 0) {
     AddBoxToLSTM(right, bottom, top, image_height_, page_number, lstm_box_str);
     lstm_box_str += "\n"; // end of PAGE
   }
-  char *ret = new char[lstm_box_str.length() + 1];
-  strcpy(ret, lstm_box_str.c_str());
   delete res_it;
-  return ret;
+  return copy_string(lstm_box_str);
 }
 
 /**********************************************************************

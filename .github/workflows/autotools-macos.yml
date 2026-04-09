@@ -14,11 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-12-clang-14-autotools, os: macos-12, cxx: clang++ }
-          #- { name: macos-12-gcc-11-autotools, os: macos-12, cxx: g++-11 }
+          - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -30,15 +29,17 @@ jobs:
 
     - name: Install dependencies
       run: |
-           brew install autoconf automake
-           brew install leptonica
-           brew install cairo pango icu4c
-           brew install cabextract
-           brew install libarchive curl
+           brew install autoconf automake cabextract libtool
+           brew install leptonica libarchive pango
+           if ! brew list icu4c &>/dev/null; then
+             brew install icu4c
+           fi
+           if ! brew list curl &>/dev/null; then
+             brew install curl
+           fi
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract
@@ -93,7 +94,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework accelerate
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++17 -framework accelerate
            ./basicapitest
 
     - name: Display Compiler Version
@@ -115,10 +116,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-12-clang-14-autotools, os: macos-12, cxx: clang++ }
+          - { name: macos-latest-clang-autotools, os: macos-latest, cxx: clang++ }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -130,7 +131,7 @@ jobs:
 
     - name: Install Macports
       run: |
-        curl -LO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
+        curl -sSLO https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci; source ./macports-ci install
         # --remove-brew does not remove the Homebrew entries in bin,
         # so remove them now.
         rm -v $(brew --prefix)/bin/*
@@ -145,7 +146,6 @@ jobs:
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract
@@ -193,7 +193,7 @@ jobs:
       run: |
            export "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
            cd test
-           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++11 -framework Accelerate
+           ${{ matrix.config.cxx }} -o basicapitest testing/basicapitest.cpp -I/opt/local/include -L/opt/local/lib $(pkg-config --cflags --libs tesseract lept) -pthread -std=c++17 -framework Accelerate
            ./basicapitest
 
     - name: Display Compiler Version

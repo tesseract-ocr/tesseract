@@ -345,6 +345,9 @@ Tesseract::Tesseract()
     , BOOL_MEMBER(tessedit_create_txt, false, "Write .txt output file", this->params())
     , BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file", this->params())
     , BOOL_MEMBER(tessedit_create_alto, false, "Write .xml ALTO file", this->params())
+    , BOOL_MEMBER(tessedit_create_page_xml, false, "Write .page.xml PAGE file", this->params())
+    , BOOL_MEMBER(page_xml_polygon, true, "Create the PAGE file with polygons instead of box values", this->params())
+    , INT_MEMBER(page_xml_level, 0, "Create the PAGE file on 0=line or 1=word level.", this->params())
     , BOOL_MEMBER(tessedit_create_lstmbox, false, "Write .box file for LSTM training",
                   this->params())
     , BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file", this->params())
@@ -463,6 +466,7 @@ Tesseract::Tesseract()
     , scaled_factor_(-1)
     , deskew_(1.0f, 0.0f)
     , reskew_(1.0f, 0.0f)
+    , gradient_(0.0f)
     , most_recently_used_(this)
     , font_table_size_(0)
 #ifndef DISABLED_LEGACY_ENGINE
@@ -500,6 +504,7 @@ void Tesseract::Clear() {
   scaled_color_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
+  gradient_ = 0.0f;
   splitter_.Clear();
   scaled_factor_ = -1;
   for (auto &sub_lang : sub_langs_) {

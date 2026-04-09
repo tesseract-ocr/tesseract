@@ -6,20 +6,18 @@ on:
     - cron: 0 17 * * *
 jobs:
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - msystem: MINGW32
-            mingw_package_prefix: mingw-w64-i686
           - msystem: MINGW64
             mingw_package_prefix: mingw-w64-x86_64
     defaults:
       run:
         shell: msys2 {0}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
     - uses: msys2/setup-msys2@v2
@@ -43,7 +41,6 @@ jobs:
 
     - name: Setup Tesseract
       run: |
-           mkdir -p m4
            ./autogen.sh
 
     - name: Configure Tesseract

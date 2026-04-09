@@ -48,18 +48,6 @@ const float kHanRatioInJapanese = 0.3;
 
 const float kNonAmbiguousMargin = 1.0;
 
-// General scripts
-static const char *han_script = "Han";
-static const char *latin_script = "Latin";
-static const char *katakana_script = "Katakana";
-static const char *hiragana_script = "Hiragana";
-static const char *hangul_script = "Hangul";
-
-// Pseudo-scripts Name
-const char *ScriptDetector::korean_script_ = "Korean";
-const char *ScriptDetector::japanese_script_ = "Japanese";
-const char *ScriptDetector::fraktur_script_ = "Fraktur";
-
 void OSResults::update_best_orientation() {
   float first = orientations[0];
   float second = orientations[1];
@@ -223,7 +211,9 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
 // Returns a non-zero number of blobs if the page was successfully processed, or
 // zero if the page had too few characters to be reliable
 int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *tess) {
+#if !defined(NDEBUG)
   int blobs_total = 0;
+#endif
   TO_BLOCK_IT block_it;
   block_it.set_to_list(port_blocks);
 
@@ -241,7 +231,9 @@ int os_detect(TO_BLOCK_LIST *port_blocks, OSResults *osr, tesseract::Tesseract *
       BLOBNBOX *bbox = bbox_it.data();
       C_BLOB *blob = bbox->cblob();
       TBOX box = blob->bounding_box();
+#if !defined(NDEBUG)
       ++blobs_total;
+#endif
 
       // Catch illegal value of box width and avoid division by zero.
       if (box.width() == 0) {
@@ -381,9 +373,8 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
         for (choice_it.mark_cycle_pt(); !choice_it.cycled_list() && choice == nullptr;
              choice_it.forward()) {
           int choice_script = choice_it.data()->script_id();
-          unsigned s = 0;
-          for (s = 0; s < allowed_scripts_->size(); ++s) {
-            if ((*allowed_scripts_)[s] == choice_script) {
+          for (auto script : *allowed_scripts_) {
+            if (script == choice_script) {
               choice = choice_it.data();
               break;
             }
@@ -446,14 +437,16 @@ ScriptDetector::ScriptDetector(const std::vector<int> *allowed_scripts, OSResult
   osr_ = osr;
   tess_ = tess;
   allowed_scripts_ = allowed_scripts;
-  katakana_id_ = tess_->unicharset.add_script(katakana_script);
-  hiragana_id_ = tess_->unicharset.add_script(hiragana_script);
-  han_id_ = tess_->unicharset.add_script(han_script);
-  hangul_id_ = tess_->unicharset.add_script(hangul_script);
-  japanese_id_ = tess_->unicharset.add_script(japanese_script_);
-  korean_id_ = tess_->unicharset.add_script(korean_script_);
-  latin_id_ = tess_->unicharset.add_script(latin_script);
-  fraktur_id_ = tess_->unicharset.add_script(fraktur_script_);
+  // General scripts
+  katakana_id_ = tess_->unicharset.add_script("Katakana");
+  hiragana_id_ = tess_->unicharset.add_script("Hiragana");
+  han_id_ = tess_->unicharset.add_script("Han");
+  hangul_id_ = tess_->unicharset.add_script("Hangul");
+  latin_id_ = tess_->unicharset.add_script("Latin");
+  // Pseudo-scripts
+  fraktur_id_ = tess_->unicharset.add_script("Fraktur");
+  japanese_id_ = tess_->unicharset.add_script("Japanese");
+  korean_id_ = tess_->unicharset.add_script("Korean");
 }
 
 // Score the given blob and return true if it is now sure of the script after

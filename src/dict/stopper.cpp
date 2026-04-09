@@ -359,11 +359,11 @@ void Dict::EndDangerousAmbigs() {}
 
 #endif // !defined(DISABLED_LEGACY_ENGINE)
 
-void Dict::SettupStopperPass1() {
+void Dict::SetupStopperPass1() {
   reject_offset_ = 0.0;
 }
 
-void Dict::SettupStopperPass2() {
+void Dict::SetupStopperPass2() {
   reject_offset_ = stopper_phase2_certainty_rejection_offset;
 }
 

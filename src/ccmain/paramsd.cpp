@@ -191,9 +191,7 @@ void ParamsEditor::GetPrefixes(const char *s, std::string *level_one, std::strin
 }
 
 // Compare two VC objects by their name.
-int ParamContent::Compare(const void *v1, const void *v2) {
-  const ParamContent *one = *static_cast<const ParamContent *const *>(v1);
-  const ParamContent *two = *static_cast<const ParamContent *const *>(v2);
+int ParamContent::Compare(const ParamContent *one, const ParamContent *two) {
   return strcmp(one->GetName(), two->GetName());
 }
 

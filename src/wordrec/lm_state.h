@@ -89,7 +89,7 @@ struct LanguageModelNgramInfo {
 
 /// Struct for storing the information about a path in the segmentation graph
 /// explored by Viterbi search.
-struct ViterbiStateEntry : public ELIST_LINK {
+struct ViterbiStateEntry : public ELIST<ViterbiStateEntry>::LINK {
   ViterbiStateEntry(ViterbiStateEntry *pe, BLOB_CHOICE *b, float c, float ol,
                     const LMConsistencyInfo &ci, const AssociateStats &as,
                     LanguageModelFlagsType tcf, LanguageModelDawgInfo *d, LanguageModelNgramInfo *n,
@@ -133,9 +133,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
   }
   /// Comparator function for sorting ViterbiStateEntry_LISTs in
   /// non-increasing order of costs.
-  static int Compare(const void *e1, const void *e2) {
-    const ViterbiStateEntry *ve1 = *static_cast<const ViterbiStateEntry *const *>(e1);
-    const ViterbiStateEntry *ve2 = *static_cast<const ViterbiStateEntry *const *>(e2);
+  static int Compare(const ViterbiStateEntry *ve1, const ViterbiStateEntry *ve2) {
     return (ve1->cost < ve2->cost) ? -1 : 1;
   }
   inline bool Consistent() const {

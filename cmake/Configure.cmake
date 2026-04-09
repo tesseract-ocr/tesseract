@@ -91,8 +91,6 @@ set(include_files_list
     unistd.h
 
     cairo/cairo-version.h
-    CL/cl.h
-    OpenCL/cl.h
     pango-1.0/pango/pango-features.h
     unicode/uchar.h
 )
@@ -121,7 +119,6 @@ file(APPEND ${AUTOCONFIG_SRC} "
 #cmakedefine HAVE_NEON ${HAVE_NEON}
 #cmakedefine HAVE_LIBARCHIVE ${HAVE_LIBARCHIVE}
 #cmakedefine HAVE_LIBCURL ${HAVE_LIBCURL}
-#cmakedefine USE_OPENCL ${USE_OPENCL}
 ")
 
 if(TESSDATA_PREFIX)

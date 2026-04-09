@@ -15,24 +15,24 @@
 #
 ################################################################################
 
-cd $SRC/leptonica
+cd "$SRC"/leptonica
 ./autogen.sh
 ./configure --disable-shared
-make SUBDIRS=src install -j$(nproc)
+make SUBDIRS=src install -j"$(nproc)"
 ldconfig
 
-cd $SRC/tesseract
+cd "$SRC"/tesseract
 ./autogen.sh
 CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG" ./configure --disable-graphics --disable-shared
-make -j$(nproc)
+make -j"$(nproc)"
 
 # Get the models which are needed for the fuzzers.
 
-mkdir -p $OUT/tessdata
+mkdir -p "$OUT"/tessdata
 (
-cd $OUT/tessdata
+cd "$OUT"/tessdata
 test -f eng.traineddata || \
-  curl -L -O https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+  curl -sSL -O https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
 )
 
 # OSS-Fuzz requires static linking for the project specific libraries,
@@ -44,9 +44,9 @@ LEPTONICA_LIBS=$(pkg-config --static --libs lept)
 LIBTIFF_LIBS=$(pkg-config --static --libs libtiff-4 | sed 's/ -lm//')
 
 $CXX $CXXFLAGS \
-    -I $SRC/tesseract/include \
-     $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api \
-     $SRC/tesseract/.libs/libtesseract.a \
+    -I "$SRC"/tesseract/include \
+     "$SRC"/tesseract/unittest/fuzzers/fuzzer-api.cpp -o "$OUT"/fuzzer-api \
+     "$SRC"/tesseract/.libs/libtesseract.a \
      $LEPTONICA_CFLAGS \
      -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
@@ -54,9 +54,9 @@ $CXX $CXXFLAGS \
 $CXX $CXXFLAGS \
     -DTESSERACT_FUZZER_WIDTH=512 \
     -DTESSERACT_FUZZER_HEIGHT=256 \
-    -I $SRC/tesseract/include \
-     $SRC/tesseract/unittest/fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x256 \
-     $SRC/tesseract/.libs/libtesseract.a \
+    -I "$SRC"/tesseract/include \
+     "$SRC"/tesseract/unittest/fuzzers/fuzzer-api.cpp -o "$OUT"/fuzzer-api-512x256 \
+     "$SRC"/tesseract/.libs/libtesseract.a \
      $LEPTONICA_CFLAGS \
      -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE

@@ -48,7 +48,7 @@ static BOOL_VAR(equationdetect_save_seed_image, false, "Save the seed image");
 static BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image");
 
 ///////////////////////////////////////////////////////////////////////////
-// Utility ColParition sort functions.
+// Utility ColPartition sort functions.
 ///////////////////////////////////////////////////////////////////////////
 static int SortCPByTopReverse(const void *p1, const void *p2) {
   const ColPartition *cp1 = *static_cast<ColPartition *const *>(p1);
@@ -391,7 +391,7 @@ int EquationDetect::FindEquationParts(ColPartitionGrid *part_grid, ColPartitionS
     for (auto &i : seeds_expanded) {
       InsertPartAfterAbsorb(i);
     }
-    cp_seeds_ = seeds_expanded;
+    cp_seeds_ = std::move(seeds_expanded);
   }
 
   // Pass 4: find math block satellite text partitions and merge them.
@@ -599,7 +599,7 @@ float EquationDetect::ComputeForegroundDensity(const TBOX &tbox) {
 bool EquationDetect::CheckSeedFgDensity(const float density_th, ColPartition *part) {
   ASSERT_HOST(part);
 
-  // Split part horizontall, and check for each sub part.
+  // Split part horizontally, and check for each sub part.
   std::vector<TBOX> sub_boxes;
   SplitCPHorLite(part, &sub_boxes);
   float parts_passed = 0.0;
@@ -823,7 +823,7 @@ void EquationDetect::IdentifyInlinePartsHorizontal() {
   }
 
   // Reset the cp_seeds_ using the new_seeds.
-  cp_seeds_ = new_seeds;
+  cp_seeds_ = std::move(new_seeds);
 }
 
 int EquationDetect::EstimateTextPartLineSpacing() {
@@ -891,7 +891,7 @@ void EquationDetect::IdentifyInlinePartsVertical(const bool top_to_bottom,
       new_seeds.push_back(part);
     }
   }
-  cp_seeds_ = new_seeds;
+  cp_seeds_ = std::move(new_seeds);
 }
 
 bool EquationDetect::IsInline(const bool search_bottom, const int textparts_linespacing,
@@ -1438,7 +1438,7 @@ void EquationDetect::PrintSpecialBlobsDensity(const ColPartition *part) const {
   ASSERT_HOST(part);
   TBOX box(part->bounding_box());
   int h = pixGetHeight(lang_tesseract_->BestPix());
-  tprintf("Printing special blobs density values for ColParition (t=%d,b=%d) ", h - box.top(),
+  tprintf("Printing special blobs density values for ColPartition (t=%d,b=%d) ", h - box.top(),
           h - box.bottom());
   box.print();
   tprintf("blobs count = %d, density = ", part->boxes_count());

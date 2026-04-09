@@ -116,7 +116,9 @@ int main(int argc, char *argv[]) {
   InitFeatureDefs(&FeatureDefs);
 
   ParseArguments(&argc, &argv);
+#if !defined(NDEBUG)
   int num_fonts = 0;
+#endif
   for (const char *PageName = *++argv; PageName != nullptr; PageName = *++argv) {
     printf("Reading %s ...\n", PageName);
     FILE *TrainingPage = fopen(PageName, "rb");
@@ -124,7 +126,9 @@ int main(int argc, char *argv[]) {
     if (TrainingPage) {
       ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE, 100, nullptr, TrainingPage, &CharList);
       fclose(TrainingPage);
+#if !defined(NDEBUG)
       ++num_fonts;
+#endif
     }
   }
   printf("Clustering ...\n");

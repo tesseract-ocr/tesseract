@@ -26,6 +26,7 @@
 #include "fontinfo.h"
 #include "genericheap.h"
 #include "intmatcher.h"
+#include "tesserrstream.h"  // for tesserr
 
 namespace tesseract {
 
@@ -41,10 +42,10 @@ struct UnicharRating {
 
   // Print debug info.
   void Print() const {
-    tprintf(
-        "Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%u,"
-        " %zu fonts\n",
-        unichar_id, static_cast<double>(rating), adapted, config, feature_misses, fonts.size());
+    tesserr << "Unichar-id=" << unichar_id << ", rating=" << rating
+            << ", adapted=" << adapted << ", config=" << config
+            << ", misses=" << feature_misses << ", "
+            << fonts.size() << " fonts\n";
   }
 
   // Helper function to get the index of the first result with the required
@@ -212,7 +213,7 @@ private:
   // Flag indicates that the unichars are sorted, allowing faster set
   // operations with another shape.
   bool unichars_sorted_ = false;
-  // If this Shape is part of a ShapeTable the destiation_index_ is the index
+  // If this Shape is part of a ShapeTable the destination_index_ is the index
   // of some other shape in the ShapeTable with which this shape is merged.
   int destination_index_ = 0;
   // Array of unichars, each with a set of fonts. Each unichar has at most

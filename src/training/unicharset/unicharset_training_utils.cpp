@@ -2,7 +2,6 @@
 // File:        unicharset_training_utils.cpp
 // Description: Training utilities for UNICHARSET.
 // Author:      Ray Smith
-// Created:     Fri Oct 17 17:09:01 PDT 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +28,7 @@
 #include "icuerrorcode.h"
 #include "normstrngs.h"
 #include "statistc.h"
+#include "tesserrstream.h"   // for tesserr
 #include "unicharset.h"
 #include "unicode/uchar.h"   // from libicu
 #include "unicode/uscript.h" // from libicu
@@ -189,8 +189,8 @@ void SetPropertiesForInputFile(const std::string &script_dir,
 
   // Load the input unicharset
   unicharset.load_from_file(input_unicharset_file.c_str());
-  tprintf("Loaded unicharset of size %zu from file %s\n", unicharset.size(),
-          input_unicharset_file.c_str());
+  tesserr << "Loaded unicharset of size " << unicharset.size()
+          << " from file " << input_unicharset_file << '\n';
 
   // Set unichar properties
   tprintf("Setting unichar properties\n");

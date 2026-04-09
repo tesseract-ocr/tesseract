@@ -22,6 +22,7 @@
 
 #include "pdf_ttf.h"
 #include "tprintf.h"
+#include "helpers.h" // for Swap, copy_string
 
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
@@ -33,7 +34,16 @@
 #include <locale>    // for std::locale::classic
 #include <memory>    // std::unique_ptr
 #include <sstream>   // for std::stringstream
-#include "helpers.h" // for Swap
+#include <string_view>
+
+using namespace std::literals;
+
+#ifndef NDEBUG
+#define DEBUG_PDF
+#endif
+#ifdef DEBUG_PDF
+#define NO_PDF_COMPRESSION
+#endif
 
 /*
 
@@ -232,13 +242,13 @@ static void GetWordBaseline(int writing_direction, int ppi, int height, int word
   double word_length;
   double x, y;
   {
-    int px = word_x1;
-    int py = word_y1;
     double l2 = dist2(line_x1, line_y1, line_x2, line_y2);
     if (l2 == 0) {
       x = line_x1;
       y = line_y1;
     } else {
+      int px = word_x1;
+      int py = word_y1;
       double t = ((px - line_x2) * (line_x2 - line_x1) + (py - line_y2) * (line_y2 - line_y1)) / l2;
       x = line_x2 + t * (line_x2 - line_x1);
       y = line_y2 + t * (line_y2 - line_y1);
@@ -443,6 +453,9 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
       if (fontsize != old_fontsize) {
         pdf_str << "/f-0-0 " << fontsize << " Tf ";
         old_fontsize = fontsize;
+#ifdef DEBUG_PDF
+        pdf_str << "\n";
+#endif
       }
     }
 
@@ -466,13 +479,16 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (res_it->IsAtBeginningOf(RIL_WORD)) {
       pdf_word += "0020";
-      pdf_word_len++;
     }
     if (word_length > 0 && pdf_word_len > 0) {
       double h_stretch = kCharWidth * prec(100.0 * word_length / (fontsize * pdf_word_len));
-      pdf_str << h_stretch << " Tz" // horizontal stretch
-              << " [ <" << pdf_word // UTF-16BE representation
-              << "> ] TJ";          // show the text
+      pdf_str << h_stretch << " Tz"; // horizontal stretch
+      pdf_str
+          << " [ <" << pdf_word // UTF-16BE representation
+          << "> ] TJ";          // show the text
+#ifdef DEBUG_PDF
+      pdf_str << "\n";
+#endif
     }
     if (last_word_in_line) {
       pdf_str << " \n";
@@ -481,10 +497,7 @@ char *TessPDFRenderer::GetPDFTextObjects(TessBaseAPI *api, double width, double 
       pdf_str << "ET\n"; // end the text object
     }
   }
-  const std::string &text = pdf_str.str();
-  char *result = new char[text.length() + 1];
-  strcpy(result, text.c_str());
-  return result;
+  return copy_string(pdf_str.str());
 }
 
 bool TessPDFRenderer::BeginDocumentHandler() {
@@ -546,26 +559,36 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   for (int i = 0; i < kCIDToGIDMapSize; i++) {
     cidtogidmap[i] = (i % 2) ? 1 : 0;
   }
-  size_t len;
-  unsigned char *comp = zlibCompress(cidtogidmap.get(), kCIDToGIDMapSize, &len);
+  size_t len = kCIDToGIDMapSize;
+#ifndef NO_PDF_COMPRESSION
+  auto comp = zlibCompress(cidtogidmap.get(), kCIDToGIDMapSize, &len);
+#endif
   stream.str("");
   stream << "5 0 obj\n"
             "<<\n"
             "  /Length "
          << len
-         << " /Filter /FlateDecode\n"
+         << ""
+#ifndef NO_PDF_COMPRESSION
+            " /Filter /FlateDecode"
+#endif
+            "\n"
             ">>\n"
-            "stream\n";
+            "stream\n"
+            ;
   AppendString(stream.str().c_str());
   long objsize = stream.str().size();
+#ifndef NO_PDF_COMPRESSION
   AppendData(reinterpret_cast<char *>(comp), len);
+#else
+  AppendData(reinterpret_cast<char *>(cidtogidmap.get()), len);
+#endif
   objsize += len;
+#ifndef NO_PDF_COMPRESSION
   lept_free(comp);
-  const char *endstream_endobj =
-      "endstream\n"
-      "endobj\n";
-  AppendString(endstream_endobj);
-  objsize += strlen(endstream_endobj);
+#endif
+  objsize += AppendData("endstream\n"sv);
+  objsize += AppendData("endobj\n"sv);
   AppendPDFObjectDIY(objsize);
 
   const char stream2[] =
@@ -655,8 +678,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   objsize = stream.str().size();
   AppendData(reinterpret_cast<const char *>(font), size);
   objsize += size;
-  AppendString(endstream_endobj);
-  objsize += strlen(endstream_endobj);
+  objsize += AppendData("endstream\n"sv);
+  objsize += AppendData("endobj\n"sv);
   AppendPDFObjectDIY(objsize);
   return true;
 }
@@ -674,14 +697,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
   }
 
   L_Compressed_Data *cid = nullptr;
-
-  int sad = 0;
-  if (pixGetInputFormat(pix) == IFF_PNG) {
-    sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
-  }
-  if (!cid) {
-    sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
-  }
+  auto sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
 
   if (sad || !cid) {
     l_CIDataDestroy(&cid);
@@ -856,29 +872,37 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
   // CONTENTS
   const std::unique_ptr<char[]> pdftext(GetPDFTextObjects(api, width, height));
   const size_t pdftext_len = strlen(pdftext.get());
-  size_t len;
-  unsigned char *comp_pdftext =
-      zlibCompress(reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
-  long comp_pdftext_len = len;
+  size_t len = pdftext_len;
+#ifndef NO_PDF_COMPRESSION
+  auto comp_pdftext = zlibCompress(reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
+#endif
   stream.str("");
   stream << obj_
          << " 0 obj\n"
             "<<\n"
             "  /Length "
-         << comp_pdftext_len
-         << " /Filter /FlateDecode\n"
+         << len
+         << ""
+#ifndef NO_PDF_COMPRESSION
+            " /Filter /FlateDecode"
+#endif
+            "\n"
             ">>\n"
-            "stream\n";
+            "stream\n"
+            ;
   AppendString(stream.str().c_str());
   long objsize = stream.str().size();
-  AppendData(reinterpret_cast<char *>(comp_pdftext), comp_pdftext_len);
-  objsize += comp_pdftext_len;
+#ifndef NO_PDF_COMPRESSION
+  AppendData(reinterpret_cast<char *>(comp_pdftext), len);
+#else
+  AppendData(reinterpret_cast<char *>(pdftext.get()), len);
+#endif
+  objsize += len;
+#ifndef NO_PDF_COMPRESSION
   lept_free(comp_pdftext);
-  const char *b2 =
-      "endstream\n"
-      "endobj\n";
-  AppendString(b2);
-  objsize += strlen(b2);
+#endif
+  objsize += AppendData("endstream\n"sv);
+  objsize += AppendData("endobj\n"sv);
   AppendPDFObjectDIY(objsize);
 
   if (!textonly_) {

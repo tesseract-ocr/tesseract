@@ -217,13 +217,13 @@ void make_baseline_spline(TO_ROW *row,      // row to fit
 bool segment_baseline(                      // split baseline
     TO_ROW *row,                            // row to fit
     TO_BLOCK *block,                        // block it came from
-    int32_t &segments,                      // no fo segments
+    int32_t &segments,                      // no of segments
     int32_t *xstarts                        // coords of segments
 );
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
     TO_BLOCK *block,            // block it came from
-    int32_t &segments,          // no fo segments
+    int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 );
 void assign_blobs_to_rows( // find lines
@@ -243,8 +243,8 @@ OVERLAP_STATE most_overlapping_row(TO_ROW_IT *row_it, // iterator
                                    bool testing_blob  // test stuff
 );
 int blob_x_order(      // sort function
-    const void *item1, // items to compare
-    const void *item2);
+    const BLOBNBOX *item1, // items to compare
+    const BLOBNBOX *item2);
 
 void mark_repeated_chars(TO_ROW *row);
 

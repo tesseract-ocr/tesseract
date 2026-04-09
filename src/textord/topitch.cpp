@@ -151,7 +151,6 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
   int like_votes;                // votes over page
   int other_votes;               // votes of unlike blocks
   int block_index;               // number of block
-  int row_index;                 // number of row
   int maxwidth;                  // max pitch
   TO_BLOCK_IT block_it = blocks; // block iterator
   TO_BLOCK *block;               // current block
@@ -172,7 +171,6 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
       if (pb != nullptr && !pb->IsText()) {
         continue; // Non text doesn't exist!
       }
-      row_index = 1;
       TO_ROW_IT row_it(block->get_rows());
       for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
         row = row_it.data();
@@ -226,7 +224,6 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
             other_votes--;
           }
         }
-        row_index++;
       }
       block_index++;
     }
@@ -518,7 +515,6 @@ bool try_rows_fixed(     // find line stats
     bool testing_on      // correct orientation
 ) {
   TO_ROW *row;           // current row
-  int32_t row_index;     // row number.
   int32_t def_fixed = 0; // counters
   int32_t def_prop = 0;
   int32_t maybe_fixed = 0;
@@ -529,7 +525,6 @@ bool try_rows_fixed(     // find line stats
   float lower, upper; // cluster thresholds
   TO_ROW_IT row_it = block->get_rows();
 
-  row_index = 1;
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
     ASSERT_HOST(row->xheight > 0);
@@ -541,7 +536,6 @@ bool try_rows_fixed(     // find line stats
         row->kern_size = lower;
       }
     }
-    row_index++;
   }
   count_block_votes(block, def_fixed, def_prop, maybe_fixed, maybe_prop, corr_fixed, corr_prop,
                     dunno);

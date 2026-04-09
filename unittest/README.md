@@ -1,9 +1,9 @@
 # Unit Testing for Tesseract
 
-
 ## Requirements
 
 ### Files and structure
+
 ```
 
 ├── langdata_lstm
@@ -75,7 +75,6 @@
 * [Lohit-Hindi.ttf](https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf)
 * [UnBatang.ttf](https://raw.githubusercontent.com/byrongibson/fonts/master/backup/truetype.original/unfonts-core/UnBatang.ttf)
 
-
 ## Run tests
 
 To run the tests, do the following in tesseract folder
@@ -83,6 +82,9 @@ To run the tests, do the following in tesseract folder
 ```
 autoreconf -fiv
 git submodule update --init
+git clone https://github.com/egorpugin/tessdata tessdata_unittest --depth 1
+cp tessdata_unittest/fonts/* test/testing/
+mv tessdata_unittest/* ../
 export TESSDATA_PREFIX=/prefix/to/path/to/tessdata
 make check
 ```

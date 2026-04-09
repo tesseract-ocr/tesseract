@@ -211,13 +211,11 @@ void vertical_cunderline_projection( // project outlines
   ICOORD pos;               // current point
   ICOORD step;              // edge step
   int16_t lower_y, upper_y; // region limits
-  int32_t length;           // of outline
-  int16_t stepindex;        // current step
   C_OUTLINE_IT out_it = outline->child();
 
   pos = outline->start_pos();
-  length = outline->pathlength();
-  for (stepindex = 0; stepindex < length; stepindex++) {
+  int16_t length = outline->pathlength();
+  for (int16_t stepindex = 0; stepindex < length; stepindex++) {
     step = outline->step(stepindex);
     if (step.x() > 0) {
       lower_y = static_cast<int16_t>(floor(baseline->y(pos.x()) + baseline_offset + 0.5));

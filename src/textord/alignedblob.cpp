@@ -167,7 +167,7 @@ ScrollView *AlignedBlob::DisplayTabs(const char *window_name, ScrollView *tab_wi
     tab_win = MakeWindow(0, 50, window_name);
   }
   // For every tab in the grid, display it.
-  GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> gsearch(this);
+  BlobGridSearch gsearch(this);
   gsearch.StartFullSearch();
   BLOBNBOX *bbox;
   while ((bbox = gsearch.NextFullSearch()) != nullptr) {
@@ -409,7 +409,7 @@ BLOBNBOX *AlignedBlob::FindAlignedBlob(const AlignedBlobParams &p, bool top_to_b
     xmin -= p.min_gutter;
   }
   // Setup a vertical search for an aligned blob.
-  GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> vsearch(this);
+  BlobGridSearch vsearch(this);
   if (WithinTestRegion(2, x_start, start_y)) {
     tprintf("Starting %s %s search at %d-%d,%d, search_size=%d, gutter=%d\n",
             p.ragged ? "Ragged" : "Aligned", p.right_tab ? "Right" : "Left", xmin, xmax, start_y,

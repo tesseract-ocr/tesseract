@@ -1,4 +1,4 @@
-# autotools (LINUX/UNIX , msys...)
+## autotools (LINUX/UNIX , msys...)
 
 If you have cloned Tesseract from GitHub, you must generate
 the configure script.
@@ -9,22 +9,23 @@ before new build.
 You need Leptonica 1.74.2 (minimum) for Tesseract 4.0x.
 
 Known dependencies for training tools (excluding leptonica):
- * compiler with c++11 support
- * automake
- * pkg-config
- * pango-devel
- * cairo-devel
- * icu-devel
+
+* compiler with c++17 support
+* automake
+* pkg-config
+* pango-devel
+* cairo-devel
+* icu-devel
 
 So, the steps for making Tesseract are:
 
-    $ ./autogen.sh
-    $ ./configure
-    $ make
-    $ sudo make install
-    $ sudo ldconfig
-    $ make training
-    $ sudo make training-install
+    ./autogen.sh
+    ./configure
+    make
+    sudo make install
+    sudo ldconfig
+    make training
+    sudo make training-install
 
 You need to install at least English language and OSD traineddata files to
 `TESSDATA_PREFIX` directory.
@@ -35,8 +36,7 @@ All language data files can be retrieved from git repository (useful only for pa
 (Repository is huge - more that 1.2 GB. You do NOT need to download traineddata files for
 all languages).
 
-    $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
-
+    git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
 You need an Internet connection and [curl](https://curl.haxx.se/) to compile `ScrollView.jar`
 because the build will automatically download
@@ -46,22 +46,20 @@ because the build will automatically download
 
 Just run:
 
-    $ make ScrollView.jar
+    make ScrollView.jar
 
 and follow the instruction on [Viewer Debugging](https://tesseract-ocr.github.io/tessdoc/ViewerDebugging.html).
 
-
-# CMAKE
+## cmake
 
 There is alternative build system based on multiplatform [cmake](https://cmake.org/)
 
-## LINUX
+### LINUX
 
-    $ mkdir build
-    $ cd build && cmake .. && make
-    $ sudo make install
+    mkdir build
+    cd build && cmake .. && make
+    sudo make install
 
-
-## WINDOWS
+### WINDOWS
 
 See the [documentation](https://tesseract-ocr.github.io/tessdoc/) for more information on this.

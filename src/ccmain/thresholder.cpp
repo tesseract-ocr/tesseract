@@ -25,10 +25,6 @@
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
 
-#if defined(USE_OPENCL)
-#  include "openclwrapper.h" // for OpenclDevice
-#endif
-
 #include <allheaders.h>
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
@@ -308,7 +304,10 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     tprintf("\nimage width: %d  height: %d  ppi: %d\n", pix_w, pix_h, yres_);
   }
 
-  if (method == ThresholdMethod::Sauvola) {
+  if (method == ThresholdMethod::Sauvola && pix_w > 6 && pix_h > 6) {
+    // pixSauvolaBinarizeTiled requires half_window_size >= 2.
+    // Therefore window_size must be at least 4 which requires
+    // pix_w and pix_h to be at least 7.
     int window_size;
     double window_size_factor;
     api->GetDoubleVariable("thresholding_window_size", &window_size_factor);
@@ -384,30 +383,24 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }
-  Image original = GetPixRect();
+  // Handle binary image
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
+    Image original = GetPixRect();
     *pix = original.copy();
-  } else {
-    if (pixGetColormap(original)) {
-      Image tmp;
-      Image without_cmap =
-          pixRemoveColormap(original, REMOVE_CMAP_BASED_ON_SRC);
-      int depth = pixGetDepth(without_cmap);
-      if (depth > 1 && depth < 8) {
-        tmp = pixConvertTo8(without_cmap, false);
-      } else {
-        tmp = without_cmap.copy();
-      }
-      without_cmap.destroy();
-      OtsuThresholdRectToPix(tmp, pix);
-      tmp.destroy();
-    } else {
-      OtsuThresholdRectToPix(pix_, pix);
-    }
+    original.destroy();
+    return true;
   }
-  original.destroy();
+  // Handle colormaps
+  Image src = pix_;
+  if (pixGetColormap(src)) {
+    src = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
+  }
+  OtsuThresholdRectToPix(src, pix);
+  if (src != pix_) {
+    src.destroy();
+  }
   return true;
 }
 
@@ -496,19 +489,7 @@ void ImageThresholder::OtsuThresholdRectToPix(Image src_pix, Image *out_pix) con
 
   int num_channels = OtsuThreshold(src_pix, rect_left_, rect_top_, rect_width_, rect_height_,
                                    thresholds, hi_values);
-  // only use opencl if compiled w/ OpenCL and selected device is opencl
-#ifdef USE_OPENCL
-  OpenclDevice od;
-  if (num_channels == 4 && od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0) {
-    od.ThresholdRectToPixOCL((unsigned char *)pixGetData(src_pix), num_channels,
-                             pixGetWpl(src_pix) * 4, &thresholds[0], &hi_values[0], out_pix /*pix_OCL*/,
-                             rect_height_, rect_width_, rect_top_, rect_left_);
-  } else {
-#endif
-    ThresholdRectToPix(src_pix, num_channels, thresholds, hi_values, out_pix);
-#ifdef USE_OPENCL
-  }
-#endif
+  ThresholdRectToPix(src_pix, num_channels, thresholds, hi_values, out_pix);
 }
 
 /// Threshold the rectangle, taking everything except the src_pix

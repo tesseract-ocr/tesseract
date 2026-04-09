@@ -1,13 +1,6 @@
 environment:
   matrix:
-    # does not work with sw at the moment
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      #platform: Win32
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      #platform: Win32
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      #platform: Win64
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
       platform: Win64
 
 configuration:
@@ -26,7 +19,7 @@ only_commits:
 
 before_build:
   - git submodule update --init --recursive
-  - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/sw-master-windows-client.zip
+  - curl -fsS -L -o dl.zip https://software-network.org/client/sw-master-windows_x86_64-client.zip
   - 7z x dl.zip
   - set PATH=%PATH%;%cd%
 
