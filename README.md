@@ -40,6 +40,8 @@ You should note that in many cases, in order to get better OCR results, you'll n
 
 This project **does not include a GUI application**. If you need one, please see the [3rdParty](https://tesseract-ocr.github.io/tessdoc/User-Projects-%E2%80%93-3rdParty.html) documentation.
 
+For local AI-powered workflows combining OCR with large language models, see [LM Studio](https://lmstudio.ai/download).
+
 Tesseract **can be trained to recognize other languages**.
 See [Tesseract Training](https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html) for more information.
 
