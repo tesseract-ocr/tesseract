@@ -17,7 +17,7 @@
 
 #include <filesystem>   // std::filesystem::path
 #include <process.h>    // _spawnvp
-#include <stdlib.h>     // _putenv_s, getenv
+#include <cstdlib>      // _putenv_s, getenv
 #include <string>       // std::string
 
 int main(int argc, char *argv[]) {
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     std::string new_path = dir + ";" + (env_path ? env_path : "");
 
     _putenv_s("PATH", new_path.c_str());
-    _spawnvp(_P_WAIT, argv[1], argv + 1);
+    return _spawnvp(_P_WAIT, argv[1], argv + 1);
     //~ _spawnvp(_P_OVERLAY, argv[1], argv + 1);
   }
   return 0;
