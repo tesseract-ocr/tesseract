@@ -437,7 +437,7 @@ fi
 # Check for programs needed to build documentation.
 # ----------------------------------------
 
-AM_CONDITIONAL([ASCIIDOC], false)
+AM_CONDITIONAL([ASCIIDOCTOR], false)
 AM_CONDITIONAL([ASCIIDOCTOR_PDF], false)
 AC_ARG_ENABLE([doc],
               AS_HELP_STRING([--disable-doc], [disable build of documentation])
@@ -446,7 +446,7 @@ AC_ARG_ENABLE([doc],
 AS_IF([test "$enable_doc" != "no"], [
   AC_CHECK_PROG([have_asciidoctor], asciidoctor, true, false)
   if $have_asciidoctor; then
-    AM_CONDITIONAL([ASCIIDOC], true)
+    AM_CONDITIONAL([ASCIIDOCTOR], true)
   else
     AS_IF([test "x$enable_doc" != xcheck], [
       AC_MSG_FAILURE(
@@ -565,7 +565,7 @@ echo "$ sudo make install"
 echo "$ sudo ldconfig"
 echo ""
 
-AM_COND_IF([ASCIIDOC], [
+AM_COND_IF([ASCIIDOCTOR], [
   AM_COND_IF([ASCIIDOCTOR_PDF], [
     echo "This will also build the documentation (including PDF)."
   ], [

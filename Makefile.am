@@ -1027,7 +1027,7 @@ fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
 
 CLEANFILES += fuzzer-api fuzzer-api-512x256
 
-if ASCIIDOC
+if ASCIIDOCTOR
 
 man_MANS = doc/combine_lang_model.1
 man_MANS += doc/combine_tessdata.1
@@ -1055,9 +1055,7 @@ EXTRA_DIST += $(man_MANS) doc/Doxyfile
 
 html: ${man_MANS:%=%.html}
 
-if ASCIIDOCTOR_PDF
 pdf: ${man_MANS:%=%.pdf}
-endif
 
 SUFFIXES = .asc .html .pdf
 
@@ -1067,10 +1065,8 @@ SUFFIXES = .asc .html .pdf
 .asc.html:
 	asciidoctor -b html5 -o $@ $<
 
-if ASCIIDOCTOR_PDF
 .asc.pdf:
 	asciidoctor-pdf -o $@ $<
-endif
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
 
