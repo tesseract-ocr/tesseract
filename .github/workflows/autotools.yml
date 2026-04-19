@@ -46,8 +46,7 @@ jobs:
     - name: Install documentation tools
       if: matrix.config.docs
       run: |
-           sudo apt-get install -y asciidoctor
-           sudo gem install asciidoctor-pdf
+           sudo apt-get install -y ruby-asciidoctor-pdf
 
     - name: Setup Tesseract
       run: |
