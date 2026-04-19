@@ -28,7 +28,7 @@ PKG_ARCH=mingw-w64-${ARCH/_/-}
 # Install packages.
 sudo apt-get update --quiet
 sudo apt-get install --assume-yes --no-install-recommends --quiet \
-  ruby-asciidoctor-pdf curl \
+  asciidoctor ruby-asciidoctor-pdf curl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
   mingw-w64-tools nsis g++-"$PKG_ARCH" \
   makepkg pacman-package-manager python3-venv unzip
