@@ -1054,7 +1054,10 @@ endif
 EXTRA_DIST += $(man_MANS) doc/Doxyfile
 
 html: ${man_MANS:%=%.html}
+
+if ASCIIDOCTOR_PDF
 pdf: ${man_MANS:%=%.pdf}
+endif
 
 SUFFIXES = .asc .html .pdf
 
@@ -1064,8 +1067,10 @@ SUFFIXES = .asc .html .pdf
 .asc.html:
 	asciidoctor -b html5 -o $@ $<
 
+if ASCIIDOCTOR_PDF
 .asc.pdf:
 	asciidoctor-pdf -o $@ $<
+endif
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
 

@@ -438,6 +438,7 @@ fi
 # ----------------------------------------
 
 AM_CONDITIONAL([ASCIIDOC], false)
+AM_CONDITIONAL([ASCIIDOCTOR_PDF], false)
 AC_ARG_ENABLE([doc],
               AS_HELP_STRING([--disable-doc], [disable build of documentation])
               [],
@@ -452,6 +453,8 @@ AS_IF([test "$enable_doc" != "no"], [
         [--enable-doc was given, but test for asciidoctor failed])
     ])
   fi
+  AC_CHECK_PROG([have_asciidoctor_pdf], asciidoctor-pdf, true, false)
+  AM_CONDITIONAL([ASCIIDOCTOR_PDF], $have_asciidoctor_pdf)
 ])
 
 # ----------------------------------------
@@ -563,7 +566,11 @@ echo "$ sudo ldconfig"
 echo ""
 
 AM_COND_IF([ASCIIDOC], [
-  echo "This will also build the documentation."
+  AM_COND_IF([ASCIIDOCTOR_PDF], [
+    echo "This will also build the documentation (including PDF)."
+  ], [
+    echo "This will also build the documentation (PDF skipped: asciidoctor-pdf not found)."
+  ])
 ], [
   AS_IF([test "$enable_doc" = "no"], [
     echo "Documentation will not be built because it was disabled."
