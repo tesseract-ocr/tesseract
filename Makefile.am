@@ -1027,7 +1027,7 @@ fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
 
 CLEANFILES += fuzzer-api fuzzer-api-512x256
 
-if ASCIIDOC
+if ASCIIDOCTOR
 
 man_MANS = doc/combine_lang_model.1
 man_MANS += doc/combine_tessdata.1
@@ -1051,30 +1051,22 @@ man_MANS += doc/shapeclustering.1
 man_MANS += doc/unicharambigs.5
 endif
 
-man_xslt = http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
-
 EXTRA_DIST += $(man_MANS) doc/Doxyfile
 
 html: ${man_MANS:%=%.html}
+
 pdf: ${man_MANS:%=%.pdf}
 
 SUFFIXES = .asc .html .pdf
 
 .asc:
-if HAVE_XML_CATALOG_FILES
-	asciidoc -b docbook -d manpage -o - $< | \
-	XML_CATALOG_FILES=$(XML_CATALOG_FILES) xsltproc --nonet -o $@ $(man_xslt) -
-else
-	asciidoc -b docbook -d manpage -o - $< | \
-	xsltproc --nonet -o $@ $(man_xslt) -
-endif
+	asciidoctor -b manpage -o $@ $<
 
 .asc.html:
-	asciidoc -b html5 -o $@ $<
+	asciidoctor -b html5 -o $@ $<
 
 .asc.pdf:
-	asciidoc -b docbook -d manpage -o $*.dbk $<
-	docbook2pdf -o doc $*.dbk
+	asciidoctor-pdf -o $@ $<
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
 
