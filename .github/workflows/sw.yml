@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v6
       with:
         submodules: recursive
-    - uses: egorpugin/sw-action@master
+    - uses: egorpugin/sw-action@7b42fb19616b8ae0cc327db80ce0c5fb4417eac8 # master
 
     - name: build
       if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
@@ -81,7 +81,7 @@ jobs:
 
     - name: Publish Test Report
       if: always() && matrix.os != 'windows-2022'
-      uses: mikepenz/action-junit-report@v6
+      uses: mikepenz/action-junit-report@49b2ca06f62aa7ef83ae6769a2179271e160d8e4 # v6
       with:
         check_name: test (${{ matrix.os }})
         report_paths: .sw/test/results.xml
