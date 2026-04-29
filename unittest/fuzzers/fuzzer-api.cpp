@@ -85,6 +85,10 @@ static PIX *createPix(BitReader &BR, const size_t width, const size_t height) {
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+  if (size == 0) {
+    return 0;
+  }
+
   BitReader BR(data, size);
 
   auto pix = createPix(BR, TESSERACT_FUZZER_WIDTH, TESSERACT_FUZZER_HEIGHT);
@@ -94,7 +98,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   char *outText = api->GetUTF8Text();
 
   pixDestroy(&pix);
-  delete[] outText;
+  api->Clear();
+  if (outText != nullptr) {
+    delete[] outText;
+  }
 
   return 0;
 }
