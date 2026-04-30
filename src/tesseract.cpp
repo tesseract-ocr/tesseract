@@ -516,6 +516,7 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       bool font_info;
       api.GetBoolVariable("hocr_font_info", &font_info);
       auto renderer = std::make_unique<tesseract::TessHOcrRenderer>(outputbase, font_info);
+      renderer->SetInputLanguages(api.GetInitLanguagesAsString());
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {
