@@ -1,0 +1,6 @@
+reportlab
+opencv-python
+Pillow
+pdf2image
+PyMuPDF
+rapidocr-onnxruntime
