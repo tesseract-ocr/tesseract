@@ -21,29 +21,24 @@
 #include "dropout.h"
 #include "networkscratch.h"
 #include "serialis.h"
-#include "tesserrstream.h"  // for tesserr
+#include "tesserrstream.h" // for tesserr
 
 namespace tesseract {
 
 Dropout::Dropout(const std::string &name, int ni, float dropout_rate)
-    : Network(NT_DROPOUT, name, ni, ni),
-      dropout_mask_(),
-      dropout_rate_(dropout_rate)
-{
+    : Network(NT_DROPOUT, name, ni, ni), dropout_mask_(), dropout_rate_(dropout_rate) {
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
     throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
   }
 }
 
 void Dropout::DebugWeights() {
-  // Dropout doesn't typically have weights to display like other layers.
-  tesserr << "Must override Network::DebugWeights for type " << type_ << '\n';
   tesserr << "Dropout layer '" << name_ << "': rate=" << dropout_rate_ << '\n';
 }
 
 // Writes to the given file. Returns false in case of error.
 bool Dropout::Serialize(TFile *fp) const {
-  // Note: dropout_mask_ is runtime data, not serialized.
+  // dropout_mask_ is runtime data and is not serialized.
   return Network::Serialize(fp) && fp->Serialize(&dropout_rate_);
 }
 
@@ -57,160 +52,86 @@ bool Dropout::DeSerialize(TFile *fp) {
 }
 
 // Runs forward propagation of activations on the input line.
-// See NetworkCpp for a detailed discussion of the arguments.
-void Dropout::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
-                       NetworkScratch *scratch, NetworkIO *output) {
-  // Resize output to match input dimensions.
-  // Start by copying input structure and potentially data.
-  *output = input;
+// See Network for a detailed discussion of the arguments.
+void Dropout::Forward(bool debug, const NetworkIO &input,
+                      const TransposedArray *input_transpose, NetworkScratch *scratch,
+                      NetworkIO *output) {
+  // Output has the same shape as input (ni_ == no_).
+  output->Resize(input, no_);
 
-  if (IsTraining() && dropout_rate_ > 0) {
-#if 0
-    // Apply dropout: randomly zero out neurons
-    float keep_prob = 1.0f - static_cast<float>(dropout_rate_);
-    int32_t batch_size = input.BatchSize();
-    int32_t total_elements_per_sample = input.Width() * input.Height() * input.Depth();
-    int32_t total_elements = batch_size * total_elements_per_sample;
-    int num_elements = height * width;
+  int width = input.Width();
+  int num_features = input.NumFeatures();
 
-    // Resize mask storage
-    dropout_mask_.resize(num_elements, 0);
+  if (IsTraining() && dropout_rate_ > 0.0f) {
+    // Inverted dropout: scale retained activations by 1/keep_prob so that
+    // inference can pass the network output through unchanged.
+    float keep_prob = 1.0f - dropout_rate_;
+    float scale = 1.0f / keep_prob;
 
-    const float* input_data = input.f(0);
-    float* output_data = output->f(0);
+    int num_elements = width * num_features;
+    dropout_mask_.resize(num_elements);
 
-    // Generate mask and apply dropout
-    for (int i = 0; i < num_elements; ++i) {
-      float random_val = static_cast<float>(random_.UnsignedRand(1000000)) / 1000000.0f;
-
-      if (random_val < keep_prob) {
-        dropout_mask_[i] = 1;  // Keep neuron
-        output_data[i] = input_data[i] / keep_prob;
-      } else {
-        dropout_mask_[i] = 0;  // Drop neuron
-        output_data[i] = 0.0f;
-      }
-    }
-#endif
-  } else {
-    // Inference mode: scale by (1 - dropout_rate)
-    // or just pass through unchanged
-    *output = input;
-  }
-#if 0
-  // Resize output to match input dimensions
-  output->Resize(input.NumFeatures(), input.TimeSize(), input.BatchSize());
-
-  if (IsTraining()) {
-    // Initialize the dropout mask
-    dropout_mask_.Resize(input.NumFeatures(), input.TimeSize(), input.BatchSize());
-
-    float retain_prob = 1.0f - dropout_rate_;
-
-    // Random number generator setup
-    std::mt19937 generator;  // You may need to use Tesseract's RNG
-    std::bernoulli_distribution distribution(retain_prob);
-
-    // Apply dropout mask
-    for (int b = 0; b < input.BatchSize(); ++b) {
-      for (int t = 0; t < input.TimeSize(); ++t) {
-        const float* input_features = input.f(b, t);
-        float* output_features = output->f(b, t);
-        float* mask_features = dropout_mask_.f(b, t);
-        for (int i = 0; i < input.NumFeatures(); ++i) {
-          bool retain = distribution(generator);
-          mask_features[i] = retain ? 1.0f : 0.0f;
-          // Scale the activations to maintain expected value
-          output_features[i] = input_features[i] * mask_features[i] / retain_prob;
+    for (int t = 0; t < width; ++t) {
+      const float *in = input.f(t);
+      float *out = output->f(t);
+      char *mask = dropout_mask_.data() + t * num_features;
+      for (int i = 0; i < num_features; ++i) {
+        // UnsignedRand(1.0) returns a value in [0, 1].
+        float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+        if (r < keep_prob) {
+          mask[i] = 1;
+          out[i] = in[i] * scale;
+        } else {
+          mask[i] = 0;
+          out[i] = 0.0f;
         }
       }
     }
   } else {
-    // During inference, pass input to output unchanged
+    // Inference mode (or dropout_rate_ == 0): pass input through unchanged.
     output->CopyAll(input);
   }
 
-  if (debug) {
-    tprintf("Dropout Forward Pass Complete.\n");
-  }
 #ifndef GRAPHICS_DISABLED
   if (debug) {
     DisplayForward(*output);
   }
 #endif
-#endif
 }
 
 // Runs backward propagation of errors on the deltas line.
-// See NetworkCpp for a detailed discussion of the arguments.
+// See Network for a detailed discussion of the arguments.
 bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
-                        NetworkIO *back_deltas) {
-  if (IsTraining() && dropout_rate_ > 0) {
-    // Apply same mask from forward pass
-    // Multiply deltas by the same mask
-  } else {
-    *back_deltas = fwd_deltas;
-  }
-#if 0
-  int size = deltas.Size();
-  input_deltas->Resize(size);
-
-  if (IsTraining()) {
-    for (int i = 0; i < size; ++i) {
-      (*input_deltas)(i) = deltas(i) * dropout_mask_[i];
-    }
-  } else {
-    for (int i = 0; i < size; ++i) {
-      (*input_deltas)(i) = deltas(i) * (1.0f - dropout_rate_);
-    }
-  }
-#endif
-
-#if 0
-  tesserr << __FUNCTION__ << ": missing implementation\n";
-
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
+                       NetworkIO *back_deltas) {
   back_deltas->Resize(fwd_deltas, ni_);
-  for (unsigned i = 0; i < ni_; i++) {
-    if (dist(gen) >= dropout_rate_) {
-      // Keep the neuron
-      output->push_back(input[i]);
-    } else {
-      // Drop the neuron
-      output->push_back(0.0f);
-    }
-  }
-#endif
 
-#if 0
-  NetworkScratch::IO delta_sum;
-  delta_sum.ResizeFloat(fwd_deltas, ni_, scratch);
-  delta_sum->Zero();
-  int y_scale = 2 * half_y_ + 1;
-  StrideMap::Index src_index(fwd_deltas.stride_map());
-  do {
-    // Stack x_scale groups of y_scale * ni_ inputs together.
-    int t = src_index.t();
-    int out_ix = 0;
-    for (int x = -half_x_; x <= half_x_; ++x, out_ix += y_scale * ni_) {
-      StrideMap::Index x_index(src_index);
-      if (x_index.AddOffset(x, FD_WIDTH)) {
-        int out_iy = out_ix;
-        for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
-          StrideMap::Index y_index(x_index);
-          if (y_index.AddOffset(y, FD_HEIGHT)) {
-            fwd_deltas.AddTimeStepPart(t, out_iy, ni_, delta_sum->f(y_index.t()));
-          }
-        }
+  int width = fwd_deltas.Width();
+  int num_features = fwd_deltas.NumFeatures();
+
+  if (IsTraining() && dropout_rate_ > 0.0f) {
+    // Apply the same inverted-dropout mask that was used in Forward.
+    float keep_prob = 1.0f - dropout_rate_;
+    float scale = 1.0f / keep_prob;
+
+    for (int t = 0; t < width; ++t) {
+      const float *in = fwd_deltas.f(t);
+      float *out = back_deltas->f(t);
+      const char *mask = dropout_mask_.data() + t * num_features;
+      for (int i = 0; i < num_features; ++i) {
+        out[i] = mask[i] ? in[i] * scale : 0.0f;
       }
     }
-  } while (src_index.Increment());
-  back_deltas->CopyAll(*delta_sum);
+  } else {
+    // Inference mode: pass gradients through unchanged.
+    back_deltas->CopyAll(fwd_deltas);
+  }
+
+#ifndef GRAPHICS_DISABLED
+  if (debug) {
+    DisplayBackward(*back_deltas);
+  }
 #endif
-  return true;
+  return needs_to_backprop_;
 }
 
 } // namespace tesseract.
