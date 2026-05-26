@@ -311,8 +311,16 @@ Network *NetworkBuilder::ParseD(const StaticShape &input_shape, const char **str
     tesserr << "Invalid dropout rate! Must be in [0.0, 1.0): " << dropout_rate << '\n';
     return nullptr;
   }
+  int dropout_dim = 0;
+  if (*end == ',') {
+    dropout_dim = static_cast<int>(strtol(end + 1, &end, 10));
+    if (dropout_dim < 1 || dropout_dim > 2) {
+      tesserr << "Invalid dropout dim! Must be 1 or 2.\n";
+      return nullptr;
+    }
+  }
   *str = end;
-  return new Dropout("Dropout", input_shape.depth(), dropout_rate);
+  return new Dropout("Dropout", input_shape.depth(), dropout_rate, dropout_dim);
 }
 
 // Parses a network that begins with 'M'.
