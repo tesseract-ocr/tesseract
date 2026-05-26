@@ -25,12 +25,15 @@ namespace tesseract {
 class Dropout : public Network {
 public:
   TESS_API
-  Dropout(const std::string &name, int ni, float dropout_rate);
+  Dropout(const std::string &name, int ni, float dropout_rate, int dropout_dim = 0);
   ~Dropout() override = default;
 
   // Accessors.
   std::string spec() const override {
-    return "Do" + std::to_string(dropout_rate_);
+    std::string s = "Do" + std::to_string(dropout_rate_);
+    if (dropout_dim_ != 0)
+      s += "," + std::to_string(dropout_dim_);
+    return s;
   }
 
   // Writes to the given file. Returns false in case of error.
@@ -53,6 +56,7 @@ private:
 
   std::vector<char> dropout_mask_;
   float dropout_rate_;
+  int dropout_dim_;  // 0=elementwise, 1=temporal, 2=feature/channel
 };
 
 } // namespace tesseract.

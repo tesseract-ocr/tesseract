@@ -25,10 +25,16 @@
 
 namespace tesseract {
 
-Dropout::Dropout(const std::string &name, int ni, float dropout_rate)
-    : Network(NT_DROPOUT, name, ni, ni), dropout_mask_(), dropout_rate_(dropout_rate) {
+Dropout::Dropout(const std::string &name, int ni, float dropout_rate, int dropout_dim)
+    : Network(NT_DROPOUT, name, ni, ni),
+      dropout_mask_(),
+      dropout_rate_(dropout_rate),
+      dropout_dim_(dropout_dim) {
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
     throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
+  }
+  if (dropout_dim_ < 0 || dropout_dim_ > 2) {
+    throw std::invalid_argument("Invalid dropout dim. Must be 0, 1 or 2.");
   }
 }
 
@@ -39,12 +45,17 @@ void Dropout::DebugWeights() {
 // Writes to the given file. Returns false in case of error.
 bool Dropout::Serialize(TFile *fp) const {
   // dropout_mask_ is runtime data and is not serialized.
-  return Network::Serialize(fp) && fp->Serialize(&dropout_rate_);
+  return Network::Serialize(fp) &&
+         fp->Serialize(&dropout_rate_) &&
+         fp->Serialize(&dropout_dim_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Dropout::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&dropout_rate_)) {
+    return false;
+  }
+  if (!fp->DeSerialize(&dropout_dim_)) {
     return false;
   }
   no_ = ni_;
@@ -54,8 +65,8 @@ bool Dropout::DeSerialize(TFile *fp) {
 // Runs forward propagation of activations on the input line.
 // See Network for a detailed discussion of the arguments.
 void Dropout::Forward(bool debug, const NetworkIO &input,
-                      const TransposedArray *input_transpose, NetworkScratch *scratch,
-                      NetworkIO *output) {
+                      const TransposedArray *input_transpose,
+                      NetworkScratch *scratch, NetworkIO *output) {
   // Output has the same shape as input (ni_ == no_).
   output->Resize(input, no_);
 
@@ -68,22 +79,47 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
     float keep_prob = 1.0f - dropout_rate_;
     float scale = 1.0f / keep_prob;
 
-    int num_elements = width * num_features;
-    dropout_mask_.resize(num_elements);
-
-    for (int t = 0; t < width; ++t) {
-      const float *in = input.f(t);
-      float *out = output->f(t);
-      char *mask = dropout_mask_.data() + t * num_features;
+    if (dropout_dim_ == 2) {
+      // Feature dropout: one mask value per feature, shared across all timesteps.
+      dropout_mask_.resize(num_features);
       for (int i = 0; i < num_features; ++i) {
-        // UnsignedRand(1.0) returns a value in [0, 1].
         float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
-        if (r < keep_prob) {
-          mask[i] = 1;
-          out[i] = in[i] * scale;
+        dropout_mask_[i] = (r < keep_prob) ? 1 : 0;
+      }
+      for (int t = 0; t < width; ++t) {
+        const float *in = input.f(t);
+        float *out = output->f(t);
+        for (int i = 0; i < num_features; ++i)
+          out[i] = dropout_mask_[i] ? in[i] * scale : 0.0f;
+      }
+    } else if (dropout_dim_ == 1) {
+      // Temporal dropout: one mask value per timestep, shared across all features.
+      dropout_mask_.resize(width);
+      for (int t = 0; t < width; ++t) {
+        float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+        dropout_mask_[t] = (r < keep_prob) ? 1 : 0;
+      }
+      for (int t = 0; t < width; ++t) {
+        const float *in = input.f(t);
+        float *out = output->f(t);
+        if (dropout_mask_[t]) {
+          for (int i = 0; i < num_features; ++i) out[i] = in[i] * scale;
         } else {
-          mask[i] = 0;
-          out[i] = 0.0f;
+          memset(out, 0, sizeof(float) * num_features);
+        }
+      }
+    } else {
+      // Element-wise dropout (dim=0, default).
+      dropout_mask_.resize(width * num_features);
+      for (int t = 0; t < width; ++t) {
+        const float *in = input.f(t);
+        float *out = output->f(t);
+        char *mask = dropout_mask_.data() + t * num_features;
+        for (int i = 0; i < num_features; ++i) {
+          // UnsignedRand(1.0) returns a value in [0, 1].
+          float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+          mask[i] = (r < keep_prob) ? 1 : 0;
+          out[i] = mask[i] ? in[i] * scale : 0.0f;
         }
       }
     }
@@ -101,24 +137,40 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
 
 // Runs backward propagation of errors on the deltas line.
 // See Network for a detailed discussion of the arguments.
-bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
-                       NetworkIO *back_deltas) {
+bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas,
+                       NetworkScratch *scratch, NetworkIO *back_deltas) {
   back_deltas->Resize(fwd_deltas, ni_);
 
   int width = fwd_deltas.Width();
   int num_features = fwd_deltas.NumFeatures();
 
   if (IsTraining() && dropout_rate_ > 0.0f) {
-    // Apply the same inverted-dropout mask that was used in Forward.
-    float keep_prob = 1.0f - dropout_rate_;
-    float scale = 1.0f / keep_prob;
+    float scale = 1.0f / (1.0f - dropout_rate_);
 
-    for (int t = 0; t < width; ++t) {
-      const float *in = fwd_deltas.f(t);
-      float *out = back_deltas->f(t);
-      const char *mask = dropout_mask_.data() + t * num_features;
-      for (int i = 0; i < num_features; ++i) {
-        out[i] = mask[i] ? in[i] * scale : 0.0f;
+    if (dropout_dim_ == 2) {
+      for (int t = 0; t < width; ++t) {
+        const float *in = fwd_deltas.f(t);
+        float *out = back_deltas->f(t);
+        for (int i = 0; i < num_features; ++i)
+          out[i] = dropout_mask_[i] ? in[i] * scale : 0.0f;
+      }
+    } else if (dropout_dim_ == 1) {
+      for (int t = 0; t < width; ++t) {
+        const float *in = fwd_deltas.f(t);
+        float *out = back_deltas->f(t);
+        if (dropout_mask_[t]) {
+          for (int i = 0; i < num_features; ++i) out[i] = in[i] * scale;
+        } else {
+          memset(out, 0, sizeof(float) * num_features);
+        }
+      }
+    } else {
+      for (int t = 0; t < width; ++t) {
+        const float *in = fwd_deltas.f(t);
+        float *out = back_deltas->f(t);
+        const char *mask = dropout_mask_.data() + t * num_features;
+        for (int i = 0; i < num_features; ++i)
+          out[i] = mask[i] ? in[i] * scale : 0.0f;
       }
     }
   } else {
