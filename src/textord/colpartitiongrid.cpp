@@ -1051,9 +1051,14 @@ void ColPartitionGrid::DeleteParts() {
 // survive into the block creation stage.
 void ColPartitionGrid::DeleteUnknownParts(TO_BLOCK *block) {
   // Compute the pixel thresholds for the top and bottom boundary zones.
+  // Guard against degenerate grids where page_height could be non-positive.
   int page_height = tright().y() - bleft().y();
-  int bottom_threshold = bleft().y() + static_cast<int>(page_height * kPageBoundaryFraction);
-  int top_threshold = tright().y() - static_cast<int>(page_height * kPageBoundaryFraction);
+  int bottom_threshold = bleft().y();
+  int top_threshold = tright().y();
+  if (page_height > 0) {
+    bottom_threshold += static_cast<int>(page_height * kPageBoundaryFraction);
+    top_threshold -= static_cast<int>(page_height * kPageBoundaryFraction);
+  }
 
   ColPartitionGridSearch gsearch(this);
   gsearch.StartFullSearch();
@@ -1062,8 +1067,12 @@ void ColPartitionGrid::DeleteUnknownParts(TO_BLOCK *block) {
     if (part->blob_type() == BRT_UNKNOWN) {
       // Check whether this partition is near a page edge and looks like text
       // (more than one blob, not already flagged as non-text).
-      const TBOX &box = part->bounding_box();
-      bool near_page_edge = box.bottom() <= bottom_threshold || box.top() >= top_threshold;
+      // Use the partition centroid for the boundary test so that only
+      // partitions whose centre lies within the boundary zone are rescued;
+      // this avoids spuriously preserving large partitions that merely touch
+      // the zone.
+      int mid_y = part->MidY();
+      bool near_page_edge = mid_y <= bottom_threshold || mid_y >= top_threshold;
       bool multi_blob = part->boxes_count() > 1;
       bool not_nontext = part->flow() != BTFT_NONTEXT;
       if (near_page_edge && multi_blob && not_nontext) {
