@@ -63,6 +63,10 @@ const double kMaxPartitionSpacing = 1.75;
 // Margin by which text has to beat image or vice-versa to make a firm
 // decision in GridSmoothNeighbour.
 const int kSmoothDecisionMargin = 4;
+// Fraction of page height from the top or bottom edge within which an
+// unknown partition is considered a potential header/footer/page-number and
+// is preserved rather than deleted.
+const double kPageBoundaryFraction = 0.125;
 
 ColPartitionGrid::ColPartitionGrid(int gridsize, const ICOORD &bleft,
                                    const ICOORD &tright)
@@ -1041,12 +1045,38 @@ void ColPartitionGrid::DeleteParts() {
 
 // Deletes all the partitions in the grid that are of type BRT_UNKNOWN and
 // all the blobs in them.
+// Exception: partitions near the top or bottom of the page that have more
+// than one blob and are not explicitly marked as non-text are likely headers,
+// footers, or page numbers. These are re-classified as BRT_TEXT so that they
+// survive into the block creation stage.
 void ColPartitionGrid::DeleteUnknownParts(TO_BLOCK *block) {
+  // Compute the pixel thresholds for the top and bottom boundary zones.
+  int page_height = tright().y() - bleft().y();
+  int bottom_threshold = bleft().y() + static_cast<int>(page_height * kPageBoundaryFraction);
+  int top_threshold = tright().y() - static_cast<int>(page_height * kPageBoundaryFraction);
+
   ColPartitionGridSearch gsearch(this);
   gsearch.StartFullSearch();
   ColPartition *part;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->blob_type() == BRT_UNKNOWN) {
+      // Check whether this partition is near a page edge and looks like text
+      // (more than one blob, not already flagged as non-text).
+      const TBOX &box = part->bounding_box();
+      bool near_page_edge = box.bottom() <= bottom_threshold || box.top() >= top_threshold;
+      bool multi_blob = part->boxes_count() > 1;
+      bool not_nontext = part->flow() != BTFT_NONTEXT;
+      if (near_page_edge && multi_blob && not_nontext) {
+        // Rescue this partition as text so it is OCR'd (e.g. page numbers,
+        // headers, footers).
+        gsearch.RemoveBBox();
+        part->set_blob_type(BRT_TEXT);
+        part->set_flow(BTFT_CHAIN);
+        part->SetBlobTypes();
+        InsertBBox(true, true, part);
+        gsearch.RepositionIterator();
+        continue;
+      }
       gsearch.RemoveBBox();
       // Once marked, the blobs will be swept up by DeleteUnownedNoise.
       part->set_flow(BTFT_NONTEXT);
