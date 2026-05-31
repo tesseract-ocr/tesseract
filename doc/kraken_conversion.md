@@ -1,4 +1,4 @@
-# Kraken ↔ Tesseract model conversion (best-effort)
+# Kraken → Tesseract model conversion (best-effort)
 
 ## Script
 
@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.8+
 - `torch`
 - `numpy`
 
@@ -63,11 +63,15 @@ Kraken extensions that have no direct Tesseract equivalent are reported as unsup
 - `A<act>` standalone activation layers (except `A1` reduction)
 - `Lpa` attention-based LSTM variants
 
-## Format differences and limitation
+## Format differences and limitations
 
 Kraken stores models as PyTorch metadata + state dict, while Tesseract runtime
 models use Tesseract's C++ binary network serialization inside the `.lstm`
 component in `.traineddata`.
+
+> ⚠️ `torch.load` uses Python pickle under the hood. Only run the converter on
+> trusted `.mlmodel` files, and prefer models with known provenance
+> (for example verified checksums/signatures).
 
 This script currently exports a conversion bundle (`.network_spec` + `.weights.npz`
 + `.conversion.json`) and reports unsupported VGSL features. It does **not** yet

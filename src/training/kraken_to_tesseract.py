@@ -9,7 +9,10 @@ conversion bundle for later assembly into a Tesseract model.
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
+import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -31,7 +34,17 @@ UNSUPPORTED_KRAKEN_PREFIXES = {
 }
 
 SUPPORTED_TESSERACT_LAYER_PREFIXES = {
-    "1", "S", "P", "A", "L", "R", "M", "F", "O", "C", "T"
+    "1",  # input
+    "S",  # series
+    "P",  # parallel
+    "A",  # A<n> reduction / xy-transposed pair
+    "L",  # logistic / lstm family
+    "R",  # reduce / reconfig
+    "M",  # maxpool
+    "F",  # fully connected
+    "O",  # output
+    "C",  # convolution
+    "T",  # transposition/reconfig helper
 }
 
 
@@ -90,6 +103,8 @@ def _map_vgsl_layers(tokens: list[str], keep_dropout: bool) -> tuple[list[str], 
     unsupported: list[UnsupportedLayer] = []
 
     for token in tokens:
+        if not token:
+            continue
         if token.startswith("Do"):
             if keep_dropout:
                 unsupported.append(UnsupportedLayer(token, UNSUPPORTED_KRAKEN_PREFIXES["Do"]))
@@ -105,7 +120,9 @@ def _map_vgsl_layers(tokens: list[str], keep_dropout: bool) -> tuple[list[str], 
         if token.startswith("Gr"):
             unsupported.append(UnsupportedLayer(token, UNSUPPORTED_KRAKEN_PREFIXES["Gr"]))
             continue
-        if token.startswith("A") and (len(token) == 1 or not token[1].isdigit()):
+        # Tesseract supports numeric A-reduction forms (A1, A2, ...), while
+        # Kraken's activation layers are A<act> (for example As, Ar, At).
+        if token.startswith("A") and (len(token) < 2 or not token[1].isdigit()):
             unsupported.append(UnsupportedLayer(token, UNSUPPORTED_KRAKEN_PREFIXES["A"]))
             continue
 
@@ -124,10 +141,44 @@ def _to_numpy_state_dict(state_dict: dict[str, Any]) -> dict[str, np.ndarray]:
         if not hasattr(value, "detach"):
             continue
         tensor = value.detach().cpu().numpy()
+        # Tesseract runtime weights are floating-point; export as float32.
         converted[str(key)] = tensor.astype(np.float32, copy=False)
     if not converted:
         raise ConversionError("State dict does not contain tensor weights")
     return converted
+
+
+def _write_text_atomic(path: Path, content: str) -> None:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=path.parent,
+        delete=False,
+        prefix=f".{path.name}.",
+    ) as tmp:
+        tmp.write(content)
+        temp_name = tmp.name
+    Path(temp_name).replace(path)
+
+
+def _torch_load_model(path: Path) -> Any:
+    kwargs: dict[str, Any] = {"map_location": "cpu"}
+    # Use weights_only when supported to reduce pickle attack surface.
+    if "weights_only" in inspect.signature(torch.load).parameters:
+        kwargs["weights_only"] = True
+    return torch.load(path, **kwargs)
+
+
+def _write_npz_atomic(path: Path, arrays: dict[str, np.ndarray]) -> None:
+    with tempfile.NamedTemporaryFile(
+        mode="wb",
+        dir=path.parent,
+        delete=False,
+        prefix=f".{path.name}.",
+    ) as tmp:
+        np.savez_compressed(tmp, **arrays)
+        temp_name = tmp.name
+    Path(temp_name).replace(path)
 
 
 def parse_args() -> argparse.Namespace:
@@ -158,7 +209,11 @@ def main() -> int:
     if not args.input.is_file():
         raise SystemExit(f"Input model does not exist: {args.input}")
 
-    model_obj = torch.load(args.input, map_location="cpu")
+    print(
+        "Warning: torch.load uses Python pickle and must only be used with trusted model files.",
+        file=sys.stderr,
+    )
+    model_obj = _torch_load_model(args.input)
     original_spec = _find_vgsl_spec(model_obj)
     state_dict = _find_state_dict(model_obj)
     mapped_layers, mapping_notes, unsupported = _map_vgsl_layers(
@@ -174,12 +229,24 @@ def main() -> int:
         )
 
     output_prefix = args.output_prefix
-    output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise SystemExit(
+            f"Failed to prepare output directory for prefix '{output_prefix}': {exc}"
+        ) from exc
 
     mapped_spec = "[" + " ".join(mapped_layers) + "]"
-    (output_prefix.with_suffix(".network_spec")).write_text(mapped_spec + "\n", encoding="utf-8")
-
-    np.savez_compressed(output_prefix.with_suffix(".weights.npz"), **_to_numpy_state_dict(state_dict))
+    network_spec_path = output_prefix.with_suffix(".network_spec")
+    weights_path = output_prefix.with_suffix(".weights.npz")
+    summary_path = output_prefix.with_suffix(".conversion.json")
+    try:
+        _write_text_atomic(network_spec_path, mapped_spec + "\n")
+        _write_npz_atomic(weights_path, _to_numpy_state_dict(state_dict))
+    except OSError as exc:
+        raise SystemExit(
+            f"Failed while writing conversion artifacts for prefix '{output_prefix}': {exc}"
+        ) from exc
 
     unsupported_payload = [{"token": item.token, "reason": item.reason} for item in unsupported]
     summary = {
@@ -193,14 +260,11 @@ def main() -> int:
             " serializer bridge to produce a .lstm component"
         ),
     }
-    (output_prefix.with_suffix(".conversion.json")).write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    _write_text_atomic(summary_path, json.dumps(summary, indent=2, sort_keys=True) + "\n")
 
-    print(f"Wrote {output_prefix.with_suffix('.network_spec')}")
-    print(f"Wrote {output_prefix.with_suffix('.weights.npz')}")
-    print(f"Wrote {output_prefix.with_suffix('.conversion.json')}")
+    print(f"Wrote {network_spec_path}")
+    print(f"Wrote {weights_path}")
+    print(f"Wrote {summary_path}")
 
     if unsupported:
         print("Completed partial conversion with unsupported layers:")
