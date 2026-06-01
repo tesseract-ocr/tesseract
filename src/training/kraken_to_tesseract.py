@@ -166,16 +166,16 @@ def _torch_load_model(path: Path) -> Any:
     def _load_with_kraken_loader() -> Any:
         try:
             from kraken.lib import models as kraken_models
-        except ImportError as exc:
+        except ImportError:
             raise ConversionError(
                 "Input is not readable as a torch payload. Install kraken to load"
                 " CoreML-style .mlmodel files (pip install kraken)."
-            )
+            ) from None
 
         try:
             recognizer = kraken_models.load_any(str(path), device="cpu")
         except Exception as exc:
-            raise ConversionError(f"Failed to load kraken model via kraken loader: {exc}")
+            raise ConversionError(f"Failed to load kraken model via kraken loader: {exc}") from None
 
         network = getattr(recognizer, "nn", None)
         if network is None or not hasattr(network, "state_dict"):
@@ -213,11 +213,17 @@ def _torch_load_model(path: Path) -> Any:
                     "kraken model loader compatibility path.",
                     file=sys.stderr,
                 )
-                return _load_with_kraken_loader()
+                try:
+                    return _load_with_kraken_loader()
+                except ConversionError as kex:
+                    raise kex from None
     try:
         return torch.load(path, **kwargs)
     except (pickle.UnpicklingError, RuntimeError, ModuleNotFoundError, OSError, ValueError):
-        return _load_with_kraken_loader()
+        try:
+            return _load_with_kraken_loader()
+        except ConversionError as kex:
+            raise kex from None
 
 
 def _write_npz_atomic(path: Path, arrays: dict[str, np.ndarray]) -> None:
@@ -273,7 +279,8 @@ def main() -> int:
             keep_dropout=args.keep_dropout,
         )
     except ConversionError as exc:
-        raise SystemExit(str(exc))
+        print(str(exc), file=sys.stderr)
+        return 1
 
     if unsupported and not args.allow_unsupported:
         details = "\n".join(f"  - {item.token}: {item.reason}" for item in unsupported)
@@ -286,9 +293,11 @@ def main() -> int:
     try:
         output_prefix.parent.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        raise SystemExit(
-            f"Failed to prepare output directory for prefix '{output_prefix}': {exc}"
+        print(
+            f"Failed to prepare output directory for prefix '{output_prefix}': {exc}",
+            file=sys.stderr,
         )
+        return 1
 
     mapped_spec = "[" + " ".join(mapped_layers) + "]"
     network_spec_path = output_prefix.with_suffix(".network_spec")
@@ -298,9 +307,11 @@ def main() -> int:
         _write_text_atomic(network_spec_path, mapped_spec + "\n")
         _write_npz_atomic(weights_path, _to_numpy_state_dict(state_dict))
     except OSError as exc:
-        raise SystemExit(
-            f"Failed while writing conversion artifacts for prefix '{output_prefix}': {exc}"
+        print(
+            f"Failed while writing conversion artifacts for prefix '{output_prefix}': {exc}",
+            file=sys.stderr,
         )
+        return 1
 
     unsupported_payload = [{"token": item.token, "reason": item.reason} for item in unsupported]
     summary = {
