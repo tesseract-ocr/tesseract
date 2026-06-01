@@ -9,11 +9,14 @@
 - Python 3.8+
 - `torch`
 - `numpy`
+- `kraken` (optional fallback for CoreML-style `.mlmodel` files)
 
 Example installation:
 
 ```bash
 python3 -m pip install torch numpy
+# optional fallback loader for non-torch .mlmodel payloads
+python3 -m pip install kraken
 ```
 
 ## Usage
@@ -65,9 +68,11 @@ Kraken extensions that have no direct Tesseract equivalent are reported as unsup
 
 ## Format differences and limitations
 
-Kraken stores models as PyTorch metadata + state dict, while Tesseract runtime
-models use Tesseract's C++ binary network serialization inside the `.lstm`
-component in `.traineddata`.
+Kraken models in the wild may be torch-serialized payloads or CoreML-style
+`.mlmodel` files. The converter first tries `torch.load` and falls back to
+Kraken's own model loader (when `kraken` is installed) for compatibility.
+Tesseract runtime models use Tesseract's C++ binary network serialization inside
+the `.lstm` component in `.traineddata`.
 
 > ⚠️ `torch.load` uses Python pickle under the hood. Only run the converter on
 > trusted `.mlmodel` files, and prefer models with known provenance

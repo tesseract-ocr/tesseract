@@ -163,6 +163,34 @@ def _write_text_atomic(path: Path, content: str) -> None:
 
 
 def _torch_load_model(path: Path) -> Any:
+    def _load_with_kraken_loader() -> Any:
+        try:
+            from kraken.lib import models as kraken_models
+        except ImportError as exc:
+            raise ConversionError(
+                "Input is not readable as a torch payload. Install kraken to load"
+                " CoreML-style .mlmodel files (pip install kraken)."
+            ) from exc
+
+        try:
+            recognizer = kraken_models.load_any(str(path), device="cpu")
+        except Exception as exc:
+            raise ConversionError(f"Failed to load kraken model via kraken loader: {exc}") from exc
+
+        network = getattr(recognizer, "nn", None)
+        if network is None or not hasattr(network, "state_dict"):
+            raise ConversionError("Kraken loader returned an unexpected model object")
+
+        vgsl = getattr(network, "spec", None)
+        if not isinstance(vgsl, str):
+            metadata = getattr(network, "user_metadata", {})
+            if isinstance(metadata, dict):
+                vgsl = metadata.get("vgsl")
+        if not isinstance(vgsl, str):
+            raise ConversionError("Could not locate VGSL specification in kraken model metadata")
+
+        return {"vgsl": vgsl, "state_dict": network.state_dict()}
+
     kwargs: dict[str, Any] = {"map_location": "cpu"}
     # Use weights_only when supported to reduce pickle attack surface.
     if "weights_only" in inspect.signature(torch.load).parameters:
@@ -176,8 +204,20 @@ def _torch_load_model(path: Path) -> Any:
                 "before loading untrusted files.",
                 file=sys.stderr,
             )
-            return torch.load(path, weights_only=False, **kwargs)
-    return torch.load(path, **kwargs)
+            try:
+                return torch.load(path, weights_only=False, **kwargs)
+            except (pickle.UnpicklingError, RuntimeError, ModuleNotFoundError, OSError, ValueError) as retry_exc:
+                print(
+                    "Warning: torch.load(weights_only=False) also failed "
+                    f"({retry_exc.__class__.__name__}: {retry_exc}); trying "
+                    "kraken model loader compatibility path.",
+                    file=sys.stderr,
+                )
+                return _load_with_kraken_loader()
+    try:
+        return torch.load(path, **kwargs)
+    except (pickle.UnpicklingError, RuntimeError, ModuleNotFoundError, OSError, ValueError):
+        return _load_with_kraken_loader()
 
 
 def _write_npz_atomic(path: Path, arrays: dict[str, np.ndarray]) -> None:
@@ -224,13 +264,16 @@ def main() -> int:
         "Warning: torch.load uses Python pickle and must only be used with trusted model files.",
         file=sys.stderr,
     )
-    model_obj = _torch_load_model(args.input)
-    original_spec = _find_vgsl_spec(model_obj)
-    state_dict = _find_state_dict(model_obj)
-    mapped_layers, mapping_notes, unsupported = _map_vgsl_layers(
-        _tokenize_vgsl(original_spec),
-        keep_dropout=args.keep_dropout,
-    )
+    try:
+        model_obj = _torch_load_model(args.input)
+        original_spec = _find_vgsl_spec(model_obj)
+        state_dict = _find_state_dict(model_obj)
+        mapped_layers, mapping_notes, unsupported = _map_vgsl_layers(
+            _tokenize_vgsl(original_spec),
+            keep_dropout=args.keep_dropout,
+        )
+    except ConversionError as exc:
+        raise SystemExit(str(exc)) from exc
 
     if unsupported and not args.allow_unsupported:
         details = "\n".join(f"  - {item.token}: {item.reason}" for item in unsupported)
