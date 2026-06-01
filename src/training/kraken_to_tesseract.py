@@ -165,17 +165,19 @@ def _write_text_atomic(path: Path, content: str) -> None:
 def _torch_load_model(path: Path) -> Any:
     kwargs: dict[str, Any] = {"map_location": "cpu"}
     # Use weights_only when supported to reduce pickle attack surface.
-    if "weights_only" not in inspect.signature(torch.load).parameters:
-        return torch.load(path, **kwargs)
-    try:
-        return torch.load(path, weights_only=True, **kwargs)
-    except pickle.UnpicklingError:
-        print(
-            "Warning: torch.load(weights_only=True) failed; retrying with "
-            "weights_only=False for compatibility. Use only trusted model files.",
-            file=sys.stderr,
-        )
-        return torch.load(path, weights_only=False, **kwargs)
+    if "weights_only" in inspect.signature(torch.load).parameters:
+        try:
+            return torch.load(path, weights_only=True, **kwargs)
+        except (pickle.UnpicklingError, RuntimeError, ModuleNotFoundError) as exc:
+            print(
+                "Warning: torch.load(weights_only=True) failed "
+                f"({exc.__class__.__name__}: {exc}); retrying with "
+                "weights_only=False for compatibility. Verify model provenance "
+                "before loading untrusted files.",
+                file=sys.stderr,
+            )
+            return torch.load(path, weights_only=False, **kwargs)
+    return torch.load(path, **kwargs)
 
 
 def _write_npz_atomic(path: Path, arrays: dict[str, np.ndarray]) -> None:
