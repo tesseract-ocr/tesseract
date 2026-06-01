@@ -23,7 +23,7 @@ import numpy as np
 try:
     import torch
 except ImportError as exc:  # pragma: no cover - runtime dependency
-    raise SystemExit("Missing dependency 'torch'. Install: pip install torch") from exc
+    raise SystemExit("Missing dependency 'torch'. Install: pip install torch")
 
 
 UNSUPPORTED_KRAKEN_PREFIXES = {
@@ -170,12 +170,12 @@ def _torch_load_model(path: Path) -> Any:
             raise ConversionError(
                 "Input is not readable as a torch payload. Install kraken to load"
                 " CoreML-style .mlmodel files (pip install kraken)."
-            ) from exc
+            )
 
         try:
             recognizer = kraken_models.load_any(str(path), device="cpu")
         except Exception as exc:
-            raise ConversionError(f"Failed to load kraken model via kraken loader: {exc}") from exc
+            raise ConversionError(f"Failed to load kraken model via kraken loader: {exc}")
 
         network = getattr(recognizer, "nn", None)
         if network is None or not hasattr(network, "state_dict"):
@@ -273,7 +273,7 @@ def main() -> int:
             keep_dropout=args.keep_dropout,
         )
     except ConversionError as exc:
-        raise SystemExit(str(exc)) from exc
+        raise SystemExit(str(exc))
 
     if unsupported and not args.allow_unsupported:
         details = "\n".join(f"  - {item.token}: {item.reason}" for item in unsupported)
@@ -288,7 +288,7 @@ def main() -> int:
     except OSError as exc:
         raise SystemExit(
             f"Failed to prepare output directory for prefix '{output_prefix}': {exc}"
-        ) from exc
+        )
 
     mapped_spec = "[" + " ".join(mapped_layers) + "]"
     network_spec_path = output_prefix.with_suffix(".network_spec")
@@ -300,7 +300,7 @@ def main() -> int:
     except OSError as exc:
         raise SystemExit(
             f"Failed while writing conversion artifacts for prefix '{output_prefix}': {exc}"
-        ) from exc
+        )
 
     unsupported_payload = [{"token": item.token, "reason": item.reason} for item in unsupported]
     summary = {
