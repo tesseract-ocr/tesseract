@@ -25,7 +25,7 @@
 
 namespace tesseract {
 
-Dropout::Dropout(const std::string &name, int ni, float dropout_rate, int dropout_dim)
+Dropout::Dropout(const std::string &name, int ni, float dropout_rate, unsigned dropout_dim)
     : Network(NT_DROPOUT, name, ni, ni),
       dropout_mask_(),
       dropout_rate_(dropout_rate),
@@ -33,13 +33,13 @@ Dropout::Dropout(const std::string &name, int ni, float dropout_rate, int dropou
   if (dropout_rate_ < 0 || dropout_rate_ >= 1) {
     throw std::invalid_argument("Invalid dropout rate. Must be in [0, 1).");
   }
-  if (dropout_dim_ < 0 || dropout_dim_ > 2) {
+  if (dropout_dim_ > 2) {
     throw std::invalid_argument("Invalid dropout dim. Must be 0, 1 or 2.");
   }
 }
 
 void Dropout::DebugWeights() {
-  tesserr << "Dropout layer '" << name_ << "': rate=" << dropout_rate_ << '\n';
+  tesserr << "Dropout layer '" << name_ << "': rate=" << dropout_rate_ << ", dimension=" << dropout_dim_ << '\n';
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -83,7 +83,7 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
       // Feature dropout: one mask value per feature, shared across all timesteps.
       dropout_mask_.resize(num_features);
       for (int i = 0; i < num_features; ++i) {
-        float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+        float r = randomizer_->UnsignedRand(1.0f);
         dropout_mask_[i] = (r < keep_prob) ? 1 : 0;
       }
       for (int t = 0; t < width; ++t) {
@@ -96,7 +96,7 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
       // Temporal dropout: one mask value per timestep, shared across all features.
       dropout_mask_.resize(width);
       for (int t = 0; t < width; ++t) {
-        float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+        float r = randomizer_->UnsignedRand(1.0f);
         dropout_mask_[t] = (r < keep_prob) ? 1 : 0;
       }
       for (int t = 0; t < width; ++t) {
@@ -110,14 +110,14 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
       }
     } else {
       // Element-wise dropout (dim=0, default).
-      dropout_mask_.resize(width * num_features);
+      dropout_mask_.resize(static_cast<size_t>(width) * num_features);
       for (int t = 0; t < width; ++t) {
         const float *in = input.f(t);
         float *out = output->f(t);
         char *mask = dropout_mask_.data() + t * num_features;
         for (int i = 0; i < num_features; ++i) {
-          // UnsignedRand(1.0) returns a value in [0, 1].
-          float r = static_cast<float>(randomizer_->UnsignedRand(1.0));
+          // UnsignedRand(1.0f) returns a value in [0, 1].
+          float r = randomizer_->UnsignedRand(1.0f);
           mask[i] = (r < keep_prob) ? 1 : 0;
           out[i] = mask[i] ? in[i] * scale : 0.0f;
         }

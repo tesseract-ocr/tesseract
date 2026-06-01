@@ -25,7 +25,7 @@ namespace tesseract {
 class Dropout : public Network {
 public:
   TESS_API
-  Dropout(const std::string &name, int ni, float dropout_rate, int dropout_dim = 0);
+  Dropout(const std::string &name, int ni, float dropout_rate, unsigned dropout_dim = 0);
   ~Dropout() override = default;
 
   // Accessors.
@@ -56,7 +56,7 @@ private:
 
   std::vector<char> dropout_mask_;
   float dropout_rate_;
-  int dropout_dim_;  // 0=elementwise, 1=temporal, 2=feature/channel
+  unsigned dropout_dim_;  // 0=elementwise, 1=temporal, 2=feature/channel
 };
 
 } // namespace tesseract.
