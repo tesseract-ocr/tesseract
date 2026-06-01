@@ -72,6 +72,8 @@ component in `.traineddata`.
 > ⚠️ `torch.load` uses Python pickle under the hood. Only run the converter on
 > trusted `.mlmodel` files, and prefer models with known provenance
 > (for example verified checksums/signatures).
+> On PyTorch versions that support `weights_only=True`, the converter tries that
+> first and falls back to `weights_only=False` for compatibility when needed.
 
 This script currently exports a conversion bundle (`.network_spec` + `.weights.npz`
 + `.conversion.json`) and reports unsupported VGSL features. It does **not** yet
