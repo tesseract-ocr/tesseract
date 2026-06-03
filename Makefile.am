@@ -1,4 +1,5 @@
 ## run autogen.sh to create Makefile.in from this file
+export MACOSX_DEPLOYMENT_TARGET = @MACOSX_DEPLOYMENT_TARGET@
 ACLOCAL_AMFLAGS = -I m4
 
 .PHONY: doc html install-langs ScrollView.jar install-jars pdf training

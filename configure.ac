@@ -312,6 +312,8 @@ m4_define([MY_CHECK_FRAMEWORK],
 
 case "${host_os}" in
   *darwin* | *-macos10*)
+    test -z "$MACOSX_DEPLOYMENT_TARGET" && MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion 2>/dev/null || echo 10.15)
+    AC_SUBST([MACOSX_DEPLOYMENT_TARGET])
     MY_CHECK_FRAMEWORK([Accelerate])
     if test $my_cv_framework_Accelerate = yes; then
       AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
