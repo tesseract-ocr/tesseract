@@ -55,11 +55,11 @@ public:
   bool Serialize(TFile *f) const;
 
   /// access function
-  TDimension x() const {
+  constexpr TDimension x() const {
     return xcoord;
   }
   /// access_function
-  TDimension y() const {
+  constexpr TDimension y() const {
     return ycoord;
   }
 
@@ -105,7 +105,7 @@ public:
   }
 
   /// test equality
-  bool operator==(const ICOORD &other) const {
+  constexpr bool operator==(const ICOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
