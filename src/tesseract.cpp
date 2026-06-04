@@ -313,7 +313,7 @@ static bool checkArgValues(int arg, const char *mode, int count) {
 }
 
 // Convert a symbolic or numeric string to an OEM value.
-static int stringToOEM(const std::string arg) {
+static int stringToOEM(const std::string &arg) {
   std::map<std::string, int> oem_map = {
     {"0", 0},
     {"1", 1},
@@ -328,7 +328,7 @@ static int stringToOEM(const std::string arg) {
   return it == oem_map.end() ? -1 : it->second;
 }
 
-static int stringToPSM(const std::string arg) {
+static int stringToPSM(const std::string &arg) {
   std::map<std::string, int> psm_map = {
     {"0", 0},
     {"1", 1},
