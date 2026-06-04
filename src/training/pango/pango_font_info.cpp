@@ -42,6 +42,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string_view>
 
 #ifndef _MSC_VER
 #  include <sys/param.h>
@@ -535,11 +536,11 @@ bool FontUtils::IsAvailableFont(const char *input_query_desc, std::string *best_
   return equal;
 }
 
-static bool ShouldIgnoreFontFamilyName(const char *query) {
+static bool ShouldIgnoreFontFamilyName(std::string_view query) {
   static const char *kIgnoredFamilyNames[] = {"Sans", "Serif", "Monospace", nullptr};
   const char **list = kIgnoredFamilyNames;
   for (; *list != nullptr; ++list) {
-    if (!strcmp(*list, query)) {
+    if (query == *list) {
       return true;
     }
   }

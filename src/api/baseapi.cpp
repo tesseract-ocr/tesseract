@@ -71,6 +71,7 @@
 #include <memory>   // for std::unique_ptr
 #include <set>      // for std::pair
 #include <sstream>  // for std::stringstream
+#include <string_view>
 #include <vector>   // for std::vector
 
 #include <allheaders.h> // for pixDestroy, boxCreate, boxaAddBox, box...
@@ -125,18 +126,21 @@ static STRING_VAR(classify_font_name, kUnknownFontName,
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-static void ExtractFontName(const char* filename, std::string* fontname) {
+static void ExtractFontName(std::string_view filename, std::string* fontname) {
   *fontname = classify_font_name;
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename, '/');
-    const char *firstdot = strchr(basename ? basename : filename, '.');
-    const char *lastdot  = strrchr(filename, '.');
-    if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
+    auto basename_pos = filename.find_last_of('/');
+    auto view = (basename_pos != std::string_view::npos)
+                    ? filename.substr(basename_pos + 1)
+                    : filename;
+    auto firstdot = view.find_first_of('.');
+    auto lastdot = view.find_last_of('.');
+    if (firstdot != lastdot && firstdot != std::string_view::npos &&
+        lastdot != std::string_view::npos) {
       ++firstdot;
-      *fontname = firstdot;
-      fontname->resize(lastdot - firstdot);
+      *fontname = view.substr(firstdot, lastdot - firstdot);
     }
   }
 }
@@ -813,7 +817,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
 #ifndef DISABLED_LEGACY_ENGINE
   } else if (tesseract_->tessedit_train_from_boxes) {
     std::string fontname;
-    ExtractFontName(output_file_.c_str(), &fontname);
+    ExtractFontName(output_file_, &fontname);
     tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
     FILE *training_output_file = tesseract_->init_recog_training(input_file_.c_str());

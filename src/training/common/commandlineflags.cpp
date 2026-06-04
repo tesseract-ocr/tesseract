@@ -13,12 +13,13 @@
 #include <cmath>               // for std::isnan, NAN
 #include <locale>              // for std::locale::classic
 #include <sstream>             // for std::stringstream
+#include <string_view>         // for std::string_view
 #include <vector>              // for std::vector
 #include "errcode.h"
 #include "tprintf.h" // for tprintf
 
 namespace tesseract {
-static bool IntFlagExists(const char *flag_name, int32_t *value) {
+static bool IntFlagExists(std::string_view flag_name, int32_t *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
@@ -31,7 +32,7 @@ static bool IntFlagExists(const char *flag_name, int32_t *value) {
   return true;
 }
 
-static bool DoubleFlagExists(const char *flag_name, double *value) {
+static bool DoubleFlagExists(std::string_view flag_name, double *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
@@ -44,7 +45,7 @@ static bool DoubleFlagExists(const char *flag_name, double *value) {
   return true;
 }
 
-static bool BoolFlagExists(const char *flag_name, bool *value) {
+static bool BoolFlagExists(std::string_view flag_name, bool *value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
@@ -57,7 +58,7 @@ static bool BoolFlagExists(const char *flag_name, bool *value) {
   return true;
 }
 
-static bool StringFlagExists(const char *flag_name, const char **value) {
+static bool StringFlagExists(std::string_view flag_name, const char **value) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
@@ -67,7 +68,7 @@ static bool StringFlagExists(const char *flag_name, const char **value) {
   return p != nullptr;
 }
 
-static void SetIntFlagValue(const char *flag_name, const int32_t new_val) {
+static void SetIntFlagValue(std::string_view flag_name, const int32_t new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<IntParam *> empty;
@@ -77,7 +78,7 @@ static void SetIntFlagValue(const char *flag_name, const int32_t new_val) {
   p->set_value(new_val);
 }
 
-static void SetDoubleFlagValue(const char *flag_name, const double new_val) {
+static void SetDoubleFlagValue(std::string_view flag_name, const double new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<DoubleParam *> empty;
@@ -87,7 +88,7 @@ static void SetDoubleFlagValue(const char *flag_name, const double new_val) {
   p->set_value(new_val);
 }
 
-static void SetBoolFlagValue(const char *flag_name, const bool new_val) {
+static void SetBoolFlagValue(std::string_view flag_name, const bool new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<BoolParam *> empty;
@@ -97,7 +98,7 @@ static void SetBoolFlagValue(const char *flag_name, const bool new_val) {
   p->set_value(new_val);
 }
 
-static void SetStringFlagValue(const char *flag_name, const char *new_val) {
+static void SetStringFlagValue(std::string_view flag_name, const char *new_val) {
   std::string full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   std::vector<StringParam *> empty;
@@ -218,7 +219,7 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
     // Find the flag name in the list of global flags.
     // int32_t flag
     int32_t int_val;
-    if (IntFlagExists(lhs.c_str(), &int_val)) {
+    if (IntFlagExists(lhs, &int_val)) {
       if (rhs != nullptr) {
         if (!strlen(rhs)) {
           // Bad input of the format --int_flag=
@@ -242,13 +243,13 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
           }
         }
       }
-      SetIntFlagValue(lhs.c_str(), int_val);
+      SetIntFlagValue(lhs, int_val);
       continue;
     }
 
     // double flag
     double double_val;
-    if (DoubleFlagExists(lhs.c_str(), &double_val)) {
+    if (DoubleFlagExists(lhs, &double_val)) {
       if (rhs != nullptr) {
         if (!strlen(rhs)) {
           // Bad input of the format --double_flag=
@@ -272,14 +273,14 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
           }
         }
       }
-      SetDoubleFlagValue(lhs.c_str(), double_val);
+      SetDoubleFlagValue(lhs, double_val);
       continue;
     }
 
     // Bool flag. Allow input forms --flag (equivalent to --flag=true),
     // --flag=false, --flag=true, --flag=0 and --flag=1
     bool bool_val;
-    if (BoolFlagExists(lhs.c_str(), &bool_val)) {
+    if (BoolFlagExists(lhs, &bool_val)) {
       if (rhs == nullptr) {
         // --flag form
         bool_val = true;
@@ -298,13 +299,13 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
           exit(1);
         }
       }
-      SetBoolFlagValue(lhs.c_str(), bool_val);
+      SetBoolFlagValue(lhs, bool_val);
       continue;
     }
 
     // string flag
     const char *string_val;
-    if (StringFlagExists(lhs.c_str(), &string_val)) {
+    if (StringFlagExists(lhs, &string_val)) {
       if (rhs != nullptr) {
         string_val = rhs;
       } else {
@@ -316,7 +317,7 @@ void ParseCommandLineFlags(const char *usage, int *argc, char ***argv, const boo
           string_val = (*argv)[++i];
         }
       }
-      SetStringFlagValue(lhs.c_str(), string_val);
+      SetStringFlagValue(lhs, string_val);
       continue;
     }
 

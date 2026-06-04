@@ -40,6 +40,7 @@
 #include <cassert> // for assert
 #include <cstdint> // for INT32_MAX
 #include <cstring> // for strlen
+#include <string_view> // for std::string_view
 
 struct Pix;
 
@@ -1021,14 +1022,19 @@ void WERD_RES::MergeAdjacentBlobs(unsigned index) {
 // Utility function for fix_quotes
 // Return true if the next character in the string (given the UTF8 length in
 // bytes) is a quote character.
-static int is_simple_quote(const char *signed_str, int length) {
-  const auto *str = reinterpret_cast<const unsigned char *>(signed_str);
+static int is_simple_quote(std::string_view str) {
   // Standard 1 byte quotes.
-  return (length == 1 && (*str == '\'' || *str == '`')) ||
-         // UTF-8 3 bytes curved quotes.
-         (length == 3 &&
-          ((*str == 0xe2 && *(str + 1) == 0x80 && *(str + 2) == 0x98) ||
-           (*str == 0xe2 && *(str + 1) == 0x80 && *(str + 2) == 0x99)));
+  if (str.size() == 1 && (str[0] == '\'' || str[0] == '`')) {
+    return true;
+  }
+  // UTF-8 3 bytes curved quotes.
+  if (str.size() == 3 && static_cast<unsigned char>(str[0]) == 0xe2 &&
+      static_cast<unsigned char>(str[1]) == 0x80 &&
+      (static_cast<unsigned char>(str[2]) == 0x98 ||
+       static_cast<unsigned char>(str[2]) == 0x99)) {
+    return true;
+  }
+  return false;
 }
 
 // Callback helper for fix_quotes returns a double quote if both
@@ -1036,8 +1042,7 @@ static int is_simple_quote(const char *signed_str, int length) {
 UNICHAR_ID WERD_RES::BothQuotes(UNICHAR_ID id1, UNICHAR_ID id2) {
   const char *ch = uch_set->id_to_unichar(id1);
   const char *next_ch = uch_set->id_to_unichar(id2);
-  if (is_simple_quote(ch, strlen(ch)) &&
-      is_simple_quote(next_ch, strlen(next_ch))) {
+  if (is_simple_quote(ch) && is_simple_quote(next_ch)) {
     return uch_set->unichar_to_id("\"");
   }
   return INVALID_UNICHAR_ID;
