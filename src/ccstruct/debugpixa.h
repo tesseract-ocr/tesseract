@@ -15,7 +15,7 @@ public:
   DebugPixa() {
     pixa_ = pixaCreate(0);
 #ifdef TESSERACT_DISABLE_DEBUG_FONTS
-    fonts_ = NULL;
+    fonts_ = nullptr;
 #else
     fonts_ = bmfCreate(nullptr, 14);
 #endif
