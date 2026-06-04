@@ -242,8 +242,8 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     }
 
     r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
-                               (PIX**)pix_thresholds,
-                                (PIX**)pix_binary);
+                                static_cast<PIX **>(pix_thresholds),
+                                static_cast<PIX **>(pix_binary));
   } else { // if (method == ThresholdMethod::LeptonicaOtsu)
     int tile_size;
     double tile_size_factor;
@@ -269,8 +269,8 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
                                  half_smooth_size, half_smooth_size,
                                  score_fraction,
-                                 (PIX**)pix_thresholds,
-                                 (PIX**)pix_binary);
+                                 static_cast<PIX **>(pix_thresholds),
+                                 static_cast<PIX **>(pix_binary));
   }
 
   bool ok = (r == 0);

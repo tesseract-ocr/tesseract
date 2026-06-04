@@ -168,7 +168,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   for (int v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (auto int_param : vec->int_params) {
-      stream << int_param->name_str() << '\t' << (int32_t)(*int_param) << '\t'
+      stream << int_param->name_str() << '\t' << static_cast<int32_t>(*int_param) << '\t'
              << int_param->info_str() << '\n';
     }
     for (auto bool_param : vec->bool_params) {
@@ -180,7 +180,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
              << string_param->info_str() << '\n';
     }
     for (auto double_param : vec->double_params) {
-      stream << double_param->name_str() << '\t' << (double)(*double_param) << '\t'
+      stream << double_param->name_str() << '\t' << static_cast<double>(*double_param) << '\t'
              << double_param->info_str() << '\n';
     }
   }

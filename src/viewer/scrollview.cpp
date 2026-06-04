@@ -153,8 +153,7 @@ void ScrollView::MessageReceiver() {
       // Check if any of the threads currently waiting want it.
       std::pair<ScrollView *, SVEventType> awaiting_list(cur->window, cur->type);
       std::pair<ScrollView *, SVEventType> awaiting_list_any(cur->window, SVET_ANY);
-      std::pair<ScrollView *, SVEventType> awaiting_list_any_window((ScrollView *)nullptr,
-                                                                    SVET_ANY);
+      std::pair<ScrollView *, SVEventType> awaiting_list_any_window(nullptr, SVET_ANY);
       waiting_for_events_mu->lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
         waiting_for_events[awaiting_list].second = std::move(cur);

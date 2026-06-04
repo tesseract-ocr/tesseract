@@ -225,7 +225,7 @@ bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
   if (p == nullptr) {
     return false;
   }
-  *value = (int32_t)(*p);
+  *value = static_cast<int32_t>(*p);
   return true;
 }
 
@@ -251,7 +251,7 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
   if (p == nullptr) {
     return false;
   }
-  *value = (double)(*p);
+  *value = static_cast<double>(*p);
   return true;
 }
 
@@ -527,7 +527,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
       // remove alpha channel from png
       Pix *p1 = pixRemoveAlpha(pix);
       pixSetSpp(p1, 3);
-      (void)pixCopy(pix, p1);
+      static_cast<void>(pixCopy(pix, p1));
       pixDestroy(&p1);
     }
     thresholder_->SetImage(pix);

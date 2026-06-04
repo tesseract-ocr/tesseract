@@ -33,7 +33,7 @@ enum class MicroFeatureParameter {
   MFCount // For array sizes.
 };
 
-using MicroFeature = std::array<float, (int)MicroFeatureParameter::MFCount>;
+using MicroFeature = std::array<float, static_cast<int>(MicroFeatureParameter::MFCount)>;
 using MICROFEATURES = std::forward_list<MicroFeature>;
 
 } // namespace tesseract

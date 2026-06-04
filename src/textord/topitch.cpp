@@ -261,7 +261,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
       }
     }
     if (bad_row->fixed_pitch < textord_min_xheight) {
-      bad_row->fixed_pitch = (float)textord_min_xheight;
+      bad_row->fixed_pitch = static_cast<float>(textord_min_xheight);
     }
     bad_row->kern_size = bad_row->fixed_pitch / 4;
     bad_row->min_space = static_cast<int32_t>(bad_row->fixed_pitch * 0.6);
