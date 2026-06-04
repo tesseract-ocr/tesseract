@@ -27,10 +27,9 @@
 
 #include <tesseract/export.h> // for DLLSYM
 
-#include <cstdint> // for int16_t, int32_t
-
 #include <array>
 #include <bitset>  // for std::bitset<16>
+#include <cstdint> // for int16_t, int32_t
 
 struct Pix;
 

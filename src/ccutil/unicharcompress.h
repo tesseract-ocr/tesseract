@@ -21,10 +21,9 @@
 #ifndef TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 #define TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 
+#include <array>
 #include <unordered_map>
 #include <vector>
-
-#include <array>
 
 #include "serialis.h"
 #include "unicharset.h"
