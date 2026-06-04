@@ -28,6 +28,8 @@
 #include <tesseract/export.h> // for DLLSYM
 
 #include <cstdint> // for int16_t, int32_t
+
+#include <array>
 #include <bitset>  // for std::bitset<16>
 
 struct Pix;
@@ -289,7 +291,7 @@ private:
   std::vector<uint8_t> steps; // step array
   EdgeOffset *offsets;     // Higher precision edge.
   C_OUTLINE_LIST children; // child elements
-  static ICOORD step_coords[4];
+  static std::array<ICOORD, 4> step_coords;
 };
 
 } // namespace tesseract

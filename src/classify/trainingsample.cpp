@@ -36,8 +36,8 @@ namespace tesseract {
 const int kRandomizingCenter = 128;
 
 // Randomizing factors.
-const int TrainingSample::kYShiftValues[kSampleYShiftSize] = {6, 3, -3, -6, 0};
-const double TrainingSample::kScaleValues[kSampleScaleSize] = {1.0625, 0.9375, 1.0};
+const std::array<int, kSampleYShiftSize> TrainingSample::kYShiftValues = {6, 3, -3, -6, 0};
+const std::array<double, kSampleScaleSize> TrainingSample::kScaleValues = {1.0625, 0.9375, 1.0};
 
 TrainingSample::~TrainingSample() {
   delete[] features_;
@@ -77,10 +77,10 @@ bool TrainingSample::Serialize(FILE *fp) const {
       num_micro_features_) {
     return false;
   }
-  if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams) {
+  if (fwrite(cn_feature_.data(), sizeof(cn_feature_[0]), kNumCNParams, fp) != kNumCNParams) {
     return false;
   }
-  if (fwrite(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount) {
+  if (fwrite(geo_feature_.data(), sizeof(geo_feature_[0]), GeoCount, fp) != GeoCount) {
     return false;
   }
   return true;
@@ -145,10 +145,10 @@ bool TrainingSample::DeSerialize(bool swap, FILE *fp) {
       num_micro_features_) {
     return false;
   }
-  if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) != kNumCNParams) {
+  if (fread(cn_feature_.data(), sizeof(cn_feature_[0]), kNumCNParams, fp) != kNumCNParams) {
     return false;
   }
-  if (fread(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount) {
+  if (fread(geo_feature_.data(), sizeof(geo_feature_[0]), GeoCount, fp) != GeoCount) {
     return false;
   }
   return true;
@@ -227,8 +227,8 @@ TrainingSample *TrainingSample::Copy() const {
     memcpy(sample->micro_features_, micro_features_,
            num_micro_features_ * sizeof(micro_features_[0]));
   }
-  memcpy(sample->cn_feature_, cn_feature_, sizeof(*cn_feature_) * kNumCNParams);
-  memcpy(sample->geo_feature_, geo_feature_, sizeof(*geo_feature_) * GeoCount);
+  memcpy(sample->cn_feature_.data(), cn_feature_.data(), sizeof(cn_feature_[0]) * kNumCNParams);
+  memcpy(sample->geo_feature_.data(), geo_feature_.data(), sizeof(geo_feature_[0]) * GeoCount);
   return sample;
 }
 

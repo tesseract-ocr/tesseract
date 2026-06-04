@@ -27,6 +27,8 @@
 #include "shapetable.h"
 #include "unicharset.h"
 
+#include <array>
+
 struct Pix;
 
 namespace tesseract {
@@ -221,10 +223,10 @@ private:
   // Array of features.
   MicroFeature *micro_features_;
   // The one and only CN feature. Indexed by NORM_PARAM_NAME enum.
-  float cn_feature_[kNumCNParams];
+  std::array<float, kNumCNParams> cn_feature_;
   // The one and only geometric feature. (Aims at replacing cn_feature_).
   // Indexed by GeoParams enum in picofeat.h
-  int geo_feature_[GeoCount];
+  std::array<int, GeoCount> geo_feature_;
 
   // Non-serialized cache data.
   // Weight used for boosting training.
@@ -249,8 +251,8 @@ private:
   bool is_error_;
 
   // Randomizing factors.
-  static const int kYShiftValues[kSampleYShiftSize];
-  static const double kScaleValues[kSampleScaleSize];
+  static const std::array<int, kSampleYShiftSize> kYShiftValues;
+  static const std::array<double, kSampleScaleSize> kScaleValues;
 };
 
 ELISTIZEH(TrainingSample)

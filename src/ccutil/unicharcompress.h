@@ -23,6 +23,9 @@
 
 #include <unordered_map>
 #include <vector>
+
+#include <array>
+
 #include "serialis.h"
 #include "unicharset.h"
 
@@ -35,7 +38,7 @@ public:
   static const int kMaxCodeLen = 9;
 
   RecodedCharID() : self_normalized_(1), length_(0) {
-    memset(code_, 0, sizeof(code_));
+    code_.fill(0);
   }
   void Truncate(int length) {
     length_ = length;
@@ -105,7 +108,7 @@ private:
   // The number of elements in use in code_;
   int32_t length_;
   // The re-encoded form of the unichar-id to which this RecodedCharID relates.
-  int32_t code_[kMaxCodeLen];
+  std::array<int32_t, kMaxCodeLen> code_;
 };
 
 // Class holds a "compression" of a unicharset to simplify the learning problem
