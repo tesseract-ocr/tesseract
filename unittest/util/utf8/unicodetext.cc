@@ -17,8 +17,8 @@
 #include "include_gunit.h"
 #include "util/utf8/unicodetext.h"
 
-#include <string.h>  // for memcpy, NULL, memcmp, etc
 #include <algorithm> // for max
+#include <cstring>   // for memcpy, memcmp, etc.
 
 //#include "base/logging.h"               // for operator<<, CHECK, etc
 //#include "base/stringprintf.h"          // for StringPrintf, StringAppendF
