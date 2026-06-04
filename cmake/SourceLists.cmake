@@ -91,7 +91,6 @@ set(TESSERACT_SRC_CCSTRUCT
     src/ccstruct/blread.cpp
     src/ccstruct/boxread.cpp
     src/ccstruct/boxword.cpp
-    src/ccstruct/ccstruct.cpp
     src/ccstruct/coutln.cpp
     src/ccstruct/detlinefit.cpp
     src/ccstruct/dppoint.cpp
