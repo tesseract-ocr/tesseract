@@ -88,16 +88,16 @@ static void WriteNFloats(FILE *File, uint16_t N, float Array[]) {
  */
 static void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       fprintf(File, "spherical");
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       fprintf(File, "elliptical");
       break;
-    case mixed:
+    case PROTOSTYLE::mixed:
       fprintf(File, "mixed");
       break;
-    case automatic:
+    case PROTOSTYLE::automatic:
       fprintf(File, "automatic");
       break;
   }
@@ -184,17 +184,17 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
 
   switch (shape_token[0]) {
     case 's':
-      Proto->Style = spherical;
+      Proto->Style = PROTOSTYLE::spherical;
       break;
     case 'e':
-      Proto->Style = elliptical;
+      Proto->Style = PROTOSTYLE::elliptical;
       break;
     case 'a':
-      Proto->Style = automatic;
+      Proto->Style = PROTOSTYLE::automatic;
       break;
     default:
       tprintf("Invalid prototype style specification:%s\n", shape_token);
-      Proto->Style = elliptical;
+      Proto->Style = PROTOSTYLE::elliptical;
   }
 
   ASSERT_HOST(SampleCount >= 0);
@@ -204,7 +204,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   ReadNFloats(fp, N, &Proto->Mean[0]);
 
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       ReadNFloats(fp, 1, &(Proto->Variance.Spherical));
       Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
       Proto->TotalMagnitude = std::pow(Proto->Magnitude.Spherical, static_cast<float>(N));
@@ -212,7 +212,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
       Proto->Distrib.clear();
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       Proto->Variance.Elliptical = new float[N];
       ReadNFloats(fp, N, Proto->Variance.Elliptical);
       Proto->Magnitude.Elliptical = new float[N];
@@ -276,32 +276,32 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   } else {
     fprintf(File, "insignificant ");
   }
-  WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
+  WriteProtoStyle(File, Proto->Style);
   fprintf(File, "%6u\n\t", Proto->NumSamples);
   WriteNFloats(File, N, &Proto->Mean[0]);
   fprintf(File, "\t");
 
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       WriteNFloats(File, 1, &(Proto->Variance.Spherical));
       break;
-    case elliptical:
+      case PROTOSTYLE::elliptical:
       WriteNFloats(File, N, Proto->Variance.Elliptical);
       break;
-    case mixed:
+    case PROTOSTYLE::automatic:
+      break;
+    case PROTOSTYLE::mixed:
       for (i = 0; i < N; i++) {
         switch (Proto->Distrib[i]) {
-          case normal:
+          case DISTRIBUTION::normal:
             fprintf(File, " %9s", "normal");
             break;
-          case uniform:
+          case DISTRIBUTION::uniform:
             fprintf(File, " %9s", "uniform");
             break;
-          case D_random:
+          case DISTRIBUTION::D_random:
             fprintf(File, " %9s", "random");
             break;
-          case DISTRIBUTION_COUNT:
-            ASSERT_HOST(!"Distribution count not allowed!");
         }
       }
       fprintf(File, "\n\t");

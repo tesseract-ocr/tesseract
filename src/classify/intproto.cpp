@@ -66,7 +66,7 @@ namespace tesseract {
 /** define pad used to snap near horiz/vertical protos to horiz/vertical */
 #define HV_TOLERANCE (0.0025) /* approx 0.9 degrees */
 
-typedef enum { StartSwitch, EndSwitch, LastSwitch } SWITCH_TYPE;
+enum class SWITCH_TYPE { StartSwitch, EndSwitch, LastSwitch };
 #define MAX_NUM_SWITCHES 3
 
 struct FILL_SWITCH {
@@ -1065,7 +1065,7 @@ bool FillerDone(TABLE_FILLER *Filler) {
 
   Next = &(Filler->Switch[Filler->NextSwitch]);
 
-  return Filler->X > Next->X && Next->Type == LastSwitch;
+  return Filler->X > Next->X && Next->Type == SWITCH_TYPE::LastSwitch;
 
 } /* FillerDone */
 
@@ -1306,11 +1306,11 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   Next = &(Filler->Switch[Filler->NextSwitch]);
   while (Filler->X >= Next->X) {
     Fill->X = Filler->X = Next->X;
-    if (Next->Type == StartSwitch) {
+    if (Next->Type == SWITCH_TYPE::StartSwitch) {
       Fill->YStart = Next->Y;
       Filler->StartDelta = Next->Delta;
       Filler->YStart = Next->YInit;
-    } else if (Next->Type == EndSwitch) {
+    } else if (Next->Type == SWITCH_TYPE::EndSwitch) {
       Fill->YEnd = Next->Y;
       Filler->EndDelta = Next->Delta;
       Filler->YEnd = Next->YInit;
@@ -1367,7 +1367,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     Filler->YEnd = Bucket16For(Y + SidePad, YS, NB * 256);
     Filler->StartDelta = 0;
     Filler->EndDelta = 0;
-    Filler->Switch[0].Type = LastSwitch;
+    Filler->Switch[0].Type = SWITCH_TYPE::LastSwitch;
     Filler->Switch[0].X = Bucket8For(X + HalfLength + EndPad, XS, NB);
   } else if (fabs(Angle - 0.25) < HV_TOLERANCE || fabs(Angle - 0.75) < HV_TOLERANCE) {
     /* vertical proto - handle as special case */
@@ -1376,7 +1376,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
     Filler->YEnd = Bucket16For(Y + HalfLength + EndPad, YS, NB * 256);
     Filler->StartDelta = 0;
     Filler->EndDelta = 0;
-    Filler->Switch[0].Type = LastSwitch;
+    Filler->Switch[0].Type = SWITCH_TYPE::LastSwitch;
     Filler->Switch[0].X = Bucket8For(X + SidePad, XS, NB);
   } else {
     /* diagonal proto */
@@ -1413,7 +1413,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       YAdjust = XAdjust * Sin / Cos;
       Filler->YEnd = Bucket16For(Start.y + YAdjust, YS, NB * 256);
 
-      Filler->Switch[S1].Type = StartSwitch;
+      Filler->Switch[S1].Type = SWITCH_TYPE::StartSwitch;
       Filler->Switch[S1].X = Bucket8For(Switch1.x, XS, NB);
       Filler->Switch[S1].Y = Bucket8For(Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart(Filler->Switch[S1].X, XS, NB);
@@ -1421,7 +1421,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       Filler->Switch[S1].YInit = Bucket16For(Switch1.y - YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->EndDelta;
 
-      Filler->Switch[S2].Type = EndSwitch;
+      Filler->Switch[S2].Type = SWITCH_TYPE::EndSwitch;
       Filler->Switch[S2].X = Bucket8For(Switch2.x, XS, NB);
       Filler->Switch[S2].Y = Bucket8For(Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart(Filler->Switch[S2].X, XS, NB);
@@ -1429,7 +1429,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       Filler->Switch[S2].YInit = Bucket16For(Switch2.y + YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->StartDelta;
 
-      Filler->Switch[2].Type = LastSwitch;
+      Filler->Switch[2].Type = SWITCH_TYPE::LastSwitch;
       Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     } else {
       /* falling diagonal proto */
@@ -1465,7 +1465,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       YAdjust = XAdjust * Cos / Sin;
       Filler->YEnd = Bucket16For(Start.y + YAdjust, YS, NB * 256);
 
-      Filler->Switch[S1].Type = EndSwitch;
+      Filler->Switch[S1].Type = SWITCH_TYPE::EndSwitch;
       Filler->Switch[S1].X = Bucket8For(Switch1.x, XS, NB);
       Filler->Switch[S1].Y = Bucket8For(Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart(Filler->Switch[S1].X, XS, NB);
@@ -1473,7 +1473,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       Filler->Switch[S1].YInit = Bucket16For(Switch1.y + YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->StartDelta;
 
-      Filler->Switch[S2].Type = StartSwitch;
+      Filler->Switch[S2].Type = SWITCH_TYPE::StartSwitch;
       Filler->Switch[S2].X = Bucket8For(Switch2.x, XS, NB);
       Filler->Switch[S2].Y = Bucket8For(Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart(Filler->Switch[S2].X, XS, NB);
@@ -1481,7 +1481,7 @@ void InitTableFiller(float EndPad, float SidePad, float AnglePad, PROTO_STRUCT *
       Filler->Switch[S2].YInit = Bucket16For(Switch2.y - YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->EndDelta;
 
-      Filler->Switch[2].Type = LastSwitch;
+      Filler->Switch[2].Type = SWITCH_TYPE::LastSwitch;
       Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     }
   }
