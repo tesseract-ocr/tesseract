@@ -34,9 +34,8 @@
 #include "tprintf.h"    // for tprintf
 #include "werd.h"       // for WERD_LIST
 
-#include <cinttypes> // for PRId32
-
 #include <array>
+#include <cinttypes> // for PRId32
 #include <cmath>     // for std::sqrt
 #include <cstdint>   // for int16_t, int32_t
 
