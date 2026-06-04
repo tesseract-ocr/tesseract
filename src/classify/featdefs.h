@@ -26,7 +26,7 @@
 namespace tesseract {
 
 /* Enumerate the different types of features currently defined. */
-#define NUM_FEATURE_TYPES 4
+constexpr int NUM_FEATURE_TYPES = 4;
 extern TESS_API const char *const kMicroFeatureType;
 extern TESS_API const char *const kCNFeatureType;
 extern TESS_API const char *const kIntFeatureType;

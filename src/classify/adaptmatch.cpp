@@ -75,20 +75,20 @@ namespace tesseract {
 // TODO: The parameter classify_enable_adaptive_matcher can cause
 // a segmentation fault if it is set to false (issue #256),
 // so override it here.
-#define CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE true
+constexpr bool CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE = true;
 
-#define ADAPT_TEMPLATE_SUFFIX ".a"
+constexpr const char *ADAPT_TEMPLATE_SUFFIX = ".a";
 
-#define MAX_MATCHES 10
-#define UNLIKELY_NUM_FEAT 200
-#define NO_DEBUG 0
-#define MAX_ADAPTABLE_WERD_SIZE 40
+constexpr int MAX_MATCHES = 10;
+constexpr int UNLIKELY_NUM_FEAT = 200;
+constexpr int NO_DEBUG = 0;
+constexpr int MAX_ADAPTABLE_WERD_SIZE = 40;
 
-#define ADAPTABLE_WERD_ADJUSTMENT (0.05)
+constexpr double ADAPTABLE_WERD_ADJUSTMENT = 0.05;
 
-#define Y_DIM_OFFSET (Y_SHIFT - BASELINE_Y_SHIFT)
+constexpr double Y_DIM_OFFSET = Y_SHIFT - BASELINE_Y_SHIFT;
 
-#define WORST_POSSIBLE_RATING (0.0f)
+constexpr float WORST_POSSIBLE_RATING = 0.0f;
 
 struct ADAPT_RESULTS {
   int32_t BlobLength;

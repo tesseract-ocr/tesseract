@@ -25,7 +25,7 @@
 
 namespace tesseract {
 
-#define PICO_FEATURE_LENGTH 0.05
+constexpr double PICO_FEATURE_LENGTH = 0.05;
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
