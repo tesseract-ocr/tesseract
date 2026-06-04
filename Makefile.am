@@ -318,7 +318,6 @@ libtesseract_la_SOURCES += src/ccstruct/blobs.cpp
 libtesseract_la_SOURCES += src/ccstruct/blread.cpp
 libtesseract_la_SOURCES += src/ccstruct/boxread.cpp
 libtesseract_la_SOURCES += src/ccstruct/boxword.cpp
-libtesseract_la_SOURCES += src/ccstruct/ccstruct.cpp
 libtesseract_la_SOURCES += src/ccstruct/coutln.cpp
 libtesseract_la_SOURCES += src/ccstruct/detlinefit.cpp
 libtesseract_la_SOURCES += src/ccstruct/dppoint.cpp
