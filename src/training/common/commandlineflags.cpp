@@ -27,7 +27,7 @@ static bool IntFlagExists(const char *flag_name, int32_t *value) {
   if (p == nullptr) {
     return false;
   }
-  *value = (int32_t)(*p);
+  *value = static_cast<int32_t>(*p);
   return true;
 }
 

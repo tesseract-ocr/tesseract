@@ -42,7 +42,7 @@ class MATRIX;
 class WERD_RES;
 
 #define CHARS_PER_LINE 500
-#define MAX_WERD_LENGTH (int64_t)128
+#define MAX_WERD_LENGTH static_cast<int64_t>(128)
 #define NO_RATING -1
 
 /** Struct used to hold temporary information about fragments. */
@@ -361,13 +361,11 @@ public:
   }
 
   /// Default (no-op) implementation of probability in context function.
-  double def_probability_in_context(const char *lang, const char *context, int context_bytes,
-                                    const char *character, int character_bytes) {
-    (void)lang;
-    (void)context;
-    (void)context_bytes;
-    (void)character;
-    (void)character_bytes;
+  double def_probability_in_context([[maybe_unused]] const char *lang,
+                                    [[maybe_unused]] const char *context,
+                                    [[maybe_unused]] int context_bytes,
+                                    [[maybe_unused]] const char *character,
+                                    [[maybe_unused]] int character_bytes) {
     return 0.0;
   }
 

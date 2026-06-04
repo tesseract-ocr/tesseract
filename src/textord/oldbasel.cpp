@@ -143,7 +143,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
       block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
     }
     if (block->xheight < textord_min_xheight) {
-      block->xheight = (float)textord_min_xheight;
+      block->xheight = static_cast<float>(textord_min_xheight);
     }
   } else {
     compute_block_xheight(block, gradient);
@@ -1219,7 +1219,7 @@ bool split_stepped_spline( // make xstarts
         doneany = true;
       } else if (textord_debug_baselines) {
         tprintf("Resegmenting spline failed - insufficient pts (%d,%d,%d,%d)\n", startindex,
-                centreindex, endindex, (int32_t)textord_spline_medianwin);
+                centreindex, endindex, static_cast<int32_t>(textord_spline_medianwin));
       }
     }
     //              else tprintf("Spline step at %d is %g\n",

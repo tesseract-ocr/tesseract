@@ -1228,7 +1228,7 @@ void compute_row_stats( // find lines
         // too big so use max
       }
       if (block->line_size < textord_min_xheight) {
-        block->line_size = (float)textord_min_xheight;
+        block->line_size = static_cast<float>(textord_min_xheight);
       }
       block->line_spacing = rows[row_index]->spacing;
       block->max_blob_size = block->line_spacing * textord_excess_blobsize;

@@ -43,7 +43,7 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit) : LTRResultIterat
   auto *p = ParamUtils::FindParam<BoolParam>(
       "preserve_interword_spaces", GlobalParams()->bool_params, tesseract_->params()->bool_params);
   if (p != nullptr) {
-    preserve_interword_spaces_ = (bool)(*p);
+    preserve_interword_spaces_ = static_cast<bool>(*p);
   }
 
   current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
@@ -781,7 +781,7 @@ bool ResultIterator::BidiDebug(int min_level) const {
   auto *p = ParamUtils::FindParam<IntParam>("bidi_debug", GlobalParams()->int_params,
                                             tesseract_->params()->int_params);
   if (p != nullptr) {
-    debug_level = (int32_t)(*p);
+    debug_level = static_cast<int32_t>(*p);
   }
   return debug_level >= min_level;
 }

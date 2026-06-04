@@ -112,7 +112,7 @@ int OSResults::get_best_script(int orientation_id) const {
 }
 
 // Print the script scores for all possible orientations.
-void OSResults::print_scores(void) const {
+void OSResults::print_scores() const {
   for (int i = 0; i < 4; ++i) {
     tprintf("Orientation id #%d", i);
     print_scores(i);

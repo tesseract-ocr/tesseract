@@ -38,7 +38,7 @@ using FVECTOR = FPOINT;
 #define XDelta(A, B) ((B).x - (A).x)
 #define YDelta(A, B) ((B).y - (A).y)
 #define SlopeFrom(A, B) (YDelta(A, B) / XDelta(A, B))
-#define AngleFrom(A, B) (atan2((double)YDelta(A, B), (double)XDelta(A, B)))
+#define AngleFrom(A, B) (atan2(static_cast<double>(YDelta(A, B)), static_cast<double>(XDelta(A, B))))
 
 #define XIntersectionOf(A, B, X) (SlopeFrom(A, B) * ((X)-A.x) + A.y)
 

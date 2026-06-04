@@ -95,8 +95,7 @@ public:
 
   // Gets called by the SV Window. Does nothing on default, overwrite this
   // to implement the desired behaviour
-  virtual void Notify(const SVEvent *sve) {
-    (void)sve;
+  virtual void Notify([[maybe_unused]] const SVEvent *sve) {
   }
 };
 
