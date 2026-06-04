@@ -128,9 +128,22 @@ struct RecodeNode {
     ASSERT_HOST(src.dawgs == nullptr);
   }
   RecodeNode &operator=(const RecodeNode &src) {
-    delete dawgs;
-    memcpy(this, &src, sizeof(src));
-    ((RecodeNode &)src).dawgs = nullptr;
+    if (this != &src) {
+      delete dawgs;
+      code = src.code;
+      unichar_id = src.unichar_id;
+      permuter = src.permuter;
+      start_of_dawg = src.start_of_dawg;
+      start_of_word = src.start_of_word;
+      end_of_word = src.end_of_word;
+      duplicate = src.duplicate;
+      certainty = src.certainty;
+      score = src.score;
+      prev = src.prev;
+      dawgs = src.dawgs;
+      code_hash = src.code_hash;
+      const_cast<RecodeNode &>(src).dawgs = nullptr;
+    }
     return *this;
   }
   ~RecodeNode() {
