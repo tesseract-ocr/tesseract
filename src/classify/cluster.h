@@ -50,7 +50,12 @@ struct CLUSTER {
 };
 using SAMPLE = CLUSTER; // can refer to as either sample or cluster
 
-typedef enum { spherical, elliptical, mixed, automatic } PROTOSTYLE;
+enum class PROTOSTYLE {
+  spherical,
+  elliptical,
+  mixed,
+  automatic
+};
 
 struct CLUSTERCONFIG {   // parameters to control clustering
   PROTOSTYLE ProtoStyle; // specifies types of protos to be made
@@ -62,7 +67,12 @@ struct CLUSTERCONFIG {   // parameters to control clustering
   int MagicSamples;      // Ideal number of samples in a cluster.
 };
 
-typedef enum { normal, uniform, D_random, DISTRIBUTION_COUNT } DISTRIBUTION;
+enum class DISTRIBUTION : uint8_t {
+  normal,
+  uniform,
+  D_random
+};
+constexpr int kDistributionCount = 3;
 
 union FLOATUNION {
   float Spherical;
@@ -76,7 +86,7 @@ struct PROTOTYPE {
                             // samples then it was actually merged.
                             // Otherwise it matched an already significant
                             // cluster.
-  unsigned Style : 2;       // spherical, elliptical, or mixed
+  PROTOSTYLE Style : 2;     // spherical, elliptical, or mixed
   unsigned NumSamples : 28; // number of samples in the cluster
   CLUSTER *Cluster;         // ptr to cluster which made prototype
   std::vector<DISTRIBUTION> Distrib; // different distribution for each dimension
@@ -97,7 +107,7 @@ struct CLUSTERER {
   LIST ProtoList;          // list of prototypes
   uint32_t NumChar;        // # of characters represented by samples
   // cache of reusable histograms by distribution type and number of buckets.
-  BUCKETS *bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
+  BUCKETS *bucket_cache[kDistributionCount][MAXBUCKETS + 1 - MINBUCKETS];
 };
 
 struct SAMPLELIST {

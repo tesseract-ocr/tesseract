@@ -1276,7 +1276,7 @@ struct BUCKETS {
   }
   ~BUCKETS() {
   }
-  DISTRIBUTION Distribution = normal; // distribution being tested for
+  DISTRIBUTION Distribution = DISTRIBUTION::normal; // distribution being tested for
   uint32_t SampleCount = 0;         // # of samples in histogram
   double Confidence = 0.0;          // confidence level of test
   double ChiSquared = 0.0;          // test threshold
@@ -1614,7 +1614,7 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
   }
 
   // deallocate the prototype statistics and then the prototype itself
-  if (Prototype->Style != spherical) {
+  if (Prototype->Style != PROTOSTYLE::spherical) {
     delete[] Prototype->Variance.Elliptical;
     delete[] Prototype->Magnitude.Elliptical;
     delete[] Prototype->Weight.Elliptical;
@@ -1672,20 +1672,21 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
  */
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       return std::sqrt(Proto->Variance.Spherical);
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       return std::sqrt(Proto->Variance.Elliptical[Dimension]);
-    case mixed:
+    case PROTOSTYLE::mixed:
       switch (Proto->Distrib[Dimension]) {
-        case normal:
+        case DISTRIBUTION::normal:
           return std::sqrt(Proto->Variance.Elliptical[Dimension]);
-        case uniform:
-        case D_random:
+        case DISTRIBUTION::uniform:
+        case DISTRIBUTION::D_random:
           return Proto->Variance.Elliptical[Dimension];
-        case DISTRIBUTION_COUNT:
-          ASSERT_HOST(!"Distribution count not allowed!");
       }
+      break;
+    default:
+      break;
   }
   return 0.0f;
 } // StandardDeviation
@@ -1976,7 +1977,7 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
     return nullptr;
   }
 
-  if (HOTELLING && Config->ProtoStyle == elliptical) {
+  if (HOTELLING && Config->ProtoStyle == PROTOSTYLE::elliptical) {
     Proto = TestEllipticalProto(Clusterer, Config, Cluster, Statistics);
     if (Proto != nullptr) {
       delete Statistics;
@@ -1985,20 +1986,20 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
   }
 
   // create a histogram data structure used to evaluate distributions
-  Buckets = GetBuckets(Clusterer, normal, Cluster->SampleCount, Config->Confidence);
+  Buckets = GetBuckets(Clusterer, DISTRIBUTION::normal, Cluster->SampleCount, Config->Confidence);
 
   // create a prototype based on the statistics and test it
   switch (Config->ProtoStyle) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       Proto = MakeEllipticalProto(Clusterer, Cluster, Statistics, Buckets);
       break;
-    case mixed:
+    case PROTOSTYLE::mixed:
       Proto = MakeMixedProto(Clusterer, Cluster, Statistics, Buckets, Config->Confidence);
       break;
-    case automatic:
+    case PROTOSTYLE::automatic:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
       if (Proto != nullptr) {
         break;
@@ -2043,14 +2044,14 @@ static PROTOTYPE *MakeDegenerateProto( // this was MinSample
 
   if (Cluster->SampleCount < MinSamples) {
     switch (Style) {
-      case spherical:
+      case PROTOSTYLE::spherical:
         Proto = NewSphericalProto(N, Cluster, Statistics);
         break;
-      case elliptical:
-      case automatic:
+      case PROTOSTYLE::elliptical:
+      case PROTOSTYLE::automatic:
         Proto = NewEllipticalProto(N, Cluster, Statistics);
         break;
-      case mixed:
+      case PROTOSTYLE::mixed:
         Proto = NewMixedProto(N, Cluster, Statistics);
         break;
     }
@@ -2273,7 +2274,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     if (RandomBuckets == nullptr) {
-      RandomBuckets = GetBuckets(Clusterer, D_random, Cluster->SampleCount, Confidence);
+      RandomBuckets = GetBuckets(Clusterer, DISTRIBUTION::D_random, Cluster->SampleCount, Confidence);
     }
     MakeDimRandom(i, Proto, &(Clusterer->ParamDesc[i]));
     FillBuckets(RandomBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
@@ -2283,7 +2284,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     if (UniformBuckets == nullptr) {
-      UniformBuckets = GetBuckets(Clusterer, uniform, Cluster->SampleCount, Confidence);
+      UniformBuckets = GetBuckets(Clusterer, DISTRIBUTION::uniform, Cluster->SampleCount, Confidence);
     }
     MakeDimUniform(i, Proto, Statistics);
     FillBuckets(UniformBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
@@ -2309,7 +2310,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
  * @param ParamDesc description of specified dimension
  */
 static void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
-  Proto->Distrib[i] = D_random;
+  Proto->Distrib[i] = DISTRIBUTION::D_random;
   Proto->Mean[i] = ParamDesc->MidRange;
   Proto->Variance.Elliptical[i] = ParamDesc->HalfRange;
 
@@ -2330,7 +2331,7 @@ static void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
  * @param Statistics  statistical info about prototype
  */
 static void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
-  Proto->Distrib[i] = uniform;
+  Proto->Distrib[i] = DISTRIBUTION::uniform;
   Proto->Mean[i] = Proto->Cluster->Mean[i] + (Statistics->Min[i] + Statistics->Max[i]) / 2;
   Proto->Variance.Elliptical[i] = (Statistics->Max[i] - Statistics->Min[i]) / 2;
   if (Proto->Variance.Elliptical[i] < MINVARIANCE) {
@@ -2488,7 +2489,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
   Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
-  Proto->Style = elliptical;
+  Proto->Style = PROTOSTYLE::elliptical;
   return (Proto);
 } // NewEllipticalProto
 
@@ -2508,8 +2509,8 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
 static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   auto Proto = NewEllipticalProto(N, Cluster, Statistics);
   Proto->Distrib.clear();
-  Proto->Distrib.resize(N, normal);
-  Proto->Style = mixed;
+  Proto->Distrib.resize(N, DISTRIBUTION::normal);
+  Proto->Style = PROTOSTYLE::mixed;
   return Proto;
 } // NewMixedProto
 
@@ -2527,7 +2528,7 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   Proto->Distrib.clear();
   Proto->Significant = true;
   Proto->Merged = false;
-  Proto->Style = spherical;
+  Proto->Style = PROTOSTYLE::spherical;
   Proto->NumSamples = Cluster->SampleCount;
   Proto->Cluster = Cluster;
   Proto->Cluster->Prototype = true;
@@ -2603,12 +2604,12 @@ static BUCKETS *GetBuckets(CLUSTERER *clusterer, DISTRIBUTION Distribution, uint
                            double Confidence) {
   // Get an old bucket structure with the same number of buckets.
   uint16_t NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
-  BUCKETS *Buckets = clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS];
+  BUCKETS *Buckets = clusterer->bucket_cache[static_cast<size_t>(Distribution)][NumberOfBuckets - MINBUCKETS];
 
   // If a matching bucket structure is not found, make one and save it.
   if (Buckets == nullptr) {
     Buckets = MakeBuckets(Distribution, SampleCount, Confidence);
-    clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS] = Buckets;
+    clusterer->bucket_cache[static_cast<size_t>(Distribution)][NumberOfBuckets - MINBUCKETS] = Buckets;
   } else {
     // Just adjust the existing buckets.
     if (SampleCount != Buckets->SampleCount) {
@@ -2899,11 +2900,11 @@ static void FillBuckets(BUCKETS *Buckets, CLUSTER *Cluster, uint16_t Dim, PARAM_
     InitSampleSearch(SearchState, Cluster);
     while ((Sample = NextSample(&SearchState)) != nullptr) {
       switch (Buckets->Distribution) {
-        case normal:
+        case DISTRIBUTION::normal:
           BucketID = NormalBucket(ParamDesc, Sample->Mean[Dim], Mean, StdDev);
           break;
-        case D_random:
-        case uniform:
+        case DISTRIBUTION::D_random:
+        case DISTRIBUTION::uniform:
           BucketID = UniformBucket(ParamDesc, Sample->Mean[Dim], Mean, StdDev);
           break;
         default:

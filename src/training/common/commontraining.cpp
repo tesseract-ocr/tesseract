@@ -86,7 +86,7 @@ namespace tesseract {
 
 // global variable to hold configuration parameters to control clustering
 // -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
-CLUSTERCONFIG Config = {elliptical, 0.625, 0.05, 1.0, 1e-6, 0};
+CLUSTERCONFIG Config = {PROTOSTYLE::elliptical, 0.625, 0.05, 1.0, 1e-6, 0};
 FEATURE_DEFS_STRUCT feature_defs;
 static CCUtil ccutil;
 

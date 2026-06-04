@@ -27,7 +27,7 @@ namespace tesseract {
 
 using MFOUTLINE = LIST;
 
-enum DIRECTION : uint8_t { north, south, east, west, northeast, northwest, southeast, southwest };
+enum class DIRECTION : uint8_t { north, south, east, west, northeast, northwest, southeast, southwest };
 
 struct MFEDGEPT {
   // Inline functions for manipulating micro-feature outline edge points.
@@ -48,7 +48,7 @@ struct MFEDGEPT {
   DIRECTION PreviousDirection;
 };
 
-enum OUTLINETYPE { outer, hole };
+enum class OUTLINETYPE { outer, hole };
 
 enum NORM_METHOD { baseline, character };
 

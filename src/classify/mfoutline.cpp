@@ -33,7 +33,7 @@ namespace tesseract {
  */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
-  return (blob == nullptr) ? NIL_LIST : ConvertOutlines(blob->outlines, outlines, outer);
+  return (blob == nullptr) ? NIL_LIST : ConvertOutlines(blob->outlines, outlines, OUTLINETYPE::outer);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -340,10 +340,10 @@ void ComputeDirection(MFEDGEPT *Start, MFEDGEPT *Finish, float MinSlope, float M
   if (Delta.x == 0) {
     if (Delta.y < 0) {
       Start->Slope = -FLT_MAX;
-      Start->Direction = south;
+      Start->Direction = DIRECTION::south;
     } else {
       Start->Slope = FLT_MAX;
-      Start->Direction = north;
+      Start->Direction = DIRECTION::north;
     }
   } else {
     Start->Slope = Delta.y / Delta.x;
@@ -351,40 +351,40 @@ void ComputeDirection(MFEDGEPT *Start, MFEDGEPT *Finish, float MinSlope, float M
       if (Delta.y > 0) {
         if (Start->Slope > MinSlope) {
           if (Start->Slope < MaxSlope) {
-            Start->Direction = northeast;
+            Start->Direction = DIRECTION::northeast;
           } else {
-            Start->Direction = north;
+            Start->Direction = DIRECTION::north;
           }
         } else {
-          Start->Direction = east;
+          Start->Direction = DIRECTION::east;
         }
       } else if (Start->Slope < -MinSlope) {
         if (Start->Slope > -MaxSlope) {
-          Start->Direction = southeast;
+          Start->Direction = DIRECTION::southeast;
         } else {
-          Start->Direction = south;
+          Start->Direction = DIRECTION::south;
         }
       } else {
-        Start->Direction = east;
+        Start->Direction = DIRECTION::east;
       }
     } else if (Delta.y > 0) {
       if (Start->Slope < -MinSlope) {
         if (Start->Slope > -MaxSlope) {
-          Start->Direction = northwest;
+          Start->Direction = DIRECTION::northwest;
         } else {
-          Start->Direction = north;
+          Start->Direction = DIRECTION::north;
         }
       } else {
-        Start->Direction = west;
+        Start->Direction = DIRECTION::west;
       }
     } else if (Start->Slope > MinSlope) {
       if (Start->Slope < MaxSlope) {
-        Start->Direction = southwest;
+        Start->Direction = DIRECTION::southwest;
       } else {
-        Start->Direction = south;
+        Start->Direction = DIRECTION::south;
       }
     } else {
-      Start->Direction = west;
+      Start->Direction = DIRECTION::west;
     }
   }
   Finish->PreviousDirection = Start->Direction;
