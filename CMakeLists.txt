@@ -669,7 +669,7 @@ set(TESSERACT_SRC ${TESSERACT_SRC_CORE})
 if(DISABLED_LEGACY_ENGINE)
   # prepend path to list of source files
   function(prepend_path srcs path)
-    set(tmp, "")
+    set(tmp "")
     foreach(src IN LISTS ${srcs})
       list(APPEND tmp ${path}/${src})
     endforeach(src ${srcs})
