@@ -26,6 +26,8 @@
 #include "blobs.h"
 #include "split.h"
 
+#include <array>
+
 namespace tesseract {
 
 using PRIORITY = float; /*  PRIORITY  */
@@ -196,7 +198,7 @@ private:
   // Number of splits_ that are used.
   uint8_t num_splits_;
   // Set of pairs of points that are the ends of each split in the SEAM.
-  SPLIT splits_[kMaxNumSplits];
+  std::array<SPLIT, kMaxNumSplits> splits_;
 };
 
 void start_seam_list(TWERD *word, std::vector<SEAM *> *seam_array);

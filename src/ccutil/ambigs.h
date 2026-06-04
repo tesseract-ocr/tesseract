@@ -31,9 +31,11 @@
 #  include "tprintf.h"
 #  include "unicharset.h"
 
-#  define MAX_AMBIG_SIZE 10
+#  include <array>
 
 namespace tesseract {
+
+constexpr int kMaxAmbigSize = 10;
 
 using UnicharIdVector = std::vector<UNICHAR_ID>;
 
@@ -118,15 +120,15 @@ public:
   // be sorted by their wrong_ngram arrays. Example of wrong_ngram vectors
   // in a sorted AmbigSpec_LIST: [9 1 3], [9 3 4], [9 8], [9, 8 1].
   static int compare_ambig_specs(const AmbigSpec *s1, const AmbigSpec *s2) {
-    int result = UnicharIdArrayUtils::compare(s1->wrong_ngram, s2->wrong_ngram);
+    int result = UnicharIdArrayUtils::compare(s1->wrong_ngram.data(), s2->wrong_ngram.data());
     if (result != 0) {
       return result;
     }
-    return UnicharIdArrayUtils::compare(s1->correct_fragments, s2->correct_fragments);
+    return UnicharIdArrayUtils::compare(s1->correct_fragments.data(), s2->correct_fragments.data());
   }
 
-  UNICHAR_ID wrong_ngram[MAX_AMBIG_SIZE + 1];
-  UNICHAR_ID correct_fragments[MAX_AMBIG_SIZE + 1];
+  std::array<UNICHAR_ID, kMaxAmbigSize + 1> wrong_ngram;
+  std::array<UNICHAR_ID, kMaxAmbigSize + 1> correct_fragments;
   UNICHAR_ID correct_ngram_id;
   AmbigType type;
   int wrong_ngram_size;

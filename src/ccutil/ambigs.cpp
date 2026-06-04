@@ -36,8 +36,8 @@ static const char kIllegalUnicharMsg[] = "Illegal unichar %s in ambiguity specif
 
 // Maximum line size:
 //   10 for sizes of ambigs, tabs, abmig type and newline
-//   UNICHAR_LEN * (MAX_AMBIG_SIZE + 1) for each part of the ambig
-const int kMaxAmbigStringSize = UNICHAR_LEN * (MAX_AMBIG_SIZE + 1);
+//   UNICHAR_LEN * (kMaxAmbigSize + 1) for each part of the ambig
+const int kMaxAmbigStringSize = UNICHAR_LEN * (kMaxAmbigSize + 1);
 
 AmbigSpec::AmbigSpec() : correct_ngram_id(INVALID_UNICHAR_ID), type(NOT_AMBIG), wrong_ngram_size(0) {
   wrong_ngram[0] = INVALID_UNICHAR_ID;
@@ -81,7 +81,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
   const int kBufferSize = 10 + 2 * kMaxAmbigStringSize;
   char *buffer = new char[kBufferSize];
   char replacement_string[kMaxAmbigStringSize];
-  UNICHAR_ID test_unichar_ids[MAX_AMBIG_SIZE + 1];
+  std::array<UNICHAR_ID, kMaxAmbigSize + 1> test_unichar_ids;
   int line_num = 0;
   int type = NOT_AMBIG;
 
@@ -101,14 +101,14 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
     }
     ++line_num;
     if (!ParseAmbiguityLine(line_num, version, debug_level, encoder_set, buffer,
-                            &test_ambig_part_size, test_unichar_ids, &replacement_ambig_part_size,
+                            &test_ambig_part_size, test_unichar_ids.data(), &replacement_ambig_part_size,
                             replacement_string, &type)) {
       continue;
     }
     // Construct AmbigSpec and add it to the appropriate AmbigSpec_LIST.
     auto *ambig_spec = new AmbigSpec();
     if (!InsertIntoTable((type == REPLACE_AMBIG) ? replace_ambigs_ : dang_ambigs_,
-                         test_ambig_part_size, test_unichar_ids, replacement_ambig_part_size,
+                         test_ambig_part_size, test_unichar_ids.data(), replacement_ambig_part_size,
                          replacement_string, type, ambig_spec, unicharset)) {
       continue;
     }
@@ -188,9 +188,9 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET &encoder_set, TFile *ambi
         for (lst_it.mark_cycle_pt(); !lst_it.cycled_list(); lst_it.forward()) {
           AmbigSpec *ambig_spec = lst_it.data();
           tprintf("wrong_ngram:");
-          UnicharIdArrayUtils::print(ambig_spec->wrong_ngram, *unicharset);
+          UnicharIdArrayUtils::print(ambig_spec->wrong_ngram.data(), *unicharset);
           tprintf("correct_fragments:");
-          UnicharIdArrayUtils::print(ambig_spec->correct_fragments, *unicharset);
+          UnicharIdArrayUtils::print(ambig_spec->correct_fragments.data(), *unicharset);
         }
       }
     }
@@ -235,7 +235,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
       return false;
     }
     *test_ambig_part_size = unichars.size();
-    if (*test_ambig_part_size > MAX_AMBIG_SIZE) {
+    if (*test_ambig_part_size > kMaxAmbigSize) {
       if (debug_level) {
         tprintf("Too many unichars in ambiguity on line %d\n", line_num);
       }
@@ -251,7 +251,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
       return false;
     }
     *replacement_ambig_part_size = unichars.size();
-    if (*replacement_ambig_part_size > MAX_AMBIG_SIZE) {
+    if (*replacement_ambig_part_size > kMaxAmbigSize) {
       if (debug_level) {
         tprintf("Too many unichars in ambiguity on line %d\n", line_num);
       }
@@ -276,7 +276,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     }
     return false;
   }
-  if (*test_ambig_part_size > MAX_AMBIG_SIZE) {
+  if (*test_ambig_part_size > kMaxAmbigSize) {
     if (debug_level) {
       tprintf("Too many unichars in ambiguity on line %d\n", line_num);
     }
@@ -304,7 +304,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(int line_num, int version, int debug_leve
     }
     return false;
   }
-  if (*replacement_ambig_part_size > MAX_AMBIG_SIZE) {
+  if (*replacement_ambig_part_size > kMaxAmbigSize) {
     if (debug_level) {
       tprintf("Too many unichars in ambiguity on line %d\n", line_num);
     }
@@ -362,7 +362,7 @@ bool UnicharAmbigs::InsertIntoTable(UnicharAmbigsVector &table, int test_ambig_p
   }
 
   ambig_spec->wrong_ngram_size =
-      UnicharIdArrayUtils::copy(test_unichar_ids, ambig_spec->wrong_ngram);
+      UnicharIdArrayUtils::copy(test_unichar_ids, ambig_spec->wrong_ngram.data());
 
   // Since we need to maintain a constant number of unichar positions in
   // order to construct ambig_blob_choices vector in NoDangerousAmbig(), for

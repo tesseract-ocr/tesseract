@@ -42,7 +42,7 @@
 
 namespace tesseract {
 
-ICOORD C_OUTLINE::step_coords[4] = {ICOORD(-1, 0), ICOORD(0, -1), ICOORD(1, 0), ICOORD(0, 1)};
+std::array<ICOORD, 4> C_OUTLINE::step_coords = {ICOORD(-1, 0), ICOORD(0, -1), ICOORD(1, 0), ICOORD(0, 1)};
 
 /**
  * @name C_OUTLINE::C_OUTLINE

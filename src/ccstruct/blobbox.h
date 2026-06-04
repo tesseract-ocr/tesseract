@@ -35,6 +35,8 @@
 #include "werd.h"       // for WERD_LIST
 
 #include <cinttypes> // for PRId32
+
+#include <array>
 #include <cmath>     // for std::sqrt
 #include <cstdint>   // for int16_t, int32_t
 
@@ -537,11 +539,11 @@ private:
   int32_t line_crossings_;                   // Number of line intersections touched.
   BLOBNBOX *base_char_blob_;                 // The blob that was the base char.
   tesseract::ColPartition *owner_;           // Who will delete me when I am not needed
-  BLOBNBOX *neighbours_[BND_COUNT];
+  std::array<BLOBNBOX *, BND_COUNT> neighbours_;
   float horz_stroke_width_ = 0.0f; // Median horizontal stroke width
   float vert_stroke_width_ = 0.0f; // Median vertical stroke width
   float area_stroke_width_ = 0.0f; // Stroke width from area/perimeter ratio.
-  bool good_stroke_neighbours_[BND_COUNT];
+  std::array<bool, BND_COUNT> good_stroke_neighbours_;
   bool horz_possible_;   // Could be part of horizontal flow.
   bool vert_possible_;   // Could be part of vertical flow.
   bool leader_on_left_;  // There is a leader to the left.

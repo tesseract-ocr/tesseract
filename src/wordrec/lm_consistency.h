@@ -20,7 +20,9 @@
 #ifndef TESSERACT_WORDREC_LM_CONSISTENCY_H_
 #define TESSERACT_WORDREC_LM_CONSISTENCY_H_
 
+#include <array>
 #include <cstdint> // for INT16_MAX
+
 #include "dawg.h"  // for EDGE_REF, NO_EDGE
 #include "dict.h"  // for XH_GOOD, XH_INCONSISTENT, XHeightConsi...
 
@@ -128,10 +130,10 @@ struct LMConsistencyInfo {
   int script_id;
   int num_inconsistent_spaces;
   // Metrics clumped by position.
-  float xht_lo[kNumPos];
-  float xht_hi[kNumPos];
-  int16_t xht_count[kNumPos];
-  int16_t xht_count_punc[kNumPos];
+  std::array<float, kNumPos> xht_lo;
+  std::array<float, kNumPos> xht_hi;
+  std::array<int16_t, kNumPos> xht_count;
+  std::array<int16_t, kNumPos> xht_count_punc;
   int16_t xht_sp;
   int16_t xpos_entropy;
   bool invalid_punc;

@@ -198,7 +198,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
         ambig_blob_choices.push_back(lst);
       }
     }
-    UNICHAR_ID wrong_ngram[MAX_AMBIG_SIZE + 1];
+    UNICHAR_ID wrong_ngram[kMaxAmbigSize + 1];
     int wrong_ngram_index;
     int blob_index = 0;
     for (unsigned i = 0; i < best_choice->length(); blob_index += best_choice->state(i), ++i) {
@@ -218,12 +218,12 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
       for (spec_it.mark_cycle_pt(); !spec_it.cycled_list();) {
         const AmbigSpec *ambig_spec = spec_it.data();
         wrong_ngram[wrong_ngram_index + 1] = INVALID_UNICHAR_ID;
-        int compare = UnicharIdArrayUtils::compare(wrong_ngram, ambig_spec->wrong_ngram);
+        int compare = UnicharIdArrayUtils::compare(wrong_ngram, ambig_spec->wrong_ngram.data());
         if (stopper_debug_level > 2) {
           tprintf("candidate ngram: ");
           UnicharIdArrayUtils::print(wrong_ngram, getUnicharset());
           tprintf("current ngram from spec: ");
-          UnicharIdArrayUtils::print(ambig_spec->wrong_ngram, getUnicharset());
+          UnicharIdArrayUtils::print(ambig_spec->wrong_ngram.data(), getUnicharset());
           tprintf("comparison result: %d\n", compare);
         }
         if (compare == 0) {
@@ -244,7 +244,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
             if (stopper_debug_level > 2) {
               tprintf("replace ambiguity with %s : ",
                       getUnicharset().id_to_unichar(ambig_spec->correct_ngram_id));
-              UnicharIdArrayUtils::print(ambig_spec->correct_fragments, getUnicharset());
+              UnicharIdArrayUtils::print(ambig_spec->correct_fragments.data(), getUnicharset());
             }
             ReplaceAmbig(i, ambig_spec->wrong_ngram_size, ambig_spec->correct_ngram_id, best_choice,
                          ratings);
@@ -252,7 +252,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice, DANGERR *fixpt, bool fix_r
             // We found dang ambig - update ambig_blob_choices.
             if (stopper_debug_level > 2) {
               tprintf("found ambiguity: ");
-              UnicharIdArrayUtils::print(ambig_spec->correct_fragments, getUnicharset());
+              UnicharIdArrayUtils::print(ambig_spec->correct_fragments.data(), getUnicharset());
             }
             ambigs_found = true;
             for (int tmp_index = 0; tmp_index <= wrong_ngram_index; ++tmp_index) {
