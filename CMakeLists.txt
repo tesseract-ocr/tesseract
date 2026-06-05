@@ -667,81 +667,6 @@ include(cmake/SourceLists.cmake)
 set(TESSERACT_SRC ${TESSERACT_SRC_CORE})
 
 if(DISABLED_LEGACY_ENGINE)
-  # prepend path to list of source files
-  function(prepend_path srcs path)
-    set(tmp, "")
-    foreach(src IN LISTS ${srcs})
-      list(APPEND tmp ${path}/${src})
-    endforeach(src ${srcs})
-    set(${srcs}
-        ${tmp}
-        PARENT_SCOPE)
-  endfunction()
-
-  set(TESSERACT_SRC_LEGACY
-      src/ccmain/adaptions.cpp
-      src/ccmain/docqual.cpp
-      src/ccmain/equationdetect.cpp
-      src/ccmain/fixspace.cpp
-      src/ccmain/fixxht.cpp
-      src/ccmain/osdetect.cpp
-      src/ccmain/par_control.cpp
-      src/ccmain/recogtraining.cpp
-      src/ccmain/superscript.cpp
-      src/ccmain/tessbox.cpp
-      src/ccmain/tfacepp.cpp
-      src/ccstruct/fontinfo.cpp
-      src/ccstruct/params_training_featdef.cpp
-      src/ccutil/ambigs.cpp
-      src/ccutil/bitvector.cpp
-      src/ccutil/indexmapbidi.cpp
-      src/classify/adaptive.cpp
-      src/classify/adaptmatch.cpp
-      src/classify/blobclass.cpp
-      src/classify/cluster.cpp
-      src/classify/clusttool.cpp
-      src/classify/cutoffs.cpp
-      src/classify/featdefs.cpp
-      src/classify/float2int.cpp
-      src/classify/fpoint.cpp
-      src/classify/intfeaturespace.cpp
-      src/classify/intfx.cpp
-      src/classify/intmatcher.cpp
-      src/classify/intproto.cpp
-      src/classify/kdtree.cpp
-      src/classify/mf.cpp
-      src/classify/mfoutline.cpp
-      src/classify/mfx.cpp
-      src/classify/normfeat.cpp
-      src/classify/normmatch.cpp
-      src/classify/ocrfeatures.cpp
-      src/classify/outfeat.cpp
-      src/classify/picofeat.cpp
-      src/classify/protos.cpp
-      src/classify/shapeclassifier.cpp
-      src/classify/shapetable.cpp
-      src/classify/tessclassifier.cpp
-      src/classify/trainingsample.cpp
-      src/dict/permdawg.cpp
-      src/dict/hyphen.cpp
-      src/wordrec/associate.cpp
-      src/wordrec/chop.cpp
-      src/wordrec/chopper.cpp
-      src/wordrec/drawfx.cpp
-      src/wordrec/findseam.cpp
-      src/wordrec/gradechop.cpp
-      src/wordrec/language_model.cpp
-      src/wordrec/lm_consistency.cpp
-      src/wordrec/lm_pain_points.cpp
-      src/wordrec/lm_state.cpp
-      src/wordrec/outlines.cpp
-      src/wordrec/params_model.cpp
-      src/wordrec/pieces.cpp
-      src/wordrec/plotedges.cpp
-      src/wordrec/render.cpp
-      src/wordrec/segsearch.cpp
-      src/wordrec/wordclass.cpp)
-  prepend_path(TESSERACT_SRC_LEGACY "${CMAKE_CURRENT_SOURCE_DIR}")
   list(REMOVE_ITEM TESSERACT_SRC ${TESSERACT_SRC_LEGACY})
 endif(DISABLED_LEGACY_ENGINE)
 
@@ -792,18 +717,6 @@ endif(HAVE_NEON)
 
 # Use explicit header file lists from SourceLists.cmake
 set(TESSERACT_HDR ${TESSERACT_HDR_INCLUDE} ${TESSERACT_HDR_INTERNAL})
-
-set(TESSERACT_SRC
-    ${TESSERACT_SRC}
-    src/api/baseapi.cpp
-    src/api/capi.cpp
-    src/api/renderer.cpp
-    src/api/altorenderer.cpp
-    src/api/pagerenderer.cpp
-    src/api/hocrrenderer.cpp
-    src/api/lstmboxrenderer.cpp
-    src/api/pdfrenderer.cpp
-    src/api/wordstrboxrenderer.cpp)
 
 set(TESSERACT_CONFIGS
     tessdata/configs/alto

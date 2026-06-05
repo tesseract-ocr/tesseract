@@ -40,7 +40,6 @@ set(TRAINING_TESTS
     lstm_recode_test.cc
     lstm_squashed_test.cc
     lstm_test.cc
-    lstm_test.cc
     normstrngs_test.cc
     unichar_test.cc
     unicharcompress_test.cc
@@ -51,8 +50,7 @@ set(TRAINING_TESTS
     validate_myanmar_test.cc
     validator_test.cc)
 
-set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc
-                pango_font_info_test.cc stringrenderer_test.cc)
+set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc stringrenderer_test.cc)
 
 set(LEGACY_TESTS
     applybox_test.cc
@@ -63,7 +61,8 @@ set(LEGACY_TESTS
     mastertrainer_test.cc
     osd_test.cc
     params_model_test.cc
-    shapetable_test.cc)
+    shapetable_test.cc
+    textlineprojection_test.cc)
 
 if(BUILD_TRAINING_TOOLS AND PANGO_FOUND)
   list(APPEND COMMON_INCLUDE_DIRS
