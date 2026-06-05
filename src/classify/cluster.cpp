@@ -32,13 +32,13 @@
 
 namespace tesseract {
 
-#define HOTELLING 1  // If true use Hotelling's test to decide where to split.
-#define FTABLE_X 10  // Size of FTable.
-#define FTABLE_Y 100 // Size of FTable.
+constexpr int HOTELLING = 1;  // If true use Hotelling's test to decide where to split.
+constexpr int FTABLE_X = 10;  // Size of FTable.
+constexpr int FTABLE_Y = 100; // Size of FTable.
 
 // Table of values approximating the cumulative F-distribution for a confidence
 // of 1%.
-const double FTable[FTABLE_Y][FTABLE_X] = {
+constexpr double FTable[FTABLE_Y][FTABLE_X] = {
     {
         4052.19,
         4999.52,
@@ -1233,7 +1233,7 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   dimension of any feature. Since most features are calculated from numbers
   with a precision no better than 1 in 128, the variance should never be
   less than the square of this number for parameters whose range is 1. */
-#define MINVARIANCE 0.0004
+constexpr double MINVARIANCE = 0.0004;
 
 /** define the absolute minimum number of samples which must be present in
   order to accurately test hypotheses about underlying probability
@@ -1241,9 +1241,9 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   before a statistical analysis is attempted; this number should be
   equal to MINSAMPLES but can be set to a lower number for early testing
   when very few samples are available. */
-#define MINSAMPLESPERBUCKET 5
-#define MINSAMPLES (MINBUCKETS * MINSAMPLESPERBUCKET)
-#define MINSAMPLESNEEDED 1
+constexpr int MINSAMPLESPERBUCKET = 5;
+constexpr int MINSAMPLES = MINBUCKETS * MINSAMPLESPERBUCKET;
+constexpr int MINSAMPLESNEEDED = 1;
 
 /** define the size of the table which maps normalized samples to
   histogram buckets.  Also define the number of standard deviations
@@ -1251,8 +1251,8 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   The mapping table will be defined in such a way that it covers
   the specified number of standard deviations on either side of
   the mean.  BUCKETTABLESIZE should always be even. */
-#define BUCKETTABLESIZE 1024
-#define NORMALEXTENT 3.0
+constexpr int BUCKETTABLESIZE = 1024;
+constexpr double NORMALEXTENT = 3.0;
 
 struct TEMPCLUSTER {
   CLUSTER *Cluster;
@@ -1311,9 +1311,18 @@ struct ClusteringContext {
 using DENSITYFUNC = double (*)(int32_t);
 using SOLVEFUNC = double (*)(CHISTRUCT *, double);
 
-#define Odd(N) ((N) % 2)
-#define Mirror(N, R) ((R) - (N)-1)
-#define Abs(N) (((N) < 0) ? (-(N)) : (N))
+template <typename T>
+inline constexpr bool Odd(T N) {
+  return (N % 2) != 0;
+}
+template <typename T>
+inline constexpr T Mirror(T N, T R) {
+  return R - N - 1;
+}
+template <typename T>
+inline constexpr T Abs(T N) {
+  return N < 0 ? -N : N;
+}
 
 //--------------Global Data Definitions and Declarations----------------------
 /** the following variables describe a discrete normal distribution
@@ -1323,22 +1332,22 @@ using SOLVEFUNC = double (*)(CHISTRUCT *, double);
   discrete range of x.  x=0 is mapped to -NORMALEXTENT standard
   deviations and x=BUCKETTABLESIZE is mapped to
   +NORMALEXTENT standard deviations. */
-#define SqrtOf2Pi 2.506628275
-static const double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
-static const double kNormalVariance =
+constexpr double SqrtOf2Pi = 2.506628275;
+static constexpr double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
+static constexpr double kNormalVariance =
     (BUCKETTABLESIZE * BUCKETTABLESIZE) / (4.0 * NORMALEXTENT * NORMALEXTENT);
-static const double kNormalMagnitude = (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
-static const double kNormalMean = BUCKETTABLESIZE / 2;
+static constexpr double kNormalMagnitude = (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
+static constexpr double kNormalMean = BUCKETTABLESIZE / 2;
 
 /** define lookup tables used to compute the number of histogram buckets
   that should be used for a given number of samples. */
-#define LOOKUPTABLESIZE 8
-#define MAXDEGREESOFFREEDOM MAXBUCKETS
+constexpr int LOOKUPTABLESIZE = 8;
+constexpr int MAXDEGREESOFFREEDOM = MAXBUCKETS;
 
-static const uint32_t kCountTable[LOOKUPTABLESIZE] = {MINSAMPLES, 200,  400, 600, 800,
-                                                      1000,       1500, 2000}; // number of samples
+static constexpr uint32_t kCountTable[LOOKUPTABLESIZE] = {MINSAMPLES, 200,  400, 600, 800,
+                                                          1000,       1500, 2000}; // number of samples
 
-static const uint16_t kBucketsTable[LOOKUPTABLESIZE] = {
+static constexpr uint16_t kBucketsTable[LOOKUPTABLESIZE] = {
     MINBUCKETS, 16, 20, 24, 27, 30, 35, MAXBUCKETS}; // number of buckets
 
 /*-------------------------------------------------------------------------
@@ -1795,10 +1804,9 @@ static void MakePotentialClusters(ClusteringContext *context, CLUSTER *Cluster, 
  * @param Distance  ptr to variable to report distance found
  * @return  Pointer to the nearest neighbor of Cluster, or nullptr
  */
-static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Distance)
-#define MAXNEIGHBORS 2
-#define MAXDISTANCE FLT_MAX
-{
+static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Distance) {
+  constexpr int MAXNEIGHBORS = 2;
+  constexpr float MAXDISTANCE = FLT_MAX;
   CLUSTER *Neighbor[MAXNEIGHBORS];
   float Dist[MAXNEIGHBORS];
   int NumberOfNeighbors;
@@ -2758,10 +2766,9 @@ static uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
  * @param Alpha probability of right tail
  * @return Desired chi-squared value
  */
-static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
-#define CHIACCURACY 0.01
-#define MINALPHA (1e-200)
-{
+static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha) {
+  constexpr double CHIACCURACY = 0.01;
+  constexpr double MINALPHA = 1e-200;
   static LIST ChiWith[MAXDEGREESOFFREEDOM + 1];
 
   // limit the minimum alpha that can be used - if alpha is too small
@@ -3106,10 +3113,9 @@ static int AlphaMatch(void *arg1,   // CHISTRUCT *ChiStruct,
  * @param Accuracy  maximum allowed error
  * @return Solution of function (x for which f(x) = 0).
  */
-static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGuess, double Accuracy)
-#define INITIALDELTA 0.1
-#define DELTARATIO 0.1
-{
+static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGuess, double Accuracy) {
+  constexpr double INITIALDELTA = 0.1;
+  constexpr double DELTARATIO = 0.1;
   double x;
   double f;
   double Slope;
@@ -3212,9 +3218,8 @@ static double ChiArea(CHISTRUCT *ChiParams, double x) {
  *        more than 1 feature in the cluster
  * @return true if the cluster should be split, false otherwise.
  */
-static bool MultipleCharSamples(CLUSTERER *Clusterer, CLUSTER *Cluster, float MaxIllegal)
-#define ILLEGAL_CHAR 2
-{
+static bool MultipleCharSamples(CLUSTERER *Clusterer, CLUSTER *Cluster, float MaxIllegal) {
+  constexpr int ILLEGAL_CHAR = 2;
   static std::vector<uint8_t> CharFlags;
   LIST SearchState;
   SAMPLE *Sample;
