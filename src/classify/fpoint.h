@@ -34,13 +34,22 @@ using FVECTOR = FPOINT;
 /**----------------------------------------------------------------------------
             Macros
 ----------------------------------------------------------------------------**/
-/* macros for computing miscellaneous functions of 2 points */
-#define XDelta(A, B) ((B).x - (A).x)
-#define YDelta(A, B) ((B).y - (A).y)
-#define SlopeFrom(A, B) (YDelta(A, B) / XDelta(A, B))
-#define AngleFrom(A, B) (atan2(static_cast<double>(YDelta(A, B)), static_cast<double>(XDelta(A, B))))
-
-#define XIntersectionOf(A, B, X) (SlopeFrom(A, B) * ((X)-A.x) + A.y)
+/* functions for computing miscellaneous properties of 2 points */
+inline constexpr float XDelta(const FPOINT &A, const FPOINT &B) {
+  return B.x - A.x;
+}
+inline constexpr float YDelta(const FPOINT &A, const FPOINT &B) {
+  return B.y - A.y;
+}
+inline constexpr float SlopeFrom(const FPOINT &A, const FPOINT &B) {
+  return YDelta(A, B) / XDelta(A, B);
+}
+inline double AngleFrom(const FPOINT &A, const FPOINT &B) {
+  return std::atan2(static_cast<double>(YDelta(A, B)), static_cast<double>(XDelta(A, B)));
+}
+inline constexpr float XIntersectionOf(const FPOINT &A, const FPOINT &B, float X) {
+  return SlopeFrom(A, B) * (X - A.x) + A.y;
+}
 
 /*-------------------------------------------------------------------------
         Public Function Prototypes

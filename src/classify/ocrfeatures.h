@@ -29,7 +29,7 @@ class DENORM;
 
 #undef Min
 #undef Max
-#define FEAT_NAME_SIZE 80
+constexpr int FEAT_NAME_SIZE = 80;
 
 // A character is described by multiple sets of extracted features.  Each
 // set contains a number of features of a particular type, for example, a

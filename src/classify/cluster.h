@@ -25,8 +25,8 @@ namespace tesseract {
 
 struct BUCKETS;
 
-#define MINBUCKETS 5
-#define MAXBUCKETS 39
+constexpr int MINBUCKETS = 5;
+constexpr int MAXBUCKETS = 39;
 
 /*----------------------------------------------------------------------
           Types

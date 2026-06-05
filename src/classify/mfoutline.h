@@ -55,10 +55,13 @@ enum NORM_METHOD { baseline, character };
 /**----------------------------------------------------------------------------
           Macros
 ----------------------------------------------------------------------------**/
-#define AverageOf(A, B) (((A) + (B)) / 2)
+template <typename T>
+inline constexpr T AverageOf(T A, T B) {
+  return (A + B) / T{2};
+}
 
 // Constant for computing the scale factor to use to normalize characters.
-const float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
+constexpr float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
 
 // Inline functions for manipulating micro-feature outlines.
 

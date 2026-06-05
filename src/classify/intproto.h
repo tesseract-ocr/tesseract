@@ -32,37 +32,37 @@ namespace tesseract {
 class FCOORD;
 
 /* define order of params in pruners */
-#define PRUNER_X 0
-#define PRUNER_Y 1
-#define PRUNER_ANGLE 2
+constexpr int PRUNER_X = 0;
+constexpr int PRUNER_Y = 1;
+constexpr int PRUNER_ANGLE = 2;
 
 /* definition of coordinate system offsets for each table parameter */
-#define ANGLE_SHIFT (0.0)
-#define X_SHIFT (0.5)
-#define Y_SHIFT (0.5)
+constexpr double ANGLE_SHIFT = 0.0;
+constexpr double X_SHIFT = 0.5;
+constexpr double Y_SHIFT = 0.5;
 
-#define MAX_PROTO_INDEX 24
-#define BITS_PER_WERD static_cast<int>(8 * sizeof(uint32_t))
+constexpr int MAX_PROTO_INDEX = 24;
+constexpr int BITS_PER_WERD = static_cast<int>(8 * sizeof(uint32_t));
 /* Script detection: increase this number to 128 */
-#define MAX_NUM_CONFIGS 64
-#define MAX_NUM_PROTOS 512
-#define PROTOS_PER_PROTO_SET 64
-#define MAX_NUM_PROTO_SETS (MAX_NUM_PROTOS / PROTOS_PER_PROTO_SET)
-#define NUM_PP_PARAMS 3
-#define NUM_PP_BUCKETS 64
-#define NUM_CP_BUCKETS 24
-#define CLASSES_PER_CP 32
-#define NUM_BITS_PER_CLASS 2
-#define CLASS_PRUNER_CLASS_MASK (~(~0u << NUM_BITS_PER_CLASS))
-#define CLASSES_PER_CP_WERD (CLASSES_PER_CP / NUM_BITS_PER_CLASS)
-#define PROTOS_PER_PP_WERD BITS_PER_WERD
-#define BITS_PER_CP_VECTOR (CLASSES_PER_CP * NUM_BITS_PER_CLASS)
-#define MAX_NUM_CLASS_PRUNERS ((MAX_NUM_CLASSES + CLASSES_PER_CP - 1) / CLASSES_PER_CP)
-#define WERDS_PER_CP_VECTOR (BITS_PER_CP_VECTOR / BITS_PER_WERD)
-#define WERDS_PER_PP_VECTOR ((PROTOS_PER_PROTO_SET + BITS_PER_WERD - 1) / BITS_PER_WERD)
-#define WERDS_PER_PP (NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR)
-#define WERDS_PER_CP (NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR)
-#define WERDS_PER_CONFIG_VEC ((MAX_NUM_CONFIGS + BITS_PER_WERD - 1) / BITS_PER_WERD)
+constexpr int MAX_NUM_CONFIGS = 64;
+constexpr int MAX_NUM_PROTOS = 512;
+constexpr int PROTOS_PER_PROTO_SET = 64;
+constexpr int MAX_NUM_PROTO_SETS = MAX_NUM_PROTOS / PROTOS_PER_PROTO_SET;
+constexpr int NUM_PP_PARAMS = 3;
+constexpr int NUM_PP_BUCKETS = 64;
+constexpr int NUM_CP_BUCKETS = 24;
+constexpr int CLASSES_PER_CP = 32;
+constexpr int NUM_BITS_PER_CLASS = 2;
+constexpr uint32_t CLASS_PRUNER_CLASS_MASK = ~(~0u << NUM_BITS_PER_CLASS);
+constexpr int CLASSES_PER_CP_WERD = CLASSES_PER_CP / NUM_BITS_PER_CLASS;
+constexpr int PROTOS_PER_PP_WERD = BITS_PER_WERD;
+constexpr int BITS_PER_CP_VECTOR = CLASSES_PER_CP * NUM_BITS_PER_CLASS;
+constexpr int MAX_NUM_CLASS_PRUNERS = (MAX_NUM_CLASSES + CLASSES_PER_CP - 1) / CLASSES_PER_CP;
+constexpr int WERDS_PER_CP_VECTOR = BITS_PER_CP_VECTOR / BITS_PER_WERD;
+constexpr int WERDS_PER_PP_VECTOR = (PROTOS_PER_PROTO_SET + BITS_PER_WERD - 1) / BITS_PER_WERD;
+constexpr int WERDS_PER_PP = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
+constexpr int WERDS_PER_CP = NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR;
+constexpr int WERDS_PER_CONFIG_VEC = (MAX_NUM_CONFIGS + BITS_PER_WERD - 1) / BITS_PER_WERD;
 
 /* The first 3 dimensions of the CLASS_PRUNER_STRUCT are the
  * 3 axes of the quantized feature space.
@@ -113,8 +113,8 @@ struct TESS_API INT_TEMPLATES_STRUCT {
 };
 
 /* definitions of integer features*/
-#define MAX_NUM_INT_FEATURES 512
-#define INT_CHAR_NORM_RANGE 256
+constexpr int MAX_NUM_INT_FEATURES = 512;
+constexpr int INT_CHAR_NORM_RANGE = 256;
 
 struct INT_FEATURE_STRUCT {
   INT_FEATURE_STRUCT() : X(0), Y(0), Theta(0), CP_misses(0) {}
@@ -142,40 +142,46 @@ enum IntmatcherDebugAction { IDA_ADAPTIVE, IDA_STATIC, IDA_SHAPE_INDEX, IDA_BOTH
             Macros
 ----------------------------------------------------------------------------**/
 
-#define MaxNumIntProtosIn(C) (C->NumProtoSets * PROTOS_PER_PROTO_SET)
-#define SetForProto(P) (P / PROTOS_PER_PROTO_SET)
-#define IndexForProto(P) (P % PROTOS_PER_PROTO_SET)
-#define ProtoForProtoId(C, P) (&((C->ProtoSets[SetForProto(P)])->Protos[IndexForProto(P)]))
-#define PPrunerWordIndexFor(I) (((I) % PROTOS_PER_PROTO_SET) / PROTOS_PER_PP_WERD)
-#define PPrunerBitIndexFor(I) ((I) % PROTOS_PER_PP_WERD)
-#define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor(I))
+inline constexpr int MaxNumIntProtosIn(const INT_CLASS_STRUCT *C) { return C->NumProtoSets * PROTOS_PER_PROTO_SET; }
+inline constexpr int SetForProto(int P) { return P / PROTOS_PER_PROTO_SET; }
+inline constexpr int IndexForProto(int P) { return P % PROTOS_PER_PROTO_SET; }
+inline constexpr INT_PROTO_STRUCT *ProtoForProtoId(INT_CLASS_STRUCT *C, int P) {
+  return &(C->ProtoSets[SetForProto(P)]->Protos[IndexForProto(P)]);
+}
+inline constexpr int PPrunerWordIndexFor(int I) { return (I % PROTOS_PER_PROTO_SET) / PROTOS_PER_PP_WERD; }
+inline constexpr int PPrunerBitIndexFor(int I) { return I % PROTOS_PER_PP_WERD; }
+inline constexpr uint32_t PPrunerMaskFor(int I) { return 1u << PPrunerBitIndexFor(I); }
 
-#define MaxNumClassesIn(T) (T->NumClassPruners * CLASSES_PER_CP)
-#define LegalClassId(c) ((c) >= 0 && (c) < MAX_NUM_CLASSES)
-#define UnusedClassIdIn(T, c) ((T)->Class[c] == nullptr)
-#define ClassForClassId(T, c) ((T)->Class[c])
-#define ClassPrunersFor(T) ((T)->ClassPruner)
-#define CPrunerIdFor(c) ((c) / CLASSES_PER_CP)
-#define CPrunerFor(T, c) ((T)->ClassPruners[CPrunerIdFor(c)])
-#define CPrunerWordIndexFor(c) (((c) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
-#define CPrunerBitIndexFor(c) (((c) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
-#define CPrunerMaskFor(L, c) (((L) + 1) << CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS)
+inline constexpr int MaxNumClassesIn(const INT_TEMPLATES_STRUCT *T) { return T->NumClassPruners * CLASSES_PER_CP; }
+inline constexpr bool LegalClassId(int c) { return c >= 0 && c < MAX_NUM_CLASSES; }
+inline constexpr bool UnusedClassIdIn(INT_TEMPLATES_STRUCT *T, int c) { return T->Class[c] == nullptr; }
+inline constexpr INT_CLASS_STRUCT *&ClassForClassId(INT_TEMPLATES_STRUCT *T, int c) { return T->Class[c]; }
 
-/* DEBUG macros*/
-#define PRINT_MATCH_SUMMARY 0x001
-#define DISPLAY_FEATURE_MATCHES 0x002
-#define DISPLAY_PROTO_MATCHES 0x004
-#define PRINT_FEATURE_MATCHES 0x008
-#define PRINT_PROTO_MATCHES 0x010
-#define CLIP_MATCH_EVIDENCE 0x020
+inline constexpr int CPrunerIdFor(int c) { return c / CLASSES_PER_CP; }
+inline constexpr CLASS_PRUNER_STRUCT *CPrunerFor(INT_TEMPLATES_STRUCT *T, int c) {
+  return T->ClassPruners[CPrunerIdFor(c)];
+}
+inline constexpr int CPrunerWordIndexFor(int c) { return (c % CLASSES_PER_CP) / CLASSES_PER_CP_WERD; }
+inline constexpr int CPrunerBitIndexFor(int c) { return (c % CLASSES_PER_CP) % CLASSES_PER_CP_WERD; }
+inline constexpr uint32_t CPrunerMaskFor(int L, int c) {
+  return (static_cast<uint32_t>(L) + 1) << (CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS);
+}
 
-#define MatchDebuggingOn(D) (D)
-#define PrintMatchSummaryOn(D) ((D)&PRINT_MATCH_SUMMARY)
-#define DisplayFeatureMatchesOn(D) ((D)&DISPLAY_FEATURE_MATCHES)
-#define DisplayProtoMatchesOn(D) ((D)&DISPLAY_PROTO_MATCHES)
-#define PrintFeatureMatchesOn(D) ((D)&PRINT_FEATURE_MATCHES)
-#define PrintProtoMatchesOn(D) ((D)&PRINT_PROTO_MATCHES)
-#define ClipMatchEvidenceOn(D) ((D)&CLIP_MATCH_EVIDENCE)
+/* DEBUG constants */
+constexpr int PRINT_MATCH_SUMMARY = 0x001;
+constexpr int DISPLAY_FEATURE_MATCHES = 0x002;
+constexpr int DISPLAY_PROTO_MATCHES = 0x004;
+constexpr int PRINT_FEATURE_MATCHES = 0x008;
+constexpr int PRINT_PROTO_MATCHES = 0x010;
+constexpr int CLIP_MATCH_EVIDENCE = 0x020;
+
+inline constexpr int MatchDebuggingOn(int D) { return D; }
+inline constexpr bool PrintMatchSummaryOn(int D) { return (D & PRINT_MATCH_SUMMARY) != 0; }
+inline constexpr bool DisplayFeatureMatchesOn(int D) { return (D & DISPLAY_FEATURE_MATCHES) != 0; }
+inline constexpr bool DisplayProtoMatchesOn(int D) { return (D & DISPLAY_PROTO_MATCHES) != 0; }
+inline constexpr bool PrintFeatureMatchesOn(int D) { return (D & PRINT_FEATURE_MATCHES) != 0; }
+inline constexpr bool PrintProtoMatchesOn(int D) { return (D & PRINT_PROTO_MATCHES) != 0; }
+inline constexpr bool ClipMatchEvidenceOn(int D) { return (D & CLIP_MATCH_EVIDENCE) != 0; }
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

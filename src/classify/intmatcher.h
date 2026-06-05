@@ -43,8 +43,8 @@ struct CP_RESULT_STRUCT {
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 
-#define SE_TABLE_BITS 9
-#define SE_TABLE_SIZE 512
+constexpr int kSETableBits = 9;
+constexpr int kSETableSize = 512;
 
 struct ScratchEvidence {
   uint8_t feature_evidence_[MAX_NUM_CONFIGS];
@@ -60,15 +60,20 @@ struct ScratchEvidence {
 class IntegerMatcher {
 public:
   // Integer Matcher Theta Fudge (0-255).
-  static const int kIntThetaFudge = 128;
+  static constexpr int kIntThetaFudge = 128;
   // Bits in Similarity to Evidence Lookup (8-9).
-  static const int kEvidenceTableBits = 9;
+  static constexpr int kEvidenceTableBits = 9;
   // Integer Evidence Truncation Bits (8-14).
-  static const int kIntEvidenceTruncBits = 14;
+  static constexpr int kIntEvidenceTruncBits = 14;
+
+  // Parameters of the sigmoid used to convert similarity to evidence in the
+  // similarity_evidence_table_ that is used to convert distance metric to an
+  // 8 bit evidence value in the secondary matcher. (See IntMatcher::Init).
+
   // Similarity to Evidence Table Exponential Multiplier.
-  static const float kSEExponentialMultiplier;
+  static constexpr float kSEExponentialMultiplier = 0.0f;
   // Center of Similarity Curve.
-  static const float kSimilarityCenter;
+  static constexpr float kSimilarityCenter = 0.0075f;
 
   IntegerMatcher(tesseract::IntParam *classify_debug_level);
 
@@ -112,7 +117,7 @@ private:
 
 private:
   tesseract::IntParam *classify_debug_level_;
-  uint8_t similarity_evidence_table_[SE_TABLE_SIZE];
+  uint8_t similarity_evidence_table_[kSETableSize];
   uint32_t evidence_table_mask_;
   uint32_t mult_trunc_shift_bits_;
   uint32_t table_trunc_shift_bits_;

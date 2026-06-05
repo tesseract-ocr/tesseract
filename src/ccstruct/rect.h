@@ -57,65 +57,65 @@ public:
   TBOX( // box around FCOORD
       const FCOORD pt);
 
-  bool null_box() const { // Is box null
+  constexpr bool null_box() const { // Is box null
     return ((left() >= right()) || (top() <= bottom()));
   }
 
-  bool operator==(const TBOX &other) const {
+  constexpr bool operator==(const TBOX &other) const {
     return bot_left == other.bot_left && top_right == other.top_right;
   }
 
-  TDimension top() const { // coord of top
+  constexpr TDimension top() const { // coord of top
     return top_right.y();
   }
   void set_top(int y) {
     top_right.set_y(y);
   }
 
-  TDimension bottom() const { // coord of bottom
+  constexpr TDimension bottom() const { // coord of bottom
     return bot_left.y();
   }
   void set_bottom(int y) {
     bot_left.set_y(y);
   }
 
-  TDimension left() const { // coord of left
+  constexpr TDimension left() const { // coord of left
     return bot_left.x();
   }
   void set_left(int x) {
     bot_left.set_x(x);
   }
 
-  TDimension right() const { // coord of right
+  constexpr TDimension right() const { // coord of right
     return top_right.x();
   }
   void set_right(int x) {
     top_right.set_x(x);
   }
-  int x_middle() const {
+  constexpr int x_middle() const {
     return (bot_left.x() + top_right.x()) / 2;
   }
-  int y_middle() const {
+  constexpr int y_middle() const {
     return (bot_left.y() + top_right.y()) / 2;
   }
 
-  const ICOORD &botleft() const { // access function
+  constexpr const ICOORD &botleft() const { // access function
     return bot_left;
   }
 
-  ICOORD botright() const { // ~ access function
+  constexpr ICOORD botright() const { // ~ access function
     return ICOORD(top_right.x(), bot_left.y());
   }
 
-  ICOORD topleft() const { // ~ access function
+  constexpr ICOORD topleft() const { // ~ access function
     return ICOORD(bot_left.x(), top_right.y());
   }
 
-  const ICOORD &topright() const { // access function
+  constexpr const ICOORD &topright() const { // access function
     return top_right;
   }
 
-  TDimension height() const { // how high is it?
+  constexpr TDimension height() const { // how high is it?
     if (!null_box()) {
       return top_right.y() - bot_left.y();
     } else {
@@ -123,7 +123,7 @@ public:
     }
   }
 
-  TDimension width() const { // how wide is it?
+  constexpr TDimension width() const { // how wide is it?
     if (!null_box()) {
       return top_right.x() - bot_left.x();
     } else {
@@ -131,7 +131,7 @@ public:
     }
   }
 
-  int32_t area() const { // what is the area?
+  constexpr int32_t area() const { // what is the area?
     if (!null_box()) {
       return width() * height();
     } else {
@@ -217,54 +217,54 @@ public:
   // original content is contained within, but also slightly enlarges the box.
   void rotate_large(const FCOORD &vec);
 
-  bool contains( // is pt inside box
+  constexpr bool contains( // is pt inside box
       const FCOORD pt) const;
 
-  bool contains( // is box inside box
+  constexpr bool contains( // is box inside box
       const TBOX &box) const;
 
-  bool overlap( // do boxes overlap
+  constexpr bool overlap( // do boxes overlap
       const TBOX &box) const;
 
-  bool major_overlap( // do boxes overlap more than half
+  constexpr bool major_overlap( // do boxes overlap more than half
       const TBOX &box) const;
 
   // Do boxes overlap on x axis.
-  bool x_overlap(const TBOX &box) const;
+  constexpr bool x_overlap(const TBOX &box) const;
 
   // Return the horizontal gap between the boxes. If the boxes
   // overlap horizontally then the return value is negative, indicating
   // the amount of the overlap.
-  int x_gap(const TBOX &box) const {
+  constexpr int x_gap(const TBOX &box) const {
     return std::max(bot_left.x(), box.bot_left.x()) - std::min(top_right.x(), box.top_right.x());
   }
 
   // Return the vertical gap between the boxes. If the boxes
   // overlap vertically then the return value is negative, indicating
   // the amount of the overlap.
-  int y_gap(const TBOX &box) const {
+  constexpr int y_gap(const TBOX &box) const {
     return std::max(bot_left.y(), box.bot_left.y()) - std::min(top_right.y(), box.top_right.y());
   }
 
   // Do boxes overlap on x axis by more than
   // half of the width of the narrower box.
-  bool major_x_overlap(const TBOX &box) const;
+  constexpr bool major_x_overlap(const TBOX &box) const;
 
   // Do boxes overlap on y axis.
-  bool y_overlap(const TBOX &box) const;
+  constexpr bool y_overlap(const TBOX &box) const;
 
   // Do boxes overlap on y axis by more than
   // half of the height of the shorter box.
-  bool major_y_overlap(const TBOX &box) const;
+  constexpr bool major_y_overlap(const TBOX &box) const;
 
   // fraction of current box's area covered by other
   double overlap_fraction(const TBOX &box) const;
 
   // fraction of the current box's projected area covered by the other's
-  double x_overlap_fraction(const TBOX &box) const;
+  constexpr double x_overlap_fraction(const TBOX &box) const;
 
   // fraction of the current box's projected area covered by the other's
-  double y_overlap_fraction(const TBOX &box) const;
+  constexpr double y_overlap_fraction(const TBOX &box) const;
 
   // Returns true if the boxes are almost equal on x axis.
   bool x_almost_equal(const TBOX &box, int tolerance) const;
@@ -341,7 +341,7 @@ inline TBOX::TBOX(  // constructor
  *
  **********************************************************************/
 
-inline bool TBOX::contains(const FCOORD pt) const {
+inline constexpr bool TBOX::contains(const FCOORD pt) const {
   return ((pt.x() >= bot_left.x()) && (pt.x() <= top_right.x()) && (pt.y() >= bot_left.y()) &&
           (pt.y() <= top_right.y()));
 }
@@ -351,7 +351,7 @@ inline bool TBOX::contains(const FCOORD pt) const {
  *
  **********************************************************************/
 
-inline bool TBOX::contains(const TBOX &box) const {
+inline constexpr bool TBOX::contains(const TBOX &box) const {
   return (contains(box.bot_left) && contains(box.top_right));
 }
 
@@ -360,7 +360,7 @@ inline bool TBOX::contains(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline bool TBOX::overlap( // do boxes overlap
+inline constexpr bool TBOX::overlap( // do boxes overlap
     const TBOX &box) const {
   return ((box.bot_left.x() <= top_right.x()) && (box.top_right.x() >= bot_left.x()) &&
           (box.bot_left.y() <= top_right.y()) && (box.top_right.y() >= bot_left.y()));
@@ -371,7 +371,7 @@ inline bool TBOX::overlap( // do boxes overlap
  *
  **********************************************************************/
 
-inline bool TBOX::major_overlap( // Do boxes overlap more that half.
+inline constexpr bool TBOX::major_overlap( // Do boxes overlap more that half.
     const TBOX &box) const {
   int overlap = std::min(box.top_right.x(), top_right.x());
   overlap -= std::max(box.bot_left.x(), bot_left.x());
@@ -406,7 +406,7 @@ inline double TBOX::overlap_fraction(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline bool TBOX::x_overlap(const TBOX &box) const {
+inline constexpr bool TBOX::x_overlap(const TBOX &box) const {
   return ((box.bot_left.x() <= top_right.x()) && (box.top_right.x() >= bot_left.x()));
 }
 
@@ -416,7 +416,7 @@ inline bool TBOX::x_overlap(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline bool TBOX::major_x_overlap(const TBOX &box) const {
+inline constexpr bool TBOX::major_x_overlap(const TBOX &box) const {
   TDimension overlap = box.width();
   if (this->left() > box.left()) {
     overlap -= this->left() - box.left();
@@ -432,7 +432,7 @@ inline bool TBOX::major_x_overlap(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline bool TBOX::y_overlap(const TBOX &box) const {
+inline constexpr bool TBOX::y_overlap(const TBOX &box) const {
   return ((box.bot_left.y() <= top_right.y()) && (box.top_right.y() >= bot_left.y()));
 }
 
@@ -442,7 +442,7 @@ inline bool TBOX::y_overlap(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline bool TBOX::major_y_overlap(const TBOX &box) const {
+inline constexpr bool TBOX::major_y_overlap(const TBOX &box) const {
   TDimension overlap = box.height();
   if (this->bottom() > box.bottom()) {
     overlap -= this->bottom() - box.bottom();
@@ -460,7 +460,7 @@ inline bool TBOX::major_y_overlap(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline double TBOX::x_overlap_fraction(const TBOX &other) const {
+inline constexpr double TBOX::x_overlap_fraction(const TBOX &other) const {
   int low = std::max(left(), other.left());
   int high = std::min(right(), other.right());
   int width = right() - left();
@@ -483,7 +483,7 @@ inline double TBOX::x_overlap_fraction(const TBOX &other) const {
  *
  **********************************************************************/
 
-inline double TBOX::y_overlap_fraction(const TBOX &other) const {
+inline constexpr double TBOX::y_overlap_fraction(const TBOX &other) const {
   int low = std::max(bottom(), other.bottom());
   int high = std::min(top(), other.top());
   int height = top() - bottom();
