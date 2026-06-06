@@ -172,8 +172,16 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
       lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix.c_str());
       ASSERT_HOST(lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : "", mgr));
     } else {
+#ifdef DISABLED_LEGACY_ENGINE
+      tprintf(
+          "Error: LSTM requested, but not present in %s; the legacy "
+          "engine is disabled in this build, so there is no fallback.\n",
+          tessdata_path.c_str());
+      return false;
+#else
       tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+#endif // DISABLED_LEGACY_ENGINE
     }
   }
 
