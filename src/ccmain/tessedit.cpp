@@ -173,6 +173,9 @@ bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
       ASSERT_HOST(lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : "", mgr));
     } else {
 #ifdef DISABLED_LEGACY_ENGINE
+      // The legacy engine is compiled out, so we cannot fall back to it.
+      // Returning false here propagates a load failure to init_tesseract,
+      // which logs "Failed loading language '%s'" and skips this language.
       tprintf(
           "Error: LSTM requested, but not present in %s; the legacy "
           "engine is disabled in this build, so there is no fallback.\n",
