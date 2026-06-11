@@ -212,6 +212,20 @@ BOOL TessBaseAPIPrintVariablesToFile(const TessBaseAPI *handle, const char *file
   return FALSE;
 }
 
+void TessBaseAPIDumpVariables(const TessBaseAPI *handle, FILE *fp) {
+  handle->DumpVariables(fp);
+}
+
+BOOL TessBaseAPIDumpVariablesToFile(const TessBaseAPI *handle, const char *filename) {
+  FILE *fp = fopen(filename, "w");
+  if (fp != nullptr) {
+    handle->DumpVariables(fp);
+    fclose(fp);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 int TessBaseAPIInit4(TessBaseAPI *handle, const char *datapath, const char *language,
                      TessOcrEngineMode mode, char **configs, int configs_size, char **vars_vec,
                      char **vars_values, size_t vars_vec_size, BOOL set_only_non_debug_params) {

@@ -103,7 +103,7 @@ public:
                                std::string *value);
 
   // Print parameters to the given file.
-  static void PrintParams(FILE *fp, const ParamsVectors *member_params);
+  static void PrintParams(FILE *fp, const ParamsVectors *member_params, bool print_info = true);
 
   // Resets all parameters back to default values;
   static void ResetToDefaults(ParamsVectors *member_params);
