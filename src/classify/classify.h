@@ -31,7 +31,7 @@
 
 namespace tesseract {
 
-class Classify : public CCStruct {
+class TESS_API Classify : public CCStruct {
 public:
   Classify();
   virtual ~Classify();
