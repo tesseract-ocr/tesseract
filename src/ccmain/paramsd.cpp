@@ -210,16 +210,16 @@ SVMenuNode *ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
   int num_iterations = (tess->params() == nullptr) ? 1 : 2;
   for (int v = 0; v < num_iterations; ++v) {
     tesseract::ParamsVectors *vec = (v == 0) ? GlobalParams() : tess->params();
-    for (auto &param : vec->int_params) {
+    for (auto &param : vec->int_params()) {
       vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (auto &param : vec->bool_params) {
+    for (auto &param : vec->bool_params()) {
       vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (auto &param : vec->string_params) {
+    for (auto &param : vec->string_params()) {
       vc_it.add_after_then_move(new ParamContent(param));
     }
-    for (auto &param : vec->double_params) {
+    for (auto &param : vec->double_params()) {
       vc_it.add_after_then_move(new ParamContent(param));
     }
   }
