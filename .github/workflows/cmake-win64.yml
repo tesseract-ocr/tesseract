@@ -101,7 +101,7 @@ jobs:
              echo "Building leptonica..."
              git clone --depth 1 https://github.com/DanBloomberg/leptonica.git
              cd leptonica
-             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
+             cmake -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH=${{env.ILOC}} -DCMAKE_INSTALL_PREFIX=${{env.ILOC}} -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON
              cmake --build build --target install
 
       - name: Remove not needed tools Before building tesseract
