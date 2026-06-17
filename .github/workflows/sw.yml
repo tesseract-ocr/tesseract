@@ -2,8 +2,8 @@ name: sw
 
 on:
   schedule:
-    # every 3rd day
-    - cron: 0 0 */3 * *
+    # every Wednesday
+    - cron: 0 0 * * 3
 
 jobs:
   build:
