@@ -79,12 +79,6 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 
 message(STATUS "Configuring tesseract version ${PACKAGE_VERSION}...")
 
-if(WIN32)
-  option(SW_BUILD "Build with sw" ON)
-else()
-  option(SW_BUILD "Build with sw" OFF)
-endif()
-
 # Apple's toolchains dont populate CMAKE_SYSTEM_PROCESSOR when crosscompiling
 # instead it uses CMAKE_OSX_ARCHITECTURES which can contain multiple architectures
 if(APPLE AND NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_OSX_ARCHITECTURES)
@@ -440,95 +434,79 @@ endif()
 # ##############################################################################
 include(CheckFunctions)
 
-if(SW_BUILD)
-  find_package(SW REQUIRED)
-  if(BUILD_SHARED_LIBS)
-    set(SW_BUILD_SHARED_LIBS 1)
-  else()
-    set(SW_BUILD_SHARED_LIBS 0)
+find_package(PkgConfig)
+if(APPLE)
+  if(DEFINED ENV{HOMEBREW_PREFIX})
+    set(HOMEBREW_PREFIX $ENV{HOMEBREW_PREFIX})
+    set(PKG_CONFIG_PATH "${HOMEBREW_PREFIX}/opt/icu4c/lib/pkgconfig:${HOMEBREW_PREFIX}/opt/libarchive/lib/pkgconfig")
+    set(ENV{PKG_CONFIG_PATH} "${PKG_CONFIG_PATH}")
   endif()
-  sw_add_package(org.sw.demo.danbloomberg.leptonica
-                 org.sw.demo.libarchive.libarchive)
-  if(BUILD_TRAINING_TOOLS)
-    sw_add_package(org.sw.demo.gnome.pango.pangocairo
-                   org.sw.demo.unicode.icu.i18n)
-  endif()
-  sw_execute()
-else()
-  find_package(PkgConfig)
-  if(APPLE)
-    if(DEFINED ENV{HOMEBREW_PREFIX})
-      set(HOMEBREW_PREFIX $ENV{HOMEBREW_PREFIX})
-      set(PKG_CONFIG_PATH "${HOMEBREW_PREFIX}/opt/icu4c/lib/pkgconfig:${HOMEBREW_PREFIX}/opt/libarchive/lib/pkgconfig")
-      set(ENV{PKG_CONFIG_PATH} "${PKG_CONFIG_PATH}")
-    endif()
-  endif()
-  # Check for required library. option -DLeptonica_DIR=path => cmake hint where
-  # to find leptonica
-  find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
-  if(NOT Leptonica_FOUND AND PKG_CONFIG_EXECUTABLE)
-    pkg_check_modules(Leptonica lept>=${MINIMUM_LEPTONICA_VERSION})
-    link_directories(${Leptonica_LIBRARY_DIRS})
-  endif()
-  if(NOT Leptonica_FOUND)
-    message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
-  else()
-    message(STATUS "Found leptonica version: ${Leptonica_VERSION}")
-  endif(NOT Leptonica_FOUND)
-  include_directories(${Leptonica_INCLUDE_DIRS})
-
-  check_leptonica_tiff_support()
-  if ((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
-    message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
-    set(DISABLE_TIFF ON)
-  elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
-    message(STATUS "Leptonica was build with TIFF support.")
-  endif()
-
-  # Check for optional libraries.
-  if(DISABLE_TIFF)
-    set(HAVE_TIFFIO_H OFF)
-    message(STATUS "TIFF support disabled.")
-  else(DISABLE_TIFF)
-    find_package(TIFF) # for tesseract
-    if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
-      # try PKG_CONFIG to find libtiff if cmake failed
-      pkg_check_modules(TIFF libtiff-4)
-    endif()
-    if(TIFF_FOUND)
-      set(HAVE_TIFFIO_H ON)
-      include_directories(${TIFF_INCLUDE_DIRS})
-    endif(TIFF_FOUND)
-  endif(DISABLE_TIFF)
-  if(DISABLE_ARCHIVE)
-    set(HAVE_LIBARCHIVE OFF)
-    message(STATUS "LibArchive support disabled.")
-  else(DISABLE_ARCHIVE)
-    find_package(LibArchive)
-    if(NOT LibArchive_FOUND AND PKG_CONFIG_EXECUTABLE)
-      # try PKG_CONFIG to find libarchive if cmake failed
-      pkg_check_modules(LibArchive libarchive)
-    endif()
-    if(LibArchive_FOUND)
-      set(HAVE_LIBARCHIVE ON)
-      include_directories(${LibArchive_INCLUDE_DIRS})
-    endif(LibArchive_FOUND)
-  endif(DISABLE_ARCHIVE)
-  if(DISABLE_CURL)
-    set(HAVE_LIBCURL OFF)
-    message(STATUS "CURL support disabled.")
-  else(DISABLE_CURL)
-    find_package(CURL)
-    if(NOT CURL_FOUND AND PKG_CONFIG_EXECUTABLE)
-      # try PKG_CONFIG to find libcurl if cmake failed
-      pkg_check_modules(CURL libcurl)
-    endif()
-    if(CURL_FOUND)
-      set(HAVE_LIBCURL ON)
-      include_directories(${CURL_INCLUDE_DIRS})
-    endif(CURL_FOUND)
-  endif(DISABLE_CURL)
 endif()
+# Check for required library. option -DLeptonica_DIR=path => cmake hint where
+# to find leptonica
+find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} CONFIG)
+if(NOT Leptonica_FOUND AND PKG_CONFIG_EXECUTABLE)
+  pkg_check_modules(Leptonica lept>=${MINIMUM_LEPTONICA_VERSION})
+  link_directories(${Leptonica_LIBRARY_DIRS})
+endif()
+if(NOT Leptonica_FOUND)
+  message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
+else()
+  message(STATUS "Found leptonica version: ${Leptonica_VERSION}")
+endif(NOT Leptonica_FOUND)
+include_directories(${Leptonica_INCLUDE_DIRS})
+
+check_leptonica_tiff_support()
+if ((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
+  message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
+  set(DISABLE_TIFF ON)
+elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
+  message(STATUS "Leptonica was build with TIFF support.")
+endif()
+
+# Check for optional libraries.
+if(DISABLE_TIFF)
+  set(HAVE_TIFFIO_H OFF)
+  message(STATUS "TIFF support disabled.")
+else(DISABLE_TIFF)
+  find_package(TIFF) # for tesseract
+  if(NOT TIFF_FOUND AND PKG_CONFIG_EXECUTABLE)
+    # try PKG_CONFIG to find libtiff if cmake failed
+    pkg_check_modules(TIFF libtiff-4)
+  endif()
+  if(TIFF_FOUND)
+    set(HAVE_TIFFIO_H ON)
+    include_directories(${TIFF_INCLUDE_DIRS})
+  endif(TIFF_FOUND)
+endif(DISABLE_TIFF)
+if(DISABLE_ARCHIVE)
+  set(HAVE_LIBARCHIVE OFF)
+  message(STATUS "LibArchive support disabled.")
+else(DISABLE_ARCHIVE)
+  find_package(LibArchive)
+  if(NOT LibArchive_FOUND AND PKG_CONFIG_EXECUTABLE)
+    # try PKG_CONFIG to find libarchive if cmake failed
+    pkg_check_modules(LibArchive libarchive)
+  endif()
+  if(LibArchive_FOUND)
+    set(HAVE_LIBARCHIVE ON)
+    include_directories(${LibArchive_INCLUDE_DIRS})
+  endif(LibArchive_FOUND)
+endif(DISABLE_ARCHIVE)
+if(DISABLE_CURL)
+  set(HAVE_LIBCURL OFF)
+  message(STATUS "CURL support disabled.")
+else(DISABLE_CURL)
+  find_package(CURL)
+  if(NOT CURL_FOUND AND PKG_CONFIG_EXECUTABLE)
+    # try PKG_CONFIG to find libcurl if cmake failed
+    pkg_check_modules(CURL libcurl)
+  endif()
+  if(CURL_FOUND)
+    set(HAVE_LIBCURL ON)
+    include_directories(${CURL_INCLUDE_DIRS})
+  endif(CURL_FOUND)
+endif(DISABLE_CURL)
 
 # ##############################################################################
 #
@@ -607,7 +585,6 @@ message(STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
 message(STATUS "HAVE_NEON: ${HAVE_NEON}")
 message(STATUS "Link-time optimization: ${CMAKE_INTERPROCEDURAL_OPTIMIZATION}")
 message(STATUS "--------------------------------------------------------")
-message(STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
 message(STATUS "Build with openmp support [OPENMP_BUILD]: ${OPENMP_BUILD}")
 message(STATUS "Build with libarchive support [HAVE_LIBARCHIVE]: "
                "${HAVE_LIBARCHIVE}")
@@ -859,23 +836,11 @@ set_target_properties(
     tesseract$<$<BOOL:${WIN32}>:${VERSION_MAJOR}${VERSION_MINOR}$<$<CONFIG:DEBUG>:d>>
 )
 
-if(SW_BUILD)
-  target_link_libraries(libtesseract PUBLIC org.sw.demo.danbloomberg.leptonica
-                                            org.sw.demo.libarchive.libarchive)
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake
-       "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
-  export(
-    TARGETS libtesseract
-    APPEND
-    FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake
-    NAMESPACE Tesseract::)
-else()
-  target_link_libraries(libtesseract PUBLIC ${Leptonica_LIBRARIES})
+target_link_libraries(libtesseract PUBLIC ${Leptonica_LIBRARIES})
   export(
     TARGETS libtesseract
     FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake
     NAMESPACE Tesseract::)
-endif()
 
 if(WIN32
    AND CLANG

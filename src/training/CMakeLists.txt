@@ -8,18 +8,13 @@ endif()
 # Include build optimizations
 include(BuildOptimizations)
 
-if(SW_BUILD)
-  set(ICU_FOUND 1)
-else() # NOT SW_BUILD
-  find_package(PkgConfig)
-endif()
+find_package(PkgConfig)
 
 # experimental
 # If PkgConfig is not present training tools will not be build,
 # so it does not make sense to set ICU.
 if(MSVC
    AND PKG_CONFIG_FOUND
-   AND NOT SW_BUILD
    AND NOT USE_SYSTEM_ICU)
   include(CheckTypeSize)
   check_type_size("void *" SIZEOF_VOID_P)
@@ -67,18 +62,16 @@ if(MSVC
 endif()
 # experimental
 
-if(NOT SW_BUILD)
-  if(PKG_CONFIG_FOUND)
-    pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
-  else()
-    find_package(ICU 52.1 COMPONENTS uc i18n)
-  endif()
-  if(ICU_FOUND)
-    message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
-  else()
-    message(">> ICU not found!")
-  endif()
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
+else()
+  find_package(ICU 52.1 COMPONENTS uc i18n)
+endif()
+if(ICU_FOUND)
+  message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
+else()
+  message(">> ICU not found!")
 endif()
 
 
@@ -272,9 +265,7 @@ if (MSVC)
 endif()
 
 if(ICU_FOUND)
-  if(NOT SW_BUILD)
-    include_directories(${ICU_INCLUDE_DIRS})
-  endif()
+  include_directories(${ICU_INCLUDE_DIRS})
 
   # ############################################################################
   # LIBRARY unicharset_training
@@ -283,15 +274,10 @@ if(ICU_FOUND)
   file(GLOB unicharset_training_src unicharset/*)
 
   add_library(unicharset_training ${unicharset_training_src})
-  if(SW_BUILD)
-    target_link_libraries(unicharset_training
-                          PUBLIC common_training org.sw.demo.unicode.icu.i18n)
+  if(PKG_CONFIG_FOUND)
+    target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
   else()
-    if(PKG_CONFIG_FOUND)
-      target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
-    else()
-      target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
-    endif()
+    target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
@@ -406,19 +392,16 @@ if(ICU_FOUND)
 
   # ############################################################################
 
-  if(PKG_CONFIG_FOUND OR SW_BUILD)
-
-    if(PKG_CONFIG_FOUND)
-      pkg_check_modules(
-        PANGO
-        REQUIRED
-        IMPORTED_TARGET
-        pango>=1.38.0
-        cairo
-        pangoft2
-        pangocairo
-        fontconfig)
-    endif()
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(
+      PANGO
+      REQUIRED
+      IMPORTED_TARGET
+      pango>=1.38.0
+      cairo
+      pangoft2
+      pangocairo
+      fontconfig)
 
     # ##########################################################################
     # LIBRARY pango_training
@@ -428,17 +411,10 @@ if(ICU_FOUND)
 
     add_library(pango_training ${pango_training_src})
     target_link_libraries(pango_training PUBLIC unicharset_training)
-    if(SW_BUILD)
-      target_link_libraries(pango_training
-                            PUBLIC org.sw.demo.gnome.pango.pangocairo)
-    else()
-      if(PKG_CONFIG_FOUND)
-        target_include_directories(pango_training BEFORE
-                                   PUBLIC ${PANGO_INCLUDE_DIRS})
-        target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
-      endif()
-    endif()
+    target_include_directories(pango_training BEFORE
+                               PUBLIC ${PANGO_INCLUDE_DIRS})
+    target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
+    target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
     target_include_directories(pango_training
                                PUBLIC pango ${CMAKE_CURRENT_BINARY_DIR})
     generate_export_header(pango_training EXPORT_MACRO_NAME

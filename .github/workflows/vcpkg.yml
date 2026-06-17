@@ -38,7 +38,7 @@ jobs:
 
       - name: Configure and Build Tesseract (--head from main branch) with cmake
         run: |
-             cmake . -B build -DCMAKE_BUILD_TYPE=Release -DSW_BUILD=OFF -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+             cmake . -B build -DCMAKE_BUILD_TYPE=Release -DOPENMP_BUILD=OFF -DBUILD_TRAINING_TOOLS=OFF "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake"
              cmake --build build --config Release --target install
 
       - name: Display Tesseract Version
