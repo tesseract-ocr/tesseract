@@ -445,6 +445,8 @@ public:
 
   ACCEPTABLE_WERD_TYPE acceptable_word_string(const UNICHARSET &char_set, const char *s,
                                               const char *lengths);
+  ACCEPTABLE_WERD_TYPE check_abbreviation(const UNICHARSET &char_set, const char *s,
+                                           const char *lengths, ACCEPTABLE_WERD_TYPE word_type);
   void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *block);
   void classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
                            PointerVector<WERD_RES> *out_words);

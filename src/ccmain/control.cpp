@@ -1729,7 +1729,7 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(const UNICHARSET &char_se
       offset += lengths[i++];
     }
     if (i - leading_punct_count < quality_min_initial_alphas_reqd) {
-      goto not_a_word;
+      return check_abbreviation(char_set, s, lengths, AC_UNACCEPTABLE);
     }
     /*
 Allow a single hyphen in a lower case word
@@ -1743,7 +1743,7 @@ Allow a single hyphen in a lower case word
           offset += lengths[i++];
         }
         if (i < hyphen_pos + 3) {
-          goto not_a_word;
+          return check_abbreviation(char_set, s, lengths, AC_UNACCEPTABLE);
         }
       }
     } else {
@@ -1774,32 +1774,34 @@ Allow a single hyphen in a lower case word
     word_type = AC_UNACCEPTABLE;
   }
 
-not_a_word:
+  return check_abbreviation(char_set, s, lengths, word_type);
+}
 
+ACCEPTABLE_WERD_TYPE Tesseract::check_abbreviation(const UNICHARSET &char_set, const char *s,
+                                                   const char *lengths,
+                                                   ACCEPTABLE_WERD_TYPE word_type) {
   if (word_type == AC_UNACCEPTABLE) {
     /* Look for abbreviation string */
-    i = 0;
-    offset = 0;
+    int offset = 0;
     if (s[0] != '\0' && char_set.get_isupper(s, lengths[0])) {
       word_type = AC_UC_ABBREV;
-      while (s[offset] != '\0' && char_set.get_isupper(s + offset, lengths[i]) &&
-             lengths[i + 1] == 1 && s[offset + lengths[i]] == '.') {
-        offset += lengths[i++];
-        offset += lengths[i++];
+      while (s[offset] != '\0' && char_set.get_isupper(s + offset, lengths[offset]) &&
+             lengths[offset + 1] == 1 && s[offset + lengths[offset]] == '.') {
+        offset += lengths[offset++];
+        offset += lengths[offset++];
       }
     } else if (s[0] != '\0' && char_set.get_islower(s, lengths[0])) {
       word_type = AC_LC_ABBREV;
-      while (s[offset] != '\0' && char_set.get_islower(s + offset, lengths[i]) &&
-             lengths[i + 1] == 1 && s[offset + lengths[i]] == '.') {
-        offset += lengths[i++];
-        offset += lengths[i++];
+      while (s[offset] != '\0' && char_set.get_islower(s + offset, lengths[offset]) &&
+             lengths[offset + 1] == 1 && s[offset + lengths[offset]] == '.') {
+        offset += lengths[offset++];
+        offset += lengths[offset++];
       }
     }
     if (s[offset] != '\0') {
       word_type = AC_UNACCEPTABLE;
     }
   }
-
   return word_type;
 }
 
