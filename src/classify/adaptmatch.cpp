@@ -775,7 +775,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
  * @return Number of pico-features returned (0 if
  * an error occurred)
  */
-int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures,
+int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY &IntFeatures,
                                   FEATURE_SET *FloatFeatures) {
   FEATURE_SET Features;
   int NumFeatures;
@@ -877,7 +877,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
         reset_bit(MatchingFontConfigs, cfg);
       }
     }
-    im_.Match(IClass, AllProtosOn, MatchingFontConfigs, NumFeatures, IntFeatures, &int_result,
+    im_.Match(IClass, AllProtosOn, MatchingFontConfigs, NumFeatures, IntFeatures.data(), &int_result,
               classify_adapt_feature_threshold, NO_DEBUG, matcher_debug_separate_windows);
     FreeBitVector(MatchingFontConfigs);
 
@@ -1667,7 +1667,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
  * case of error.
  */
 int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
-                                     int NumFeatures, INT_FEATURE_ARRAY Features,
+                                     int NumFeatures, const INT_FEATURE_ARRAY &Features,
                                      FEATURE_SET FloatFeatures) {
   INT_CLASS_STRUCT *IClass;
   ADAPT_CLASS_STRUCT *Class;
