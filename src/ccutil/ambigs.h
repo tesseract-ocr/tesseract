@@ -32,6 +32,7 @@
 #  include "unicharset.h"
 
 #  include <array>
+#  include <string>
 
 namespace tesseract {
 
@@ -215,10 +216,10 @@ public:
 private:
   bool ParseAmbiguityLine(int line_num, int version, int debug_level, const UNICHARSET &unicharset,
                           char *buffer, int *test_ambig_part_size, UNICHAR_ID *test_unichar_ids,
-                          int *replacement_ambig_part_size, char *replacement_string, int *type);
+                          int *replacement_ambig_part_size, std::string &replacement_string, int *type);
   bool InsertIntoTable(UnicharAmbigsVector &table, int test_ambig_part_size,
                        UNICHAR_ID *test_unichar_ids, int replacement_ambig_part_size,
-                       const char *replacement_string, int type, AmbigSpec *ambig_spec,
+                       const std::string &replacement_string, int type, AmbigSpec *ambig_spec,
                        UNICHARSET *unicharset);
 
   UnicharAmbigsVector dang_ambigs_;
