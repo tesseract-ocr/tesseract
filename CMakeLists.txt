@@ -33,11 +33,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake Targets")
 
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.15.0")
-  if(WIN32)
-    cmake_policy(SET CMP0091 NEW)
-    message(STATUS "Setting policy CMP0091 to NEW")
-  endif()
+if(WIN32)
+  cmake_policy(SET CMP0091 NEW)
+  message(STATUS "Setting policy CMP0091 to NEW")
 endif()
 
 # ##############################################################################
