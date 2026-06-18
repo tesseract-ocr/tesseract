@@ -88,11 +88,11 @@ public:
                           int matcher_multiplier);
 
   int FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
-                     int16_t NumFeatures, INT_FEATURE_ARRAY Features, PROTO_ID *ProtoArray,
+                     int16_t NumFeatures, const INT_FEATURE_ARRAY &Features, PROTO_ID *ProtoArray,
                      int AdaptProtoThreshold, int Debug);
 
   int FindBadFeatures(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask, BIT_VECTOR ConfigMask,
-                      int16_t NumFeatures, INT_FEATURE_ARRAY Features, FEATURE_ID *FeatureArray,
+                      int16_t NumFeatures, const INT_FEATURE_ARRAY &Features, FEATURE_ID *FeatureArray,
                       int AdaptFeatureThreshold, int Debug);
 
 private:

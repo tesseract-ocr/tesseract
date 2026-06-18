@@ -549,7 +549,7 @@ void IntegerMatcher::Match(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask
  */
 int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask,
                                    BIT_VECTOR ConfigMask, int16_t NumFeatures,
-                                   INT_FEATURE_ARRAY Features, PROTO_ID *ProtoArray,
+                                   const INT_FEATURE_ARRAY &Features, PROTO_ID *ProtoArray,
                                    int AdaptProtoThreshold, int Debug) {
   auto *tables = new ScratchEvidence();
   int NumGoodProtos = 0;
@@ -613,7 +613,7 @@ int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR P
  */
 int IntegerMatcher::FindBadFeatures(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask,
                                     BIT_VECTOR ConfigMask, int16_t NumFeatures,
-                                    INT_FEATURE_ARRAY Features, FEATURE_ID *FeatureArray,
+                                    const INT_FEATURE_ARRAY &Features, FEATURE_ID *FeatureArray,
                                     int AdaptFeatureThreshold, int Debug) {
   auto *tables = new ScratchEvidence();
   int NumBadFeatures = 0;

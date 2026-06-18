@@ -20,12 +20,14 @@
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+ ----------------------------------------------------------------------------**/
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"
 #include "scrollview.h"
 #include "unicharset.h"
+
+#include <array>
 
 namespace tesseract {
 
@@ -134,7 +136,7 @@ struct INT_FEATURE_STRUCT {
   }
 };
 
-typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
+typedef std::array<INT_FEATURE_STRUCT, MAX_NUM_INT_FEATURES> INT_FEATURE_ARRAY;
 
 enum IntmatcherDebugAction { IDA_ADAPTIVE, IDA_STATIC, IDA_SHAPE_INDEX, IDA_BOTH };
 
