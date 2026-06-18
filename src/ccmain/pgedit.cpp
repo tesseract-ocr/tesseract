@@ -256,9 +256,9 @@ void PGEventHandler::Notify(const SVEvent *event) {
   else if (event->type == SVET_EXIT) {
     stillRunning = false;
   } else if (event->type == SVET_MENU) {
-    if (strcmp(event->parameter, "true") == 0) {
+    if (event->parameter == "true") {
       myval = 'T';
-    } else if (strcmp(event->parameter, "false") == 0) {
+    } else if (event->parameter == "false") {
       myval = 'F';
     }
     tess_->process_cmd_win_event(event->command_id, &myval);

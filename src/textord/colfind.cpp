@@ -477,8 +477,8 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int s
     do {
       waiting = false;
       auto event = blocks_win_->AwaitEvent(SVET_ANY);
-      if (event->type == SVET_INPUT && event->parameter != nullptr) {
-        if (*event->parameter == 'd') {
+      if (event->type == SVET_INPUT && !event->parameter.empty()) {
+        if (event->parameter[0] == 'd') {
           result = -1;
         } else {
           blocks->clear();
