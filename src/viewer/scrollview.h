@@ -67,13 +67,10 @@ enum SVEventType {
 };
 
 struct SVEvent {
-  ~SVEvent() {
-    delete[] parameter;
-  }
   std::unique_ptr<SVEvent> copy() const;
   SVEventType type = SVET_DESTROY; // What kind of event.
   ScrollView *window = nullptr;    // Window event relates to.
-  char *parameter = nullptr;       // Any string that might have been passed as argument.
+  std::string parameter;           // Any string that might have been passed as argument.
   int x = 0;                       // Coords of click or selection.
   int y = 0;
   int x_size = 0; // Size of selection.

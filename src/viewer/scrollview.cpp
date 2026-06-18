@@ -63,8 +63,7 @@ std::unique_ptr<SVEvent> SVEvent::copy() const {
   auto any = std::unique_ptr<SVEvent>(new SVEvent);
   any->command_id = command_id;
   any->counter = counter;
-  any->parameter = new char[strlen(parameter) + 1];
-  strcpy(any->parameter, parameter);
+  any->parameter = parameter;
   any->type = type;
   any->x = x;
   any->y = y;
@@ -114,10 +113,9 @@ void ScrollView::MessageReceiver() {
 
     if (cur->window != nullptr) {
       auto length = strlen(p);
-      cur->parameter = new char[length + 1];
-      strcpy(cur->parameter, p);
-      if (length > 0) { // remove the last \n
-        cur->parameter[length - 1] = '\0';
+      cur->parameter = std::string(p, length);
+      if (length > 0 && cur->parameter.back() == '\n') { // remove the last \n
+        cur->parameter.pop_back();
       }
       cur->type = static_cast<SVEventType>(ev_type);
       // Correct selection coordinates so x,y is the min pt and size is +ve.
@@ -719,8 +717,8 @@ char *ScrollView::ShowInputDialog(const char *msg) {
   SendMsg("showInputDialog(\"%s\")", msg);
   // wait till an input event (all others are thrown away)
   auto ev = AwaitEvent(SVET_INPUT);
-  char *p = new char[strlen(ev->parameter) + 1];
-  strcpy(p, ev->parameter);
+  char *p = new char[ev->parameter.size() + 1];
+  std::strcpy(p, ev->parameter.c_str());
   return p;
 }
 

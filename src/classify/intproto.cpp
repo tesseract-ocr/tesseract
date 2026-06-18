@@ -38,11 +38,13 @@
 #endif
 
 #include "helpers.h"
+#include "tesserrstream.h" // for tesserr
 
 #include <algorithm>
 #include <cassert>
 #include <cmath> // for M_PI, std::floor
 #include <cstdio>
+#include <cstdlib>         // for strtol
 
 namespace tesseract {
 
@@ -1174,22 +1176,30 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
     if (ev_type == SVET_POPUP) {
       if (ev->command_id == IDA_SHAPE_INDEX) {
         if (shape_table_ != nullptr) {
-          *shape_id = atoi(ev->parameter);
+          char* endptr = nullptr;
+          long shape_id_long = strtol(ev->parameter.c_str(), &endptr, 10);
+          if (endptr == ev->parameter.c_str() || *endptr != '\0' ||
+              shape_id_long < INT_MIN || shape_id_long > INT_MAX) {
+            tesserr << "Invalid shape index: " << ev->parameter << "\n";
+            return INVALID_UNICHAR_ID;
+          }
+          *shape_id = static_cast<int>(shape_id_long);
           *adaptive_on = false;
           *pretrained_on = true;
           if (*shape_id >= 0 && static_cast<unsigned>(*shape_id) < shape_table_->NumShapes()) {
             int font_id;
             shape_table_->GetFirstUnicharAndFont(*shape_id, &unichar_id, &font_id);
-            tprintf("Shape %d, first unichar=%d, font=%d\n", *shape_id, unichar_id, font_id);
+            tesserr << "Shape " << *shape_id << ", first unichar=" << unichar_id
+                    << ", font=" << font_id << "\n";
             return unichar_id;
           }
-          tprintf("Shape index '%s' not found in shape table\n", ev->parameter);
+          tesserr << "Shape index '" << ev->parameter << "' not found in shape table\n";
         } else {
-          tprintf("No shape table loaded!\n");
+          tesserr << "No shape table loaded!\n";
         }
       } else {
-        if (unicharset.contains_unichar(ev->parameter)) {
-          unichar_id = unicharset.unichar_to_id(ev->parameter);
+        if (unicharset.contains_unichar(ev->parameter.c_str())) {
+          unichar_id = unicharset.unichar_to_id(ev->parameter.c_str());
           if (ev->command_id == IDA_ADAPTIVE) {
             *adaptive_on = true;
             *pretrained_on = false;
@@ -1207,11 +1217,11 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool *adaptive_on, bool *
           }
           for (unsigned s = 0; s < shape_table_->NumShapes(); ++s) {
             if (shape_table_->GetShape(s).ContainsUnichar(unichar_id)) {
-              tprintf("%s\n", shape_table_->DebugStr(s).c_str());
+              tesserr << shape_table_->DebugStr(s) << "\n";
             }
           }
         } else {
-          tprintf("Char class '%s' not found in unicharset", ev->parameter);
+          tesserr << "Char class '" << ev->parameter << "' not found in unicharset";
         }
       }
     }

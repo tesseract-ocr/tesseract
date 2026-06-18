@@ -30,7 +30,7 @@
 #ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
 #endif
-#include "tprintf.h"
+#include "tesserrstream.h" // for tesserr
 #include "trainingsample.h"
 
 namespace tesseract {
@@ -137,10 +137,10 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
       auto ev = debug_win->AwaitEvent(SVET_ANY);
       ev_type = ev->type;
       if (ev_type == SVET_POPUP) {
-        if (unicharset.contains_unichar(ev->parameter)) {
-          unichar_id = unicharset.unichar_to_id(ev->parameter);
+        if (unicharset.contains_unichar(ev->parameter.c_str())) {
+          unichar_id = unicharset.unichar_to_id(ev->parameter.c_str());
         } else {
-          tprintf("Char class '%s' not found in unicharset", ev->parameter);
+          tesserr << "Char class '" << ev->parameter << "' not found in unicharset";
         }
       }
     } while (unichar_id == old_unichar_id && ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
