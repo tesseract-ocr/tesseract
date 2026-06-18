@@ -378,8 +378,8 @@ private:
   void Signal();
 
   // Returns the unique, shared network stream.
-  static SVNetwork *GetStream() {
-    return stream_;
+  static SVNetwork &GetStream() {
+    return *stream_;
   }
 
   // Starts a new event handler.
@@ -396,7 +396,7 @@ private:
   // The id of the window.
   int window_id_;
   // The points of the currently under-construction polyline.
-  SVPolyLineBuffer *points_;
+  std::unique_ptr<SVPolyLineBuffer> points_;
   // Whether the axis is reversed.
   bool y_axis_is_reversed_;
   // Set to true only after the event handler has terminated.
@@ -410,7 +410,7 @@ private:
   static int image_index_;
 
   // The stream through which the c++ client is connected to the server.
-  static SVNetwork *stream_;
+  static std::unique_ptr<SVNetwork> stream_;
 
   // Table of all the currently queued events.
   std::unique_ptr<SVEvent> event_table_[SVET_COUNT];
@@ -419,7 +419,7 @@ private:
   std::mutex mutex_;
 
   // Semaphore to the thread belonging to this window.
-  SVSemaphore *semaphore_;
+  std::unique_ptr<SVSemaphore> semaphore_;
 #endif // !GRAPHICS_DISABLED
 };
 

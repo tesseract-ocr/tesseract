@@ -53,11 +53,11 @@ struct SVPolyLineBuffer {
 
 // A map between the window IDs and their corresponding pointers.
 static std::map<int, ScrollView *> svmap;
-static std::mutex *svmap_mu;
+static std::unique_ptr<std::mutex> svmap_mu;
 // A map of all semaphores waiting for a specific event on a specific window.
 static std::map<std::pair<ScrollView *, SVEventType>,
                 std::pair<SVSemaphore *, std::unique_ptr<SVEvent>>> waiting_for_events;
-static std::mutex *waiting_for_events_mu;
+static std::unique_ptr<std::mutex> waiting_for_events_mu;
 
 std::unique_ptr<SVEvent> SVEvent::copy() const {
   auto any = std::unique_ptr<SVEvent>(new SVEvent);
@@ -89,7 +89,7 @@ void ScrollView::MessageReceiver() {
   char *message = nullptr;
   // Wait until a new message appears in the input stream_.
   do {
-    message = ScrollView::GetStream()->Receive();
+    message = ScrollView::GetStream().Receive();
   } while (message == nullptr);
 
   // This is the main loop which iterates until the server is dead (strlen =
@@ -177,7 +177,7 @@ void ScrollView::MessageReceiver() {
 
     // Wait until a new message appears in the input stream_.
     do {
-      message = ScrollView::GetStream()->Receive();
+      message = ScrollView::GetStream().Receive();
     } while (message == nullptr);
   }
 }
@@ -239,7 +239,7 @@ static const uint8_t table_colors[ScrollView::GREEN_YELLOW + 1][4] = {
  * Scrollview implementation.
  *******************************************************************************/
 
-SVNetwork *ScrollView::stream_ = nullptr;
+std::unique_ptr<SVNetwork> ScrollView::stream_;
 int ScrollView::nr_created_windows_ = 0;
 int ScrollView::image_index_ = 0;
 
@@ -272,9 +272,9 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
   // network connection yet and we have to set it up in a different thread.
   if (stream_ == nullptr) {
     nr_created_windows_ = 0;
-    stream_ = new SVNetwork(server_name, kSvPort);
-    waiting_for_events_mu = new std::mutex();
-    svmap_mu = new std::mutex();
+    stream_ = std::make_unique<SVNetwork>(server_name, kSvPort);
+    waiting_for_events_mu = std::make_unique<std::mutex>();
+    svmap_mu = std::make_unique<std::mutex>();
     SendRawMessage("svmain = luajava.bindClass('com.google.scrollview.ScrollView')\n");
     std::thread t(&ScrollView::MessageReceiver);
     t.detach();
@@ -289,7 +289,7 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
   window_name_ = name;
   window_id_ = nr_created_windows_;
   // Set up polygon buffering.
-  points_ = new SVPolyLineBuffer;
+  points_ = std::make_unique<SVPolyLineBuffer>();
   points_->empty = true;
 
   svmap_mu->lock();
@@ -300,7 +300,7 @@ void ScrollView::Initialize(const char *name, int x_pos, int y_pos, int x_size, 
     i = nullptr;
   }
 
-  semaphore_ = new SVSemaphore();
+  semaphore_ = std::make_unique<SVSemaphore>();
 
   // Set up an actual Window on the client side.
   char message[kMaxMsgSize];
@@ -372,8 +372,6 @@ ScrollView::~ScrollView() {
   } else {
     svmap_mu->unlock();
   }
-  delete semaphore_;
-  delete points_;
 #endif // !GRAPHICS_DISABLED
 }
 
