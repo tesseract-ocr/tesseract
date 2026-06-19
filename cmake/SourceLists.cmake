@@ -158,7 +158,6 @@ set(TESSERACT_SRC_CLASSIFY
     src/classify/intmatcher.cpp
     src/classify/intproto.cpp
     src/classify/kdtree.cpp
-    src/classify/mf.cpp
     src/classify/mfoutline.cpp
     src/classify/mfx.cpp
     src/classify/normfeat.cpp
@@ -317,7 +316,6 @@ set(TESSERACT_SRC_LEGACY
     src/classify/intmatcher.cpp
     src/classify/intproto.cpp
     src/classify/kdtree.cpp
-    src/classify/mf.cpp
     src/classify/mfoutline.cpp
     src/classify/mfx.cpp
     src/classify/normfeat.cpp
@@ -468,7 +466,6 @@ set(TESSERACT_HDR_INTERNAL
     src/classify/intmatcher.h
     src/classify/intproto.h
     src/classify/kdtree.h
-    src/classify/mf.h
     src/classify/mfdefs.h
     src/classify/mfoutline.h
     src/classify/mfx.h

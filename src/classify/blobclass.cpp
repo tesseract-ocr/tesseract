@@ -19,10 +19,53 @@
 
 #include "classify.h"
 #include "featdefs.h"
-#include "mf.h"
+#include "mfdefs.h"   // MicroFeatureParameter
+#include "mfx.h"      // BlobMicroFeatures
 #include "normfeat.h"
 
 namespace tesseract {
+
+/*----------------------------------------------------------------------------
+              Private Code
+----------------------------------------------------------------------------*/
+/**
+ * Call the old micro-feature extractor and then copy
+ * the features into the new format.  Then deallocate the
+ * old micro-features.
+ * @param Blob  blob to extract micro-features from
+ * @param cn_denorm  control parameter to feature extractor.
+ * @return Micro-features for Blob.
+ */
+static FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM &cn_denorm) {
+  auto features = BlobMicroFeatures(Blob, cn_denorm);
+  if (features.empty()) {
+    return nullptr;
+  }
+  int n = 0;
+  for ([[maybe_unused]] auto &f: features) {
+    ++n;
+  }
+  auto FeatureSet = new FEATURE_SET_STRUCT(n);
+
+  for (auto &f : features) {
+    auto Feature = new FEATURE_STRUCT(&MicroFeatureDesc);
+    for (int i = 0; i < static_cast<int>(MicroFeatureParameter::MFCount); ++i)
+      Feature->Params[i] = f[i];
+    // Bulge features are deprecated and should not be used. Set to 0.
+    Feature->Params[static_cast<int>(MicroFeatureParameter::MFBulge1)] = 0.0f;
+    Feature->Params[static_cast<int>(MicroFeatureParameter::MFBulge2)] = 0.0f;
+
+#ifndef _WIN32
+    // Assert that feature parameters are well defined.
+    for (int i = 0; i < Feature->Type->NumParams; i++) {
+      ASSERT_HOST(!std::isnan(Feature->Params[i]));
+    }
+#endif
+
+    AddFeature(FeatureSet, Feature);
+  }
+  return FeatureSet;
+} /* ExtractMicros */
 
 /*---------------------------------------------------------------------------*/
 
