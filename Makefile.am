@@ -365,7 +365,6 @@ noinst_HEADERS += src/ccutil/clst.h
 noinst_HEADERS += src/ccutil/elst2.h
 noinst_HEADERS += src/ccutil/elst.h
 noinst_HEADERS += src/ccutil/errcode.h
-noinst_HEADERS += src/ccutil/fileerr.h
 noinst_HEADERS += src/ccutil/genericheap.h
 noinst_HEADERS += src/ccutil/genericvector.h
 noinst_HEADERS += src/ccutil/helpers.h
