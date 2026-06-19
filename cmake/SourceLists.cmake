@@ -109,7 +109,6 @@ set(TESSERACT_SRC_CCSTRUCT
     src/ccstruct/params_training_featdef.cpp
     src/ccstruct/pdblock.cpp
     src/ccstruct/points.cpp
-    src/ccstruct/polyaprx.cpp
     src/ccstruct/polyblk.cpp
     src/ccstruct/quadlsq.cpp
     src/ccstruct/quspline.cpp
@@ -412,7 +411,6 @@ set(TESSERACT_HDR_INTERNAL
     src/ccstruct/params_training_featdef.h
     src/ccstruct/pdblock.h
     src/ccstruct/points.h
-    src/ccstruct/polyaprx.h
     src/ccstruct/polyblk.h
     src/ccstruct/quadlsq.h
     src/ccstruct/quadratc.h
