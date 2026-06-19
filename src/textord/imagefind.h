@@ -33,6 +33,11 @@ class TBOX;
 class FCOORD;
 class TO_BLOCK;
 
+// Pixel padding for noise blobs and partitions when rendering on the image
+// mask to encourage them to join together. Make it too big and images
+// will fatten out too much and have to be clipped to text.
+constexpr int kNoisePadding = 4;
+
 // The ImageFind class is a simple static function wrapper class that
 // exposes the FindImages function and some useful helper functions.
 class ImageFind {

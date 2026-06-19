@@ -46,10 +46,6 @@ const double kMaxRectangularFraction = 0.75;
 const double kMaxRectangularGradient = 0.1; // About 6 degrees.
 // Minimum image size to be worth looking for images on.
 const int kMinImageFindSize = 100;
-// Pixel padding for noise blobs and partitions when rendering on the image
-// mask to encourage them to join together. Make it too big and images
-// will fatten out too much and have to be clipped to text.
-const int kNoisePadding = 4;
 
 // Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
 // stepping y+=y_step, until y=y_end. *ystart is input/output.
