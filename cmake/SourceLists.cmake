@@ -434,7 +434,6 @@ set(TESSERACT_HDR_INTERNAL
     src/ccutil/elst.h
     src/ccutil/elst2.h
     src/ccutil/errcode.h
-    src/ccutil/fileerr.h
     src/ccutil/genericvector.h
     src/ccutil/genericheap.h
     src/ccutil/helpers.h
