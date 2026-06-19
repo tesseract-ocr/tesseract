@@ -20,10 +20,6 @@
 #include <algorithm> // for max
 #include <cstring>   // for memcpy, memcmp, etc.
 
-//#include "base/logging.h"               // for operator<<, CHECK, etc
-//#include "base/stringprintf.h"          // for StringPrintf, StringAppendF
-//#include "strings/stringpiece.h"        // for StringPiece, etc
-
 #include "third_party/utf/utf.h"         // for isvalidcharntorune, etc
 #include "util/utf8/unilib.h"            // for IsInterchangeValid, etc
 #include "util/utf8/unilib_utf8_utils.h" // for OneCharLen
