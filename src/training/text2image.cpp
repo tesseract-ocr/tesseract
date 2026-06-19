@@ -282,12 +282,18 @@ static void ExtractFontProperties(const std::string &utf8_text, StringRenderer *
       if (IsWhitespaceBox(boxes[b + 1])) {
         continue;
       }
-      int xgap = (boxes[b + 1]->box()->x - (boxes[b]->box()->x + boxes[b]->box()->w));
+      int32_t box_x;
+      int32_t box_w;
+      boxGetGeometry(const_cast<Box *>(boxes[b]->box()), &box_x, nullptr, &box_w, nullptr);
+      int32_t box1_x;
+      int32_t box1_w;
+      boxGetGeometry(const_cast<Box *>(boxes[b + 1]->box()), &box1_x, nullptr, &box1_w, nullptr);
+      int xgap = (box1_x - (box_x + box_w));
       spacing_map_it0 = spacing_map.find(ch0);
       int ok_count = 0;
       if (spacing_map_it0 == spacing_map.end() &&
           render->font().GetSpacingProperties(ch0, &x_bearing, &x_advance)) {
-        spacing_map[ch0] = SpacingProperties(x_bearing, x_advance - x_bearing - boxes[b]->box()->w);
+        spacing_map[ch0] = SpacingProperties(x_bearing, x_advance - x_bearing - box_w);
         spacing_map_it0 = spacing_map.find(ch0);
         ++ok_count;
       }
@@ -297,7 +303,7 @@ static void ExtractFontProperties(const std::string &utf8_text, StringRenderer *
       if (spacing_map_it1 == spacing_map.end() &&
           render->font().GetSpacingProperties(ch1, &x_bearing, &x_advance)) {
         spacing_map[ch1] =
-            SpacingProperties(x_bearing, x_advance - x_bearing - boxes[b + 1]->box()->w);
+            SpacingProperties(x_bearing, x_advance - x_bearing - box1_w);
         spacing_map_it1 = spacing_map.find(ch1);
         ++ok_count;
       }
@@ -356,10 +362,11 @@ static bool MakeIndividualGlyphs(Image pix, const std::vector<BoxChar *> &vbox,
     if (!b) {
       continue;
     }
-    const int x = b->x;
-    const int y = b->y;
-    const int w = b->w;
-    const int h = b->h;
+    int32_t x;
+    int32_t y;
+    int32_t w;
+    int32_t h;
+    boxGetGeometry(b, &x, &y, &w, &h);
     // Check present tiff page (for multipage tiff)
     if (y < y_previous - pixGetHeight(pix) / 10) {
       tprintf("ERROR: Wrap-around encountered, at i=%d\n", i);

@@ -26,9 +26,6 @@
 #include <vector>
 
 #include <allheaders.h>   // for Leptonica API
-#if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || LIBLEPT_MAJOR_VERSION > 1
-#include <pix_internal.h> // for fast access to Box geometry
-#endif
 #include <tesseract/export.h>
 
 namespace tesseract {
@@ -79,7 +76,11 @@ public:
     if (other.box_ == nullptr) {
       return false;
     }
-    return box_->x < other.box_->x;
+    int32_t box_x;
+    int32_t other_box_x;
+    boxGetGeometry(box_, &box_x, nullptr, nullptr, nullptr);
+    boxGetGeometry(other.box_, &other_box_x, nullptr, nullptr, nullptr);
+    return box_x < other_box_x;
   }
   // Increments *num_rtl and *num_ltr according to the directionality of
   // characters in the box.
