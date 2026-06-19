@@ -40,7 +40,6 @@
 #include "intproto.h"
 #include "mastertrainer.h"
 #include "mergenf.h"
-#include "mf.h"
 #include "ocrfeatures.h"
 #include "oldlist.h"
 #include "protos.h"

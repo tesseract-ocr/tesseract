@@ -72,7 +72,6 @@ void ParseArguments(int *argc, char ***argv) {
 #  include "fontinfo.h"
 #  include "intfeaturespace.h"
 #  include "mastertrainer.h"
-#  include "mf.h"
 #  include "oldlist.h"
 #  include "params.h"
 #  include "shapetable.h"

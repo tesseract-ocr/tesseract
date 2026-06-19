@@ -21,7 +21,6 @@
 #include "intfx.h"
 #include "intmatcher.h"
 #include "matrix.h"
-#include "mf.h"
 #include "mfdefs.h"
 #include "picofeat.h"
 #include "shapetable.h"
