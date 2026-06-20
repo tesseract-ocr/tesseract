@@ -1417,7 +1417,7 @@ void Tesseract::classify_word_pass1(const WordData &word_data, WERD_RES **in_wor
 
 #ifndef DISABLED_LEGACY_ENGINE
   WERD_RES *word = *in_word;
-  match_word_pass_n(1, word, row);
+  match_word_pass_n(1, word);
   if (!word->tess_failed && !word->word->flag(W_REP_CHAR)) {
     word->tess_would_adapt = AdaptableWord(word);
     bool adapt_ok = word_adaptable(word, tessedit_tess_adaption_mode);
@@ -1506,7 +1506,7 @@ bool Tesseract::TestNewNormalization(int original_misfits, float baseline_shift,
   new_x_ht_word.SetupForRecognition(unicharset, this, BestPix(), tessedit_ocr_engine_mode, nullptr,
                                     classify_bln_numeric_mode, textord_use_cjk_fp_model,
                                     poly_allow_detailed_fx, row, block);
-  match_word_pass_n(2, &new_x_ht_word, row);
+  match_word_pass_n(2, &new_x_ht_word);
   if (!new_x_ht_word.tess_failed) {
     int new_misfits = CountMisfitTops(&new_x_ht_word);
     if (debug_x_ht_level >= 1) {
@@ -1558,7 +1558,7 @@ void Tesseract::classify_word_pass2(const WordData &word_data, WERD_RES **in_wor
     if (word->x_height == 0.0f) {
       word->x_height = row->x_height();
     }
-    match_word_pass_n(2, word, row);
+    match_word_pass_n(2, word);
     check_debug_pt(word, 40);
   }
 
@@ -1593,7 +1593,7 @@ void Tesseract::classify_word_pass2(const WordData &word_data, WERD_RES **in_wor
  *
  * Baseline normalize the word and pass it to Tess.
  */
-void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word, ROW *row) {
+void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word) {
   if (word->tess_failed) {
     return;
   }

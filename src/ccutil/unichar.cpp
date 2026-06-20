@@ -206,7 +206,7 @@ bool UNICHAR::const_iterator::is_legal() const {
   return utf8_step(it_) > 0;
 }
 
-UNICHAR::const_iterator UNICHAR::begin(const char *utf8_str, int len) {
+UNICHAR::const_iterator UNICHAR::begin(const char *utf8_str, int /*len*/) {
   return UNICHAR::const_iterator(utf8_str);
 }
 

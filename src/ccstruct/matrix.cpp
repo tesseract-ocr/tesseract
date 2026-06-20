@@ -33,7 +33,7 @@ namespace tesseract {
 MATRIX::~MATRIX() = default;
 
 // Returns true if there are any real classification results.
-bool MATRIX::Classified(int col, int row, int wildcard_id) const {
+bool MATRIX::Classified(int col, int row) const {
   if (get(col, row) == NOT_CLASSIFIED) {
     return false;
   }

@@ -198,7 +198,6 @@ public:
   void chop(                 // fake chop blob
       BLOBNBOX_IT *start_it, // location of this
       BLOBNBOX_IT *blob_it,  // iterator
-      FCOORD rotation,       // for landscape
       float xheight);        // line height
 
   void NeighbourGaps(int gaps[BND_COUNT]) const;

@@ -879,7 +879,7 @@ bool Tesseract::word_dumper(PAGE_RES_IT *pr_it) {
     pr_it->block()->block->print(nullptr, false);
   }
   tprintf("\nRow data...\n");
-  pr_it->row()->row->print(nullptr);
+  pr_it->row()->row->print();
   tprintf("\nWord data...\n");
   WERD_RES *word_res = pr_it->word();
   word_res->word->print();

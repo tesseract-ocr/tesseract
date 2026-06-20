@@ -70,7 +70,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
         word_res->ratings->IncreaseBandSize(pain_point.row - pain_point.col + 1);
       }
       if (pain_point.Valid(*word_res->ratings) &&
-          !word_res->ratings->Classified(pain_point.col, pain_point.row, getDict().WildcardID())) {
+          !word_res->ratings->Classified(pain_point.col, pain_point.row)) {
         found_nothing = false;
         break;
       }
@@ -296,7 +296,7 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
 void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
                                      BlamerBundle *blamer_bundle, std::string &blamer_debug) {
   pain_points->Clear(); // Clear pain points heap.
-  blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings, getDict().WildcardID(),
+  blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings,
                                   wordrec_debug_blamer, blamer_debug, pain_points,
                                   segsearch_max_char_wh_ratio, word_res);
 }

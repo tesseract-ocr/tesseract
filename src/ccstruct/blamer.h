@@ -273,7 +273,7 @@ struct BlamerBundle {
   // Returns true if a guided segmentation search is needed.
   bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
-  void InitForSegSearch(const WERD_CHOICE *best_choice, MATRIX *ratings, UNICHAR_ID wildcard_id,
+  void InitForSegSearch(const WERD_CHOICE *best_choice, MATRIX *ratings,
                         bool debug, std::string &debug_str, tesseract::LMPainPoints *pain_points,
                         double max_char_wh_ratio, WERD_RES *word_res);
   // Returns true if the guided segsearch is in progress.

@@ -35,7 +35,6 @@ namespace tesseract {
 
 bool read_unlv_file(   // print list of sides
     std::string &name, // basename of file
-    int32_t xsize,     // image size
     int32_t ysize,     // image size
     BLOCK_LIST *blocks // output list
 ) {

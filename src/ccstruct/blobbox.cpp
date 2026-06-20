@@ -117,7 +117,6 @@ void BLOBNBOX::really_merge(BLOBNBOX *other) {
 void BLOBNBOX::chop(       // chop blobs
     BLOBNBOX_IT *start_it, // location of this
     BLOBNBOX_IT *end_it,   // iterator
-    FCOORD rotation,       // for landscape
     float xheight          // of line
 ) {
   int16_t blobcount;          // no of blobs

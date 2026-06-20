@@ -446,7 +446,7 @@ public:
                                               const char *lengths);
   ACCEPTABLE_WERD_TYPE check_abbreviation(const UNICHARSET &char_set, const char *s,
                                           const char *lengths, ACCEPTABLE_WERD_TYPE word_type);
-  void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row);
+  void match_word_pass_n(int pass_n, WERD_RES *word);
   void classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
                            PointerVector<WERD_RES> *out_words);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht, WERD_RES *word, WERD_RES *new_word);
@@ -495,7 +495,11 @@ public:
   // Initialize for potentially a set of languages defined by the language
   // string and recursively any additional languages required by any language
   // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
-  // See init_tesseract_internal for args.
+  // arg0 is the datapath for the tessdata directory, which could be the
+  // path of the tessdata directory with no trailing /, or (if tessdata
+  // lives in the same directory as the executable, the path of the executable,
+  // hence the name arg0.
+  // See init_tesseract_internal for remaining args.
   int init_tesseract(const std::string &arg0, const std::string &textbase,
                      const std::string &language, OcrEngineMode oem, char **configs,
                      int configs_size, const std::vector<std::string> *vars_vec,
@@ -506,10 +510,6 @@ public:
     return init_tesseract(datapath, {}, language, oem, nullptr, 0, nullptr, nullptr, false, &mgr);
   }
   // Common initialization for a single language.
-  // arg0 is the datapath for the tessdata directory, which could be the
-  // path of the tessdata directory with no trailing /, or (if tessdata
-  // lives in the same directory as the executable, the path of the executable,
-  // hence the name arg0.
   // textbase is an optional output file basename (used only for training)
   // language is the language code to load.
   // oem controls which engine(s) will operate on the image
@@ -521,7 +521,7 @@ public:
   // in vars_vec.
   // If set_only_non_debug_params is true, only params that do not contain
   // "debug" in the name will be set.
-  int init_tesseract_internal(const std::string &arg0, const std::string &textbase,
+  int init_tesseract_internal(const std::string &textbase,
                               const std::string &language, OcrEngineMode oem, char **configs,
                               int configs_size, const std::vector<std::string> *vars_vec,
                               const std::vector<std::string> *vars_values,

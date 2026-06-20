@@ -1888,7 +1888,7 @@ void pre_associate_blobs( // make rough chars
           }
         }
       } while (overlap);
-      blob->chop(&start_it, &blob_it, blob_rotation,
+      blob->chop(&start_it, &blob_it,
                  block->line_size * tesseract::CCStruct::kXHeightFraction * textord_chop_width);
       // attempt chop
     }

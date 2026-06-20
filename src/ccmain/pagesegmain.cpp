@@ -112,7 +112,7 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
     if (lastdot != std::string::npos) {
       name.resize(lastdot);
     }
-    read_unlv_file(name, width, height, blocks);
+    read_unlv_file(name, height, blocks);
   }
   if (blocks->empty()) {
     // No UNLV file present. Work according to the PageSegMode.
