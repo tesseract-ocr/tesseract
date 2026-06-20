@@ -1540,7 +1540,7 @@ bool Tesseract::TestNewNormalization(int original_misfits, float baseline_shift,
  */
 
 void Tesseract::classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
-                                    PointerVector<WERD_RES> *out_words) {
+                                    PointerVector<WERD_RES> */*out_words*/) {
   // Return if we do not want to run Tesseract.
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
     return;
