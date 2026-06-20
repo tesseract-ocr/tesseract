@@ -94,7 +94,9 @@ export PKG_CONFIG_PATH
   CXXFLAGS="-fno-math-errno -Wall -Wextra -Wpedantic -g -O2 -isystem $MINGW/include" \
   LDFLAGS="-L$MINGW/lib"
 
-make all training
+make all -j$(nproc)
+make training -j$(nproc)
+
 MINGW_INSTALL=${PWD}${MINGW}
 make install-jars install training-install html prefix="$MINGW_INSTALL" INSTALL_STRIP_FLAG=-s
 test -d venv || python3 -m venv venv
