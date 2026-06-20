@@ -24,4 +24,5 @@ jobs:
     - uses: actions/upload-artifact@v7
       with:
         name: Tesseract Installer for Windows (64 bit)
-        path: dist
+        path: bin/ndebug/x86_64-w64-mingw32/nsis/tesseract-ocr-w*-setup-*.exe
+        archive: false

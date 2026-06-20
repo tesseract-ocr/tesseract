@@ -2,7 +2,7 @@
 
 # GitHub actions - Create Tesseract installer for Windows
 
-# Author: Stefan Weil (2010-2024)
+# Author: Stefan Weil (2010-2026)
 
 set -e
 set -x
@@ -19,10 +19,9 @@ else
 fi
 
 ROOTDIR=$PWD
-DISTDIR=$ROOTDIR/dist
 HOST=$ARCH-w64-mingw32
 TAG=$(cat VERSION).$(date +%Y%m%d)
-BUILDDIR=bin/ndebug/$HOST-$TAG
+BUILDDIR=bin/ndebug/$HOST
 PKG_ARCH=mingw-w64-${ARCH/_/-}
 
 # Install packages.
@@ -106,6 +105,3 @@ ln -sv $("$ROOTDIR/nsis/find_deps.py" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL
 ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libstdc++-6.dll dll/
 ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libgcc_s_seh-1.dll dll/
 make winsetup prefix="$MINGW_INSTALL"
-
-# Copy result for upload.
-mkdir -p "$DISTDIR" && cp nsis/tesseract-ocr-w*-setup-*.exe "$DISTDIR"
