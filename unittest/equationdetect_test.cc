@@ -13,9 +13,8 @@
 
 #include "colpartitiongrid.h"
 #include "equationdetect.h"
+#include "image.h"            // for Image
 #include "tesseractclass.h"
-
-#include <allheaders.h>
 
 #include <memory>
 #include <string>

@@ -16,9 +16,11 @@
 #ifndef TESSERACT_CCSTRUCT_IMAGE_H_
 #define TESSERACT_CCSTRUCT_IMAGE_H_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#include <allheaders.h> // Pix, from leptonica
+#pragma GCC diagnostic pop
 #include <tesseract/export.h>
-
-struct Pix;
 
 namespace tesseract {
 
@@ -49,6 +51,25 @@ public:
   Image &operator|=(Image);
   Image operator&(Image) const;
   Image &operator&=(Image);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+  static void clearDataBit(const uint32_t *data, int n) {
+    CLEAR_DATA_BIT(data, n);
+  }
+  static int getDataBit(const uint32_t *data, int n) {
+    return GET_DATA_BIT(data, n);
+  }
+  static int getDataByte(const uint32_t *data, int n) {
+    return GET_DATA_BYTE(data, n);
+  }
+  static void setDataBit(uint32_t *data, int n) {
+    SET_DATA_BIT(data, n);
+  }
+  static void setDataByte(uint32_t *data, int n, int b) {
+    SET_DATA_BYTE(data, n, b);
+  }
+#pragma GCC diagnostic pop
 };
 
 } // namespace tesseract

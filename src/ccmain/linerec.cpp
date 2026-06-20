@@ -17,7 +17,6 @@
 
 #include "tesseractclass.h"
 
-#include <allheaders.h>
 #include "boxread.h"
 #include "imagedata.h" // for ImageData
 #include "lstmrecognizer.h"

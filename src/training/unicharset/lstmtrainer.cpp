@@ -28,7 +28,6 @@
 #include <string>
 #include "lstmtrainer.h"
 
-#include <allheaders.h>
 #include "boxread.h"
 #include "ctc.h"
 #include "imagedata.h"

@@ -1,8 +1,8 @@
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include <string>
+#include "image.h"      // for Image
 #include "scrollview.h"
 
 #include "include_gunit.h"

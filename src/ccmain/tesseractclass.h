@@ -36,6 +36,7 @@
 #  include "docqual.h" // for GARBAGE_LEVEL
 #endif
 #include "genericvector.h"   // for PointerVector
+#include "image.h"           // for Image
 #include "pageres.h"         // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"          // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"          // for FCOORD
@@ -46,8 +47,6 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
-
-#include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 
 #include <cstdint> // for int16_t, int32_t, uint16_t
 #include <cstdio>  // for FILE

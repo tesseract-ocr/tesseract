@@ -29,7 +29,6 @@
 #  include "config_auto.h"
 #endif
 
-#include <allheaders.h>
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
@@ -38,6 +37,7 @@
 #  include "equationdetect.h"
 #endif
 #include <tesseract/osdetect.h>
+#include "image.h"          // for Image
 #include "imagefind.h"
 #include "linefind.h"
 #include "makerow.h"

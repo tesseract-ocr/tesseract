@@ -35,6 +35,7 @@
 #include "errcode.h" // for ASSERT_HOST
 #include "helpers.h" // for IntCastRounded, chomp_string, copy_string
 #include "host.h"    // for MAX_PATH
+#include "image.h"   // for Image, Leptonica (pixDestroy, boxCreate, ...)
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "intfx.h" // for INT_FX_RESULT_STRUCT
@@ -74,7 +75,6 @@
 #include <string_view>
 #include <vector>   // for std::vector
 
-#include <allheaders.h> // for pixDestroy, boxCreate, boxaAddBox, box...
 #ifdef HAVE_LIBCURL
 #  include <curl/curl.h>
 #endif

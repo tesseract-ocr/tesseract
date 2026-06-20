@@ -24,10 +24,9 @@
 
 #include "clst.h"
 #include "coutln.h"
+#include "image.h"      // for Image
 #include "rect.h"
 #include "scrollview.h"
-
-#include <allheaders.h>
 
 class BLOCK;
 
@@ -546,7 +545,7 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom, Ima
   for (int y = 0; y < height; ++y) {
     l_uint32 *data = pixGetData(pix) + y * pixGetWpl(pix);
     for (int x = 0; x < width; ++x) {
-      if (GET_DATA_BIT(data, x)) {
+      if (Image::getDataBit(data, x)) {
         grid_[(bottom + y) * gridwidth_ + x + left].add_sorted(SortByBoxLeft<BBC>, true, bbox);
       }
     }

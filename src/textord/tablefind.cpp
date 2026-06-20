@@ -25,8 +25,6 @@
 #include <utility>
 #include "tablefind.h"
 
-#include <allheaders.h>
-
 #include "colpartitionset.h"
 #include "tablerecog.h"
 

@@ -31,8 +31,6 @@
 
 #include "helpers.h"
 
-#include <allheaders.h>
-
 #include <cmath> // for M_PI
 #include <mutex> // for std::mutex
 

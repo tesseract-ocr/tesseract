@@ -12,13 +12,13 @@
 #include "include_gunit.h"
 
 #include "cycletimer.h" // for CycleTimer
+#include "image.h"      // for Image
 #include "log.h"        // for LOG
 #include "ocrblock.h"   // for class BLOCK
 #include "pageres.h"
 
 #include <tesseract/baseapi.h>
 
-#include <allheaders.h>
 #include "gmock/gmock-matchers.h"
 
 #include <memory>

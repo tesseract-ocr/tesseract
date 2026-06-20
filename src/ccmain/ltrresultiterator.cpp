@@ -23,8 +23,6 @@
 #include "pageres.h"
 #include "tesseractclass.h"
 
-#include <allheaders.h>
-
 namespace tesseract {
 
 LTRResultIterator::LTRResultIterator(PAGE_RES *page_res, Tesseract *tesseract, int scale,

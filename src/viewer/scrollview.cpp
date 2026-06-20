@@ -26,17 +26,16 @@
 
 #include "svutil.h" // for SVNetwork
 
-#include <allheaders.h>
-
 #include <algorithm>
 #include <climits>
 #include <cstdarg>
 #include <cstring>
+#include "image.h"  // for Image
 #include <map>
-#include <memory> // for std::unique_ptr
-#include <mutex> // for std::mutex
+#include <memory>   // for std::unique_ptr
+#include <mutex>    // for std::mutex
 #include <string>
-#include <thread> // for std::thread
+#include <thread>   // for std::thread
 #include <utility>
 #include <vector>
 

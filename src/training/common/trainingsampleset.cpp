@@ -19,7 +19,6 @@
 
 #include <algorithm>
 
-#include <allheaders.h>
 #include "boxread.h"
 #include "fontinfo.h"
 //#include "helpers.h"

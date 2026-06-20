@@ -22,10 +22,10 @@
 #ifndef TESSERACT_TRAINING_BOXCHAR_H_
 #define TESSERACT_TRAINING_BOXCHAR_H_
 
+#include "image.h"        // for Leptonica (Box, ...)
 #include <string>
 #include <vector>
 
-#include <allheaders.h>   // for Leptonica API
 #if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || LIBLEPT_MAJOR_VERSION > 1
 #include <pix_internal.h> // for fast access to Box geometry
 #endif

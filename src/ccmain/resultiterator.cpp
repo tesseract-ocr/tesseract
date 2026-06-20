@@ -25,8 +25,6 @@
 #include "tesseractclass.h"
 #include "unicharset.h"
 
-#include <allheaders.h>
-
 #include <set>
 #include <vector>
 

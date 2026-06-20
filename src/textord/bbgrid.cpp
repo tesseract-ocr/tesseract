@@ -19,6 +19,7 @@
 
 #include "bbgrid.h"
 #include "helpers.h"
+#include "image.h"    // for Image
 #include "ocrblock.h"
 
 namespace tesseract {
@@ -232,7 +233,7 @@ Image TraceOutlineOnReducedPix(C_OUTLINE *outline, int gridsize, ICOORD bleft, i
   for (int i = 0; i < length; ++i) {
     int grid_x = (pos.x() - bleft.x()) / gridsize - *left;
     int grid_y = (pos.y() - bleft.y()) / gridsize - *bottom;
-    SET_DATA_BIT(data + grid_y * wpl, grid_x);
+    Image::setDataBit(data + grid_y * wpl, grid_x);
     pos += outline->step(i);
   }
   return pix;
@@ -265,7 +266,7 @@ Image TraceBlockOnReducedPix(BLOCK *block, int gridsize, ICOORD bleft, int *left
     while (pos != next_pos) {
       int grid_x = (pos.x() - bleft.x()) / gridsize - *left;
       int grid_y = (pos.y() - bleft.y()) / gridsize - *bottom;
-      SET_DATA_BIT(data + grid_y * wpl, grid_x);
+      Image::setDataBit(data + grid_y * wpl, grid_x);
       pos += major_step;
       accumulator += minor;
       if (accumulator >= major) {

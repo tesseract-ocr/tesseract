@@ -19,8 +19,8 @@
 #include <cfloat> // for FLT_MAX
 #include <cmath>
 
-#include <allheaders.h>
 #include "functions.h"
+#include "image.h"     // for Image
 #include "statistc.h"
 #include "tprintf.h"
 
@@ -131,10 +131,10 @@ static void ComputeBlackWhite(Image pix, float *black, float *white) {
   if (width >= 3) {
     int y = height / 2;
     l_uint32 *line = pixGetData(pix) + pixGetWpl(pix) * y;
-    int prev = GET_DATA_BYTE(line, 0);
-    int curr = GET_DATA_BYTE(line, 1);
+    int prev = Image::getDataByte(line, 0);
+    int curr = Image::getDataByte(line, 1);
     for (int x = 1; x + 1 < width; ++x) {
-      int next = GET_DATA_BYTE(line, x + 1);
+      int next = Image::getDataByte(line, x + 1);
       if ((curr < prev && curr <= next) || (curr <= prev && curr < next)) {
         // Local minimum.
         mins.add(curr, 1);
@@ -235,11 +235,11 @@ void NetworkIO::Copy2DImage(int batch, Image pix, float black, float contrast, T
         if (color) {
           int f = 0;
           for (int c = COLOR_RED; c <= COLOR_BLUE; ++c) {
-            int pixel = GET_DATA_BYTE(line + x, c);
+            int pixel = Image::getDataByte(line + x, c);
             SetPixel(t, f++, pixel, black, contrast);
           }
         } else {
-          int pixel = GET_DATA_BYTE(line, x);
+          int pixel = Image::getDataByte(line, x);
           SetPixel(t, 0, pixel, black, contrast);
         }
       }
@@ -271,7 +271,7 @@ void NetworkIO::Copy1DGreyImage(int batch, Image pix, float black, float contras
   for (x = 0; x < width; ++x, ++t) {
     for (int y = 0; y < height; ++y) {
       uint32_t *line = pixGetData(pix) + wpl * y;
-      int pixel = GET_DATA_BYTE(line, x);
+      int pixel = Image::getDataByte(line, x);
       SetPixel(t, y, pixel, black, contrast);
     }
   }

@@ -22,10 +22,10 @@
 
 #include "lstmrecognizer.h"
 
-#include <allheaders.h>
 #include "dict.h"
 #include "genericheap.h"
 #include "helpers.h"
+#include "image.h"       // for Image
 #include "imagedata.h"
 #include "input.h"
 #include "lstm.h"

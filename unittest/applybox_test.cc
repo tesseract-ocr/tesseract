@@ -9,11 +9,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include <string>
 #include "boxread.h"
+#include "image.h"   // for Image
 #include "rect.h"
 
 #include "include_gunit.h"

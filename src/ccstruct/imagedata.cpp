@@ -24,6 +24,7 @@
 #include "imagedata.h"
 
 #include "boxread.h"    // for ReadMemBoxes
+#include "image.h"      // for Image
 #include "rect.h"       // for TBOX
 #include "scrollview.h" // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "tprintf.h"    // for tprintf
@@ -31,8 +32,6 @@
 
 #include "helpers.h"  // for IntCastRounded, TRand, ClipToRange, Modulo
 #include "serialis.h" // for TFile
-
-#include <allheaders.h> // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 
 #include <cinttypes>    // for PRId64
 #include <fstream>      // for std::ifstream

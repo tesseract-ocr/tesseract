@@ -23,7 +23,7 @@
 
 #include "pdblock.h"
 
-#include <allheaders.h>
+#include "image.h"   // for Image
 
 #include <cinttypes> // for PRId32
 #include <cstdlib>
