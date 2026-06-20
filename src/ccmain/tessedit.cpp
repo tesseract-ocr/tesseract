@@ -73,8 +73,7 @@ void Tesseract::read_config_file(const char *filename, SetParamConstraint constr
 // from the language-specific config file (stored in [lang].traineddata), from
 // the config files specified on the command line or left as the default
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
-bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
-                                         const std::string &language, OcrEngineMode oem,
+bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineMode oem,
                                          char **configs, int configs_size,
                                          const std::vector<std::string> *vars_vec,
                                          const std::vector<std::string> *vars_values,
@@ -398,7 +397,7 @@ int Tesseract::init_tesseract_internal(const std::string &arg0, const std::strin
                                        const std::vector<std::string> *vars_vec,
                                        const std::vector<std::string> *vars_values,
                                        bool set_only_non_debug_params, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, language, oem, configs, configs_size, vars_vec,
+  if (!init_tesseract_lang_data(language, oem, configs, configs_size, vars_vec,
                                 vars_values, set_only_non_debug_params, mgr)) {
     return -1;
   }

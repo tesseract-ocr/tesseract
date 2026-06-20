@@ -822,7 +822,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   } else if (tesseract_->tessedit_ambigs_training) {
     FILE *training_output_file = tesseract_->init_recog_training(input_file_.c_str());
     // OCR the page segmented into words by tesseract.
-    tesseract_->recog_training_segmented(input_file_.c_str(), page_res_, monitor,
+    tesseract_->recog_training_segmented(input_file_.c_str(), page_res_,
                                          training_output_file);
     fclose(training_output_file);
 #endif // ndef DISABLED_LEGACY_ENGINE
@@ -2139,7 +2139,7 @@ int TessBaseAPI::FindLines() {
 
   // If Devanagari is being recognized, we use different images for page seg
   // and for OCR.
-  tesseract_->PrepareForTessOCR(block_list_, osd_tess, &osr);
+  tesseract_->PrepareForTessOCR(block_list_);
   return 0;
 }
 

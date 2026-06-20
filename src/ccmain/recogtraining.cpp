@@ -84,7 +84,7 @@ static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
 // single bounding box from the input box file) it outputs the ocred result,
 // the correct label, rating and certainty.
 void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_res,
-                                         volatile ETEXT_DESC *monitor, FILE *output_file) {
+                                         FILE *output_file) {
   std::string box_fname = filename;
   const char *lastdot = strrchr(box_fname.c_str(), '.');
   if (lastdot != nullptr) {

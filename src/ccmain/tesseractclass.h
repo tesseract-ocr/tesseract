@@ -326,7 +326,7 @@ public:
   // Uses the strategy specified in the global variable
   // ocr_devanagari_split_strategy for performing splitting while preparing for
   // Tesseract ocr.
-  void PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, OSResults *osr);
+  void PrepareForTessOCR(BLOCK_LIST *block_list);
 
   int SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract *osd_tess, OSResults *osr);
   void SetupWordScripts(BLOCK_LIST *blocks);
@@ -445,8 +445,8 @@ public:
   ACCEPTABLE_WERD_TYPE acceptable_word_string(const UNICHARSET &char_set, const char *s,
                                               const char *lengths);
   ACCEPTABLE_WERD_TYPE check_abbreviation(const UNICHARSET &char_set, const char *s,
-                                           const char *lengths, ACCEPTABLE_WERD_TYPE word_type);
-  void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *block);
+                                          const char *lengths, ACCEPTABLE_WERD_TYPE word_type);
+  void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row);
   void classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
                            PointerVector<WERD_RES> *out_words);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht, WERD_RES *word, WERD_RES *new_word);
@@ -534,8 +534,7 @@ public:
   void recognize_page(std::string &image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const std::string &arg0,
-                                const std::string &language, OcrEngineMode oem, char **configs,
+  bool init_tesseract_lang_data(const std::string &language, OcrEngineMode oem, char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
                                 bool set_only_non_debug_params, TessdataManager *mgr);
@@ -567,7 +566,7 @@ public:
   void blob_feature_display(PAGE_RES *page_res, const TBOX &selection_box);
   //// reject.h //////////////////////////////////////////////////////////
   // make rej map for word
-  void make_reject_map(WERD_RES *word, ROW *row, int16_t pass);
+  void make_reject_map(WERD_RES *word, int16_t pass);
   bool one_ell_conflict(WERD_RES *word_res, bool update_map);
   int16_t first_alphanum_index(const char *word, const char *word_lengths);
   int16_t first_alphanum_offset(const char *word, const char *word_lengths);
@@ -579,7 +578,7 @@ public:
   void flip_0O(WERD_RES *word);
   bool non_0_digit(const UNICHARSET &ch_set, UNICHAR_ID unichar_id);
   bool non_O_upper(const UNICHARSET &ch_set, UNICHAR_ID unichar_id);
-  bool repeated_nonalphanum_wd(WERD_RES *word, ROW *row);
+  bool repeated_nonalphanum_wd(WERD_RES *word);
   void nn_match_word( // Match a word
       WERD_RES *word, ROW *row);
   void nn_recover_rejects(WERD_RES *word, ROW *row);
@@ -973,7 +972,7 @@ public:
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const char *filename);
   void recog_training_segmented(const char *filename, PAGE_RES *page_res,
-                                volatile ETEXT_DESC *monitor, FILE *output_file);
+                                FILE *output_file);
   void ambigs_classify_and_output(const char *label, PAGE_RES_IT *pr_it, FILE *output_file);
 
 private:

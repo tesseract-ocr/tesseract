@@ -589,7 +589,7 @@ void Tesseract::PrepareForPageseg() {
 // Note that this method resets pix_binary_ to the original binarized image,
 // which may be different from the image actually used for OCR depending on the
 // value of devanagari_ocr_split_strategy.
-void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, OSResults *osr) {
+void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list) {
   // Find the max splitter strategy over all langs.
   auto max_ocr_strategy = static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(ocr_devanagari_split_strategy));
