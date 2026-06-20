@@ -200,7 +200,7 @@ void FullyConnected::SetupForward(const NetworkIO &input, const TransposedArray 
   }
 }
 
-void FullyConnected::ForwardTimeStep(int t, TFloat *output_line) {
+void FullyConnected::ForwardTimeStep(TFloat *output_line) {
   if (type_ == NT_TANH) {
     FuncInplace<GFunc>(no_, output_line);
   } else if (type_ == NT_LOGISTIC) {
@@ -224,13 +224,13 @@ void FullyConnected::ForwardTimeStep(const TFloat *d_input, int t, TFloat *outpu
     source_t_.WriteStrided(t, d_input);
   }
   weights_.MatrixDotVector(d_input, output_line);
-  ForwardTimeStep(t, output_line);
+  ForwardTimeStep(output_line);
 }
 
 void FullyConnected::ForwardTimeStep(const int8_t *i_input, int t, TFloat *output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   weights_.MatrixDotVector(i_input, output_line);
-  ForwardTimeStep(t, output_line);
+  ForwardTimeStep(output_line);
 }
 
 // Runs backward propagation of errors on the deltas line.

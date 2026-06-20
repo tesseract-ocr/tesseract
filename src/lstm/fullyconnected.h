@@ -91,7 +91,7 @@ public:
                NetworkScratch *scratch, NetworkIO *output) override;
   // Components of Forward so FullyConnected can be reused inside LSTM.
   void SetupForward(const NetworkIO &input, const TransposedArray *input_transpose);
-  void ForwardTimeStep(int t, TFloat *output_line);
+  void ForwardTimeStep(TFloat *output_line);
   void ForwardTimeStep(const TFloat *d_input, int t, TFloat *output_line);
   void ForwardTimeStep(const int8_t *i_input, int t, TFloat *output_line);
 

@@ -205,8 +205,7 @@ public:
               double worst_dict_cert, const UNICHARSET *charset);
 
   void DecodeSecondaryBeams(const NetworkIO &output, double dict_ratio, double cert_offset,
-                            double worst_dict_cert, const UNICHARSET *charset,
-                            int lstm_choice_mode = 0);
+                            double worst_dict_cert, const UNICHARSET *charset);
 
   // Returns the best path as labels/scores/xcoords similar to simple CTC.
   void ExtractBestPathAsLabels(std::vector<int> *labels, std::vector<int> *xcoords) const;
@@ -218,8 +217,7 @@ public:
 
   // Returns the best path as a set of WERD_RES.
   void ExtractBestPathAsWords(const TBOX &line_box, float scale_factor, bool debug,
-                              const UNICHARSET *unicharset, PointerVector<WERD_RES> *words,
-                              int lstm_choice_mode = 0);
+                              const UNICHARSET *unicharset, PointerVector<WERD_RES> *words);
 
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET &unicharset) const;
@@ -232,7 +230,7 @@ public:
   void extractSymbolChoices(const UNICHARSET *unicharset);
 
   // Generates debug output of the content of the beams after a Decode.
-  void PrintBeam2(bool uids, int num_outputs, const UNICHARSET *charset, bool secondary) const;
+  void PrintBeam2(bool uids, const UNICHARSET *charset, bool secondary) const;
   // Segments the timestep bundle by the character_boundaries.
   void segmentTimestepsByCharacters();
   std::vector<std::vector<std::pair<const char *, float>>>
@@ -323,7 +321,7 @@ private:
   // right places.
   WERD_RES *InitializeWord(bool leading_space, const TBOX &line_box, int word_start, int word_end,
                            float space_certainty, const UNICHARSET *unicharset,
-                           const std::vector<int> &xcoords, float scale_factor);
+                           float scale_factor);
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
   // is one of the top_n.
@@ -342,8 +340,7 @@ private:
                            double worst_dict_cert, const UNICHARSET *charset, bool debug = false);
 
   // Saves the most certain choices for the current time-step.
-  void SaveMostCertainChoices(const float *outputs, int num_outputs, const UNICHARSET *charset,
-                              int xCoord);
+  void SaveMostCertainChoices(const float *outputs, int num_outputs, const UNICHARSET *charset);
 
   // Calculates more accurate character boundaries which can be used to
   // provide more accurate alternative symbol choices.

@@ -79,7 +79,7 @@ bool Input::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *sc
 // Returns nullptr on error.
 /* static */
 Image Input::PrepareLSTMInputs(const ImageData &image_data, const Network *network, int min_width,
-                              TRand *randomizer, float *image_scale) {
+                               float *image_scale) {
   // Note that NumInputs() is defined as input image height.
   int target_height = network->NumInputs();
   int width, height;

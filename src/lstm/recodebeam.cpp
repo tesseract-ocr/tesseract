@@ -93,7 +93,7 @@ void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio,
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert,
                charset);
     if (lstm_choice_mode) {
-      SaveMostCertainChoices(output.f(t), output.NumFeatures(), charset, t);
+      SaveMostCertainChoices(output.f(t), output.NumFeatures(), charset);
     }
   }
 }
@@ -111,7 +111,7 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float> &output,
 
 void RecodeBeamSearch::DecodeSecondaryBeams(
     const NetworkIO &output, double dict_ratio, double cert_offset,
-    double worst_dict_cert, const UNICHARSET *charset, int lstm_choice_mode) {
+    double worst_dict_cert, const UNICHARSET *charset) {
   for (auto data : secondary_beam_) {
     delete data;
   }
@@ -135,8 +135,7 @@ void RecodeBeamSearch::DecodeSecondaryBeams(
 
 void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
                                               int num_outputs,
-                                              const UNICHARSET *charset,
-                                              int xCoord) {
+                                              const UNICHARSET *charset) {
   std::vector<std::pair<const char *, float>> choices;
   for (int i = 0; i < num_outputs; ++i) {
     if (outputs[i] >= 0.01f) {
@@ -239,8 +238,7 @@ void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
 void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box,
                                               float scale_factor, bool debug,
                                               const UNICHARSET *unicharset,
-                                              PointerVector<WERD_RES> *words,
-                                              int lstm_choice_mode) {
+                                              PointerVector<WERD_RES> *words) {
   words->truncate(0);
   std::vector<int> unichar_ids;
   std::vector<float> certs;
@@ -299,7 +297,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box,
     WERD_RES *word_res =
         InitializeWord(leading_space, line_box, word_start, word_end,
                        std::min(space_cert, prev_space_cert), unicharset,
-                       xcoords, scale_factor);
+                       scale_factor);
     for (int i = word_start; i < word_end; ++i) {
       auto *choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);
@@ -327,7 +325,7 @@ struct greater_than {
   }
 };
 
-void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
+void RecodeBeamSearch::PrintBeam2(bool uids,
                                   const UNICHARSET *charset,
                                   bool secondary) const {
   std::vector<std::vector<const RecodeNode *>> topology;
@@ -637,7 +635,6 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space,
                                            const TBOX &line_box, int word_start,
                                            int word_end, float space_certainty,
                                            const UNICHARSET *unicharset,
-                                           const std::vector<int> &xcoords,
                                            float scale_factor) {
   // Make a fake blob for each non-zero label.
   C_BLOB_LIST blobs;
