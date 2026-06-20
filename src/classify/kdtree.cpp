@@ -296,13 +296,12 @@ void KDDelete(KDTREE *Tree, float Key[], void *Data) {
  * @param Tree    ptr to K-D tree to be searched
  * @param Query    ptr to query key (point in D-space)
  * @param QuerySize  number of nearest neighbors to be found
- * @param MaxDistance  all neighbors must be within this distance
  * @param NBuffer ptr to QuerySize buffer to hold nearest neighbors
  * @param DBuffer ptr to QuerySize buffer to hold distances
  *          from nearest neighbor to query point
  * @param NumberOfResults [out] Number of nearest neighbors actually found
  */
-void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
+void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize,
                              int *NumberOfResults, void **NBuffer, float DBuffer[]) {
   KDTreeSearch search(Tree, Query, QuerySize);
   search.Search(NumberOfResults, DBuffer, NBuffer);

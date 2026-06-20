@@ -48,8 +48,6 @@ struct MFEDGEPT {
   DIRECTION PreviousDirection;
 };
 
-enum class OUTLINETYPE { outer, hole };
-
 enum NORM_METHOD { baseline, character };
 
 /**----------------------------------------------------------------------------
@@ -89,8 +87,6 @@ void ComputeBlobCenter(TBLOB *Blob, TPOINT *BlobCenter);
 LIST ConvertBlob(TBLOB *Blob);
 
 MFOUTLINE ConvertOutline(TESSLINE *Outline);
-
-LIST ConvertOutlines(TESSLINE *Outline, LIST ConvertedOutlines, OUTLINETYPE OutlineType);
 
 void FilterEdgeNoise(MFOUTLINE Outline, float NoiseSegmentLength);
 

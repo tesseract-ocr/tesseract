@@ -29,11 +29,31 @@
 namespace tesseract {
 
 /*---------------------------------------------------------------------------*/
+/**
+ * Convert a tree of outlines to a list of MFOUTLINEs (lists of MFEDGEPTs).
+ *
+ * @param outline      first outline to be converted
+ * @param mf_outlines  list to add converted outlines to
+ */
+static LIST ConvertOutlines(TESSLINE *outline, LIST mf_outlines) {
+  MFOUTLINE mf_outline;
+
+  while (outline != nullptr) {
+    mf_outline = ConvertOutline(outline);
+    if (mf_outline != nullptr) {
+      mf_outlines = push(mf_outlines, mf_outline);
+    }
+    outline = outline->next;
+  }
+  return mf_outlines;
+}
+
+/*---------------------------------------------------------------------------*/
 /** Convert a blob into a list of MFOUTLINEs (float-based microfeature format).
  */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
-  return (blob == nullptr) ? NIL_LIST : ConvertOutlines(blob->outlines, outlines, OUTLINETYPE::outer);
+  return (blob == nullptr) ? NIL_LIST : ConvertOutlines(blob->outlines, outlines);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -66,27 +86,6 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     MakeOutlineCircular(MFOutline);
   }
   return MFOutline;
-}
-
-/*---------------------------------------------------------------------------*/
-/**
- * Convert a tree of outlines to a list of MFOUTLINEs (lists of MFEDGEPTs).
- *
- * @param outline      first outline to be converted
- * @param mf_outlines  list to add converted outlines to
- * @param outline_type  are the outlines outer or holes?
- */
-LIST ConvertOutlines(TESSLINE *outline, LIST mf_outlines, OUTLINETYPE outline_type) {
-  MFOUTLINE mf_outline;
-
-  while (outline != nullptr) {
-    mf_outline = ConvertOutline(outline);
-    if (mf_outline != nullptr) {
-      mf_outlines = push(mf_outlines, mf_outline);
-    }
-    outline = outline->next;
-  }
-  return mf_outlines;
 }
 
 /*---------------------------------------------------------------------------*/

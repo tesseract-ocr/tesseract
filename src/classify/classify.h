@@ -169,7 +169,7 @@ public:
                         ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                        const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                       INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes, UNICHAR_ID *ambiguities,
+                       INT_TEMPLATES_STRUCT *templates, UNICHAR_ID *ambiguities,
                        ADAPT_RESULTS *results);
   void MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_features,
                      const INT_FEATURE_STRUCT *features, const uint8_t *norm_factors,

@@ -1392,7 +1392,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
 
 static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics);
 
-static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster);
+static PROTOTYPE *NewSimpleProto(CLUSTER *Cluster);
 
 static bool Independent(PARAM_DESC *ParamDesc, int16_t N, float *CoVariance, float Independence);
 
@@ -1814,7 +1814,7 @@ static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Dista
   CLUSTER *BestNeighbor;
 
   // find the 2 nearest neighbors of the cluster
-  KDNearestNeighborSearch(Tree, &Cluster->Mean[0], MAXNEIGHBORS, MAXDISTANCE, &NumberOfNeighbors,
+  KDNearestNeighborSearch(Tree, &Cluster->Mean[0], MAXNEIGHBORS, &NumberOfNeighbors,
                           reinterpret_cast<void **>(Neighbor), Dist);
 
   // search for the nearest neighbor that is not the cluster itself
@@ -2449,7 +2449,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
 static PROTOTYPE *NewSphericalProto(uint16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   PROTOTYPE *Proto;
 
-  Proto = NewSimpleProto(N, Cluster);
+  Proto = NewSimpleProto(Cluster);
 
   Proto->Variance.Spherical = Statistics->AvgVariance;
   if (Proto->Variance.Spherical < MINVARIANCE) {
@@ -2479,7 +2479,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
   PROTOTYPE *Proto;
   int i;
 
-  Proto = NewSimpleProto(N, Cluster);
+  Proto = NewSimpleProto(Cluster);
   Proto->Variance.Elliptical = new float[N];
   Proto->Magnitude.Elliptical = new float[N];
   Proto->Weight.Elliptical = new float[N];
@@ -2526,11 +2526,10 @@ static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statist
  * This routine allocates memory to hold a simple prototype
  * data structure, i.e. one without independent distributions
  * and variances for each dimension.
- * @param N number of dimensions
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new simple prototype
  */
-static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
+static PROTOTYPE *NewSimpleProto(CLUSTER *Cluster) {
   auto Proto = new PROTOTYPE;
   Proto->Mean = Cluster->Mean;
   Proto->Distrib.clear();

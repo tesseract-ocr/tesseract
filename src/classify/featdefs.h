@@ -69,7 +69,7 @@ struct CHAR_DESC_STRUCT {
 TESS_API
 void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
 
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc);
+bool ValidCharDescription(CHAR_DESC_STRUCT *CharDesc);
 
 void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc, std::string &str);
 

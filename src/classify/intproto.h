@@ -94,7 +94,7 @@ typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
 struct INT_CLASS_STRUCT {
   INT_CLASS_STRUCT() = default;
-  INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs);
+  INT_CLASS_STRUCT(int MaxNumProtos);
   ~INT_CLASS_STRUCT();
   uint16_t NumProtos = 0;
   uint8_t NumProtoSets = 0;

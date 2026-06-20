@@ -128,7 +128,7 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRU
 
 // Return whether all of the fields of the given feature set
 // are well defined (not inf or nan).
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc) {
+bool ValidCharDescription(CHAR_DESC_STRUCT *CharDesc) {
   bool anything_written = false;
   bool well_formed = true;
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
