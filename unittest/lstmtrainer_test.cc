@@ -9,8 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
+#include "image.h"     // for Image
 #include "lstm_test.h"
 
 namespace tesseract {

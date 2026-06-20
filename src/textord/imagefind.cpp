@@ -24,11 +24,10 @@
 #include "imagefind.h"
 
 #include "colpartitiongrid.h"
+#include "image.h"            // for Image
 #include "linlsq.h"
 #include "params.h"
 #include "statistc.h"
-
-#include <allheaders.h>
 
 #include <algorithm>
 
@@ -63,7 +62,7 @@ static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int mi
     int pix_count = 0;
     uint32_t *line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x)) {
+      if (Image::getDataBit(line, x)) {
         ++pix_count;
       }
     }
@@ -98,7 +97,7 @@ static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int mi
     int pix_count = 0;
     uint32_t *line = data + y_start * wpl;
     for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x)) {
+      if (Image::getDataBit(line, x)) {
         ++pix_count;
       }
     }

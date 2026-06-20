@@ -14,13 +14,13 @@
 
 #include "include_gunit.h"
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include "coutln.h"
-#include "log.h" // for LOG
+#include "image.h"           // for Image
+#include "log.h"             // for LOG
 #include "mutableiterator.h"
-#include "ocrblock.h" // for class BLOCK
+#include "ocrblock.h"        // for class BLOCK
 #include "pageres.h"
 #include "polyblk.h"
 #include "stepblob.h"

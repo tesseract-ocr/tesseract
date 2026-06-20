@@ -33,12 +33,11 @@
 #include "errcode.h"
 #include "fileio.h"
 #include "helpers.h"
+#include "image.h"          // for Image
 #include "normstrngs.h"
 #include "stringrenderer.h"
 #include "tlog.h"
 #include "unicharset.h"
-
-#include <allheaders.h> // from leptonica
 
 #include <algorithm>
 #include <cstdlib>

@@ -26,7 +26,6 @@
 #ifdef INCLUDE_TENSORFLOW
 #  include <tensorflow/core/lib/core/threadpool.h>
 #endif
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "commandlineflags.h"
 #include "include_gunit.h"

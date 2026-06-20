@@ -31,7 +31,6 @@
 #include <map>    // for std::map
 #include <memory> // std::unique_ptr
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "dict.h"
 #include <tesseract/renderer.h>

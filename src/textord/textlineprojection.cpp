@@ -15,12 +15,12 @@
 #  include "config_auto.h"
 #endif
 
-#include <allheaders.h>
 #include "bbgrid.h"  // Base class.
 #include "blobbox.h" // BlobNeighbourDir.
 #include "blobs.h"
 #include "colpartition.h"
 #include "helpers.h" // for IntCastRounded
+#include "image.h"   // for Image
 #include "normalis.h"
 #include "textlineprojection.h"
 
@@ -134,7 +134,7 @@ void TextlineProjection::DisplayProjection() const {
   uint32_t *col_data = pixGetData(pixc);
   for (int y = 0; y < height; ++y, src_data += src_wpl, col_data += col_wpl) {
     for (int x = 0; x < width; ++x) {
-      int pixel = GET_DATA_BYTE(src_data, x);
+      int pixel = Image::getDataByte(src_data, x);
       l_uint32 result;
       if (pixel <= 17) {
         composeRGBPixel(0, 0, pixel * 15, &result);
@@ -281,12 +281,12 @@ int TextlineProjection::VerticalDistance(bool debug, int x, int y1, int y2) cons
   int step = y1 < y2 ? 1 : -1;
   uint32_t *data = pixGetData(pix_) + y1 * wpl;
   wpl *= step;
-  int prev_pixel = GET_DATA_BYTE(data, x);
+  int prev_pixel = Image::getDataByte(data, x);
   int distance = 0;
   int right_way_steps = 0;
   for (int y = y1; y != y2; y += step) {
     data += wpl;
-    int pixel = GET_DATA_BYTE(data, x);
+    int pixel = Image::getDataByte(data, x);
     if (debug) {
       tprintf("At (%d,%d), pix = %d, prev=%d\n", x, y + step, pixel, prev_pixel);
     }
@@ -314,11 +314,11 @@ int TextlineProjection::HorizontalDistance(bool debug, int x1, int x2, int y) co
   int wpl = pixGetWpl(pix_);
   int step = x1 < x2 ? 1 : -1;
   uint32_t *data = pixGetData(pix_) + y * wpl;
-  int prev_pixel = GET_DATA_BYTE(data, x1);
+  int prev_pixel = Image::getDataByte(data, x1);
   int distance = 0;
   int right_way_steps = 0;
   for (int x = x1; x != x2; x += step) {
-    int pixel = GET_DATA_BYTE(data, x + step);
+    int pixel = Image::getDataByte(data, x + step);
     if (debug) {
       tprintf("At (%d,%d), pix = %d, prev=%d\n", x + step, y, pixel, prev_pixel);
     }
@@ -542,7 +542,7 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM *denorm, int offset
     count = x_delta * x_step + 1;
     for (int x = start_pt.x; x != end_pt.x; x += x_step) {
       int y = start_pt.y + DivRounded(y_delta * (x - start_pt.x), x_delta);
-      total += GET_DATA_BYTE(data + wpl * y, x);
+      total += Image::getDataByte(data + wpl * y, x);
     }
   } else {
     // Vertical line. Add the offset horizontally.
@@ -559,7 +559,7 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM *denorm, int offset
     count = y_delta * y_step + 1;
     for (int y = start_pt.y; y != end_pt.y; y += y_step) {
       int x = start_pt.x + DivRounded(x_delta * (y - start_pt.y), y_delta);
-      total += GET_DATA_BYTE(data + wpl * y, x);
+      total += Image::getDataByte(data + wpl * y, x);
     }
   }
   return DivRounded(total, count);
@@ -636,9 +636,9 @@ void TextlineProjection::IncrementRectangle8Bit(const TBOX &box) {
   uint32_t *data = pixGetData(pix_) + scaled_top * wpl;
   for (int y = scaled_top; y <= scaled_bottom; ++y) {
     for (int x = scaled_left; x <= scaled_right; ++x) {
-      int pixel = GET_DATA_BYTE(data, x);
+      int pixel = Image::getDataByte(data, x);
       if (pixel < 255) {
-        SET_DATA_BYTE(data, x, pixel + 1);
+        Image::setDataByte(data, x, pixel + 1);
       }
     }
     data += wpl;

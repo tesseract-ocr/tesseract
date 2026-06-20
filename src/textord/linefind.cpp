@@ -25,6 +25,7 @@
 #include "blobbox.h"
 #include "crakedge.h" // for CRACKEDGE
 #include "edgblob.h"
+#include "image.h"    // for Image
 #include "linefind.h"
 #include "tabvector.h"
 
@@ -117,7 +118,7 @@ static int MaxStrokeWidth(Image pix) {
   int max_dist = 0;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      int pixel = GET_DATA_BYTE(data, x);
+      int pixel = Image::getDataByte(data, x);
       if (pixel > max_dist) {
         max_dist = pixel;
       }
@@ -275,7 +276,7 @@ static void GetLineBoxes(bool horizontal_lines, Image pix_lines, Image pix_inter
   if (horizontal_lines) {
     for (int y = 0; y < height; ++y, data += wpl) {
       for (int x = kCrackSpacing; x < width; x += kCrackSpacing) {
-        CLEAR_DATA_BIT(data, x);
+        Image::clearDataBit(data, x);
       }
     }
   } else {

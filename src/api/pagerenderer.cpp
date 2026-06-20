@@ -15,6 +15,7 @@
 
 #include "errcode.h" // for ASSERT_HOST
 #include "helpers.h" // for copy_string
+#include "image.h"   // for Leptonica (ptaGetCount, ...)
 #include "tprintf.h" // for tprintf
 
 #include <tesseract/baseapi.h>
@@ -27,7 +28,6 @@
 #include <sstream> // for std::stringstream
 #include <unordered_set>
 
-#include <allheaders.h>
 #if (LIBLEPT_MAJOR_VERSION == 1 && LIBLEPT_MINOR_VERSION >= 83) || \
     LIBLEPT_MAJOR_VERSION > 1
 #  include <array_internal.h>

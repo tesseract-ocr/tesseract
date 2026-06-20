@@ -21,13 +21,13 @@
 #  include "config_auto.h"
 #endif
 
-#include <allheaders.h>
 #include <cmath>
 #include <ctime>
 #include "boxread.h"
 #include "classify.h"
 #include "errorcounter.h"
 #include "featdefs.h"
+#include "image.h"           // for Image
 #include "mastertrainer.h"
 #include "sampleiterator.h"
 #include "shapeclassifier.h"

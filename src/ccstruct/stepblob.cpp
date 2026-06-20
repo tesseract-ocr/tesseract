@@ -23,9 +23,9 @@
 
 #include "stepblob.h"
 
+#include "image.h"  // for Image
 #include "points.h" // for operator+=, FCOORD, ICOORD
 
-#include <allheaders.h> // for pixCreate, pixGetDepth
 #include <vector>       // for std::vector
 
 namespace tesseract {

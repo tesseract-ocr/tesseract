@@ -24,7 +24,6 @@
 
 #include "tordmain.h"
 
-#include "arrayaccess.h" // for GET_DATA_BYTE
 #include "blobbox.h"     // for BLOBNBOX_IT, BLOBNBOX, TO_BLOCK, TO_B...
 #include "ccstruct.h"    // for CCStruct, CCStruct::kXHeightFraction
 #include "clst.h"        // for CLISTIZE
@@ -32,6 +31,7 @@
 #include "drawtord.h"    // for plot_box_list, to_win, create_to_win
 #include "edgblob.h"     // for extract_edges
 #include "errcode.h"     // for ASSERT_HOST, ...
+#include "image.h"       // for Image, Leptonica (pixDestroy, pixGetHeight, ...)
 #include "makerow.h"     // for textord_test_x, textord_test_y, texto...
 #include "ocrblock.h"    // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
 #include "ocrrow.h"      // for ROW, ROW_IT, ROW_LIST, tweak_row_base...
@@ -48,8 +48,6 @@
 #include "textord.h"     // for Textord, WordWithBox, WordGrid, WordS...
 #include "tprintf.h"     // for tprintf
 #include "werd.h"        // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
-
-#include <allheaders.h> // for pixDestroy, pixGetHeight, boxCreate
 
 #include <cfloat>  // for FLT_MAX
 #include <cmath>   // for ceil, floor, M_PI
@@ -84,17 +82,17 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
   for (int y = 0; y < height; ++y) {
     uint32_t *pixels = data + y * wpl;
     int prev_pixel = 0;
-    int pixel = GET_DATA_BYTE(pixels, 0);
+    int pixel = Image::getDataByte(pixels, 0);
     for (int x = 1; x < width; ++x) {
-      int next_pixel = GET_DATA_BYTE(pixels, x);
+      int next_pixel = Image::getDataByte(pixels, x);
       // We are looking for a pixel that is equal to its vertical neighbours,
       // yet greater than its left neighbour.
-      if (prev_pixel < pixel && (y == 0 || pixel == GET_DATA_BYTE(pixels - wpl, x - 1)) &&
-          (y == height - 1 || pixel == GET_DATA_BYTE(pixels + wpl, x - 1))) {
+      if (prev_pixel < pixel && (y == 0 || pixel == Image::getDataByte(pixels - wpl, x - 1)) &&
+          (y == height - 1 || pixel == Image::getDataByte(pixels + wpl, x - 1))) {
         if (pixel > next_pixel) {
           // Single local max, so an odd width.
           h_stats.add(pixel * 2 - 1, 1);
-        } else if (pixel == next_pixel && x + 1 < width && pixel > GET_DATA_BYTE(pixels, x + 1)) {
+        } else if (pixel == next_pixel && x + 1 < width && pixel > Image::getDataByte(pixels, x + 1)) {
           // Double local max, so an even width.
           h_stats.add(pixel * 2, 1);
         }
@@ -107,19 +105,19 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
   STATS v_stats(0, height);
   for (int x = 0; x < width; ++x) {
     int prev_pixel = 0;
-    int pixel = GET_DATA_BYTE(data, x);
+    int pixel = Image::getDataByte(data, x);
     for (int y = 1; y < height; ++y) {
       uint32_t *pixels = data + y * wpl;
-      int next_pixel = GET_DATA_BYTE(pixels, x);
+      int next_pixel = Image::getDataByte(pixels, x);
       // We are looking for a pixel that is equal to its horizontal neighbours,
       // yet greater than its upper neighbour.
-      if (prev_pixel < pixel && (x == 0 || pixel == GET_DATA_BYTE(pixels - wpl, x - 1)) &&
-          (x == width - 1 || pixel == GET_DATA_BYTE(pixels - wpl, x + 1))) {
+      if (prev_pixel < pixel && (x == 0 || pixel == Image::getDataByte(pixels - wpl, x - 1)) &&
+          (x == width - 1 || pixel == Image::getDataByte(pixels - wpl, x + 1))) {
         if (pixel > next_pixel) {
           // Single local max, so an odd width.
           v_stats.add(pixel * 2 - 1, 1);
         } else if (pixel == next_pixel && y + 1 < height &&
-                   pixel > GET_DATA_BYTE(pixels + wpl, x)) {
+                   pixel > Image::getDataByte(pixels + wpl, x)) {
           // Double local max, so an even width.
           v_stats.add(pixel * 2, 1);
         }

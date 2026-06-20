@@ -18,9 +18,9 @@
 
 #include "otsuthr.h"
 
-#include <allheaders.h>
 #include <cstring>
 #include "helpers.h"
+#include "image.h"
 
 namespace tesseract {
 
@@ -101,7 +101,7 @@ void HistogramRect(Image src_pix, int channel, int left, int top, int width, int
   for (int y = top; y < bottom; ++y) {
     const l_uint32 *linedata = srcdata + y * src_wpl;
     for (int x = 0; x < width; ++x) {
-      int pixel = GET_DATA_BYTE(linedata, (x + left) * num_channels + channel);
+      int pixel = Image::getDataByte(linedata, (x + left) * num_channels + channel);
       ++histogram[pixel];
     }
   }

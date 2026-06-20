@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <allheaders.h>
 #include <string> // for std::string
 
 #include "include_gunit.h"
@@ -17,6 +16,7 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/osdetect.h>
 #include "colfind.h"
+#include "image.h"            // for Image
 #include "log.h" // for LOG
 #include "mutableiterator.h"
 #include "pageres.h"

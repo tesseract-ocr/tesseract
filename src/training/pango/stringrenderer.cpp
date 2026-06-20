@@ -19,9 +19,9 @@
 
 #include "stringrenderer.h"
 
-#include <allheaders.h> // from leptonica
 #include "boxchar.h"
-#include "helpers.h" // for TRand
+#include "helpers.h"        // for TRand
+#include "image.h"          // for Image
 #include "ligature_table.h"
 #include "normstrngs.h"
 #include "tlog.h"

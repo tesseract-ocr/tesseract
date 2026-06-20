@@ -13,13 +13,9 @@
 #ifndef TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 #define TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 
-#include <allheaders.h>
+#include "image.h"    // for Image
 #include "ocrblock.h"
 #include "params.h"
-
-struct Pix;
-struct Box;
-struct Boxa;
 
 namespace tesseract {
 

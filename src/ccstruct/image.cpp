@@ -17,8 +17,6 @@
 
 #include "image.h"
 
-#include <allheaders.h>
-
 namespace tesseract {
 
 Image Image::clone() const {

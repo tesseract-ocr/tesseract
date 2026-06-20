@@ -17,7 +17,7 @@
 
 #include "input.h"
 
-#include <allheaders.h>
+#include "image.h"     // for Image
 #include "imagedata.h"
 #include "pageres.h"
 #include "scrollview.h"

@@ -22,11 +22,10 @@
 #include "trainingsample.h"
 
 #include "helpers.h"
+#include "image.h"           // for Image
 #include "intfeaturespace.h"
 #include "normfeat.h"
 #include "shapetable.h"
-
-#include <allheaders.h>
 
 #include <cmath> // for M_PI
 

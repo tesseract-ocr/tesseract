@@ -3,8 +3,6 @@
 
 #include "image.h"
 
-#include <allheaders.h>
-
 namespace tesseract {
 
 // Class to hold a Pixa collection of debug images with captions and save them
