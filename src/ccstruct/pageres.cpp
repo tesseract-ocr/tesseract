@@ -329,9 +329,9 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET &unicharset_in,
           : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
                             word_xheight, baseline_shift, numeric_mode,
-                            norm_mode_hint, norm_box, &denorm);
+                            norm_box, &denorm);
   blob_row = row;
-  SetupBasicsFromChoppedWord(unicharset_in);
+  SetupBasicsFromChoppedWord();
   SetupBlamerBundle();
   int num_blobs = chopped_word->NumBlobs();
   ratings = new MATRIX(num_blobs, kWordrecMaxNumJoinChunks);
@@ -342,7 +342,7 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET &unicharset_in,
 // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
 // accumulators from a made chopped word.  We presume the fields are already
 // empty.
-void WERD_RES::SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in) {
+void WERD_RES::SetupBasicsFromChoppedWord() {
   bln_boxes = tesseract::BoxWord::CopyFromNormalized(chopped_word);
   start_seam_list(chopped_word, &seam_array);
   SetupBlobWidthsAndGaps();

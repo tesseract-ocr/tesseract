@@ -1341,7 +1341,7 @@ TWERD *TWERD::PolygonalCopy(bool allow_detailed_fx, WERD *src) {
 // Baseline normalizes the blobs in-place, recording the normalization in the
 // DENORMs in the blobs.
 void TWERD::BLNormalize(const BLOCK *block, const ROW *row, Image pix, bool inverse, float x_height,
-                        float baseline_shift, bool numeric_mode, tesseract::OcrEngineMode hint,
+                        float baseline_shift, bool numeric_mode,
                         const TBOX *norm_box, DENORM *word_denorm) {
   TBOX word_box = bounding_box();
   if (norm_box != nullptr) {

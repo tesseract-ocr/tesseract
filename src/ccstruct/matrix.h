@@ -662,7 +662,7 @@ public:
   ~MATRIX() override;
 
   // Returns true if there are any real classification results.
-  bool Classified(int col, int row, int wildcard_id) const;
+  bool Classified(int col, int row) const;
 
   // Expands the existing matrix in-place to make the band wider, without
   // losing any existing data.

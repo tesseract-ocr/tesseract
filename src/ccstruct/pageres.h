@@ -478,7 +478,7 @@ public:
   // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
   // accumulators from a made chopped word.  We presume the fields are already
   // empty.
-  void SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in);
+  void SetupBasicsFromChoppedWord();
 
   // Sets up the members used in recognition for an empty recognition result:
   // bln_boxes, chopped_word, seam_array, denorm, best_choice, raw_choice.

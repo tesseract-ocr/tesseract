@@ -64,11 +64,10 @@ public:
     return LMPainPointsTypeName[type];
   }
 
-  LMPainPoints(int max, float rat, bool fp, const Dict *d, int deb)
+  LMPainPoints(int max, float rat, bool fp, int deb)
       : max_heap_size_(max)
       , max_char_wh_ratio_(rat)
       , fixed_pitch_(fp)
-      , dict_(d)
       , debug_level_(deb) {}
   ~LMPainPoints() = default;
 
@@ -122,8 +121,6 @@ private:
   float max_char_wh_ratio_;
   // Set to true if fixed pitch should be assumed.
   bool fixed_pitch_;
-  // Cached pointer to dictionary.
-  const Dict *dict_;
   // Debug level for print statements.
   int debug_level_;
 };

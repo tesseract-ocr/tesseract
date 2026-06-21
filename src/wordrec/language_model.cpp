@@ -248,7 +248,7 @@ static bool HasBetterCaseVariant(const UNICHARSET &unicharset, const BLOB_CHOICE
  */
 bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row,
                                 BLOB_CHOICE_LIST *curr_list, LanguageModelState *parent_node,
-                                LMPainPoints *pain_points, WERD_RES *word_res,
+                                WERD_RES *word_res,
                                 BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle) {
   if (language_model_debug_level > 0) {
     tprintf("\nUpdateState: col=%d row=%d %s", curr_col, curr_row,
@@ -337,7 +337,7 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
         blob_choice_flags |= kLowerCaseFlag;
       }
       new_changed |= AddViterbiStateEntry(blob_choice_flags, denom, word_end, curr_col, curr_row,
-                                          choice, curr_state, nullptr, pain_points, word_res,
+                                          choice, curr_state, nullptr, word_res,
                                           best_choice_bundle, blamer_bundle);
     } else {
       // Get viterbi entries from each parent ViterbiStateEntry.
@@ -367,7 +367,7 @@ bool LanguageModel::UpdateState(bool just_classified, int curr_col, int curr_row
         // Create a new ViterbiStateEntry if BLOB_CHOICE in c_it.data()
         // looks good according to the Dawgs or character ngram model.
         new_changed |= AddViterbiStateEntry(top_choice_flags, denom, word_end, curr_col, curr_row,
-                                            c_it.data(), curr_state, parent_vse, pain_points,
+                                            c_it.data(), curr_state, parent_vse,
                                             word_res, best_choice_bundle, blamer_bundle);
       }
     }
@@ -577,7 +577,7 @@ ViterbiStateEntry *LanguageModel::GetNextParentVSE(bool just_classified, bool mi
 bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags, float denom,
                                          bool word_end, int curr_col, int curr_row, BLOB_CHOICE *b,
                                          LanguageModelState *curr_state,
-                                         ViterbiStateEntry *parent_vse, LMPainPoints *pain_points,
+                                         ViterbiStateEntry *parent_vse,
                                          WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                                          BlamerBundle *blamer_bundle) {
   ViterbiStateEntry_IT vit;
@@ -603,7 +603,7 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
   }
 
   // Invoke Dawg language model component.
-  LanguageModelDawgInfo *dawg_info = GenerateDawgInfo(word_end, curr_col, curr_row, *b, parent_vse);
+  LanguageModelDawgInfo *dawg_info =   GenerateDawgInfo(word_end, curr_col, *b, parent_vse);
 
   float outline_length = AssociateUtils::ComputeOutlineLength(rating_cert_scale_, *b);
   // Invoke Ngram language model component.
@@ -611,7 +611,7 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
   if (language_model_ngram_on) {
     ngram_info =
         GenerateNgramInfo(dict_->getUnicharset().id_to_unichar(b->unichar_id()), b->certainty(),
-                          denom, curr_col, curr_row, outline_length, parent_vse);
+                          denom, outline_length, parent_vse);
     ASSERT_HOST(ngram_info != nullptr);
   }
   bool liked_by_language_model =
@@ -679,7 +679,7 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
   // Invoke Top Choice language model component to make the final adjustments
   // to new_vse->top_choice_flags.
   if (!curr_state->viterbi_state_entries.empty() && new_vse->top_choice_flags) {
-    GenerateTopChoiceInfo(new_vse, parent_vse, curr_state);
+    GenerateTopChoiceInfo(new_vse, curr_state);
   }
 
   // If language model components did not like this unichar - return.
@@ -713,7 +713,7 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
 
   // Update best choice if needed.
   if (word_end) {
-    UpdateBestChoice(new_vse, pain_points, word_res, best_choice_bundle, blamer_bundle);
+    UpdateBestChoice(new_vse, word_res, best_choice_bundle, blamer_bundle);
     // Discard the entry if UpdateBestChoice() found flaws in it.
     if (new_vse->cost >= WERD_CHOICE::kBadRating && new_vse != best_choice_bundle->best_vse) {
       if (language_model_debug_level > 1) {
@@ -774,7 +774,6 @@ bool LanguageModel::AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags
 }
 
 void LanguageModel::GenerateTopChoiceInfo(ViterbiStateEntry *new_vse,
-                                          const ViterbiStateEntry *parent_vse,
                                           LanguageModelState *lms) {
   ViterbiStateEntry_IT vit(&(lms->viterbi_state_entries));
   for (vit.mark_cycle_pt();
@@ -789,7 +788,7 @@ void LanguageModel::GenerateTopChoiceInfo(ViterbiStateEntry *new_vse,
   }
 }
 
-LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_col, int curr_row,
+LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_col,
                                                        const BLOB_CHOICE &b,
                                                        const ViterbiStateEntry *parent_vse) {
   // Initialize active_dawgs from parent_vse if it is not nullptr.
@@ -886,7 +885,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(bool word_end, int curr_c
 }
 
 LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(const char *unichar, float certainty,
-                                                         float denom, int curr_col, int curr_row,
+                                                         float denom,
                                                          float outline_length,
                                                          const ViterbiStateEntry *parent_vse) {
   // Initialize parent context.
@@ -1233,7 +1232,7 @@ float LanguageModel::ComputeAdjustedPathCost(ViterbiStateEntry *vse) {
   }
 }
 
-void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_points,
+void LanguageModel::UpdateBestChoice(ViterbiStateEntry *vse,
                                      WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                                      BlamerBundle *blamer_bundle) {
   bool truth_path;

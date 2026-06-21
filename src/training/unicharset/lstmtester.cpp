@@ -77,7 +77,7 @@ std::string LSTMTester::RunEvalAsync(int iteration, const double *training_error
 
 // Runs an evaluation synchronously on the stored data and returns a string
 // describing the results.
-std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors,
+std::string LSTMTester::RunEvalSync(int iteration,
                                     const TessdataManager &model_mgr, int training_stage,
                                     int verbosity) {
   LSTMTrainer trainer;
@@ -132,7 +132,7 @@ std::string LSTMTester::RunEvalSync(int iteration, const double *training_errors
 // it will call UnlockRunning to release the lock after RunEvalSync completes.
 void LSTMTester::ThreadFunc() {
   test_result_ =
-      RunEvalSync(test_iteration_, test_training_errors_, test_model_mgr_, test_training_stage_,
+      RunEvalSync(test_iteration_, test_model_mgr_, test_training_stage_,
                   /*verbosity*/ 0);
   UnlockRunning();
 }

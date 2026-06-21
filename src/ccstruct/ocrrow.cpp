@@ -164,9 +164,7 @@ void ROW::move(      // reposition row
  * Display members
  **********************************************************************/
 
-void ROW::print( // print
-    FILE *fp     // file to print on
-) const {
+void ROW::print() const {
   tprintf("Kerning= %d\n", kerning);
   tprintf("Spacing= %d\n", spacing);
   bound_box.print();

@@ -373,10 +373,9 @@ void StrokeWidth::GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOOR
   // Clear and re Insert to take advantage of the removed diacritics.
   Clear();
   InsertBlobs(block);
-  FCOORD skew;
   FindTextlineFlowDirection(pageseg_mode, true);
   PartitionFindResult r = FindInitialPartitions(pageseg_mode, rerotation, true, block,
-                                                diacritic_blobs, part_grid, big_parts, &skew);
+                                                diacritic_blobs, part_grid, big_parts);
   if (r == PFR_NOISE) {
     tprintf("Detected %d diacritics\n", diacritic_blobs->length());
     // Noise was found, and removed.
@@ -384,7 +383,7 @@ void StrokeWidth::GradeBlobsIntoPartitions(PageSegMode pageseg_mode, const FCOOR
     InsertBlobs(block);
     FindTextlineFlowDirection(pageseg_mode, true);
     r = FindInitialPartitions(pageseg_mode, rerotation, false, block, diacritic_blobs, part_grid,
-                              big_parts, &skew);
+                              big_parts);
   }
   nontext_map_ = nullptr;
   projection_ = nullptr;
@@ -1273,8 +1272,8 @@ void StrokeWidth::SmoothNeighbourTypes(PageSegMode pageseg_mode, bool reset_all,
 // called again after cleaning up the partly done work.
 PartitionFindResult StrokeWidth::FindInitialPartitions(
     PageSegMode pageseg_mode, const FCOORD &rerotation, bool find_problems, TO_BLOCK *block,
-    BLOBNBOX_LIST *diacritic_blobs, ColPartitionGrid *part_grid, ColPartition_LIST *big_parts,
-    FCOORD *skew_angle) {
+    BLOBNBOX_LIST *diacritic_blobs, ColPartitionGrid *part_grid,
+    ColPartition_LIST *big_parts) {
   if (!FindingHorizontalOnly(pageseg_mode)) {
     FindVerticalTextChains(part_grid);
   }
@@ -1288,13 +1287,9 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
     projection_->DisplayProjection();
   }
 #endif
-  if (find_problems) {
-    // TODO(rays) Do something to find skew, set skew_angle and return if there
-    // is some.
-  }
   part_grid->SplitOverlappingPartitions(big_parts);
   EasyMerges(part_grid);
-  RemoveLargeUnusedBlobs(block, part_grid, big_parts);
+  RemoveLargeUnusedBlobs(block, big_parts);
   TBOX grid_box(bleft(), tright());
   while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation)) {
     ;
@@ -1794,7 +1789,7 @@ void StrokeWidth::MergeDiacritics(TO_BLOCK *block, ColPartitionGrid *part_grid) 
 // Any blobs on the large_blobs list of block that are still unowned by a
 // ColPartition, are probably drop-cap or vertically touching so the blobs
 // are removed to the big_parts list and treated separately.
-void StrokeWidth::RemoveLargeUnusedBlobs(TO_BLOCK *block, ColPartitionGrid *part_grid,
+void StrokeWidth::RemoveLargeUnusedBlobs(TO_BLOCK *block,
                                          ColPartition_LIST *big_parts) {
   BLOBNBOX_IT large_it(&block->large_blobs);
   for (large_it.mark_cycle_pt(); !large_it.cycled_list(); large_it.forward()) {

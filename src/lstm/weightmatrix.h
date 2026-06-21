@@ -126,7 +126,7 @@ public:
   bool DeSerialize(bool training, TFile *fp);
   // As DeSerialize, but reads an old (float) format WeightMatrix for
   // backward compatibility.
-  bool DeSerializeOld(bool training, TFile *fp);
+  bool DeSerializeOld(bool /*training*/, TFile * /*fp*/);
 
   // Computes matrix.vector v = Wu.
   // u is of size W.dim2() - 1 and the output v is of size W.dim1().

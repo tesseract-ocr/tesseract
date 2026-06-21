@@ -705,7 +705,7 @@ char *TessBaseAPI::GetPAGEText(int page_number) {
 /// Make an XML-formatted string with PAGE markup from the internal
 /// data structures.
 ///
-char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int page_number) {
+char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
   if (tesseract_ == nullptr ||
       (page_res_ == nullptr && Recognize(monitor) < 0)) {
     return nullptr;

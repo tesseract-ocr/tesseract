@@ -1040,7 +1040,7 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
     TO_BLOCK *block = block_it.data();
     if (!block->get_rows()->empty()) {
       ASSERT_HOST(block->xheight > 0);
-      find_repeated_chars(block, false);
+      find_repeated_chars(block);
     }
   }
 

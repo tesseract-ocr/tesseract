@@ -104,15 +104,9 @@ public:
   }
 
   // tospace.cpp ///////////////////////////////////////////
-  void to_spacing(ICOORD page_tr,       // topright of page
-                  TO_BLOCK_LIST *blocks // blocks on page
-  );
-  ROW *make_prop_words(TO_ROW *row,    // row to make
-                       FCOORD rotation // for drawing
-  );
-  ROW *make_blob_words(TO_ROW *row,    // row to make
-                       FCOORD rotation // for drawing
-  );
+  void to_spacing(TO_BLOCK_LIST *blocks);
+  ROW *make_prop_words(TO_ROW *row);
+  ROW *make_blob_words(TO_ROW *row);
   // tordmain.cpp ///////////////////////////////////////////
   void find_components(Image pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
   void filter_blobs(ICOORD page_tr, TO_BLOCK_LIST *blocks, bool testing_on);
@@ -147,7 +141,6 @@ public:
 private:
   //// oldbasel.cpp ////////////////////////////////////////
   void make_old_baselines(TO_BLOCK *block, // block to do
-                          bool testing_on, // correct orientation
                           float gradient);
   void correlate_lines(TO_BLOCK *block, float gradient);
   void correlate_neighbours(TO_BLOCK *block, // block rows are in.

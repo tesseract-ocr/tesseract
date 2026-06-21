@@ -187,7 +187,7 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
   int height = pixGetHeight(tess->pix_binary());
 
   BLOCK_LIST blocks;
-  if (!read_unlv_file(name, width, height, &blocks)) {
+  if (!read_unlv_file(name, height, &blocks)) {
     FullPageBlock(width, height, &blocks);
   }
 
@@ -312,7 +312,8 @@ int os_detect_blobs(const std::vector<int> *allowed_scripts, BLOBNBOX_CLIST *blo
 // Processes a single blob to estimate script and orientation.
 // Return true if estimate of orientation and script satisfies stopping
 // criteria.
-bool os_detect_blob(BLOBNBOX *bbox, OrientationDetector *o, ScriptDetector *s, OSResults *osr,
+bool os_detect_blob(BLOBNBOX *bbox, OrientationDetector *o,
+                    ScriptDetector *s, OSResults */*osr*/,
                     tesseract::Tesseract *tess) {
   tess->tess_cn_matching.set_value(true); // turn it on
   tess->tess_bn_matching.set_value(false);

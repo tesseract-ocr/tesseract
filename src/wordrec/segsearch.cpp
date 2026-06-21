@@ -33,7 +33,7 @@ namespace tesseract {
 void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                         BlamerBundle *blamer_bundle) {
   LMPainPoints pain_points(segsearch_max_pain_points, segsearch_max_char_wh_ratio,
-                           assume_fixed_pitch_char_segment, &getDict(), segsearch_debug_level);
+                           assume_fixed_pitch_char_segment, segsearch_debug_level);
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
   float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
@@ -70,7 +70,7 @@ void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle
         word_res->ratings->IncreaseBandSize(pain_point.row - pain_point.col + 1);
       }
       if (pain_point.Valid(*word_res->ratings) &&
-          !word_res->ratings->Classified(pain_point.col, pain_point.row, getDict().WildcardID())) {
+          !word_res->ratings->Classified(pain_point.col, pain_point.row)) {
         found_nothing = false;
         break;
       }
@@ -186,7 +186,7 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
       LanguageModelState *parent_node = col == 0 ? nullptr : best_choice_bundle->beam[col - 1];
       if (current_node != nullptr &&
           language_model_->UpdateState((*pending)[col].IsRowJustClassified(row), col, row,
-                                       current_node, parent_node, pain_points, word_res,
+                                       current_node, parent_node, word_res,
                                        best_choice_bundle, blamer_bundle) &&
           row + 1 < ratings->dimension()) {
         // Since the language model state of this entry changed, process all
@@ -296,7 +296,7 @@ void Wordrec::ResetNGramSearch(WERD_RES *word_res, BestChoiceBundle *best_choice
 void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res, LMPainPoints *pain_points,
                                      BlamerBundle *blamer_bundle, std::string &blamer_debug) {
   pain_points->Clear(); // Clear pain points heap.
-  blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings, getDict().WildcardID(),
+  blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings,
                                   wordrec_debug_blamer, blamer_debug, pain_points,
                                   segsearch_max_char_wh_ratio, word_res);
 }

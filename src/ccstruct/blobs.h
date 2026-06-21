@@ -436,7 +436,7 @@ struct TWERD {
   // Baseline normalizes the blobs in-place, recording the normalization in the
   // DENORMs in the blobs.
   void BLNormalize(const BLOCK *block, const ROW *row, Image pix, bool inverse, float x_height,
-                   float baseline_shift, bool numeric_mode, tesseract::OcrEngineMode hint,
+                   float baseline_shift, bool numeric_mode,
                    const TBOX *norm_box, DENORM *word_denorm);
   // Copies the data and the blobs, but leaves next untouched.
   void CopyFrom(const TWERD &src);

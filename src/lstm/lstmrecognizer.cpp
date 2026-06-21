@@ -261,13 +261,12 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data,
   search_->excludedUnichars.clear();
   search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, &GetUnicharset(),
                   lstm_choice_mode);
-  search_->ExtractBestPathAsWords(line_box, scale_factor, debug, &GetUnicharset(), words,
-                                  lstm_choice_mode);
+  search_->ExtractBestPathAsWords(line_box, scale_factor, debug, &GetUnicharset(), words);
   if (lstm_choice_mode) {
     search_->extractSymbolChoices(&GetUnicharset());
     for (int i = 0; i < lstm_choice_amount; ++i) {
       search_->DecodeSecondaryBeams(outputs, kDictRatio, kCertOffset, worst_dict_cert,
-                                    &GetUnicharset(), lstm_choice_mode);
+                                    &GetUnicharset());
       search_->extractSymbolChoices(&GetUnicharset());
     }
     search_->segmentTimestepsByCharacters();
@@ -325,7 +324,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data,
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
-  Image pix = Input::PrepareLSTMInputs(image_data, network_, min_width, &randomizer_, scale_factor);
+  Image pix = Input::PrepareLSTMInputs(image_data, network_, min_width, scale_factor);
   if (pix == nullptr) {
     tprintf("Line cannot be recognized!!\n");
     return false;

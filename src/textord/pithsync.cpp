@@ -206,8 +206,7 @@ void FPCUTPT::assign_cheap( // constructor
     STATS *projection,      // vertical occupation
     float projection_scale, // scaling
     int16_t zero_count,     // official zero
-    int16_t pitch,          // proposed pitch
-    int16_t pitch_error     // allowed tolerance
+    int16_t pitch           // proposed pitch
 ) {
   int index;             // test index
   int16_t balance_count; // ding factor
@@ -610,8 +609,7 @@ double check_pitch_sync3(    // find segmentation
                                       projection, projection_scale, zero_count, pitch, pitch_error);
     } else {
       cutpts[x - array_origin].assign_cheap(&cutpts[0], array_origin, x, faking, mid_cut, offset,
-                                            projection, projection_scale, zero_count, pitch,
-                                            pitch_error);
+                                            projection, projection_scale, zero_count, pitch);
     }
     x++;
     if (next_zero < x || next_zero == x + zero_offset) {

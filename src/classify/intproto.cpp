@@ -506,7 +506,7 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
               target_unicharset.id_to_unichar(ClassId));
     }
     assert(UnusedClassIdIn(IntTemplates, ClassId));
-    IClass = new INT_CLASS_STRUCT(FClass->NumProtos, FClass->NumConfigs);
+    IClass = new INT_CLASS_STRUCT(FClass->NumProtos);
     unsigned fs_size = FClass->font_set.size();
     FontSet fs;
     fs.reserve(fs_size);
@@ -574,13 +574,12 @@ void DisplayIntProto(INT_CLASS_STRUCT *Class, PROTO_ID ProtoId, float Evidence) 
 /// to handle the specified number of protos and configs.
 /// @param MaxNumProtos  number of protos to allocate space for
 /// @param MaxNumConfigs number of configs to allocate space for
-INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos, int MaxNumConfigs) :
+INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos) :
   NumProtos(0),
   NumProtoSets((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) / PROTOS_PER_PROTO_SET),
   NumConfigs(0),
   ProtoLengths(MaxNumIntProtosIn(this))
 {
-  assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
   assert(NumProtoSets <= MAX_NUM_PROTO_SETS);
 
   for (int i = 0; i < NumProtoSets; i++) {
@@ -827,7 +826,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
   if (version_id < 2) {
     /* add an empty nullptr class with class id 0 */
     assert(UnusedClassIdIn(Templates, 0));
-    ClassForClassId(Templates, 0) = new INT_CLASS_STRUCT(1, 1);
+    ClassForClassId(Templates, 0) = new INT_CLASS_STRUCT(1);
     ClassForClassId(Templates, 0)->font_set_id = -1;
     Templates->NumClasses++;
     /* make sure the classes are contiguous */

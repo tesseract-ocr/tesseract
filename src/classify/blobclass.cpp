@@ -83,7 +83,7 @@ void Classify::LearnBlob(const std::string &fontname, TBLOB *blob, const DENORM 
   CharDesc->FeatureSets[2] = ExtractIntCNFeatures(*blob, fx_info);
   CharDesc->FeatureSets[3] = ExtractIntGeoFeatures(*blob, fx_info);
 
-  if (ValidCharDescription(feature_defs_, CharDesc.get())) {
+  if (ValidCharDescription(CharDesc.get())) {
     // Label the features with a class name and font name.
     tr_file_data_ += "\n";
     tr_file_data_ += fontname;

@@ -112,7 +112,7 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
     if (lastdot != std::string::npos) {
       name.resize(lastdot);
     }
-    read_unlv_file(name, width, height, blocks);
+    read_unlv_file(name, height, blocks);
   }
   if (blocks->empty()) {
     // No UNLV file present. Work according to the PageSegMode.
@@ -223,7 +223,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
       finder->SetEquationDetect(equ_detect_);
     }
 #endif // ndef DISABLED_LEGACY_ENGINE
-    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_, to_block,
+    result = finder->FindBlocks(pageseg_mode, to_block,
                                 photomask_pix, pix_thresholds_, pix_grey_, &pixa_debug_,
                                 &found_blocks, diacritic_blobs, to_blocks);
     if (result >= 0) {
@@ -278,7 +278,6 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
   int vertical_y = 1;
   TabVector_LIST v_lines;
   TabVector_LIST h_lines;
-  ICOORD bleft(0, 0);
 
   ASSERT_HOST(pix_binary_ != nullptr);
   if (tessedit_dump_pageseg_images) {

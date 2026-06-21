@@ -73,8 +73,7 @@ void Tesseract::read_config_file(const char *filename, SetParamConstraint constr
 // from the language-specific config file (stored in [lang].traineddata), from
 // the config files specified on the command line or left as the default
 // OEM_TESSERACT_ONLY if none of the configs specify this variable.
-bool Tesseract::init_tesseract_lang_data(const std::string &arg0,
-                                         const std::string &language, OcrEngineMode oem,
+bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineMode oem,
                                          char **configs, int configs_size,
                                          const std::vector<std::string> *vars_vec,
                                          const std::vector<std::string> *vars_values,
@@ -284,7 +283,11 @@ void Tesseract::ParseLanguageString(const std::string &lang_str, std::vector<std
 // Initialize for potentially a set of languages defined by the language
 // string and recursively any additional languages required by any language
 // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
-// See init_tesseract_internal for args.
+// arg0 is the datapath for the tessdata directory, which could be the
+// path of the tessdata directory with no trailing /, or (if tessdata
+// lives in the same directory as the executable, the path of the executable,
+// hence the name arg0.
+// See init_tesseract_internal for remaining args.
 int Tesseract::init_tesseract(const std::string &arg0, const std::string &textbase,
                               const std::string &language, OcrEngineMode oem, char **configs,
                               int configs_size, const std::vector<std::string> *vars_vec,
@@ -320,7 +323,7 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
         tess_to_init->main_setup(arg0, textbase);
       }
 
-      int result = tess_to_init->init_tesseract_internal(arg0, textbase, lang_str, oem, configs,
+      int result = tess_to_init->init_tesseract_internal(textbase, lang_str, oem, configs,
                                                          configs_size, vars_vec, vars_values,
                                                          set_only_non_debug_params, mgr);
       // Forget that language, but keep any reader we were given.
@@ -377,10 +380,6 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
 }
 
 // Common initialization for a single language.
-// arg0 is the datapath for the tessdata directory, which could be the
-// path of the tessdata directory with no trailing /, or (if tessdata
-// lives in the same directory as the executable, the path of the executable,
-// hence the name arg0.
 // textbase is an optional output file basename (used only for training)
 // language is the language code to load.
 // oem controls which engine(s) will operate on the image
@@ -392,13 +391,13 @@ int Tesseract::init_tesseract(const std::string &arg0, const std::string &textba
 // in vars_vec.
 // If set_only_non_debug_params is true, only params that do not contain
 // "debug" in the name will be set.
-int Tesseract::init_tesseract_internal(const std::string &arg0, const std::string &textbase,
+int Tesseract::init_tesseract_internal(const std::string &textbase,
                                        const std::string &language, OcrEngineMode oem,
                                        char **configs, int configs_size,
                                        const std::vector<std::string> *vars_vec,
                                        const std::vector<std::string> *vars_values,
                                        bool set_only_non_debug_params, TessdataManager *mgr) {
-  if (!init_tesseract_lang_data(arg0, language, oem, configs, configs_size, vars_vec,
+  if (!init_tesseract_lang_data(language, oem, configs, configs_size, vars_vec,
                                 vars_values, set_only_non_debug_params, mgr)) {
     return -1;
   }

@@ -75,7 +75,6 @@ static int sort_floats(const void *arg1, const void *arg2) {
 void compute_fixed_pitch(ICOORD page_tr,             // top right
                          TO_BLOCK_LIST *port_blocks, // input list
                          float gradient,             // page skew
-                         FCOORD rotation,            // for drawing
                          bool testing_on) {          // correct orientation
   TO_BLOCK_IT block_it;                              // iterator
   TO_BLOCK *block;                                   // current block;
@@ -95,17 +94,15 @@ void compute_fixed_pitch(ICOORD page_tr,             // top right
   block_index = 1;
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     block = block_it.data();
-    compute_block_pitch(block, rotation, block_index, testing_on);
+    compute_block_pitch(block, block_index, testing_on);
     block_index++;
   }
 
-  if (!try_doc_fixed(page_tr, port_blocks, gradient)) {
+  if (!try_doc_fixed(port_blocks, gradient)) {
     block_index = 1;
     for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
       block = block_it.data();
-      if (!try_block_fixed(block, block_index)) {
-        try_rows_fixed(block, block_index, testing_on);
-      }
+      try_rows_fixed(block, block_index, testing_on);
       block_index++;
     }
   }
@@ -122,7 +119,7 @@ void compute_fixed_pitch(ICOORD page_tr,             // top right
     row_index = 1;
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       row = row_it.data();
-      fix_row_pitch(row, block, port_blocks, row_index, block_index);
+      fix_row_pitch(row, port_blocks, row_index, block_index);
       row_index++;
     }
     block_index++;
@@ -142,7 +139,6 @@ void compute_fixed_pitch(ICOORD page_tr,             // top right
  **********************************************************************/
 
 void fix_row_pitch(TO_ROW *bad_row,        // row to fix
-                   TO_BLOCK *bad_block,    // block of bad_row
                    TO_BLOCK_LIST *blocks,  // blocks to scan
                    int32_t row_target,     // number of row
                    int32_t block_target) { // number of block
@@ -288,7 +284,6 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
  **********************************************************************/
 
 void compute_block_pitch(TO_BLOCK *block,     // input list
-                         FCOORD rotation,     // for drawing
                          int32_t block_index, // block number
                          bool testing_on) {   // correct orientation
   TBOX block_box;                             // bounding box
@@ -307,7 +302,7 @@ void compute_block_pitch(TO_BLOCK *block,     // input list
   block->pr_space = block->pr_nonsp * textord_spacesize_ratioprop;
   if (!block->get_rows()->empty()) {
     ASSERT_HOST(block->xheight > 0);
-    find_repeated_chars(block, textord_show_initial_words && testing_on);
+    find_repeated_chars(block);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on) {
       // overlap_picture_ops(true);
@@ -366,7 +361,6 @@ bool compute_rows_pitch( // find line stats
  **********************************************************************/
 
 bool try_doc_fixed(             // determine pitch
-    ICOORD page_tr,             // top right
     TO_BLOCK_LIST *port_blocks, // input list
     float gradient              // page skew
 ) {
@@ -487,19 +481,6 @@ bool try_doc_fixed(             // determine pitch
   }
 #endif
   row->char_cells.clear();
-  return false;
-}
-
-/**********************************************************************
- * try_block_fixed
- *
- * Try to call the entire block fixed.
- **********************************************************************/
-
-bool try_block_fixed(   // find line stats
-    TO_BLOCK *block,    // block to do
-    int32_t block_index // block number
-) {
   return false;
 }
 
@@ -1651,8 +1632,7 @@ void print_pitch_sd(         // find fp cells
  * Extract marked leader blobs and put them
  * into words in advance of fixed pitch checking and word generation.
  **********************************************************************/
-void find_repeated_chars(TO_BLOCK *block,   // Block to search.
-                         bool testing_on) { // Debug mode.
+void find_repeated_chars(TO_BLOCK *block) { // Block to search.
   POLY_BLOCK *pb = block->block->pdblk.poly_block();
   if (pb != nullptr && !pb->IsText()) {
     return; // Don't find repeated chars in non-text blocks.

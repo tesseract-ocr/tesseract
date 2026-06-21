@@ -1036,7 +1036,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
  */
 void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                               INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes,
+                               INT_TEMPLATES_STRUCT *templates,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
   if (int_features.empty()) {
     return;
@@ -1499,7 +1499,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
         Results->match.empty()) {
       CharNormClassifier(Blob, *sample, Results);
     } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
-      AmbigClassifier(bl_features, fx_info, Blob, PreTrainedTemplates, AdaptedTemplates->Class,
+      AmbigClassifier(bl_features, fx_info, Blob, PreTrainedTemplates,
                       Ambiguities, Results);
     }
   }

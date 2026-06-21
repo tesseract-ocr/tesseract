@@ -77,7 +77,6 @@ static double_VAR(textord_oldbl_jumplimit, 0.15, "X fraction for new partition")
  **********************************************************************/
 
 void Textord::make_old_baselines(TO_BLOCK *block, // block to do
-                                 bool testing_on, // correct orientation
                                  float gradient) {
   QSPLINE *prev_baseline; // baseline of previous row
   TO_ROW *row;            // current row
@@ -378,7 +377,7 @@ void Textord::find_textlines(TO_BLOCK *block,   // block row is in
                               &row->baseline, jumplimit, &ydiffs[0]);
     pointcount = partition_coords(&blobcoords[0], blobcount, &partids[0], bestpart, &xcoords[0],
                                   &ycoords[0]);
-    segments = segment_spline(&blobcoords[0], blobcount, &xcoords[0], &ycoords[0], degree,
+    segments = segment_spline(&xcoords[0], &ycoords[0], degree,
                               pointcount, xstarts);
     if (!holed_line) {
       do {
@@ -400,7 +399,7 @@ void Textord::find_textlines(TO_BLOCK *block,   // block row is in
     old_first_xheight(row, &blobcoords[0], lineheight, blobcount, &row->baseline, jumplimit);
   } else if (textord_old_xheight) {
     make_first_xheight(row, &blobcoords[0], lineheight, static_cast<int>(block->line_size),
-                       blobcount, &row->baseline, jumplimit);
+                       blobcount, &row->baseline);
   } else {
     compute_row_xheight(row, block->block->classify_rotation(), row->line_m(), block->line_size);
   }
@@ -1004,8 +1003,6 @@ int partition_coords(  // find relevant coords
  **********************************************************************/
 
 int segment_spline(             // make xstarts
-    TBOX blobcoords[],          // boundign boxes
-    int blobcount,              /*no of blobs in row */
     int xcoords[],              /*points to work on */
     int ycoords[],              /*points to work on */
     int degree, int pointcount, /*no of points */
@@ -1424,8 +1421,7 @@ void make_first_xheight( // find xheight
     int lineheight,      // initial guess
     int init_lineheight, // block level guess
     int blobcount,       /*blobs in blobcoords */
-    QSPLINE *baseline,   /*established */
-    float jumplimit      /*min ascender height */
+    QSPLINE *baseline    // established
 ) {
   STATS heightstat(0, HEIGHTBUCKETS - 1);
   int lefts[HEIGHTBUCKETS];

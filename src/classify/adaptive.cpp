@@ -45,7 +45,7 @@ void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Clas
   assert(UnusedClassIdIn(Templates->Templates, ClassId));
   assert(Class->NumPermConfigs == 0);
 
-  auto IntClass = new INT_CLASS_STRUCT(1, 1);
+  auto IntClass = new INT_CLASS_STRUCT(1);
   AddIntClass(Templates->Templates, ClassId, IntClass);
 
   assert(Templates->Class[ClassId] == nullptr);

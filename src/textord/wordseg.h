@@ -33,30 +33,25 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST *real_rows);
 void make_words(tesseract::Textord *textord,
                 ICOORD page_tr,              // top right
                 float gradient,              // page skew
-                BLOCK_LIST *blocks,          // block list
                 TO_BLOCK_LIST *port_blocks); // output list
 void set_row_spaces(                         // find space sizes
     TO_BLOCK *block,                         // block to do
-    FCOORD rotation,                         // for drawing
     bool testing_on                          // correct orientation
 );
 int32_t row_words(    // compute space size
     TO_BLOCK *block,  // block it came from
     TO_ROW *row,      // row to operate on
     int32_t maxwidth, // max expected space size
-    FCOORD rotation,  // for drawing
     bool testing_on   // for debug
 );
 int32_t row_words2(   // compute space size
     TO_BLOCK *block,  // block it came from
     TO_ROW *row,      // row to operate on
     int32_t maxwidth, // max expected space size
-    FCOORD rotation,  // for drawing
     bool testing_on   // for debug
 );
 void make_real_words(tesseract::Textord *textord,
-                     TO_BLOCK *block, // block to do
-                     FCOORD rotation  // for drawing
+                     TO_BLOCK *block // block to do
 );
 ROW *make_rep_words( // make a row
     TO_ROW *row,     // row to convert

@@ -224,7 +224,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int wi
     *gradient = make_rows(page_tr_, to_blocks);
   } else if (!PSM_SPARSE(pageseg_mode)) {
     // RAW_LINE, SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
-    *gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE, to_block, to_blocks);
+    *gradient = make_single_row(pageseg_mode != PSM_RAW_LINE, to_block, to_blocks);
   } else {
     *gradient = 0.0f;
   }
@@ -235,7 +235,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int wi
   // Now make the words in the lines.
   if (PSM_WORD_FIND_ENABLED(pageseg_mode)) {
     // SINGLE_LINE uses the old word maker on the single line.
-    make_words(this, page_tr_, *gradient, blocks, to_blocks);
+    make_words(this, page_tr_, *gradient, to_blocks);
   } else {
     // SINGLE_WORD and SINGLE_CHAR cram all the blobs into a
     // single word, and in SINGLE_CHAR mode, all the outlines

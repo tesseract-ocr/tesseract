@@ -106,7 +106,7 @@ void KDStore(KDTREE *Tree, float *Key, CLUSTER *Data);
 
 void KDDelete(KDTREE *Tree, float Key[], void *Data);
 
-void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
+void KDNearestNeighborSearch(KDTREE *Tree, float Query[], int QuerySize,
                              int *NumberOfResults, void **NBuffer, float DBuffer[]);
 
 void KDWalk(KDTREE *Tree, kdwalk_proc Action, ClusteringContext *context);

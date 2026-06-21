@@ -93,7 +93,7 @@ public:
   /**
    * Find the gutter width and distance to inner neighbour for the given blob.
    */
-  void GutterWidthAndNeighbourGap(int tab_x, int mean_height, int max_gutter, bool left,
+  void GutterWidthAndNeighbourGap(int tab_x, int max_gutter, bool left,
                                   BLOBNBOX *bbox, int *gutter_width, int *neighbour_gap);
 
   /**
@@ -217,7 +217,7 @@ protected:
   // for working on the rotated image.
   // The min_gutter_width will be adjusted to the median gutter width between
   // vertical tabs to set a better threshold for tabboxes in the 2nd pass.
-  void ResetForVerticalText(const FCOORD &rotate, const FCOORD &rerotate,
+  void ResetForVerticalText(const FCOORD &rotate,
                             TabVector_LIST *horizontal_lines, int *min_gutter_width);
 
   // Clear the grid and get rid of the tab vectors, but not separators,

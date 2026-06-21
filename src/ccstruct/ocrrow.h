@@ -126,8 +126,7 @@ public:
   void move(             // reposition row
       const ICOORD vec); // by vector
 
-  void print(    // print
-      FILE *fp) const; // file to print on
+  void print() const; // print
 
 #ifndef GRAPHICS_DISABLED
   void plot(                     // draw one
