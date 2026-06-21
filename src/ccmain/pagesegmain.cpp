@@ -84,7 +84,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
       min_count = count;
       pixout.destroy();
       pixout = pixt.copy(); // Save the best.
-    } else if (count >= min_count) {
+    } else {
       break; // We have passed by the best.
     }
   }

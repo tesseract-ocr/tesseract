@@ -793,7 +793,7 @@ bool LSTMTrainer::EncodeString(const std::string &str,
                                const UNICHARSET &unicharset,
                                const UnicharCompress *recoder, bool simple_text,
                                int null_char, std::vector<int> *labels) {
-  if (str.c_str() == nullptr || str.length() <= 0) {
+  if (str.empty()) {
     tprintf("Empty truth string!\n");
     return false;
   }
@@ -1134,7 +1134,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs,
                                     const std::vector<int> &truth_labels,
                                     const NetworkIO &outputs) {
   const std::string &truth_text = DecodeLabels(truth_labels);
-  if (truth_text.c_str() == nullptr || truth_text.length() <= 0) {
+  if (truth_text.empty()) {
     tprintf("Empty truth string at decode time!\n");
     return false;
   }

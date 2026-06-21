@@ -244,8 +244,8 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
       pr_it->forward();
     }
     ASSERT_HOST(pr_it->word() != nullptr);
-    bool make_next_word_fuzzy = false;
 #ifndef DISABLED_LEGACY_ENGINE
+    bool make_next_word_fuzzy = false;
     if (!AnyLSTMLang() && ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
       // Needs to be setup again to see the new outlines in the chopped_word.
       SetupWordPassN(pass_n, word);
@@ -258,9 +258,11 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
               word->word->best_choice->debug_string().c_str());
     }
     pr_it->forward();
+#ifndef DISABLED_LEGACY_ENGINE
     if (make_next_word_fuzzy && pr_it->word() != nullptr) {
       pr_it->MakeCurrentWordFuzzy();
     }
+#endif // ndef DISABLED_LEGACY_ENGINE
   }
   return true;
 }

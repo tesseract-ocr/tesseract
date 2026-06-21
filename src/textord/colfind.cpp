@@ -437,7 +437,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
         if (!textord_debug_printable) {
           DisplayTabVectors(window);
         }
-        if (window != nullptr && textord_tabfind_show_partitions > 1) {
+        if (textord_tabfind_show_partitions > 1) {
           window->AwaitEvent(SVET_DESTROY);
         }
       }
