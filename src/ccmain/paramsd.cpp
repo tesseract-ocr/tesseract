@@ -35,6 +35,7 @@
 #  include <cstdio>  // for fclose, fopen, fprintf, FILE
 #  include <cstdlib> // for atoi
 #  include <cstring> // for strcmp, strcspn, strlen, strncpy
+#  include <filesystem> // for std::filesystem
 #  include <locale>  // for std::locale::classic
 #  include <map>     // for map, _Rb_tree_iterator, map<>::iterator
 #  include <memory>  // for unique_ptr
@@ -315,10 +316,7 @@ ParamsEditor::ParamsEditor(tesseract::Tesseract *tess, ScrollView *sv) {
 
 // Write all (changed_) parameters to a config file.
 void ParamsEditor::WriteParams(const std::string &filename, bool changes_only) {
-  FILE *fp; // input file
-  // if file exists
-  if ((fp = fopen(filename.c_str(), "rb")) != nullptr) {
-    fclose(fp);
+  if (std::filesystem::exists(filename)) {
     std::stringstream msg;
     msg << "Overwrite file " << filename << "? (Y/N)";
     int a = sv_window_->ShowYesNoDialog(msg.str().c_str());
@@ -327,7 +325,7 @@ void ParamsEditor::WriteParams(const std::string &filename, bool changes_only) {
     } // don't write
   }
 
-  fp = fopen(filename.c_str(), "wb"); // can we write to it?
+  FILE *fp = fopen(filename.c_str(), "wb"); // can we write to it?
   if (fp == nullptr) {
     sv_window_->AddMessageF("Can't write to file %s", filename.c_str());
     return;
