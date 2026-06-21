@@ -2658,7 +2658,6 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
   double LastProbDensity;
   double ProbDensity;
   uint16_t CurrentBucket;
-  bool Symmetrical;
 
   // allocate memory needed for data structure
   auto Buckets = new BUCKETS(OptimumNumberOfBuckets(SampleCount));
@@ -2668,11 +2667,11 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
   // initialize simple fields
   Buckets->Distribution = Distribution;
 
-  // all currently defined distributions are symmetrical
-  Symmetrical = true;
   Buckets->ChiSquared =
       ComputeChiSquared(DegreesOfFreedom(Distribution, Buckets->NumberOfBuckets), Confidence);
 
+  // all currently defined distributions are symmetrical
+  constexpr bool Symmetrical = true;
   if (Symmetrical) {
     // allocate buckets so that all have approx. equal probability
     BucketProbability = 1.0 / static_cast<double>(Buckets->NumberOfBuckets);
