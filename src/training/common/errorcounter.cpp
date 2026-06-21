@@ -138,8 +138,8 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
       // old classifier was correct, check the new one.
       new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
                                             &results);
-      if (correct_id != 0 && new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
-                                                          results, mutable_sample)) {
+      if (new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
+                                       results, mutable_sample)) {
         tprintf("New Error on sample %d: Classifier debug output:\n", it->GlobalSampleIndex());
         ++total_new_errors;
         new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1, correct_id, &results);

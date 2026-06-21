@@ -2333,9 +2333,7 @@ void ColPartition::SmoothSpacings(int resolution, int page_height,
     if (neighbourhood[PN_LOWER] == nullptr ||
         (!neighbourhood[PN_UPPER]->SpacingsEqual(*neighbourhood[PN_LOWER],
                                                  resolution) &&
-         (neighbourhood[PN_UPPER] == nullptr ||
-          neighbourhood[PN_LOWER] == nullptr ||
-          !OKSpacingBlip(resolution, median_space, neighbourhood, 0)) &&
+         !OKSpacingBlip(resolution, median_space, neighbourhood, 0) &&
          (neighbourhood[PN_UPPER - 1] == nullptr ||
           neighbourhood[PN_LOWER - 1] == nullptr ||
           !OKSpacingBlip(resolution, median_space, neighbourhood, -1) ||
