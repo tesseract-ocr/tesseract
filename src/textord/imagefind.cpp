@@ -1134,7 +1134,7 @@ static void DeleteSmallImages(ColPartitionGrid *part_grid) {
 // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
 // situation and collect the image blobs.
 void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
-                                    const FCOORD &rerotation, TO_BLOCK *block, TabFind *tab_grid,
+                                    const FCOORD &rerotation,
                                     DebugPixa *pixa_debug, ColPartitionGrid *part_grid,
                                     ColPartition_LIST *big_parts) {
   int imageheight = pixGetHeight(image_pix);

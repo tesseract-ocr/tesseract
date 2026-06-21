@@ -250,7 +250,7 @@ private:
   // Any blobs on the large_blobs list of block that are still unowned by a
   // ColPartition, are probably drop-cap or vertically touching so the blobs
   // are removed to the big_parts list and treated separately.
-  void RemoveLargeUnusedBlobs(TO_BLOCK *block, ColPartitionGrid *part_grid,
+  void RemoveLargeUnusedBlobs(TO_BLOCK *block,
                               ColPartition_LIST *big_parts);
 
   // All remaining unused blobs are put in individual ColPartitions.

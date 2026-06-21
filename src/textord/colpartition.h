@@ -665,9 +665,7 @@ public:
 
   // Constructs a block from the given list of vertical text partitions.
   // Currently only creates rectangular blocks.
-  static TO_BLOCK *MakeVerticalTextBlock(const ICOORD &bleft,
-                                         const ICOORD &tright,
-                                         ColPartition_LIST *block_parts,
+  static TO_BLOCK *MakeVerticalTextBlock(ColPartition_LIST *block_parts,
                                          ColPartition_LIST *used_parts);
 
   // Makes a TO_ROW matching this and moves all the blobs to it, transferring

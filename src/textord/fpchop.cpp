@@ -63,8 +63,7 @@ static void join_segments(C_OUTLINE_FRAG *bottom, C_OUTLINE_FRAG *top);
  * Make a ROW from a fixed pitch TO_ROW.
  **********************************************************************/
 ROW *fixed_pitch_words( // find lines
-    TO_ROW *row,        // row to do
-    FCOORD rotation     // for drawing
+    TO_ROW *row         // row to do
 ) {
   bool bol;                // start of line
   uint8_t blanks;          // in front of word

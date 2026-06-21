@@ -188,8 +188,7 @@ void TableFinder::Init(int grid_size, const ICOORD &bottom_left,
 
 // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
 // insert leaders and rulers into the leader_and_ruling_grid_
-void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid,
-                                        TO_BLOCK *block) {
+void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid) {
   // Calculate stats. This lets us filter partitions in AllowTextPartition()
   // and filter blobs in AllowBlob().
   SetGlobalSpacings(grid);
@@ -258,7 +257,7 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid *grid,
 // High level function to perform table detection
 void TableFinder::LocateTables(ColPartitionGrid *grid,
                                ColPartitionSet **all_columns,
-                               WidthCallback width_cb, const FCOORD &reskew) {
+                               WidthCallback width_cb) {
   // initialize spacing, neighbors, and columns
   InitializePartitions(all_columns);
 

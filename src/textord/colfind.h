@@ -169,7 +169,7 @@ private:
   void DisplayBlocks(BLOCK_LIST *blocks);
   // Displays the column edges at each grid y coordinate defined by
   // best_columns_.
-  void DisplayColumnBounds(PartSetVector *sets);
+  void DisplayColumnBounds();
 
   ////// Functions involved in determining the columns used on the page. /////
 

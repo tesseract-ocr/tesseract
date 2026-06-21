@@ -98,7 +98,7 @@ public:
   // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
   // situation and collect the image blobs.
   static void FindImagePartitions(Image image_pix, const FCOORD &rotation, const FCOORD &rerotation,
-                                  TO_BLOCK *block, TabFind *tab_grid, DebugPixa *pixa_debug,
+                                  DebugPixa *pixa_debug,
                                   ColPartitionGrid *part_grid, ColPartition_LIST *big_parts);
 };
 

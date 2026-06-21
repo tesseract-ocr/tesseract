@@ -383,7 +383,6 @@ static void fill_buckets(C_OUTLINE_LIST *outlines, // outlines in block
  */
 
 static bool capture_children(OL_BUCKETS *buckets,  // bucket sort class
-                             C_BLOB_IT *reject_it, // dead grandchildren
                              C_OUTLINE_IT *blob_it // output outlines
 ) {
   // master outline
@@ -440,7 +439,7 @@ static void empty_buckets(BLOCK *block,       // block to scan
     // move to new list
     out_it.add_after_then_move(parent_it.extract());
     // healthy blob
-    bool good_blob = capture_children(buckets, &junk_blobs, &out_it);
+    bool good_blob = capture_children(buckets, &out_it);
     C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs,
                                        &junk_blobs);
 

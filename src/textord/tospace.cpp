@@ -42,9 +42,7 @@
 #define MAXSPACING 128 /*max expected spacing in pix */
 
 namespace tesseract {
-void Textord::to_spacing(ICOORD page_tr,       // topright of page
-                         TO_BLOCK_LIST *blocks // blocks on page
-) {
+void Textord::to_spacing(TO_BLOCK_LIST *blocks) {
   TO_BLOCK_IT block_it; // iterator
   TO_BLOCK *block;      // current block;
   TO_ROW *row;          // current row
@@ -840,9 +838,7 @@ threshold is not within it, move the threshold so that is just inside it.
  *
  * Convert a TO_ROW to a ROW.
  **********************************************************************/
-ROW *Textord::make_prop_words(TO_ROW *row,    // row to make
-                              FCOORD rotation // for drawing
-) {
+ROW *Textord::make_prop_words(TO_ROW *row) {
   bool bol; // start of line
   /* prev_ values are for start of word being built. non prev_ values are for
 the gap between the word being built and the next one. */
@@ -1114,9 +1110,7 @@ the gap between the word being built and the next one. */
  * Converts words into blobs so that each blob is a single character.
  *  Used for chopper test.
  **********************************************************************/
-ROW *Textord::make_blob_words(TO_ROW *row,    // row to make
-                              FCOORD rotation // for drawing
-) {
+ROW *Textord::make_blob_words(TO_ROW *row) {
   bool bol;      // start of line
   ROW *real_row; // output row
   C_OUTLINE_IT cout_it;

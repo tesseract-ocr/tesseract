@@ -182,7 +182,7 @@ static float MakeRowFromSubBlobs(TO_BLOCK *block, C_BLOB *blob, TO_ROW_IT *row_i
  * only a single blob, it makes 2 rows, in case the top-level blob
  * is a container of the real blobs to recognize.
  */
-float make_single_row(ICOORD page_tr, bool allow_sub_blobs, TO_BLOCK *block,
+float make_single_row(bool allow_sub_blobs, TO_BLOCK *block,
                       TO_BLOCK_LIST *blocks) {
   BLOBNBOX_IT blob_it = &block->blobs;
   TO_ROW_IT row_it = block->get_rows();
@@ -2022,7 +2022,7 @@ void Textord::make_spline_rows(TO_BLOCK *block, // block to do
       }
     }
 #endif
-    make_old_baselines(block, testing_on, gradient);
+    make_old_baselines(block, gradient);
   }
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
@@ -2054,7 +2054,7 @@ void make_baseline_spline(TO_ROW *row, // row to fit
   auto *xstarts = new int32_t[row->blob_list()->length() + 1];
   if (segment_baseline(row, block, segments, xstarts) && !textord_straight_baselines &&
       !textord_parallel_baselines) {
-    coeffs = linear_spline_baseline(row, block, segments, xstarts);
+    coeffs = linear_spline_baseline(row, segments, xstarts);
   } else {
     xstarts[1] = xstarts[segments];
     segments = 1;
@@ -2174,7 +2174,6 @@ bool segment_baseline( // split baseline
  */
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
-    TO_BLOCK *block,            // block it came from
     int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 ) {

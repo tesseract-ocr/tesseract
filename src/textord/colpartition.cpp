@@ -1708,7 +1708,7 @@ TO_BLOCK *ColPartition::MakeBlock(const ICOORD &bleft, const ICOORD &tright,
   ColPartition *part = it.data();
   PolyBlockType type = part->type();
   if (type == PT_VERTICAL_TEXT) {
-    return MakeVerticalTextBlock(bleft, tright, block_parts, used_parts);
+    return MakeVerticalTextBlock(block_parts, used_parts);
   }
   // LineSpacingBlocks has handed us a collection of evenly spaced lines and
   // put the average spacing in each partition, so we can just take the
@@ -1754,9 +1754,7 @@ TO_BLOCK *ColPartition::MakeBlock(const ICOORD &bleft, const ICOORD &tright,
 
 // Constructs a block from the given list of vertical text partitions.
 // Currently only creates rectangular blocks.
-TO_BLOCK *ColPartition::MakeVerticalTextBlock(const ICOORD &bleft,
-                                              const ICOORD &tright,
-                                              ColPartition_LIST *block_parts,
+TO_BLOCK *ColPartition::MakeVerticalTextBlock(ColPartition_LIST *block_parts,
                                               ColPartition_LIST *used_parts) {
   if (block_parts->empty()) {
     return nullptr; // Nothing to do.

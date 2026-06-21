@@ -240,7 +240,7 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK *block, bool vertical_text_lines,
     RotateBlobList(rotation_, &block->blobs);
     RotateBlobList(rotation_, &block->small_blobs);
     RotateBlobList(rotation_, &block->noise_blobs);
-    TabFind::ResetForVerticalText(rotation_, rerotate_, &horizontal_lines_, &min_gutter_width_);
+    TabFind::ResetForVerticalText(rotation_, &horizontal_lines_, &min_gutter_width_);
     part_grid_.Init(gridsize(), bleft(), tright());
     // Reset all blobs to initial state and filter by size.
     // Since they have rotated, the list they belong on could have changed.
@@ -294,10 +294,10 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
                                           denorm_, cjk_script_, &projection_, diacritic_blobs,
                                           &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
-    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_, input_block, this,
+    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
                                    pixa_debug, &part_grid_, &big_parts_);
     ImageFind::TransferImagePartsToImageMask(rerotate_, &part_grid_, photo_mask_pix);
-    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_, input_block, this,
+    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
                                    pixa_debug, &part_grid_, &big_parts_);
   }
   part_grid_.ReTypeBlobs(&image_bblobs_);
@@ -415,9 +415,9 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
       table_finder.set_left_to_right_language(!input_block->block->right_to_left());
       // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
       // insert dot-like noise into period_grid_
-      table_finder.InsertCleanPartitions(&part_grid_, input_block);
+      table_finder.InsertCleanPartitions(&part_grid_);
       // Get Table Regions
-      table_finder.LocateTables(&part_grid_, best_columns_, WidthCB(), reskew_);
+      table_finder.LocateTables(&part_grid_, best_columns_, WidthCB());
     }
     GridRemoveUnderlinePartitions();
     part_grid_.DeleteUnknownParts(input_block);
@@ -529,7 +529,7 @@ void ColumnFinder::DisplayBlocks(BLOCK_LIST *blocks) {
 
 // Displays the column edges at each grid y coordinate defined by
 // best_columns_.
-void ColumnFinder::DisplayColumnBounds(PartSetVector *sets) {
+void ColumnFinder::DisplayColumnBounds() {
   ScrollView *col_win = MakeWindow(50, 300, "Columns");
   DisplayBoxes(col_win);
   col_win->Pen(textord_debug_printable ? ScrollView::BLUE : ScrollView::GREEN);
@@ -595,7 +595,7 @@ bool ColumnFinder::MakeColumns(bool single_column) {
     bool any_multi_column = AssignColumns(part_sets);
 #ifndef GRAPHICS_DISABLED
     if (textord_tabfind_show_columns) {
-      DisplayColumnBounds(&part_sets);
+      DisplayColumnBounds();
     }
 #endif
     ComputeMeanColumnGap(any_multi_column);

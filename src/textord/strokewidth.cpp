@@ -1294,7 +1294,7 @@ PartitionFindResult StrokeWidth::FindInitialPartitions(
   }
   part_grid->SplitOverlappingPartitions(big_parts);
   EasyMerges(part_grid);
-  RemoveLargeUnusedBlobs(block, part_grid, big_parts);
+  RemoveLargeUnusedBlobs(block, big_parts);
   TBOX grid_box(bleft(), tright());
   while (part_grid->GridSmoothNeighbours(BTFT_CHAIN, nontext_map_, grid_box, rerotation)) {
     ;
@@ -1794,7 +1794,7 @@ void StrokeWidth::MergeDiacritics(TO_BLOCK *block, ColPartitionGrid *part_grid) 
 // Any blobs on the large_blobs list of block that are still unowned by a
 // ColPartition, are probably drop-cap or vertically touching so the blobs
 // are removed to the big_parts list and treated separately.
-void StrokeWidth::RemoveLargeUnusedBlobs(TO_BLOCK *block, ColPartitionGrid *part_grid,
+void StrokeWidth::RemoveLargeUnusedBlobs(TO_BLOCK *block,
                                          ColPartition_LIST *big_parts) {
   BLOBNBOX_IT large_it(&block->large_blobs);
   for (large_it.mark_cycle_pt(); !large_it.cycled_list(); large_it.forward()) {
