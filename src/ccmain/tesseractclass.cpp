@@ -457,8 +457,6 @@ Tesseract::Tesseract()
     , source_resolution_(0)
     , textord_(this)
     , right_to_left_(false)
-    , scaled_color_(nullptr)
-    , scaled_factor_(-1)
     , deskew_(1.0f, 0.0f)
     , reskew_(1.0f, 0.0f)
     , gradient_(0.0f)
@@ -496,12 +494,10 @@ void Tesseract::Clear() {
   pix_binary_.destroy();
   pix_grey_.destroy();
   pix_thresholds_.destroy();
-  scaled_color_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   gradient_ = 0.0f;
   splitter_.Clear();
-  scaled_factor_ = -1;
   for (auto &sub_lang : sub_langs_) {
     sub_lang->Clear();
   }

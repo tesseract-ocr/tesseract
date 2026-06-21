@@ -262,16 +262,6 @@ public:
   int ImageHeight() const {
     return pixGetHeight(pix_binary_);
   }
-  Image scaled_color() const {
-    return scaled_color_;
-  }
-  int scaled_factor() const {
-    return scaled_factor_;
-  }
-  void SetScaledColor(int factor, Image color) {
-    scaled_factor_ = factor;
-    scaled_color_ = color;
-  }
   const Textord &textord() const {
     return textord_;
   }
@@ -1003,8 +993,6 @@ private:
   Textord textord_;
   // True if the primary language uses right_to_left reading order.
   bool right_to_left_;
-  Image scaled_color_;
-  int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;
   float gradient_;
