@@ -67,7 +67,7 @@ OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
       bydim((tright.y() - bleft.y()) / BUCKETSIZE + 1),
       buckets(bxdim * bydim),
       bl(bleft),
-      tr(tright) {}
+      tr(tright), it(buckets.end()) {}
 
 /**
  * @name OL_BUCKETS::operator(

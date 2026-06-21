@@ -477,7 +477,7 @@ private:
   // value in the adaptive classifier. Both are indexed by unichar_id.
   // shapetable_cutoffs_ provides a similar value for each shape in the
   // shape_table_
-  uint16_t CharNormCutoffs[MAX_NUM_CLASSES];
+  uint16_t CharNormCutoffs[MAX_NUM_CLASSES] = {};
   uint16_t BaselineCutoffs[MAX_NUM_CLASSES];
 
 public:
