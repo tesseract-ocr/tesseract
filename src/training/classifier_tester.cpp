@@ -36,8 +36,7 @@ enum ClassifierName { CN_PRUNER, CN_FULL, CN_COUNT };
 static const char *names[] = {"pruner", "full"};
 
 static tesseract::ShapeClassifier *InitializeClassifier(const char *classifier_name,
-                                                        const UNICHARSET &unicharset, int argc,
-                                                        char **argv, tesseract::TessBaseAPI **api) {
+                                                        tesseract::TessBaseAPI **api) {
   // Decode the classifier string.
   ClassifierName classifier = CN_COUNT;
   for (int c = 0; c < CN_COUNT; ++c) {
@@ -106,7 +105,7 @@ int main(int argc, char **argv) {
   tesseract::TessBaseAPI *api;
   // Decode the classifier string.
   tesseract::ShapeClassifier *shape_classifier =
-      InitializeClassifier(FLAGS_classifier.c_str(), trainer->unicharset(), argc, argv, &api);
+      InitializeClassifier(FLAGS_classifier.c_str(), &api);
   if (shape_classifier == nullptr) {
     fprintf(stderr, "Classifier init failed!:%s\n", FLAGS_classifier.c_str());
     return EXIT_FAILURE;

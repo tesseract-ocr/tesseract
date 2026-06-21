@@ -53,7 +53,7 @@ using namespace tesseract;
             Public Code
 -----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-static void DisplayProtoList(const char *ch, LIST protolist) {
+static void DisplayProtoList(LIST protolist) {
   auto window = std::make_unique<ScrollView>("Char samples", 50, 200, 520, 520, 260, 260, true);
   LIST proto = protolist;
   iterate(proto) {
@@ -101,7 +101,7 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   MergeInsignificantProtos(proto_list, class_label, clusterer, &Config);
 #ifndef GRAPHICS_DISABLED
   if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0) {
-    DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
+    DisplayProtoList(proto_list);
   }
 #endif // !GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.

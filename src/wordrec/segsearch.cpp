@@ -33,7 +33,7 @@ namespace tesseract {
 void Wordrec::SegSearch(WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
                         BlamerBundle *blamer_bundle) {
   LMPainPoints pain_points(segsearch_max_pain_points, segsearch_max_char_wh_ratio,
-                           assume_fixed_pitch_char_segment, &getDict(), segsearch_debug_level);
+                           assume_fixed_pitch_char_segment, segsearch_debug_level);
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
   float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
@@ -186,7 +186,7 @@ void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
       LanguageModelState *parent_node = col == 0 ? nullptr : best_choice_bundle->beam[col - 1];
       if (current_node != nullptr &&
           language_model_->UpdateState((*pending)[col].IsRowJustClassified(row), col, row,
-                                       current_node, parent_node, pain_points, word_res,
+                                       current_node, parent_node, word_res,
                                        best_choice_bundle, blamer_bundle) &&
           row + 1 < ratings->dimension()) {
         // Since the language model state of this entry changed, process all

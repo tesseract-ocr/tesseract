@@ -90,7 +90,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
     ++total_samples;
   }
   // Create the appropriate error report.
-  unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table, *it,
+  unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table,
                                         unichar_error, fonts_report);
   if (scaled_error != nullptr) {
     *scaled_error = counter.scaled_error_;
@@ -356,7 +356,7 @@ bool ErrorCounter::AccumulateJunk(bool debug, const std::vector<UnicharRating> &
 // If not nullptr, the report string is saved in fonts_report.
 // (Ignoring report_level).
 double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
-                                  const FontInfoTable &fontinfo_table, const SampleIterator &it,
+                                  const FontInfoTable &fontinfo_table,
                                   double *unichar_error, std::string *fonts_report) {
   // Compute totals over all the fonts and report individual font results
   // when required.

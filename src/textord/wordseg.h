@@ -51,8 +51,7 @@ int32_t row_words2(   // compute space size
     bool testing_on   // for debug
 );
 void make_real_words(tesseract::Textord *textord,
-                     TO_BLOCK *block, // block to do
-                     FCOORD rotation  // for drawing
+                     TO_BLOCK *block // block to do
 );
 ROW *make_rep_words( // make a row
     TO_ROW *row,     // row to convert

@@ -182,7 +182,6 @@ void Tesseract::split_word(WERD_RES *word, unsigned split_pt, WERD_RES **right_p
   delete word2->chopped_word;
   word2->chopped_word = nullptr;
 
-  const UNICHARSET &unicharset = *word->uch_set;
   word->ClearResults();
   word2->ClearResults();
   word->chopped_word = chopped;

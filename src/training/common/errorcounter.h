@@ -176,7 +176,7 @@ private:
   // unichar_error. If not nullptr, the report string is saved in fonts_report.
   // (Ignoring report_level).
   double ReportErrors(int report_level, CountTypes boosting_mode,
-                      const FontInfoTable &fontinfo_table, const SampleIterator &it,
+                      const FontInfoTable &fontinfo_table,
                       double *unichar_error, std::string *fonts_report);
 
   // Sets the report string to a combined human and machine-readable report

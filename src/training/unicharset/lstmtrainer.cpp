@@ -933,7 +933,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   targets->Resize(*fwd_outputs, network_->NumOutputs());
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
-    if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
+    if (!ComputeTextTargets(truth_labels, targets)) {
       tprintf("Compute simple targets failed for %s!\n",
               trainingdata->imagefilename().c_str());
       return UNENCODABLE;
@@ -955,8 +955,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   if (loss_type != LT_CTC) {
     LabelsFromOutputs(*targets, &truth_labels, &xcoords);
   }
-  if (!DebugLSTMTraining(inputs, *trainingdata, *fwd_outputs, truth_labels,
-                         *targets)) {
+  if (!DebugLSTMTraining(inputs, *fwd_outputs, truth_labels, *targets)) {
     tprintf("Input width was %d\n", inputs.Width());
     return UNENCODABLE;
   }
@@ -1131,7 +1130,6 @@ void LSTMTrainer::EmptyConstructor() {
 // corresponding x_starts.
 // Returns false if the truth string is empty.
 bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs,
-                                    const ImageData &trainingdata,
                                     const NetworkIO &fwd_outputs,
                                     const std::vector<int> &truth_labels,
                                     const NetworkIO &outputs) {
@@ -1208,8 +1206,7 @@ void LSTMTrainer::DisplayTargets(const NetworkIO &targets,
 
 // Builds a no-compromises target where the first positions should be the
 // truth labels and the rest is padded with the null_char_.
-bool LSTMTrainer::ComputeTextTargets(const NetworkIO &outputs,
-                                     const std::vector<int> &truth_labels,
+bool LSTMTrainer::ComputeTextTargets(const std::vector<int> &truth_labels,
                                      NetworkIO *targets) {
   if (truth_labels.size() > targets->Width()) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",

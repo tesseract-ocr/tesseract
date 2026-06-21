@@ -77,8 +77,7 @@ public:
                    float rating_cert_scale);
 
   // Updates language model state of the given BLOB_CHOICE_LIST (from
-  // the ratings matrix) and its parent. Updates pain_points if new
-  // problematic points are found in the segmentation graph.
+  // the ratings matrix) and its parent.
   //
   // At most language_model_viterbi_list_size are kept in each
   // LanguageModelState.viterbi_state_entries list.
@@ -89,7 +88,7 @@ public:
   // The list ordered by cost that is computed collectively by several
   // language model components (currently dawg and ngram components).
   bool UpdateState(bool just_classified, int curr_col, int curr_row, BLOB_CHOICE_LIST *curr_list,
-                   LanguageModelState *parent_node, LMPainPoints *pain_points, WERD_RES *word_res,
+                   LanguageModelState *parent_node, WERD_RES *word_res,
                    BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle);
 
   // Returns true if an acceptable best choice was discovered.
@@ -182,7 +181,7 @@ protected:
   bool AddViterbiStateEntry(LanguageModelFlagsType top_choice_flags, float denom, bool word_end,
                             int curr_col, int curr_row, BLOB_CHOICE *b,
                             LanguageModelState *curr_state, ViterbiStateEntry *parent_vse,
-                            LMPainPoints *pain_points, WERD_RES *word_res,
+                            WERD_RES *word_res,
                             BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle);
 
   // Determines whether a potential entry is a true top choice and
@@ -190,7 +189,7 @@ protected:
   //
   // Note: The function assumes that b, top_choice_flags and changed
   // are not nullptr.
-  void GenerateTopChoiceInfo(ViterbiStateEntry *new_vse, const ViterbiStateEntry *parent_vse,
+  void GenerateTopChoiceInfo(ViterbiStateEntry *new_vse,
                              LanguageModelState *lms);
 
   // Calls dict_->LetterIsOk() with DawgArgs initialized from parent_vse and
@@ -198,8 +197,7 @@ protected:
   // with updated active dawgs, constraints and permuter.
   //
   // Note: the caller is responsible for deleting the returned pointer.
-  LanguageModelDawgInfo *GenerateDawgInfo(bool word_end, int curr_col, int curr_row,
-                                          const BLOB_CHOICE &b,
+  LanguageModelDawgInfo *GenerateDawgInfo(bool word_end, int curr_col, const BLOB_CHOICE &b,
                                           const ViterbiStateEntry *parent_vse);
 
   // Computes p(unichar | parent context) and records it in ngram_cost.
@@ -210,7 +208,7 @@ protected:
   //
   // Note: the caller is responsible for deleting the returned pointer.
   LanguageModelNgramInfo *GenerateNgramInfo(const char *unichar, float certainty, float denom,
-                                            int curr_col, int curr_row, float outline_length,
+                                            float outline_length,
                                             const ViterbiStateEntry *parent_vse);
 
   // Computes -(log(prob(classifier)) + log(prob(ngram model)))
@@ -240,8 +238,8 @@ protected:
   // constructed WERD_CHOICE is better than the best/raw choice recorded
   // in the best_choice_bundle, this function updates the corresponding
   // fields and sets best_choice_bunldle->updated to true.
-  void UpdateBestChoice(ViterbiStateEntry *vse, LMPainPoints *pain_points, WERD_RES *word_res,
-                        BestChoiceBundle *best_choice_bundle, BlamerBundle *blamer_bundle);
+  void UpdateBestChoice(ViterbiStateEntry *vse, WERD_RES *word_res, BestChoiceBundle *best_choice_bundle,
+                        BlamerBundle *blamer_bundle);
 
   // Constructs a WERD_CHOICE by tracing parent pointers starting with
   // the given LanguageModelStateEntry. Returns the constructed word.

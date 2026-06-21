@@ -106,7 +106,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   // test again.
   map.DeleteMapFeature(0);
   map.DeleteMapFeature(total_buckets - 1);
-  map.FinalizeMapping(nullptr);
+  map.FinalizeMapping();
   map.IndexAndSortFeatures(features.get(), total_size, &index_features);
   // Has no effect on index features.
   EXPECT_EQ(total_size, index_features.size());

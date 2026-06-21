@@ -59,7 +59,7 @@ void Wordrec::program_editup(const std::string &textbase, TessdataManager *init_
  * Cleanup and exit the recog program.
  */
 int Wordrec::end_recog() {
-  program_editdown(0);
+  program_editdown();
 
   return (0);
 }
@@ -70,7 +70,7 @@ int Wordrec::end_recog() {
  * This function holds any necessary post processing for the Wise Owl
  * program.
  */
-void Wordrec::program_editdown(int32_t elapsed_time) {
+void Wordrec::program_editdown() {
 #ifndef DISABLED_LEGACY_ENGINE
   EndAdaptiveClassifier();
 #endif // ndef DISABLED_LEGACY_ENGINE

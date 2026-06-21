@@ -107,14 +107,14 @@ void make_words(tesseract::Textord *textord,
   if (textord->use_cjk_fp_model()) {
     compute_fixed_pitch_cjk(page_tr, port_blocks);
   } else {
-    compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD(0.0f, -1.0f),
+    compute_fixed_pitch(page_tr, port_blocks, gradient,
                         !bool(textord_test_landscape));
   }
   textord->to_spacing(port_blocks);
   block_it.set_to_list(port_blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     block = block_it.data();
-    make_real_words(textord, block, FCOORD(1.0f, 0.0f));
+    make_real_words(textord, block);
   }
 }
 
@@ -468,8 +468,7 @@ int32_t row_words2(   // compute space size
  */
 
 void make_real_words(tesseract::Textord *textord,
-                     TO_BLOCK *block, // block to do
-                     FCOORD rotation  // for drawing
+                     TO_BLOCK *block // block to do
 ) {
   TO_ROW *row; // current row
   TO_ROW_IT row_it = block->get_rows();

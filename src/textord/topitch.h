@@ -37,7 +37,6 @@ extern double_VAR_H(textord_balance_factor);
 void compute_fixed_pitch(ICOORD page_tr,             // top right
                          TO_BLOCK_LIST *port_blocks, // input list
                          float gradient,             // page skew
-                         FCOORD rotation,            // for drawing
                          bool testing_on);           // correct orientation
 void fix_row_pitch(TO_ROW *bad_row,        // row to fix
                    TO_BLOCK_LIST *blocks,  // blocks to scan
@@ -53,8 +52,6 @@ bool compute_rows_pitch(                      // find line stats
 );
 // determine pitch
 bool try_doc_fixed(TO_BLOCK_LIST *port_blocks, float gradient);
-// find line stats
-bool try_block_fixed(TO_BLOCK *block);
 bool try_rows_fixed(     // find line stats
     TO_BLOCK *block,     // block to do
     int32_t block_index, // block number

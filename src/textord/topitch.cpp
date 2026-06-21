@@ -75,7 +75,6 @@ static int sort_floats(const void *arg1, const void *arg2) {
 void compute_fixed_pitch(ICOORD page_tr,             // top right
                          TO_BLOCK_LIST *port_blocks, // input list
                          float gradient,             // page skew
-                         FCOORD rotation,            // for drawing
                          bool testing_on) {          // correct orientation
   TO_BLOCK_IT block_it;                              // iterator
   TO_BLOCK *block;                                   // current block;
@@ -103,9 +102,7 @@ void compute_fixed_pitch(ICOORD page_tr,             // top right
     block_index = 1;
     for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
       block = block_it.data();
-      if (!try_block_fixed(block)) {
-        try_rows_fixed(block, block_index, testing_on);
-      }
+      try_rows_fixed(block, block_index, testing_on);
       block_index++;
     }
   }
@@ -484,16 +481,6 @@ bool try_doc_fixed(             // determine pitch
   }
 #endif
   row->char_cells.clear();
-  return false;
-}
-
-/**********************************************************************
- * try_block_fixed
- *
- * Try to call the entire block fixed.
- **********************************************************************/
-
-bool try_block_fixed(TO_BLOCK *block) {
   return false;
 }
 

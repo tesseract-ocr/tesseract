@@ -2454,7 +2454,6 @@ OVERLAP_STATE most_overlapping_row( // find best row
   float overlap;                 // of blob & row
   float bestover;                // nearest row
   float merge_top, merge_bottom; // size of merged row
-  ICOORD testpt;                 // testing only
   TO_ROW *row;                   // current row
   TO_ROW *test_row;              // for multiple overlaps
   BLOBNBOX_IT blob_it;           // for merging rows

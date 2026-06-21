@@ -25,7 +25,7 @@
 
 using namespace tesseract;
 
-static std::unique_ptr<tesseract::Dawg> LoadSquishedDawg(const UNICHARSET &unicharset, const char *filename) {
+static std::unique_ptr<tesseract::Dawg> LoadSquishedDawg(const char *filename) {
   const int kDictDebugLevel = 1;
   tesseract::TFile dawg_file;
   if (!dawg_file.Open(filename, nullptr)) {
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     tprintf("Error loading unicharset from %s.\n", unicharset_file);
     return EXIT_FAILURE;
   }
-  auto dict = LoadSquishedDawg(unicharset, dawg_file);
+  auto dict = LoadSquishedDawg(dawg_file);
   if (dict == nullptr) {
     tprintf("Error loading dictionary from %s.\n", dawg_file);
     return EXIT_FAILURE;

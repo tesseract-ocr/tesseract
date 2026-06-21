@@ -405,8 +405,8 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
 float TrainingSampleSet::ComputeClusterDistance(int font_id1, int class_id1, int font_id2,
                                                 int class_id2,
                                                 const IntFeatureMap &feature_map) const {
-  int dist = ReliablySeparable(font_id1, class_id1, font_id2, class_id2, feature_map, false);
-  dist += ReliablySeparable(font_id2, class_id2, font_id1, class_id1, feature_map, false);
+  int dist = ReliablySeparable(font_id1, class_id1, font_id2, class_id2, feature_map);
+  dist += ReliablySeparable(font_id2, class_id2, font_id1, class_id1, feature_map);
   int denominator = GetCanonicalFeatures(font_id1, class_id1).size();
   denominator += GetCanonicalFeatures(font_id2, class_id2).size();
   return static_cast<float>(dist) / denominator;
@@ -449,7 +449,7 @@ static void AddNearFeatures(const IntFeatureMap &feature_map, int f, int levels,
 // ComputeCanonicalFeatures and ComputeCloudFeatures must have been called
 // first, or the results will be nonsense.
 int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_id2, int class_id2,
-                                         const IntFeatureMap &feature_map, bool thorough) const {
+                                         const IntFeatureMap &feature_map) const {
   int result = 0;
   const TrainingSample *sample2 = GetCanonicalSample(font_id2, class_id2);
   if (sample2 == nullptr) {

@@ -211,7 +211,7 @@ private:
                                             bool find_problems, TO_BLOCK *block,
                                             BLOBNBOX_LIST *diacritic_blobs,
                                             ColPartitionGrid *part_grid,
-                                            ColPartition_LIST *big_parts, FCOORD *skew_angle);
+                                            ColPartition_LIST *big_parts);
   // Detects noise by a significant increase in partition overlap from
   // pre_overlap to now, and removes noise from the union of all the overlapping
   // partitions, placing the blobs in diacritic_blobs. Returns true if any noise
