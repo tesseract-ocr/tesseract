@@ -116,6 +116,15 @@ static void CallWithUTF8(const std::function<void(const char *)> &cb,
   cb(s.c_str());
 }
 
+static constexpr int CeilLog2(unsigned n) {
+  int bits = 0;
+  while (n > 0) {
+    n >>= 1;
+    ++bits;
+  }
+  return bits;
+}
+
 void Dawg::iterate_words(const UNICHARSET &unicharset,
                          const std::function<void(const char *)> &cb) const {
   using namespace std::placeholders; // for _1
@@ -180,7 +189,7 @@ void Dawg::init(int unicharset_size) {
   unicharset_size_ = unicharset_size;
   // Set bit masks. We will use the value unicharset_size_ as a null char, so
   // the actual number of unichars is unicharset_size_ + 1.
-  flag_start_bit_ = ceil(log(unicharset_size_ + 1.0) / log(2.0));
+  flag_start_bit_ = CeilLog2(static_cast<unsigned>(unicharset_size_));
   next_node_start_bit_ = flag_start_bit_ + NUM_FLAG_BITS;
   letter_mask_ = ~(~0ull << flag_start_bit_);
   next_node_mask_ = ~0ull << (flag_start_bit_ + NUM_FLAG_BITS);
