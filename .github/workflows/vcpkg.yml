@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout Tesseract Source (--head from main branch)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 

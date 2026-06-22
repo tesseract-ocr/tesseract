@@ -69,7 +69,7 @@ jobs:
         if: runner.os == 'macOS'
 
       - name: Checkout Source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
              submodules: recursive
 
