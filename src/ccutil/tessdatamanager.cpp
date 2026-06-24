@@ -85,6 +85,32 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
   }
   return result;
 }
+
+bool TessdataManager::SaveArchiveFile(const char *filename) const{
+  bool result = false;
+  archive *a = archive_write_new();
+  archive_entry *ae = archive_entry_new();
+  if (a != nullptr) {
+    archive_write_set_format_zip(a);
+    archive_write_open_filename(a, filename);
+    std::string filename_str = filename;
+    filename_str += ".";
+    archive_entry_set_filetype(ae, AE_IFREG);
+    archive_entry_set_perm(ae, 333);
+    for (unsigned i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
+      if (!entries_[i].empty()) {
+        archive_entry_set_pathname(ae, (filename_str + kTessdataFileSuffixes[i]).c_str());
+        archive_entry_set_size(ae, entries_[i].size());
+        archive_write_header(a, ae);
+        archive_write_data(a, &entries_[i][0], entries_[i].size());
+      }
+    }
+    result = archive_write_close(a) == ARCHIVE_OK;
+    archive_write_free(a);
+    return result;
+  }
+  return result;
+}
 #endif
 
 bool TessdataManager::Init(const char *data_file_name) {
@@ -162,12 +188,16 @@ void TessdataManager::OverwriteEntry(TessdataType type, const char *data, int si
 
 // Saves to the given filename.
 bool TessdataManager::SaveFile(const char *filename, FileWriter writer) const {
-  // TODO: This method supports only the proprietary file format.
+// TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
   std::vector<char> data;
   Serialize(&data);
   if (writer == nullptr) {
+#if defined(HAVE_LIBARCHIVE)
+    return SaveArchiveFile(filename);
+#else
     return SaveDataToFile(data, filename);
+#endif
   } else {
     return (*writer)(data, filename);
   }
