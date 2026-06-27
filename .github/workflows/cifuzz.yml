@@ -14,13 +14,13 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@51fea8a581a325b79f2af174b9f7c04333c283c0 # master
       with:
         oss-fuzz-project-name: 'tesseract-ocr'
         language: c++
         dry-run: false
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@51fea8a581a325b79f2af174b9f7c04333c283c0 # master
       with:
         oss-fuzz-project-name: 'tesseract-ocr'
         fuzz-seconds: 600
