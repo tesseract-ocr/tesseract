@@ -19,6 +19,8 @@
 #ifndef TESSERACT_CCUTIL_CCUTIL_H_
 #define TESSERACT_CCUTIL_CCUTIL_H_
 
+#include <filesystem> // for std::filesystem
+
 #ifndef _WIN32
 #  include <pthread.h>
 #  include <semaphore.h>
@@ -53,9 +55,8 @@ public:
   ParamsVectors *params() {
     return &params_;
   }
-
-  std::string datadir;       // dir for data files
-  std::string imagebasename; // name of image
+  std::filesystem::path datadir; // dir for data files
+  std::string imagebasename;     // name of image
   std::string lang;
   std::string language_data_path_prefix;
   UNICHARSET unicharset;
