@@ -1,0 +1,47 @@
+Implement fallback config loading mechanism
+
+This patch fixes configuration files in the readonly snap filesystem
+not loadable by Tesseract due to missing datadir fallback logic.
+
+If the config file with the same name doesn't exist in the
+user-specified tessdata prefix directory, the one in the compiled-in
+directory will be loaded, allows Tesseract to work properly.
+
+Signed-off-by: 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+
+diff --git a/src/ccmain/tessedit.cpp b/src/ccmain/tessedit.cpp
+index c7518883..d0031eb5 100644
+--- a/src/ccmain/tessedit.cpp
++++ b/src/ccmain/tessedit.cpp
+@@ -37,6 +37,7 @@
+ #  include "reject.h"
+ #endif
+ #include "lstmrecognizer.h"
++#include <cstdlib>
+ 
+ namespace tesseract {
+ 
+@@ -57,7 +58,22 @@ void Tesseract::read_config_file(const char *filename, SetParamConstraint constr
+     if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
+       fclose(fp);
+     } else {
+-      path = filename;
++      std::string datadir_readonly = TESSDATA_PREFIX "/tessdata/";
++      path = datadir_readonly;
++      path += "configs/";
++      path += filename;
++      if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
++        fclose(fp);
++      } else {
++        path = datadir_readonly;
++        path += "tessconfigs/";
++        path += filename;
++        if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
++          fclose(fp);
++        } else {
++          path = filename;
++        }
++      }
+     }
+   }
+   ParamUtils::ReadParamsFile(path.c_str(), constraint, this->params());
