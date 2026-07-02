@@ -1104,10 +1104,8 @@ unittest_CPPFLAGS += -I$(top_srcdir)/src/ccutil
 unittest_CPPFLAGS += -I$(top_srcdir)/src/classify
 unittest_CPPFLAGS += -I$(top_srcdir)/src/cutil
 unittest_CPPFLAGS += -I$(top_srcdir)/src/dict
-unittest_CPPFLAGS += -I$(top_srcdir)/src/display
 unittest_CPPFLAGS += -I$(top_srcdir)/src/lstm
 unittest_CPPFLAGS += -I$(top_srcdir)/src/textord
-unittest_CPPFLAGS += -I$(top_srcdir)/unittest/base
 unittest_CPPFLAGS += -I$(top_srcdir)/unittest/util
 unittest_CPPFLAGS += $(LEPTONICA_CFLAGS)
 if ENABLE_TRAINING
