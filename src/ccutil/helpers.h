@@ -86,6 +86,10 @@ public:
     return range * 2.0 * IntRand() / INT32_MAX - range;
   }
   // Returns a floating point value in the range [0, range].
+  float UnsignedRand(float range) {
+    return range * IntRand() / INT32_MAX;
+  }
+  // Returns a double value in the range [0, range].
   double UnsignedRand(double range) {
     return range * IntRand() / INT32_MAX;
   }

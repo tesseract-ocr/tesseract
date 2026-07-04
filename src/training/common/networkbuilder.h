@@ -83,6 +83,7 @@ public:
   // C(s|t|r|l|m)<y>,<x>,<d> Convolves using a (x,y) window, with no shrinkage,
   //   random infill, producing d outputs, then applies a non-linearity:
   //   s: Sigmoid, t: Tanh, r: Relu, l: Linear, m: Softmax.
+  // Do<rate> Dropout with given rate.
   // F(s|t|r|l|m)<d> Truly fully-connected with s|t|r|l|m non-linearity and d
   //   outputs. Connects to every x,y,depth position of the input, reducing
   //   height, width to 1, producing a single <d> vector as the output.
@@ -136,6 +137,8 @@ private:
   Network *ParseS(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'C'.
   Network *ParseC(const StaticShape &input_shape, const char **str);
+  // Parses a network that begins with 'D'.
+  Network *ParseD(const StaticShape &input_shape, const char **str);
   // Parses a network that begins with 'M'.
   Network *ParseM(const StaticShape &input_shape, const char **str);
   // Parses an LSTM network, either individual, bi- or quad-directional.
