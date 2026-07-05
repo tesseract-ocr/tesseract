@@ -197,6 +197,9 @@ void RecodeBeamSearch::calculateCharBoundaries(std::vector<int> *starts,
 }
 
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
+// Diplopia resolution removes spurious characters that appear at overlapping
+// positions (gap of 1 in xcoords) with another character, keeping only the
+// earlier emission.
 void RecodeBeamSearch::ExtractBestPathAsLabels(
     std::vector<int> *labels, std::vector<int> *xcoords) const {
   labels->clear();
@@ -216,6 +219,21 @@ void RecodeBeamSearch::ExtractBestPathAsLabels(
     }
   }
   xcoords->push_back(width);
+
+  // Diplopia resolution: remove spurious characters at overlapping positions.
+  // If two different characters have a gap of 1 in xcoords, the earlier
+  // character likely expanded into the later position, so remove the later.
+  size_t i = 0;
+  while (i + 1 < labels->size()) {
+    int gap = (*xcoords)[i + 1] - (*xcoords)[i];
+    if (gap == 1 && (*labels)[i] != (*labels)[i + 1]) {
+      // Likely diplopia: remove the later (spurious) character.
+      labels->erase(labels->begin() + i + 1);
+      xcoords->erase(xcoords->begin() + i + 1);
+    } else {
+      ++i;
+    }
+  }
 }
 
 // Returns the best path as unichar-ids/certs/ratings/xcoords skipping
