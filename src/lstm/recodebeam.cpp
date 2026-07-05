@@ -623,6 +623,33 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
     }
   }
   starts.push_back(width);
+  // Filter "diplopia" ghost characters: when two adjacent characters have no
+  // null gap between them (starts[i+1] == ends[i]) and one occupies only a
+  // single timestep, remove the one with lower certainty, as it is likely a
+  // duplicate caused by the network being uncertain between two similar chars.
+  for (int i = static_cast<int>(unichar_ids->size()) - 2; i >= 0; --i) {
+    // Skip pairs involving space characters.
+    if ((*unichar_ids)[i] == UNICHAR_SPACE ||
+        (*unichar_ids)[i + 1] == UNICHAR_SPACE) {
+      continue;
+    }
+    // Check if there is no null gap between character i and character i+1.
+    if (starts[i + 1] == ends[i]) {
+      int width_i = ends[i] - static_cast<int>((*xcoords)[i]);
+      int width_next = ends[i + 1] - static_cast<int>((*xcoords)[i + 1]);
+      // Only filter if at least one of the pair occupies a single timestep.
+      if (width_i == 1 || width_next == 1) {
+        // Remove the character with lower certainty (more negative).
+        int to_remove = ((*certs)[i] < (*certs)[i + 1]) ? i : i + 1;
+        unichar_ids->erase(unichar_ids->begin() + to_remove);
+        certs->erase(certs->begin() + to_remove);
+        ratings->erase(ratings->begin() + to_remove);
+        xcoords->erase(xcoords->begin() + to_remove);
+        starts.erase(starts.begin() + to_remove);
+        ends.erase(ends.begin() + to_remove);
+      }
+    }
+  }
   if (character_boundaries != nullptr) {
     calculateCharBoundaries(&starts, &ends, character_boundaries, width);
   }
