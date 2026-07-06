@@ -736,7 +736,8 @@ endif
 
 if ENABLE_TRAINING
 
-training: all $(trainingtools)
+training: all
+	$(MAKE) $(AM_MAKEFLAGS) $(trainingtools)
 
 training-install: $(trainingtools)
 	mkdir -p $(DESTDIR)$(bindir)
