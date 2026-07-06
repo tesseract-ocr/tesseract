@@ -736,7 +736,7 @@ endif
 
 if ENABLE_TRAINING
 
-training: $(trainingtools) | $(PROGRAMS)
+training: all $(trainingtools)
 
 training-install: $(trainingtools)
 	mkdir -p $(DESTDIR)$(bindir)
