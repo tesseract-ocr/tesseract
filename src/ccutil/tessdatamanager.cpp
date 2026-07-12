@@ -109,6 +109,9 @@ bool TessdataManager::Init(const char *data_file_name) {
 // Loads from the given memory buffer as if a file.
 bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size) {
   // TODO: This method supports only the proprietary file format.
+  if (size < 0) {
+    return false;
+  }
   Clear();
   data_file_name_ = name;
   TFile fp;

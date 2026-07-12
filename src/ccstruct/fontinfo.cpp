@@ -150,10 +150,11 @@ bool read_info(TFile *f, FontInfo *fi) {
     return false;
   }
   char *font_name = new char[size + 1];
-  fi->name = font_name;
   if (!f->DeSerialize(font_name, size)) {
+    delete[] font_name;
     return false;
   }
+  fi->name = font_name;
   font_name[size] = '\0';
   return f->DeSerialize(&fi->properties);
 }

@@ -44,6 +44,9 @@ public:
   }
   // Sets the code value at the given index in the code.
   void Set(uint32_t index, int value) {
+    if (index >= kMaxCodeLen) {
+      return;
+    }
     code_[index] = value;
     if (length_ <= index) {
       length_ = index + 1;
