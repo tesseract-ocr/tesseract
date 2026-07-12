@@ -413,7 +413,7 @@ public:
     ASSERT_HOST(read_squished_dawg(&file));
     num_forward_edges_in_node0 = num_forward_edges(0);
   }
-  SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type,
+  SquishedDawg(EDGE_ARRAY edges, uint32_t num_edges, DawgType type,
                const std::string &lang, PermuterType perm, int unicharset_size,
                int debug_level)
       : Dawg(type, lang, perm, debug_level),
@@ -436,7 +436,7 @@ public:
     return true;
   }
 
-  int NumEdges() {
+  uint32_t NumEdges() const {
     return num_edges_;
   }
 
@@ -457,7 +457,11 @@ public:
       if (!word_end || end_of_word_from_edge_rec(edges_[edge])) {
         vec->push_back(NodeChild(unichar_id_from_edge_rec(edges_[edge]), edge));
       }
-    } while (!last_edge(edge++));
+      if (last_edge(edge)) {
+        break;
+      }
+      ++edge;
+    } while (edge < num_edges_);
   }
 
   /// Returns the next node visited by following the edge
@@ -511,7 +515,7 @@ private:
   }
   /// Goes through all the edges and clears each one out.
   inline void clear_all_edges() {
-    for (int edge = 0; edge < num_edges_; edge++) {
+    for (uint32_t edge = 0; edge < num_edges_; edge++) {
       set_empty_edge(edge);
     }
   }
@@ -550,7 +554,7 @@ private:
   /// Prints the contents of the SquishedDawg.
   void print_all(const char *msg) {
     tprintf("\n__________________________\n%s\n", msg);
-    for (int i = 0; i < num_edges_; ++i) {
+    for (uint32_t i = 0; i < num_edges_; ++i) {
       print_edge(i);
     }
     tprintf("__________________________\n");
@@ -560,7 +564,7 @@ private:
 
   // Member variables.
   EDGE_ARRAY edges_ = nullptr;
-  int32_t num_edges_ = 0;
+  uint32_t num_edges_ = 0;
   int num_forward_edges_in_node0 = 0;
 };
 

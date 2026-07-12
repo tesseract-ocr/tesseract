@@ -88,12 +88,19 @@ bool TFile::DeSerializeSkip(size_t size) {
   if (!DeSerialize(&len)) {
     return false;
   }
+  // Check for overflow: len * size must not overflow size_t.
+  if (size != 0 && len > SIZE_MAX / size) {
+    return false;
+  }
   return Skip(len * size);
 }
 
 bool TFile::DeSerialize(std::string &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
+    return false;
+  } else if (size > 50000000) {
+    // Arbitrarily limit the size to protect against bad data.
     return false;
   } else if (size > 0) {
     // TODO: optimize.
@@ -112,6 +119,9 @@ bool TFile::Serialize(const std::string &data) {
 bool TFile::DeSerialize(std::vector<char> &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
+    return false;
+  } else if (size > 50000000) {
+    // Arbitrarily limit the size to protect against bad data.
     return false;
   } else if (size > 0) {
     // TODO: optimize.

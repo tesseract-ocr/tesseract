@@ -222,6 +222,10 @@ bool Plumbing::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&size)) {
     return false;
   }
+  // Reject unreasonably large network stacks.
+  if (size > 10000) {
+    return false;
+  }
   for (uint32_t i = 0; i < size; ++i) {
     Network *network = CreateFromFile(fp);
     if (network == nullptr) {

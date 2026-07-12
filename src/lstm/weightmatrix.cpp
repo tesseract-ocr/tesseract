@@ -295,6 +295,10 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (!fp->DeSerialize(&size)) {
       return false;
     }
+    // Reject unreasonably large scale vectors.
+    if (size > 100000000) {
+      return false;
+    }
 #ifdef FAST_FLOAT
     scales_.reserve(size);
     for (auto n = size; n > 0; n--) {

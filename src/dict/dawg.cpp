@@ -230,7 +230,11 @@ EDGE_REF SquishedDawg::edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
             (!word_end || end_of_word_from_edge_rec(edges_[edge]))) {
           return (edge);
         }
-      } while (!last_edge(edge++));
+        if (last_edge(edge)) {
+          break;
+        }
+        ++edge;
+      } while (edge < num_edges_);
     }
   }
   return (NO_EDGE); // not found
@@ -243,7 +247,11 @@ int32_t SquishedDawg::num_forward_edges(NODE_REF node) const {
   if (forward_edge(edge)) {
     do {
       num++;
-    } while (!last_edge(edge++));
+      if (last_edge(edge)) {
+        break;
+      }
+      ++edge;
+    } while (edge < num_edges_);
   }
 
   return (num);
@@ -283,7 +291,11 @@ void SquishedDawg::print_node(NODE_REF node, int max_num_edges) const {
       if (edge - node > max_num_edges) {
         return;
       }
-    } while (!last_edge(edge++));
+      if (last_edge(edge)) {
+        break;
+      }
+      ++edge;
+    } while (edge < num_edges_);
 
     if (edge < num_edges_ && edge_occupied(edge) && backward_edge(edge)) {
       do {
@@ -299,7 +311,11 @@ void SquishedDawg::print_node(NODE_REF node, int max_num_edges) const {
         if (edge - node > MAX_NODE_EDGES_DISPLAY) {
           return;
         }
-      } while (!last_edge(edge++));
+        if (last_edge(edge)) {
+          break;
+        }
+        ++edge;
+      } while (edge < num_edges_);
     }
   } else {
     tprintf(REFFORMAT " : no edges in this node\n", node);
@@ -335,14 +351,17 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     return false;
   }
 
-  int32_t unicharset_size;
+  uint32_t unicharset_size;
   if (!file->DeSerialize(&unicharset_size)) {
     return false;
   }
   if (!file->DeSerialize(&num_edges_)) {
     return false;
   }
-  ASSERT_HOST(num_edges_ > 0); // DAWG should not be empty
+  if (num_edges_ == 0) {
+    tprintf("Empty dawg: num_edges is 0\n");
+    return false;
+  }
   Dawg::init(unicharset_size);
 
   edges_ = new EDGE_RECORD[num_edges_];
@@ -350,7 +369,7 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     return false;
   }
   if (debug_level_ > 2) {
-    tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n",
+    tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %" PRIu32 "\n",
             type_, lang_.c_str(), perm_, unicharset_size_, num_edges_);
     for (EDGE_REF edge = 0; edge < num_edges_; ++edge) {
       print_edge(edge);
@@ -387,8 +406,11 @@ std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(
         break;
       }
       if (backward_edge(edge)) {
-        while (!last_edge(edge++)) {
-          ;
+        while (edge < num_edges_ && !last_edge(edge)) {
+          ++edge;
+        }
+        if (edge < num_edges_) {
+          ++edge; // Skip past the last backward edge.
         }
       }
       edge--;

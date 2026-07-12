@@ -132,13 +132,22 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size
   }
   for (unsigned i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {
     if (offset_table[i] >= 0) {
+      if (offset_table[i] > size) {
+        return false;
+      }
       int64_t entry_size = size - offset_table[i];
       unsigned j = i + 1;
       while (j < num_entries && offset_table[j] == -1) {
         ++j;
       }
       if (j < num_entries) {
+        if (offset_table[j] < 0 || offset_table[j] > size) {
+          return false;
+        }
         entry_size = offset_table[j] - offset_table[i];
+      }
+      if (entry_size < 0) {
+        return false;
       }
       entries_[i].resize(entry_size);
       if (!fp.DeSerialize(&entries_[i][0], entry_size)) {
