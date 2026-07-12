@@ -75,6 +75,10 @@ public:
   void set_swap(bool value) {
     swap_ = value;
   }
+  // Returns the number of bytes remaining to be read.
+  size_t RemainingBytes() const {
+    return data_ != nullptr && offset_ < data_->size() ? data_->size() - offset_ : 0;
+  }
 
   // Deserialize data.
   bool DeSerializeSize(int32_t *data);

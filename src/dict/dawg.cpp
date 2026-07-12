@@ -362,11 +362,43 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     tprintf("Empty dawg: num_edges is 0\n");
     return false;
   }
+  // Reject if the declared edge count exceeds the remaining component bytes.
+  if (num_edges_ > file->RemainingBytes() / sizeof(EDGE_RECORD)) {
+    tprintf("Dawg num_edges %u exceeds remaining data\n", num_edges_);
+    return false;
+  }
   Dawg::init(unicharset_size);
 
   edges_ = new EDGE_RECORD[num_edges_];
   if (!file->DeSerialize(&edges_[0], num_edges_)) {
     return false;
+  }
+  // Validate the loaded edge structure: check that next_node values are in
+  // bounds and that forward edge runs are properly terminated.
+  for (uint32_t i = 0; i < num_edges_; ++i) {
+    if (edges_[i] == next_node_mask_) {
+      continue; // Empty slot.
+    }
+    NODE_REF next = next_node_from_edge_rec(edges_[i]);
+    if (next != 0 && static_cast<uint32_t>(next) >= num_edges_) {
+      tprintf("Dawg edge %u has out-of-bounds next_node\n", i);
+      return false;
+    }
+    if (forward_edge(i)) {
+      uint32_t j = i;
+      bool terminated = false;
+      do {
+        if (last_edge(j)) {
+          terminated = true;
+          break;
+        }
+        ++j;
+      } while (j < num_edges_);
+      if (!terminated) {
+        tprintf("Dawg forward edge run starting at %u is not terminated\n", i);
+        return false;
+      }
+    }
   }
   if (debug_level_ > 2) {
     tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %" PRIu32 "\n",
