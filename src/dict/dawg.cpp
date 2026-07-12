@@ -369,6 +369,11 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     tprintf("Empty dawg: num_edges is 0\n");
     return false;
   }
+  // Hard upper bound to prevent resource-exhaustion DoS.
+  if (num_edges_ > 50000000) {
+    tprintf("Dawg num_edges %u exceeds hard limit\n", num_edges_);
+    return false;
+  }
   // Reject if the declared edge count exceeds the remaining component bytes.
   if (num_edges_ > file->RemainingBytes() / sizeof(EDGE_RECORD)) {
     tprintf("Dawg num_edges %u exceeds remaining data\n", num_edges_);

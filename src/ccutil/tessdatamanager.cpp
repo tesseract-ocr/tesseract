@@ -150,7 +150,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size
         return false;
       }
       entries_[i].resize(entry_size);
-      if (!fp.DeSerialize(&entries_[i][0], entry_size)) {
+      if (entry_size > 0 && !fp.DeSerialize(&entries_[i][0], entry_size)) {
         return false;
       }
     }
