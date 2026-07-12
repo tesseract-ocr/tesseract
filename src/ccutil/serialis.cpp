@@ -143,6 +143,10 @@ bool TFile::Serialize(const std::vector<char> &data) {
 }
 
 bool TFile::Skip(size_t count) {
+  if (data_ != nullptr && offset_ + count > data_->size()) {
+    offset_ = data_->size();
+    return false;
+  }
   offset_ += count;
   return true;
 }

@@ -180,7 +180,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
         // Add the direct_set unichar-ids of the unicodes in sequence to the
         // code.
         for (int uni : unicodes) {
-          int position = code.length();
+          uint32_t position = code.length();
           if (position >= RecodedCharID::kMaxCodeLen) {
             tprintf("Unichar %d=%s is too long to encode!!\n", u, unicharset.id_to_unichar(u));
             return false;
@@ -259,7 +259,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   std::vector<int> offsets(code_range_);
   // Find which codes are used
   for (auto &code : encoder_) {
-    for (int i = 0; i < code.length(); ++i) {
+    for (uint32_t i = 0; i < code.length(); ++i) {
       offsets[code(i)] = 1;
     }
   }
@@ -303,8 +303,8 @@ int UnicharCompress::EncodeUnichar(unsigned unichar_id, RecodedCharID *code) con
 // Decodes code, returning the original unichar-id, or
 // INVALID_UNICHAR_ID if the input is invalid.
 int UnicharCompress::DecodeUnichar(const RecodedCharID &code) const {
-  int len = code.length();
-  if (len <= 0 || len > RecodedCharID::kMaxCodeLen) {
+  uint32_t len = code.length();
+  if (len == 0 || len > RecodedCharID::kMaxCodeLen) {
     return INVALID_UNICHAR_ID;
   }
   auto it = decoder_.find(code);
@@ -345,7 +345,7 @@ std::string UnicharCompress::GetEncodingAsString(const UNICHARSET &unicharset) c
       continue;
     }
     encoding += std::to_string(code(0));
-    for (int i = 1; i < code.length(); ++i) {
+    for (uint32_t i = 1; i < code.length(); ++i) {
       encoding += "," + std::to_string(code(i));
     }
     encoding += "\t";
@@ -383,7 +383,7 @@ bool UnicharCompress::DecomposeHangul(int unicode, int *leading, int *vowel, int
 void UnicharCompress::ComputeCodeRange() {
   code_range_ = -1;
   for (auto &code : encoder_) {
-    for (int i = 0; i < code.length(); ++i) {
+    for (uint32_t i = 0; i < code.length(); ++i) {
       if (code(i) > code_range_) {
         code_range_ = code(i);
       }
@@ -402,14 +402,19 @@ void UnicharCompress::SetupDecoder() {
     decoder_[code] = c;
     is_valid_start_[code(0)] = true;
     RecodedCharID prefix = code;
-    int len = code.length() - 1;
+    uint32_t len = code.length();
+    if (len == 0) {
+      continue;
+    }
+    --len;
     prefix.Truncate(len);
     auto final_it = final_codes_.find(prefix);
     if (final_it == final_codes_.end()) {
       auto *code_list = new std::vector<int>;
       code_list->push_back(code(len));
       final_codes_[prefix] = code_list;
-      while (--len >= 0) {
+      while (len > 0) {
+        --len;
         prefix.Truncate(len);
         auto next_it = next_codes_.find(prefix);
         if (next_it == next_codes_.end()) {
