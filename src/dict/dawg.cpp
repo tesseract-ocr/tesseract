@@ -26,6 +26,7 @@
 #include "helpers.h"
 #include "tprintf.h"
 
+#include <climits>
 #include <memory>
 
 /*----------------------------------------------------------------------
@@ -292,6 +293,7 @@ void SquishedDawg::print_node(NODE_REF node, int max_num_edges) const {
         return;
       }
       if (last_edge(edge)) {
+        ++edge; // Advance past the last forward edge.
         break;
       }
       ++edge;
@@ -353,6 +355,11 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
 
   uint32_t unicharset_size;
   if (!file->DeSerialize(&unicharset_size)) {
+    return false;
+  }
+  // Dawg::init takes int; reject values that would overflow.
+  if (unicharset_size == 0 || unicharset_size > INT_MAX) {
+    tprintf("Bad dawg unicharset_size %u\n", unicharset_size);
     return false;
   }
   if (!file->DeSerialize(&num_edges_)) {

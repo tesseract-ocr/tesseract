@@ -173,6 +173,10 @@ bool read_spacing_info(TFile *f, FontInfo *fi) {
   if (vec_size == 0) {
     return true;
   }
+  // Reject unreasonably large spacing vectors.
+  if (vec_size > 1000000) {
+    return false;
+  }
   fi->init_spacing(vec_size);
   for (uint32_t i = 0; i < vec_size; ++i) {
     auto *fs = new FontSpacingInfo();
