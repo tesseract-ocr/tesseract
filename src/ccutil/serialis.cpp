@@ -143,9 +143,13 @@ bool TFile::Serialize(const std::vector<char> &data) {
 }
 
 bool TFile::Skip(size_t count) {
-  if (data_ != nullptr && offset_ + count > data_->size()) {
-    offset_ = data_->size();
-    return false;
+  if (data_ != nullptr) {
+    size_t data_size = data_->size();
+    // Subtraction-based check to avoid overflow in offset_ + count.
+    if (offset_ >= data_size || count > data_size - offset_) {
+      offset_ = data_size > UINT_MAX ? UINT_MAX : static_cast<unsigned>(data_size);
+      return false;
+    }
   }
   offset_ += count;
   return true;

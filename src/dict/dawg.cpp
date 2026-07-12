@@ -391,23 +391,31 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     if (edges_[i] == next_node_mask_) {
       continue; // Empty slot.
     }
-    NODE_REF next = next_node_from_edge_rec(edges_[i]);
-    if (next != 0 && static_cast<uint32_t>(next) >= num_edges_) {
-      tprintf("Dawg edge %u has out-of-bounds next_node\n", i);
-      return false;
-    }
     if (forward_edge(i)) {
-      uint32_t j = i;
+      // Validate the entire forward-edge run and skip to its terminator.
       bool terminated = false;
+      uint32_t j = i;
       do {
+        NODE_REF nj = next_node_from_edge_rec(edges_[j]);
+        if (nj != 0 && static_cast<uint32_t>(nj) >= num_edges_) {
+          tprintf("Dawg edge %u has out-of-bounds next_node\n", j);
+          return false;
+        }
         if (last_edge(j)) {
           terminated = true;
+          i = j; // Advance outer loop past the terminator.
           break;
         }
         ++j;
       } while (j < num_edges_);
       if (!terminated) {
         tprintf("Dawg forward edge run starting at %u is not terminated\n", i);
+        return false;
+      }
+    } else {
+      NODE_REF next = next_node_from_edge_rec(edges_[i]);
+      if (next != 0 && static_cast<uint32_t>(next) >= num_edges_) {
+        tprintf("Dawg edge %u has out-of-bounds next_node\n", i);
         return false;
       }
     }
