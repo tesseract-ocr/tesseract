@@ -381,8 +381,12 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   }
   Dawg::init(unicharset_size);
 
+  delete[] edges_;
   edges_ = new EDGE_RECORD[num_edges_];
   if (!file->DeSerialize(&edges_[0], num_edges_)) {
+    delete[] edges_;
+    edges_ = nullptr;
+    num_edges_ = 0;
     return false;
   }
   // Validate the loaded edge structure: check that next_node values are in
@@ -399,6 +403,9 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
         NODE_REF nj = next_node_from_edge_rec(edges_[j]);
         if (nj != 0 && static_cast<uint32_t>(nj) >= num_edges_) {
           tprintf("Dawg edge %u has out-of-bounds next_node\n", j);
+          delete[] edges_;
+          edges_ = nullptr;
+          num_edges_ = 0;
           return false;
         }
         if (last_edge(j)) {
@@ -410,12 +417,18 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
       } while (j < num_edges_);
       if (!terminated) {
         tprintf("Dawg forward edge run starting at %u is not terminated\n", i);
+        delete[] edges_;
+        edges_ = nullptr;
+        num_edges_ = 0;
         return false;
       }
     } else {
       NODE_REF next = next_node_from_edge_rec(edges_[i]);
       if (next != 0 && static_cast<uint32_t>(next) >= num_edges_) {
         tprintf("Dawg edge %u has out-of-bounds next_node\n", i);
+        delete[] edges_;
+        edges_ = nullptr;
+        num_edges_ = 0;
         return false;
       }
     }
