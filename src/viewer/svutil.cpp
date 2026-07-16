@@ -26,6 +26,7 @@
 
 #include "svutil.h"
 
+#include <cerrno> // for errno
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
