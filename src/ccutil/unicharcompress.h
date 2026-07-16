@@ -39,7 +39,7 @@ public:
   RecodedCharID() : self_normalized_(1), length_(0) {
     code_.fill(0);
   }
-  void Truncate(int length) {
+  void Truncate(uint32_t length) {
     length_ = length;
   }
   // Sets the code value at the given index in the code.
@@ -67,7 +67,7 @@ public:
   uint32_t length() const {
     return length_;
   }
-  int operator()(int index) const {
+  int operator()(uint32_t index) const {
     return code_[index];
   }
 
