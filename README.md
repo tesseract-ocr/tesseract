@@ -104,7 +104,7 @@ Please report an issue only for a **bug**, not for asking questions.
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -114,8 +114,8 @@ Please report an issue only for a **bug**, not for asking questions.
 
 **NOTE**: This software depends on other packages that may be licensed under different open source licenses.
 
-Tesseract uses [Leptonica library](http://leptonica.com/) which essentially
-uses a [BSD 2-clause license](http://leptonica.com/about-the-license.html).
+Tesseract uses [Leptonica library](https://leptonica.com/) which essentially
+uses a [BSD 2-clause license](https://leptonica.com/about-the-license.html).
 
 ## Dependencies
 
@@ -123,7 +123,7 @@ Tesseract uses [Leptonica library](https://github.com/DanBloomberg/leptonica)
 for opening input images (e.g. not documents like pdf).
 It is suggested to use leptonica with built-in support for [zlib](https://zlib.net),
 [png](https://sourceforge.net/projects/libpng) and
-[tiff](http://www.simplesystems.org/libtiff) (for multipage tiff).
+[tiff](https://www.simplesystems.org/libtiff) (for multipage tiff).
 
 ## Latest Version of README
 
