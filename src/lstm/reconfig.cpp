@@ -69,13 +69,16 @@ bool Reconfig::DeSerialize(TFile *fp) {
             y_scale_);
     return false;
   }
-  int64_t product = static_cast<int64_t>(ni_) * x_scale_ * y_scale_;
-  if (product > INT_MAX) {
+  int64_t xs = x_scale_;
+  int64_t ys = y_scale_;
+  // Stepwise overflow check: ni_ * x_scale_ * y_scale_ must fit in int.
+  int64_t xsys = xs * ys;
+  if (static_cast<int64_t>(ni_) > INT_MAX / xsys) {
     tprintf("Error: Reconfig output-channel count overflows: ni=%d x_scale=%d y_scale=%d\n", ni_,
             x_scale_, y_scale_);
     return false;
   }
-  no_ = static_cast<int>(product);
+  no_ = static_cast<int>(static_cast<int64_t>(ni_) * xsys);
   return true;
 }
 

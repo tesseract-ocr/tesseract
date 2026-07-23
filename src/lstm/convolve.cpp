@@ -54,13 +54,21 @@ bool Convolve::DeSerialize(TFile *fp) {
             half_y_);
     return false;
   }
-  int64_t product = static_cast<int64_t>(ni_) * (2LL * half_x_ + 1) * (2LL * half_y_ + 1);
-  if (product > INT_MAX) {
+  int64_t kx = 2LL * half_x_ + 1;
+  int64_t ky = 2LL * half_y_ + 1;
+  // Stepwise overflow check: ni_ * kx * ky must fit in int.
+  if (kx > INT_MAX / ky) {
     tprintf("Error: Convolve output-channel count overflows: ni=%d half_x=%d half_y=%d\n", ni_,
             half_x_, half_y_);
     return false;
   }
-  no_ = static_cast<int>(product);
+  int64_t kxky = kx * ky;
+  if (static_cast<int64_t>(ni_) > INT_MAX / kxky) {
+    tprintf("Error: Convolve output-channel count overflows: ni=%d half_x=%d half_y=%d\n", ni_,
+            half_x_, half_y_);
+    return false;
+  }
+  no_ = static_cast<int>(static_cast<int64_t>(ni_) * kxky);
   return true;
 }
 
