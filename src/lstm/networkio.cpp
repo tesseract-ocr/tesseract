@@ -405,6 +405,7 @@ void NetworkIO::CopyTimeStepFrom(int dest_t, const NetworkIO &src, int src_t) {
 void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_features,
                                     const NetworkIO &src, int src_t, int src_offset) {
   ASSERT_HOST(int_mode_ == src.int_mode_);
+  ASSERT_HOST(dest_offset + num_features <= NumFeatures());
   if (int_mode_) {
     memcpy(i_[dest_t] + dest_offset, src.i_[src_t] + src_offset, num_features * sizeof(i_[0][0]));
   } else {
@@ -414,6 +415,7 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
 
 // Sets the given range to random values.
 void NetworkIO::Randomize(int t, int offset, int num_features, TRand *randomizer) {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {

@@ -18,6 +18,10 @@
 
 #include "reconfig.h"
 
+#include <cstdint>
+
+#include "tprintf.h"
+
 namespace tesseract {
 
 Reconfig::Reconfig(const std::string &name, int ni, int x_scale, int y_scale)
@@ -60,7 +64,18 @@ bool Reconfig::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&y_scale_)) {
     return false;
   }
-  no_ = ni_ * x_scale_ * y_scale_;
+  if (x_scale_ <= 0 || y_scale_ <= 0 || ni_ <= 0) {
+    tprintf("Error: invalid Reconfig parameters: ni=%d x_scale=%d y_scale=%d\n", ni_, x_scale_,
+            y_scale_);
+    return false;
+  }
+  int64_t product = static_cast<int64_t>(ni_) * x_scale_ * y_scale_;
+  if (product > INT_MAX) {
+    tprintf("Error: Reconfig output-channel count overflows: ni=%d x_scale=%d y_scale=%d\n", ni_,
+            x_scale_, y_scale_);
+    return false;
+  }
+  no_ = static_cast<int>(product);
   return true;
 }
 
