@@ -1,6 +1,7 @@
 name: sw
 
 on:
+  workflow_dispatch:
   schedule:
     # every Wednesday
     - cron: 0 0 * * 3
