@@ -18,10 +18,14 @@
 
 #include <cstdint>
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
 #include <allheaders.h> // Pix, from leptonica
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 #include <tesseract/export.h>
 
 namespace tesseract {
@@ -54,8 +58,10 @@ public:
   Image operator&(Image) const;
   Image &operator&=(Image);
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
   static void clearDataBit(const uint32_t *data, int n) {
     CLEAR_DATA_BIT(data, n);
   }
@@ -71,7 +77,9 @@ public:
   static void setDataByte(uint32_t *data, int n, int b) {
     SET_DATA_BYTE(data, n, b);
   }
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 };
 
 } // namespace tesseract
