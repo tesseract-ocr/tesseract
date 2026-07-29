@@ -21,7 +21,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <allheaders.h> // Pix, from leptonica
-#include <arrayaccess.h> // GET_DATA_* and SET_DATA_* macros, from leptonica
 #pragma GCC diagnostic pop
 #include <tesseract/export.h>
 
@@ -57,19 +56,19 @@ public:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-  static void clearDataBit(const std::uint32_t *data, int n) {
+  static void clearDataBit(const uint32_t *data, int n) {
     CLEAR_DATA_BIT(data, n);
   }
-  static int getDataBit(const std::uint32_t *data, int n) {
+  static int getDataBit(const uint32_t *data, int n) {
     return GET_DATA_BIT(data, n);
   }
-  static int getDataByte(const std::uint32_t *data, int n) {
+  static int getDataByte(const uint32_t *data, int n) {
     return GET_DATA_BYTE(data, n);
   }
-  static void setDataBit(std::uint32_t *data, int n) {
+  static void setDataBit(uint32_t *data, int n) {
     SET_DATA_BIT(data, n);
   }
-  static void setDataByte(std::uint32_t *data, int n, int b) {
+  static void setDataByte(uint32_t *data, int n, int b) {
     SET_DATA_BYTE(data, n, b);
   }
 #pragma GCC diagnostic pop
