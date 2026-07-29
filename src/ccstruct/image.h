@@ -16,6 +16,8 @@
 #ifndef TESSERACT_CCSTRUCT_IMAGE_H_
 #define TESSERACT_CCSTRUCT_IMAGE_H_
 
+#include <cstdint>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <allheaders.h> // Pix, from leptonica
