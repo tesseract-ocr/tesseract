@@ -111,7 +111,7 @@ void SVSync::StartProcess(const char *executable, const char *args) {
     execvp(executable, argv.get());
     // execvp returns only if execution failed.
     perror(executable);
-_exit(EXIT_FAILURE);
+    _exit(EXIT_FAILURE);
   }
 #  endif
 }
