@@ -38,6 +38,7 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
+#include <string>
 
 namespace tesseract {
 
