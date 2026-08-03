@@ -18,6 +18,7 @@
 #ifdef HAVE_CONFIG_H
 #  include "config_auto.h" // for HAVE_AVX, ...
 #endif
+#include <cstdlib> // for getenv
 #include <numeric> // for std::inner_product
 #include "dotproduct.h"
 #include "intsimdmatrix.h" // for IntSimdMatrix
