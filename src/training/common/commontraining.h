@@ -78,7 +78,7 @@ extern CLUSTERCONFIG Config;
 struct LABELEDLISTNODE {
   /// This constructor allocates a new, empty labeled list and gives
   /// it the specified label.
-  /// @param Label label for new list
+  /// @param label label for new list
   LABELEDLISTNODE(const char *label) : Label(label) {
   }
   std::string Label;
