@@ -623,6 +623,43 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
     }
   }
   starts.push_back(width);
+  // Diplopia resolution: remove ghost characters caused by the network emitting
+  // two different characters at adjacent timesteps when uncertain between
+  // visually similar alternatives (e.g., O/0, l/1). A ghost is identified when:
+  // - Two adjacent characters have no null gap between them.
+  // - At least one occupies only a single timestep.
+  // - The certainty difference is large (one is clearly a ghost).
+  // - Neither is a space.
+  static constexpr float kDiplopiaCertDiff = 2.5f;
+  for (int i = static_cast<int>(unichar_ids->size()) - 2; i >= 0; --i) {
+    if ((*unichar_ids)[i] == UNICHAR_SPACE ||
+        (*unichar_ids)[i + 1] == UNICHAR_SPACE) {
+      continue;
+    }
+    if (starts[i + 1] == ends[i]) {
+      int width_i = ends[i] - starts[i];
+      int width_next = ends[i + 1] - starts[i + 1];
+      if (width_i == 1 || width_next == 1) {
+        float cert_diff = (*certs)[i] - (*certs)[i + 1];
+        int to_remove = -1;
+        if (cert_diff < -kDiplopiaCertDiff) {
+          // Character i has much lower certainty: it's the ghost.
+          to_remove = i;
+        } else if (cert_diff > kDiplopiaCertDiff) {
+          // Character i+1 has much lower certainty: it's the ghost.
+          to_remove = i + 1;
+        }
+        if (to_remove >= 0) {
+          unichar_ids->erase(unichar_ids->begin() + to_remove);
+          certs->erase(certs->begin() + to_remove);
+          ratings->erase(ratings->begin() + to_remove);
+          xcoords->erase(xcoords->begin() + to_remove);
+          starts.erase(starts.begin() + to_remove);
+          ends.erase(ends.begin() + to_remove);
+        }
+      }
+    }
+  }
   if (character_boundaries != nullptr) {
     calculateCharBoundaries(&starts, &ends, character_boundaries, width);
   }
