@@ -29,6 +29,7 @@ public:
   using TableFinder::set_global_median_ledding;
   using TableFinder::set_global_median_xheight;
   using TableFinder::SplitAndInsertFragmentedTextPartition;
+  using TableFinder::AllowTextPartition;
 
   void ExpectPartition(const TBOX &box) {
     tesseract::ColPartitionGridSearch gsearch(&fragmented_text_grid_);
@@ -95,8 +96,13 @@ protected:
   }
 
   void InsertTextPartition(ColPartition *part) {
+    // The finder takes ownership of the partition and either inserts it
+    // into a grid or deletes it. Only keep track of it for the cleanup
+    // in TearDown if the finder keeps it.
+    if (finder_->AllowTextPartition(*part)) {
+      free_boxes_it_.add_after_then_move(part);
+    }
     finder_->InsertTextPartition(part);
-    free_boxes_it_.add_after_then_move(part);
   }
 
   void InsertLeaderPartition(int x_min, int y_min, int x_max, int y_max) {
@@ -235,9 +241,8 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicPass) {
   // TODO(nbeato): Ray's newer code...
   // all->ClaimBoxes();
   all->ComputeLimits();     // This is to make sure median iinfo is set.
-  InsertTextPartition(all); // This is to delete blobs
   ColPartition *fragment_me = all->CopyButDontOwnBlobs();
-
+  InsertTextPartition(all); // This is to delete blobs
   finder_->SplitAndInsertFragmentedTextPartition(fragment_me);
   finder_->ExpectPartition(TBOX(11, 5, 24, 15));
   finder_->ExpectPartition(TBOX(36, 5, 59, 15));
@@ -265,9 +270,8 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   // TODO(nbeato): Ray's newer code...
   // all->ClaimBoxes();
   all->ComputeLimits();     // This is to make sure median iinfo is set.
-  InsertTextPartition(all); // This is to delete blobs
   ColPartition *fragment_me = all->CopyButDontOwnBlobs();
-
+  InsertTextPartition(all); // This is to delete blobs
   finder_->SplitAndInsertFragmentedTextPartition(fragment_me);
   finder_->ExpectPartition(TBOX(11, 5, 99, 15));
   finder_->ExpectPartitionCount(1);
