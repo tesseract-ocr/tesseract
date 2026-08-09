@@ -535,7 +535,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
       model_string += ",";
     }
     if (StrongModel(hypothese.model)) {
-      model_string += std::to_string(1 + theory.IndexOf(hypothese.model));
+      model_string += std::to_string(static_cast<int64_t>(theory.IndexOf(hypothese.model)) + 1);
     } else if (hypothese.model == kCrownLeft) {
       model_string += "CrL";
     } else if (hypothese.model == kCrownRight) {
