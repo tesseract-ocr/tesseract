@@ -714,6 +714,9 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
   for (Fid = 0; Fid < Features->NumFeatures; Fid++) {
     Pid = AddIntProto(IClass);
     assert(Pid != NO_PROTO);
+    if (Pid == NO_PROTO) {
+      break;
+    }
 
     Feature = Features->Features[Fid];
     auto TempProto = new TEMP_PROTO_STRUCT;
