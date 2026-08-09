@@ -2111,7 +2111,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(std::vector<RowScratchRegis
       continue;
     }
     // rows[start, end) should be a paragraph.
-    PARA *p = new PARA();
+    std::unique_ptr<PARA> p(new PARA());
     if (model == kCrownLeft || model == kCrownRight) {
       p->is_very_first_or_continuation = true;
       // Crown paragraph.
@@ -2148,6 +2148,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(std::vector<RowScratchRegis
     p->is_list_item = model->justification() == JUSTIFICATION_RIGHT
                           ? rows[start].ri_->rword_indicates_list_item
                           : rows[start].ri_->lword_indicates_list_item;
+    PARA *para = p.release();
     for (int row = start; row < end; row++) {
       if ((*row_owners)[row] != nullptr) {
         tprintf(
@@ -2155,7 +2156,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(std::vector<RowScratchRegis
             "more than once!\n");
         delete (*row_owners)[row];
       }
-      (*row_owners)[row] = p;
+      (*row_owners)[row] = para;
     }
   }
 }
