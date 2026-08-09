@@ -21,8 +21,9 @@
 #include "topitch.h"
 #include "tovars.h"
 
-#include <algorithm> // for std::sort
+#include <algorithm> // for std::clamp, std::sort
 #include <cmath>
+#include <limits>    // for std::numeric_limits
 #include <vector>    // for std::vector
 
 namespace tesseract {
@@ -37,6 +38,15 @@ static const float kFPTolerance = 0.1f;
 // Minimum ratio of "good" character pitch for a row to be considered
 // to be fixed-pitch.
 static const float kFixedPitchThreshold = 0.35f;
+
+// Convert a float coordinate to TDimension, clamping out-of-range values
+// so that the conversion is well-defined even for corrupt or unusual input.
+static TDimension ToTDimension(float value) {
+  return static_cast<TDimension>(
+      std::clamp(static_cast<double>(value),
+                 static_cast<double>(std::numeric_limits<TDimension>::lowest()),
+                 static_cast<double>(std::numeric_limits<TDimension>::max())));
+}
 
 // rank statistics for a small collection of float values.
 class SimpleStats {
@@ -747,7 +757,8 @@ bool FPRow::Pass2Analyze() {
         skipped_whitespaces = true;
         c1 -= estimated_pitch_;
       }
-      TBOX ibody(c1, box(i).bottom(), c1 + estimated_pitch_, box(i).top());
+      TBOX ibody(ToTDimension(c1), box(i).bottom(),
+                 ToTDimension(c1 + estimated_pitch_), box(i).top());
 
       // Collect all characters that mostly fit in the region.
       // Also, their union height shouldn't be too big.
@@ -802,7 +813,8 @@ bool FPRow::Pass2Analyze() {
         skipped_whitespaces = true;
         c1 += estimated_pitch_;
       }
-      TBOX ibody(c1 - estimated_pitch_, box(i).bottom(), c1, box(i).top());
+      TBOX ibody(ToTDimension(c1 - estimated_pitch_), box(i).bottom(),
+                 ToTDimension(c1), box(i).top());
 
       size_t j = i;
       TBOX merged;
