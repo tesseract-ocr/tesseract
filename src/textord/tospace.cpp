@@ -870,6 +870,12 @@ the gap between the word being built and the next one. */
   int16_t current_within_xht_gap = INT16_MAX;
   int16_t next_within_xht_gap = INT16_MAX;
   int16_t word_count = 0;
+  // Degenerate rows may have space_size 0, so guard against division by zero.
+  // A fallback larger than any int16_t gap yields floor(gap / space_size) == 0,
+  // so the blank count is raised to 1 by the checks below.
+  const float space_size = row->space_size > 0.0f
+                               ? row->space_size
+                               : static_cast<float>(INT16_MAX) + 1.0f;
 
   // repeated char words
   WERD_IT rep_char_it(&(row->rep_words));
@@ -905,7 +911,7 @@ the gap between the word being built and the next one. */
       current_gap = box_it.data()->bounding_box().left() - next_rep_char_word_right;
       current_within_xht_gap = current_gap;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        prev_blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
+        prev_blanks = static_cast<uint8_t>(std::floor(current_gap / space_size));
         if (prev_blanks < 1) {
           prev_blanks = 1;
         }
@@ -998,7 +1004,7 @@ the gap between the word being built and the next one. */
             current_gap = word->bounding_box().left() - prev_x;
             current_within_xht_gap = current_gap;
             if (current_gap > tosp_rep_space * repetition_spacing) {
-              blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
+              blanks = static_cast<uint8_t>(std::floor(current_gap / space_size));
               if (blanks < 1) {
                 blanks = 1;
               }
@@ -1019,7 +1025,7 @@ the gap between the word being built and the next one. */
              */
             current_gap = blob_box.left() - next_rep_char_word_right;
             if (current_gap > tosp_rep_space * repetition_spacing) {
-              blanks = static_cast<uint8_t>(current_gap / row->space_size);
+              blanks = static_cast<uint8_t>(current_gap / space_size);
               if (blanks < 1) {
                 blanks = 1;
               }
@@ -1062,7 +1068,7 @@ the gap between the word being built and the next one. */
       repetition_spacing = find_mean_blob_spacing(word);
       current_gap = word->bounding_box().left() - prev_x;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        blanks = static_cast<uint8_t>(std::floor(current_gap / row->space_size));
+        blanks = static_cast<uint8_t>(std::floor(current_gap / space_size));
         if (blanks < 1) {
           blanks = 1;
         }
