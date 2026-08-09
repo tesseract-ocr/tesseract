@@ -1118,6 +1118,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
     dawg_args.active_dawgs = uni_prev->dawgs;
     word_start = uni_prev->start_of_dawg;
   } else {
+    delete updated_dawgs;
     return; // Can't continue if not a dict word.
   }
   auto permuter = static_cast<PermuterType>(dict_->def_letter_is_okay(
