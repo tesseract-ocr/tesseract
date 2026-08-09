@@ -898,6 +898,15 @@ void RecodeBeamSearch::ContinueContext(
   for (int p = length - 1; p >= 0 && previous != nullptr; --p) {
     while (previous->duplicate || previous->code == null_char_) {
       previous = previous->prev;
+      if (previous == nullptr) {
+        break;
+      }
+    }
+    if (previous == nullptr) {
+      // The beam entry has fewer than length codes in its history, so the
+      // prefix cannot be reconstructed reliably. Drop this continuation
+      // rather than using partially initialized prefix/full_code entries.
+      return;
     }
     prefix.Set(p, previous->code);
     full_code.Set(p, previous->code);
