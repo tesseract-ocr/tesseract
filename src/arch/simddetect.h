@@ -33,51 +33,54 @@ class SIMDDetect {
 public:
   // Returns true if AVX is available on this system.
   static inline bool IsAVXAvailable() {
-    return detector.avx_available_;
+    return GetDetector().avx_available_;
   }
   // Returns true if AVX2 (integer support) is available on this system.
   static inline bool IsAVX2Available() {
-    return detector.avx2_available_;
+    return GetDetector().avx2_available_;
   }
   // Returns true if AVX512 Foundation (float) is available on this system.
   static inline bool IsAVX512FAvailable() {
-    return detector.avx512F_available_;
+    return GetDetector().avx512F_available_;
   }
   // Returns true if AVX512 integer is available on this system.
   static inline bool IsAVX512BWAvailable() {
-    return detector.avx512BW_available_;
+    return GetDetector().avx512BW_available_;
   }
   // Returns true if AVX512 Vector Neural Network Instructions are available.
   static inline bool IsAVX512VNNIAvailable() {
-    return detector.avx512VNNI_available_;
+    return GetDetector().avx512VNNI_available_;
   }
   // Returns true if FMA is available on this system.
   static inline bool IsFMAAvailable() {
-    return detector.fma_available_;
+    return GetDetector().fma_available_;
   }
   // Returns true if SSE4.1 is available on this system.
   static inline bool IsSSEAvailable() {
-    return detector.sse_available_;
+    return GetDetector().sse_available_;
   }
   // Returns true if NEON is available on this system.
   static inline bool IsNEONAvailable() {
-    return detector.neon_available_;
+    return GetDetector().neon_available_;
   }
   // Returns true if RVV is available on this system.
   static inline bool IsRVVAvailable() {
-    return detector.rvv_available_;
+    return GetDetector().rvv_available_;
   }
 
   // Update settings after config variable was set.
   static TESS_API void Update();
+  // Returns the singleton detector instance.
+  // The detector is constructed on first use (a function local static
+  // variable), which avoids an unspecified order of static initialization
+  // with the static members of other classes (like IntSimdMatrix).
+  static const SIMDDetect &GetDetector();
 
 private:
   // Constructor, must set all static member variables.
   SIMDDetect();
 
 private:
-  // Singleton.
-  static SIMDDetect detector;
   // If true, then AVX has been detected.
   static TESS_API bool avx_available_;
   static TESS_API bool avx2_available_;
