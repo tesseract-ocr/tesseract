@@ -91,6 +91,12 @@ using LABELEDLIST = LABELEDLISTNODE *;
 struct MERGE_CLASS_NODE {
   MERGE_CLASS_NODE(const char * label) : Label(label), Class(NewClass(MAX_NUM_PROTOS, MAX_NUM_CONFIGS)) {
   }
+  ~MERGE_CLASS_NODE() {
+    FreeClass(Class);
+  }
+  // Class owns a raw pointer, so copying the node would double free it.
+  MERGE_CLASS_NODE(const MERGE_CLASS_NODE &) = delete;
+  MERGE_CLASS_NODE &operator=(const MERGE_CLASS_NODE &) = delete;
   std::string Label;
   int NumMerged[MAX_NUM_PROTOS];
   tesseract::CLASS_TYPE Class;
