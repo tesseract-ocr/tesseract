@@ -421,7 +421,7 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
     tess_bn_matching.set_value(false);         // turn it off
     tess_cn_matching.set_value(false);
     DENORM bl_denorm, cn_denorm;
-    INT_FX_RESULT_STRUCT fx_info;
+    INT_FX_RESULT_STRUCT fx_info{};
     SetupBLCNDenorms(*rotated_blob, classify_nonlinear_norm, &bl_denorm, &cn_denorm, &fx_info);
     LearnBlob(fontname, rotated_blob, cn_denorm, fx_info, correct_text);
   } else if (unicharset.contains_unichar(correct_text)) {
