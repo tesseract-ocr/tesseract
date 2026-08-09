@@ -98,9 +98,7 @@ void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_re
     ASSERT_HOST(box_file);
   }
 
-  PAGE_RES_IT page_res_it;
-  page_res_it.page_res = page_res;
-  page_res_it.restart_page();
+  PAGE_RES_IT page_res_it(page_res);
   std::string label;
 
   // Process all the words on this page.

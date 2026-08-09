@@ -681,7 +681,7 @@ public:
 
 class TESS_API PAGE_RES_IT {
 public:
-  PAGE_RES *page_res; // page being iterated
+  PAGE_RES *page_res = nullptr; // page being iterated
 
   PAGE_RES_IT() = default;
 
@@ -784,17 +784,17 @@ public:
 private:
   WERD_RES *internal_forward(bool new_block, bool empty_ok);
 
-  WERD_RES *prev_word_res;   // previous word
-  ROW_RES *prev_row_res;     // row of prev word
-  BLOCK_RES *prev_block_res; // block of prev word
+  WERD_RES *prev_word_res = nullptr; // previous word
+  ROW_RES *prev_row_res = nullptr;   // row of prev word
+  BLOCK_RES *prev_block_res = nullptr; // block of prev word
 
-  WERD_RES *word_res;   // current word
-  ROW_RES *row_res;     // row of current word
-  BLOCK_RES *block_res; // block of cur. word
+  WERD_RES *word_res = nullptr;   // current word
+  ROW_RES *row_res = nullptr;     // row of current word
+  BLOCK_RES *block_res = nullptr; // block of cur. word
 
-  WERD_RES *next_word_res;   // next word
-  ROW_RES *next_row_res;     // row of next word
-  BLOCK_RES *next_block_res; // block of next word
+  WERD_RES *next_word_res = nullptr;   // next word
+  ROW_RES *next_row_res = nullptr;     // row of next word
+  BLOCK_RES *next_block_res = nullptr; // block of next word
 
   BLOCK_RES_IT block_res_it; // iterators
   ROW_RES_IT row_res_it;
