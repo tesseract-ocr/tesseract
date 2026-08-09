@@ -166,7 +166,11 @@ inline constexpr CLASS_PRUNER_STRUCT *CPrunerFor(INT_TEMPLATES_STRUCT *T, int c)
 inline constexpr int CPrunerWordIndexFor(int c) { return (c % CLASSES_PER_CP) / CLASSES_PER_CP_WERD; }
 inline constexpr int CPrunerBitIndexFor(int c) { return (c % CLASSES_PER_CP) % CLASSES_PER_CP_WERD; }
 inline constexpr uint32_t CPrunerMaskFor(int L, int c) {
-  return (static_cast<uint32_t>(L) + 1) << (CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS);
+  // The class pruner stores only NUM_BITS_PER_CLASS bits per class,
+  // so clamp the level to the maximum value that fits in the field.
+  const uint32_t value = static_cast<uint32_t>(L) + 1;
+  return (value > CLASS_PRUNER_CLASS_MASK ? CLASS_PRUNER_CLASS_MASK : value)
+         << (CPrunerBitIndexFor(c) * NUM_BITS_PER_CLASS);
 }
 
 /* DEBUG constants */
