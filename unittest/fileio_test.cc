@@ -26,9 +26,6 @@ TEST(FileTest, JoinPath) {
 TEST(OutputBufferTest, WriteString) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
-  for (char &i : buffer) {
-    i = '\0';
-  }
   FILE *fp = tmpfile();
   CHECK(fp != nullptr);
 
@@ -37,9 +34,9 @@ TEST(OutputBufferTest, WriteString) {
   output->WriteString("world!");
 
   rewind(fp);
-  auto s = "Hello world!";
-  fread(buffer, strlen(s), 1, fp);
-  EXPECT_STREQ(s, buffer);
+  size_t read_size = fread(buffer, 1, kMaxBufSize - 1, fp);
+  buffer[read_size] = '\0';
+  EXPECT_STREQ("Hello world!", buffer);
 }
 
 TEST(InputBufferTest, Read) {
