@@ -88,7 +88,29 @@ DotProductFunction DotProduct;
 
 static STRING_VAR(dotproduct, "auto", "Function used for calculation of dot product");
 
-SIMDDetect SIMDDetect::detector;
+const SIMDDetect &SIMDDetect::GetDetector() {
+  // A function local static variable is initialized when the function is
+  // first called, so there is no problem with the order of initialization.
+  static const SIMDDetect detector;
+  // Apply DOTPRODUCT environment variable override after construction.
+  // Using a static flag ensures this only runs once, and defers the override
+  // until after the detector is fully constructed to avoid recursive
+  // re-entry of GetDetector() during static initialization.
+  [[maybe_unused]] static bool env_override_applied = []() -> bool {
+    const char *dotproduct_env = getenv("DOTPRODUCT");
+    if (dotproduct_env != nullptr) {
+      dotproduct = dotproduct_env;
+      Update();
+    }
+    return true;
+  }();
+  return detector;
+}
+
+// Force the construction of the detector at program startup, so that the dot
+// product function is set even when the library is used without calling
+// SIMDDetect::Update() or any of the Is*Available() functions.
+static const SIMDDetect &detector_init = SIMDDetect::GetDetector();
 
 #if defined(__aarch64__)
 // ARMv8 always has NEON.
@@ -285,15 +307,11 @@ SIMDDetect::SIMDDetect() {
 #endif
   }
 
-  const char *dotproduct_env = getenv("DOTPRODUCT");
-  if (dotproduct_env != nullptr) {
-    // Override automatic settings by value from environment variable.
-    dotproduct = dotproduct_env;
-    Update();
-  }
 }
 
 void SIMDDetect::Update() {
+  // Ensure that the detector is initialized before using it.
+  (void)GetDetector();
   // Select code for calculation of dot product based on the
   // value of the config variable if that value is not empty.
   const char *dotproduct_method = "generic";
