@@ -111,15 +111,20 @@ void PageIterator::RestartParagraph() {
   if (it_->block() == nullptr) {
     return; // At end of the document.
   }
+  const BLOCK_RES *target_block = it_->block();
+  const PARA *target_para = it_->row() == nullptr ? nullptr : it_->row()->row->para();
   PAGE_RES_IT para(page_res_);
-  PAGE_RES_IT next_para(para);
-  next_para.forward_paragraph();
-  while (next_para.cmp(*it_) <= 0) {
-    para = next_para;
-    next_para.forward_paragraph();
+  // Paragraph and block identities are stable within PAGE_RES. Avoid cmp(),
+  // which searches the page and makes this forward scan quadratic.
+  while (para.block() != nullptr &&
+         (para.block() != target_block ||
+          (para.row() != nullptr && para.row()->row->para() != target_para))) {
+    para.forward_paragraph();
   }
-  *it_ = para;
-  BeginWord(0);
+  if (para.block() != nullptr) {
+    *it_ = para;
+    BeginWord(0);
+  }
 }
 
 bool PageIterator::IsWithinFirstTextlineOfParagraph() const {

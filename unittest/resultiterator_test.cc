@@ -355,6 +355,42 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   delete it;
 }
 
+// Tests that restarting at a paragraph preserves the current paragraph while
+// iterating a page with multiple blocks and paragraphs.
+TEST_F(ResultIteratorTest, RestartParagraphTest) {
+  SetImage("8087_054.3B.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  ResultIterator *it = api_.GetIterator();
+  ASSERT_NE(it, nullptr);
+  do {
+    int left;
+    int top;
+    int right;
+    int bottom;
+    ASSERT_TRUE(it->BoundingBox(tesseract::RIL_PARA, &left, &top, &right, &bottom));
+    char *paragraph_text = it->GetUTF8Text(tesseract::RIL_PARA);
+
+    ResultIterator paragraph_start(*it);
+    paragraph_start.RestartParagraph();
+    EXPECT_TRUE(paragraph_start.IsAtBeginningOf(tesseract::RIL_PARA));
+    int start_left;
+    int start_top;
+    int start_right;
+    int start_bottom;
+    ASSERT_TRUE(paragraph_start.BoundingBox(tesseract::RIL_PARA, &start_left, &start_top,
+                                            &start_right, &start_bottom));
+    EXPECT_EQ(left, start_left);
+    EXPECT_EQ(top, start_top);
+    EXPECT_EQ(right, start_right);
+    EXPECT_EQ(bottom, start_bottom);
+    char *start_text = paragraph_start.GetUTF8Text(tesseract::RIL_PARA);
+    EXPECT_STREQ(paragraph_text, start_text);
+    delete[] paragraph_text;
+    delete[] start_text;
+  } while (it->Next(tesseract::RIL_WORD));
+  delete it;
+}
+
 // Tests image rebuild on the UNLV page numbered 8087_054.3G.tif. (Dubrovnik)
 TEST_F(ResultIteratorTest, GreyTest) {
   SetImage("8087_054.3G.tif");
