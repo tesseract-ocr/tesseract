@@ -480,6 +480,32 @@ char *TessBaseAPI::TesseractRect(const unsigned char *imagedata, int bytes_per_p
   return GetUTF8Text();
 }
 
+char *TessBaseAPI::GetUTF8TextForBoxes(const Boxa *boxes) {
+  if (tesseract_ == nullptr || thresholder_ == nullptr || boxes == nullptr) {
+    return nullptr;
+  }
+
+  std::string text;
+  const int box_count = boxaGetCount(const_cast<Boxa *>(boxes));
+  for (int i = 0; i < box_count; ++i) {
+    int left;
+    int top;
+    int width;
+    int height;
+    boxaGetBoxGeometry(const_cast<Boxa *>(boxes), i, &left, &top, &width, &height);
+    if (width <= 0 || height <= 0) {
+      continue;
+    }
+    SetRectangle(left, top, width, height);
+    char *box_text = GetUTF8Text();
+    if (box_text != nullptr) {
+      text += box_text;
+      delete[] box_text;
+    }
+  }
+  return copy_string(text);
+}
+
 #ifndef DISABLED_LEGACY_ENGINE
 /**
  * Call between pages or documents etc to free up memory and forget
