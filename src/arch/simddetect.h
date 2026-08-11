@@ -74,7 +74,7 @@ public:
   // The detector is constructed on first use (a function local static
   // variable), which avoids an unspecified order of static initialization
   // with the static members of other classes (like IntSimdMatrix).
-  static const SIMDDetect &GetDetector();
+  static TESS_API const SIMDDetect &GetDetector();
 
 private:
   // Constructor, must set all static member variables.
