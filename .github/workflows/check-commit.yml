@@ -1,0 +1,157 @@
+name: Check Commit Authors
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-authors:
+    name: Verify commit author names
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so we can walk all commits in the PR
+          fetch-depth: 0
+
+      - name: Check commit authors
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # ── Whitelist ──────────────────────────────────────────────────────────
+          # Names that are always acceptable (bots, automation).
+          # Case-insensitive substring match on the author name.
+          WHITELISTED_NAMES=(
+            "dependabot"
+            "github-actions"
+            "copilot"
+            "renovate"
+            "pre-commit-ci"
+            "allcontributors"
+          )
+
+          # ── Helper: is this author whitelisted? ────────────────────────────────
+          is_whitelisted() {
+            local name="$1"
+            local name_lower
+            name_lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+            for w in "${WHITELISTED_NAMES[@]}"; do
+              if [[ "$name_lower" == *"$w"* ]]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          # ── Helper: does the name look like a real person? ─────────────────────
+          # Returns 0 (suspicious) when ANY of these hold:
+          #   • name contains a digit
+          #   • name contains a hyphen (username-style, e.g. "markbus-ai")
+          #   • name is a single word AND starts with a lowercase letter
+          #     (single capitalized words like "Voltaire" or "Cher" are accepted)
+          #   • email local-part matches GitHub numeric noreply pattern
+          #     <ID+handle@users.noreply.github.com>
+          looks_like_username() {
+            local name="$1"
+            local email="$2"
+
+            # Numeric ID noreply email: 12345+handle@users.noreply.github.com
+            if [[ "$email" =~ ^[0-9]+\+.*@users\.noreply\.github\.com$ ]]; then
+              return 0   # suspicious
+            fi
+
+            # Name contains a digit
+            if [[ "$name" =~ [0-9] ]]; then
+              return 0
+            fi
+
+            # Name contains a hyphen (username pattern)
+            if [[ "$name" == *"-"* ]]; then
+              return 0
+            fi
+
+            # Single word starting with lowercase → username-style handle
+            if [[ "$name" != *" "* && "$name" =~ ^[a-z] ]]; then
+              return 0
+            fi
+
+            return 1   # looks fine
+          }
+
+          # ── Walk commits in this PR ────────────────────────────────────────────
+          # Collect unique author name+email combinations (de-duplicated).
+          declare -A seen
+          declare -a all_authors   # "sha|name|email" for first occurrence
+          declare -a commit_shas   # parallel: sha for each unique author
+
+          while IFS=$'\t' read -r sha name email; do
+            key="$name|$email"
+            if [[ -z "${seen[$key]+_}" ]]; then
+              seen[$key]="$sha"
+              all_authors+=("$key")
+            fi
+          done < <(git log "${BASE_SHA}..${HEAD_SHA}" \
+                     --pretty=format:"%H%x09%an%x09%ae")
+
+          # ── Print full author table ────────────────────────────────────────────
+          echo "┌─────────────────────────────────────────────────────────────────┐"
+          echo "│              Commit authors in this pull request                │"
+          echo "└─────────────────────────────────────────────────────────────────┘"
+          echo ""
+
+          suspicious=()
+
+          for key in "${all_authors[@]}"; do
+            sha="${seen[$key]}"
+            name="${key%%|*}"
+            email="${key##*|}"
+
+            if is_whitelisted "$name"; then
+              echo "  ✅ [bot]        $name <$email>"
+            elif looks_like_username "$name" "$email"; then
+              echo "  ⚠️  [suspicious] $name <$email>"
+              suspicious+=("$name <$email>")
+            else
+              echo "  ✅ [ok]         $name <$email>"
+            fi
+          done
+
+          echo ""
+
+          # ── Summary ───────────────────────────────────────────────────────────
+          if [ ${#suspicious[@]} -eq 0 ]; then
+            echo "All commit authors appear to be real persons. ✅"
+            exit 0
+          fi
+
+          echo "──────────────────────────────────────────────────────────────────"
+          echo "The following author(s) do not appear to use a real person name."
+          echo "Please review manually before merging:"
+          echo ""
+          for entry in "${suspicious[@]}"; do
+            echo "  • $entry"
+          done
+          echo ""
+          echo "If an author is a real person using an unusual name, a maintainer"
+          echo "can add the label 'author-verified' to bypass this check."
+          echo "──────────────────────────────────────────────────────────────────"
+          exit 1
+
+      # ── Label-based maintainer override ──────────────────────────────────────
+      - name: Check for maintainer override label
+        if: failure()
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          if echo "$LABELS" | grep -qi "author-verified"; then
+            echo "Label 'author-verified' found – maintainer has approved the authors. ✅"
+            exit 0
+          fi
+          echo "No override label found. Check failed as reported above."
+          exit 1
