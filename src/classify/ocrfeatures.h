@@ -70,7 +70,7 @@ using FEATURE = FEATURE_STRUCT *;
 struct FEATURE_SET_STRUCT {
   /// Creator for a new feature set large enough to
   /// hold the specified number of features.
-  /// @param NumFeatures maximum # of features to be put in feature set
+  /// @param numFeatures maximum # of features to be put in feature set
   FEATURE_SET_STRUCT(int numFeatures) : NumFeatures(0), MaxNumFeatures(numFeatures), Features(numFeatures) {
   }
 
