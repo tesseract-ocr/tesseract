@@ -882,7 +882,8 @@ if(BUILD_TESTS
   add_subdirectory(unittest)
 endif()
 
-if(BUILD_TRAINING_TOOLS)
+if(BUILD_TRAINING_TOOLS OR BUILD_TESTS)
+  # The training libraries are also required by the unit tests.
   add_subdirectory(src/training)
 endif()
 
