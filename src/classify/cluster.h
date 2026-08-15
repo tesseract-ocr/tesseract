@@ -32,7 +32,7 @@ constexpr int MAXBUCKETS = 39;
           Types
 ----------------------------------------------------------------------*/
 struct CLUSTER {
-  CLUSTER(size_t n) : Mean(n) {
+  CLUSTER(size_t n) : Left(nullptr), Right(nullptr), Mean(n) {
   }
 
   ~CLUSTER() {

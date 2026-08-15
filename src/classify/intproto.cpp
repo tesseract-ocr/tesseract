@@ -608,6 +608,9 @@ INT_TEMPLATES_STRUCT::INT_TEMPLATES_STRUCT() {
   for (int i = 0; i < MAX_NUM_CLASSES; i++) {
     ClassForClassId(this, i) = nullptr;
   }
+  for (int i = 0; i < MAX_NUM_CLASS_PRUNERS; i++) {
+    ClassPruners[i] = nullptr;
+  }
 }
 
 INT_TEMPLATES_STRUCT::~INT_TEMPLATES_STRUCT() {

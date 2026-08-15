@@ -47,9 +47,8 @@ using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 struct CHAR_DESC_STRUCT {
   /// Allocate a new character description, initialize its
   /// feature sets to be empty, and return it.
-  CHAR_DESC_STRUCT(const FEATURE_DEFS_STRUCT &FeatureDefs) {
-    NumFeatureSets = FeatureDefs.NumFeatureTypes;
-  }
+  CHAR_DESC_STRUCT(const FEATURE_DEFS_STRUCT &FeatureDefs)
+      : NumFeatureSets(FeatureDefs.NumFeatureTypes), FeatureSets{} {}
 
   /// Release the memory consumed by the specified character
   /// description and all of the features in that description.

@@ -99,7 +99,7 @@ struct KDPairDec : public KDPair<Key, Data> {
 template <typename Key, typename Data>
 class KDPtrPair {
 public:
-  KDPtrPair() : data_(nullptr) {}
+  KDPtrPair() : data_(nullptr), key_{} {}
   KDPtrPair(Key k, Data *d) : data_(d), key_(k) {}
   // Copy constructor steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
