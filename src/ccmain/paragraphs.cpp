@@ -2148,15 +2148,20 @@ static void ConvertHypothesizedModelRunsToParagraphs(std::vector<RowScratchRegis
     p->is_list_item = model->justification() == JUSTIFICATION_RIGHT
                           ? rows[start].ri_->rword_indicates_list_item
                           : rows[start].ri_->lword_indicates_list_item;
-    PARA *para = p.release();
+    // Free any stale owners of the rows of the run, then give all rows of
+    // the run a reference to the new paragraph, whose ownership is
+    // transferred directly to the first row of the run.
     for (int row = start; row < end; row++) {
       if ((*row_owners)[row] != nullptr) {
         tprintf(
-            "Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
+            "Memory leak! ConvertHypothesizedModelRunsToParagraphs() called "
             "more than once!\n");
         delete (*row_owners)[row];
       }
-      (*row_owners)[row] = para;
+    }
+    (*row_owners)[start] = p.release();
+    for (int row = start + 1; row < end; row++) {
+      (*row_owners)[row] = (*row_owners)[start];
     }
   }
 }
