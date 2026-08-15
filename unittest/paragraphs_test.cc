@@ -9,7 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string> // for std::string
+#include <string>  // for std::string
+#include <utility> // for std::move
 
 #include "include_gunit.h" // for TEST
 #include "log.h"           // for LOG
@@ -156,7 +157,7 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
                         correct[i].model.ToString() +
                         (correct[i].is_very_first_or_continuation ? " crown" : "") +
                         (correct[i].is_list_item ? " li" : "");
-        dbg_lines.push_back(s);
+        dbg_lines.push_back(std::move(s));
       } else {
         dbg_lines.emplace_back(correct[i].ascii);
       }
@@ -178,7 +179,7 @@ void EvaluateParagraphDetection(const TextAndModel *correct, int n,
         }
       }
       std::string s = correct[i].ascii + annotation;
-      dbg_lines.push_back(s);
+      dbg_lines.push_back(std::move(s));
     }
     std::string s;
     for (auto &dbg_line : dbg_lines) {

@@ -889,7 +889,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
     std::string line;
     for (const auto ch : *buf) {
       if (ch == '\n') {
-        lines.push_back(line);
+        lines.push_back(std::move(line));
         line.clear();
       } else {
         line.push_back(ch);
@@ -897,7 +897,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
     }
     if (!line.empty()) {
       // Add last line without terminating LF.
-      lines.push_back(line);
+      lines.push_back(std::move(line));
     }
     if (lines.empty()) {
       return false;

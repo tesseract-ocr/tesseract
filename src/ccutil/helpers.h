@@ -26,6 +26,7 @@
 #include <cstdio>
 #include <algorithm>  // for std::find
 #include <string>
+#include <utility>    // for std::move
 #include <vector>
 
 #include "serialis.h"
@@ -55,12 +56,12 @@ inline const std::vector<std::string> split(const std::string &s, char c) {
     if (n != c) {
       buff += n;
     } else if (n == c && !buff.empty()) {
-      v.push_back(buff);
+      v.push_back(std::move(buff));
       buff.clear();
     }
   }
   if (!buff.empty()) {
-    v.push_back(buff);
+    v.push_back(std::move(buff));
   }
   return v;
 }

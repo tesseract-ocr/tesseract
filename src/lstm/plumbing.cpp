@@ -18,6 +18,8 @@
 
 #include "plumbing.h"
 
+#include <utility> // for std::move
+
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
@@ -152,7 +154,7 @@ void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::strin
       auto *plumbing = static_cast<Plumbing *>(stack_[i]);
       plumbing->EnumerateLayers(&layer_name, layers);
     } else {
-      layers.push_back(layer_name);
+      layers.push_back(std::move(layer_name));
     }
   }
 }

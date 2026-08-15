@@ -31,6 +31,7 @@
 #include <locale>  // for std::locale::classic
 #include <sstream> // for std::stringstream
 #include <string>  // for std::string
+#include <utility> // for std::move
 
 namespace tesseract {
 
@@ -130,7 +131,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
     if (box_texts != nullptr) {
       std::string full_text;
       MakeBoxFileStr(utf8_str.c_str(), box, target_page, full_text);
-      box_texts->push_back(full_text);
+      box_texts->push_back(std::move(full_text));
     }
     if (pages != nullptr) {
       pages->push_back(page);

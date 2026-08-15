@@ -547,7 +547,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
     model_string += "0";
   }
 
-  dbg.push_back(model_string);
+  dbg.push_back(std::move(model_string));
 }
 
 void RowScratchRegisters::Init(const RowInfo &row) {
