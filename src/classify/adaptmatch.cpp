@@ -1801,6 +1801,21 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
     Y2 = F2->Params[PicoFeatY];
     A2 = F2->Params[PicoFeatDir];
 
+    // The angle of the new proto is the circular midpoint of the angles
+    // of the first and last feature, so compute it along the shorter arc.
+    float delta = A2 - A1;
+    if (delta > 0.5f) {
+      delta -= 1.0f;
+    } else if (delta < -0.5f) {
+      delta += 1.0f;
+    }
+    float Angle = A1 + delta / 2.0f;
+    if (Angle < 0.0f) {
+      Angle += 1.0f;
+    } else if (Angle >= 1.0f) {
+      Angle -= 1.0f;
+    }
+
     Pid = AddIntProto(IClass);
     if (Pid == NO_PROTO) {
       return (NO_PROTO);
@@ -1813,7 +1828,7 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
    ConvertProto assumes that the Y dimension varies from -0.5 to 0.5
    instead of the -0.25 to 0.75 used in baseline normalization */
     Proto->Length = SegmentLength;
-    Proto->Angle = A1;
+    Proto->Angle = Angle;
     Proto->X = (X1 + X2) / 2;
     Proto->Y = (Y1 + Y2) / 2 - Y_DIM_OFFSET;
     FillABC(Proto);
