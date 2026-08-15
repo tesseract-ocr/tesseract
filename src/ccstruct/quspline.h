@@ -46,6 +46,7 @@ public:
   }
   QSPLINE( // copy constructor
       const QSPLINE &src);
+  QSPLINE(QSPLINE &&src) noexcept;  // move constructor
   QSPLINE(                          // constructor
       int32_t count,                // number of segments
       int32_t *xstarts,             // segment starts
@@ -85,6 +86,7 @@ public:
   void plot(Image pix) const;
 
   QSPLINE &operator=(const QSPLINE &source); // from this
+  QSPLINE &operator=(QSPLINE &&source) noexcept;
 
 private:
   int32_t spline_index(    // binary search

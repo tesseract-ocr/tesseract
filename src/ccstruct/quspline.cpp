@@ -141,6 +141,16 @@ QSPLINE::QSPLINE( // constructor
   *this = src;
 }
 
+QSPLINE::QSPLINE( // move constructor
+    QSPLINE &&src) noexcept {
+  segments = src.segments;
+  xcoords = src.xcoords;
+  quadratics = src.quadratics;
+  src.segments = 0;
+  src.xcoords = nullptr;
+  src.quadratics = nullptr;
+}
+
 /**********************************************************************
  * QSPLINE::~QSPLINE
  *
@@ -168,6 +178,22 @@ QSPLINE &QSPLINE::operator=( // assignment
   quadratics = new QUAD_COEFFS[segments];
   memmove(xcoords, source.xcoords, (segments + 1) * sizeof(int32_t));
   memmove(quadratics, source.quadratics, segments * sizeof(QUAD_COEFFS));
+  return *this;
+}
+
+QSPLINE &QSPLINE::operator=( // move assignment
+    QSPLINE &&source) noexcept {
+  if (this != &source) {
+    delete[] xcoords;
+    delete[] quadratics;
+
+    segments = source.segments;
+    xcoords = source.xcoords;
+    quadratics = source.quadratics;
+    source.segments = 0;
+    source.xcoords = nullptr;
+    source.quadratics = nullptr;
+  }
   return *this;
 }
 
