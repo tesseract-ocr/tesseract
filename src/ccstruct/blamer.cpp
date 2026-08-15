@@ -79,7 +79,7 @@ void BlamerBundle::SetWordTruth(const UNICHARSET &unicharset, const char *truth_
     if (id != INVALID_UNICHAR_ID) {
       uch = unicharset.get_normed_unichar(id);
     }
-    truth_text_.push_back(uch);
+    truth_text_.push_back(std::move(uch));
   }
 }
 
@@ -96,7 +96,7 @@ void BlamerBundle::SetSymbolTruth(const UNICHARSET &unicharset, const char *char
     }
   }
   int length = truth_word_.length();
-  truth_text_.push_back(symbol_str);
+  truth_text_.push_back(std::move(symbol_str));
   truth_word_.InsertBox(length, char_box);
   if (length == 0) {
     truth_has_char_boxes_ = true;

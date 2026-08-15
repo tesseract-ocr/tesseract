@@ -43,6 +43,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string_view>
+#include <utility> // for std::move
 
 #ifndef _MSC_VER
 #  include <sys/param.h>
@@ -647,7 +648,7 @@ std::string FontUtils::BestFonts(const std::unordered_map<char32, int64_t> &ch_m
     most_ok_chars = std::max(ok_chars, most_ok_chars);
     best_raw_score = std::max(raw_score, best_raw_score);
 
-    font_flags.push_back(ch_flags);
+    font_flags.push_back(std::move(ch_flags));
     font_scores.push_back(ok_chars);
     raw_scores.push_back(raw_score);
   }
@@ -669,7 +670,7 @@ std::string FontUtils::BestFonts(const std::unordered_map<char32, int64_t> &ch_m
     int score = font_scores[i];
     int raw_score = raw_scores[i];
     if ((score >= least_good_enough && raw_score >= least_raw_enough) || score >= override_enough) {
-      fonts->push_back(std::make_pair(font_names[i].c_str(), font_flags[i]));
+      fonts->push_back(std::make_pair(font_names[i].c_str(), std::move(font_flags[i])));
       tlog(1, "OK font %s = %.4f%%, raw = %d = %.2f%%\n", font_names[i].c_str(),
            100.0 * score / most_ok_chars, raw_score, 100.0 * raw_score / best_raw_score);
       font_list += font_names[i];

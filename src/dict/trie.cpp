@@ -27,6 +27,8 @@
 #include "helpers.h"
 #include "kdpair.h"
 
+#include <utility> // for std::move
+
 namespace tesseract {
 
 const char kDoNotReverse[] = "RRP_DO_NO_REVERSE";
@@ -298,7 +300,7 @@ bool Trie::read_word_list(const char *filename, std::vector<std::string> *words)
     if (debug_level_ && word_count % 10000 == 0) {
       tprintf("Read %d words so far\n", word_count);
     }
-    words->push_back(word_str);
+    words->push_back(std::move(word_str));
   }
   if (debug_level_) {
     tprintf("Read %d words total.\n", word_count);

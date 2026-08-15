@@ -24,6 +24,7 @@
 #include "unicharcompress.h"
 
 #include <algorithm> // for std::reverse
+#include <utility>   // for std::move
 
 namespace tesseract {
 
@@ -157,7 +158,7 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
                      std::pair<const char *, float>(character, outputs[i]));
     }
   }
-  timesteps.push_back(choices);
+  timesteps.push_back(std::move(choices));
 }
 
 void RecodeBeamSearch::segmentTimestepsByCharacters() {
@@ -167,7 +168,7 @@ void RecodeBeamSearch::segmentTimestepsByCharacters() {
          ++j) {
       segment.push_back(timesteps[j]);
     }
-    segmentedTimesteps.push_back(segment);
+    segmentedTimesteps.push_back(std::move(segment));
   }
 }
 std::vector<std::vector<std::pair<const char *, float>>>
@@ -334,7 +335,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids,
   // create the topology
   for (int step = beam.size() - 1; step >= 0; --step) {
     std::vector<const RecodeNode *> layer;
-    topology.push_back(layer);
+    topology.push_back(std::move(layer));
   }
   // fill the topology with depths first
   for (int step = beam.size() - 1; step >= 0; --step) {
@@ -475,7 +476,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
           excludedUnichars[j - 1].insert(elem);
         }
       } else {
-        excludedUnichars.push_back(excludeCodeList);
+        excludedUnichars.push_back(std::move(excludeCodeList));
       }
       // Save the best choice for the choice iterator.
       if (j - 1 < ctc_choices.size()) {
@@ -490,17 +491,17 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         const char *result = unicharset->id_to_unichar_ext(id);
         float rating = ratings[bestPos];
         choice.emplace_back(result, rating);
-        ctc_choices.push_back(choice);
+        ctc_choices.push_back(std::move(choice));
       }
       // fill the blank spot with an empty array
     } else {
       if (j - 1 >= excludedUnichars.size()) {
         std::unordered_set<int> excludeCodeList;
-        excludedUnichars.push_back(excludeCodeList);
+        excludedUnichars.push_back(std::move(excludeCodeList));
       }
       if (j - 1 >= ctc_choices.size()) {
         std::vector<std::pair<const char *, float>> choice;
-        ctc_choices.push_back(choice);
+        ctc_choices.push_back(std::move(choice));
       }
     }
   }
