@@ -232,6 +232,7 @@ struct BlamerBundle {
       lattice_size_ = other.lattice_size_;
     } else {
       lattice_data_ = nullptr;
+      lattice_size_ = 0;
     }
   }
   const char *IncorrectReason() const;
