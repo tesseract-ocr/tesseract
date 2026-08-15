@@ -1635,7 +1635,6 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
 
   while (!block_res_it.cycled_list()) {
     if (new_block) {
-      new_block = false;
       row_res_it.set_to_list(&block_res_it.data()->row_res_list);
       row_res_it.mark_cycle_pt();
       if (row_res_it.empty() && empty_ok) {
