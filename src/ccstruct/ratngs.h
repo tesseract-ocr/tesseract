@@ -76,6 +76,7 @@ public:
               float yshift,              // the larger of y shift (top or bottom)
               BlobChoiceClassifier c);   // adapted match or other
   BLOB_CHOICE(const BLOB_CHOICE &other);
+  BLOB_CHOICE(BLOB_CHOICE &&other) noexcept = default;
   ~BLOB_CHOICE() = default;
 
   UNICHAR_ID unichar_id() const {
@@ -192,6 +193,8 @@ public:
 private:
   // Copy assignment operator.
   BLOB_CHOICE &operator=(const BLOB_CHOICE &other);
+  // Move assignment operator.
+  BLOB_CHOICE &operator=(BLOB_CHOICE &&other) noexcept = default;
 
   UNICHAR_ID unichar_id_; // unichar id
 #ifndef DISABLED_LEGACY_ENGINE
@@ -276,6 +279,7 @@ public:
     this->init(word.length());
     this->operator=(word);
   }
+  WERD_CHOICE(WERD_CHOICE &&word) noexcept = default;
   ~WERD_CHOICE();
 
   const UNICHARSET *unicharset() const {
@@ -573,6 +577,7 @@ public:
       const WERD_CHOICE &second); // second on first
 
   WERD_CHOICE &operator=(const WERD_CHOICE &source);
+  WERD_CHOICE &operator=(WERD_CHOICE &&source) noexcept = default;
 
 private:
   const UNICHARSET *unicharset_;
