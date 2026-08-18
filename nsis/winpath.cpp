@@ -28,9 +28,7 @@ int main(int argc, char *argv[]) {
     if (last != nullptr) {
       *last = '\0';
     }
-    strcpy(path, dir);
-    strcat(path, ";");
-    strcat(path, getenv("PATH"));
+    snprintf(path, sizeof(path), "%s;%s", dir, getenv("PATH"));
     _putenv_s("PATH", path);
     _spawnvp(_P_WAIT, argv[1], argv + 1);
     //~ _spawnvp(_P_OVERLAY, argv[1], argv + 1);
