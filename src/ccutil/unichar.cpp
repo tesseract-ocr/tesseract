@@ -223,12 +223,17 @@ std::vector<char32> UNICHAR::UTF8ToUTF32(const char *utf8_str) {
   unicodes.reserve(utf8_length);
   const_iterator end_it(end(utf8_str, utf8_length));
   for (const_iterator it(begin(utf8_str, utf8_length)); it != end_it; ++it) {
-    if (it.is_legal()) {
-      unicodes.push_back(*it);
-    } else {
+    // Reject a truncated multibyte prefix (issue #4495): utf8_step() reports
+    // the full width from the leading byte alone, but the string may end
+    // mid-sequence. Clamp the step to the remaining bytes so the iterator
+    // never reads past the end of the string.
+    const int remaining = end_it.utf8_data() - it.utf8_data();
+    const int step = utf8_step(it.utf8_data());
+    if (step <= 0 || step > remaining) {
       unicodes.clear();
       return unicodes;
     }
+    unicodes.push_back(*it);
   }
   return unicodes;
 }
