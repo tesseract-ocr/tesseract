@@ -107,6 +107,13 @@ public:
   int NumOutputs() const {
     return int_mode_ ? wi_.dim1() : wf_.dim1();
   }
+  // The dimensions of the active weight matrix (wi_ in int mode, else wf_).
+  int Dim1() const {
+    return int_mode_ ? wi_.dim1() : wf_.dim1();
+  }
+  int Dim2() const {
+    return int_mode_ ? wi_.dim2() : wf_.dim2();
+  }
   // Provides one set of weights. Only used by peep weight maxpool.
   const TFloat *GetWeights(int index) const {
     return wf_[index];

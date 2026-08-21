@@ -121,7 +121,16 @@ bool FullyConnected::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool FullyConnected::DeSerialize(TFile *fp) {
-  return weights_.DeSerialize(IsTraining(), fp);
+  if (!weights_.DeSerialize(IsTraining(), fp)) {
+    return false;
+  }
+  // The weight matrix must match the declared sizes (the second dimension
+  // includes the bias column); otherwise Forward would read or write
+  // outside the scratch buffers sized from ni_ and no_.
+  if (weights_.Dim1() != no_ || weights_.Dim2() != ni_ + 1) {
+    return false;
+  }
+  return true;
 }
 
 // Runs forward propagation of activations on the input line.
