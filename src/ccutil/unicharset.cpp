@@ -791,6 +791,9 @@ bool UNICHARSET::load_via_fgets(
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
+  if (unicharset_size <= 0) {
+    return false;
+  }
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
     char unichar[256];
     unsigned int properties;
@@ -883,6 +886,15 @@ bool UNICHARSET::load_via_fgets(
       this->unichar_insert(" ");
     } else {
       this->unichar_insert_backwards_compatible(unichar);
+    }
+    // A duplicate or empty representation makes the insert a no-op,
+    // desynchronizing id from the unichars vector; the set_* calls and
+    // unichars[id] below would then write out of bounds. The file is
+    // malformed, so reject it.
+    if (size() != static_cast<size_t>(id) + 1) {
+      fprintf(stderr, "%s:%d unichar %d has a duplicate or empty representation\n",
+              __FILE__, __LINE__, id);
+      return false;
     }
 
     this->set_isalpha(id, properties & ISALPHA_MASK);

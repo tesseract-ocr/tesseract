@@ -1220,6 +1220,7 @@ check_PROGRAMS += tfile_test
 if ENABLE_TRAINING
 check_PROGRAMS += unichar_test
 check_PROGRAMS += unicharcompress_test
+check_PROGRAMS += unicharset_load_test
 check_PROGRAMS += unicharset_test
 check_PROGRAMS += validate_grapheme_test
 check_PROGRAMS += validate_indic_test
@@ -1492,6 +1493,10 @@ unichar_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 unicharcompress_test_SOURCES = unittest/unicharcompress_test.cc
 unicharcompress_test_CPPFLAGS = $(unittest_CPPFLAGS)
 unicharcompress_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
+
+unicharset_load_test_SOURCES = unittest/unicharset_load_test.cc
+unicharset_load_test_CPPFLAGS = $(unittest_CPPFLAGS)
+unicharset_load_test_LDADD = $(TESS_LIBS)
 
 unicharset_test_SOURCES = unittest/unicharset_test.cc
 unicharset_test_CPPFLAGS = $(unittest_CPPFLAGS)
