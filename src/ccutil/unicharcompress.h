@@ -84,7 +84,17 @@ public:
     if (length_ > kMaxCodeLen) {
       return false;
     }
-    return fp->DeSerialize(&code_[0], length_);
+    if (!fp->DeSerialize(&code_[0], length_)) {
+      return false;
+    }
+    // Code values index arrays sized from the maximum code; reject values
+    // that are out of the sane range for a recoded alphabet.
+    for (uint32_t i = 0; i < length_; ++i) {
+      if (code_[i] < 0 || code_[i] >= static_cast<int32_t>(UINT16_MAX)) {
+        return false;
+      }
+    }
+    return true;
   }
   bool operator==(const RecodedCharID &other) const {
     if (length_ != other.length_) {
@@ -190,6 +200,7 @@ public:
   int DecodeUnichar(const RecodedCharID &code) const;
   // Returns true if the given code is a valid start or single code.
   bool IsValidFirstCode(int code) const {
+    ASSERT_HOST(code >= 0 && code < code_range_);
     return is_valid_start_[code];
   }
   // Returns a list of valid non-final next codes for a given prefix code,

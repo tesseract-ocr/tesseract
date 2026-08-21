@@ -1203,6 +1203,7 @@ endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
 check_PROGRAMS += recodebeam_test
+check_PROGRAMS += recoder_test
 check_PROGRAMS += rect_test
 check_PROGRAMS += resultiterator_test
 check_PROGRAMS += scanutils_test
@@ -1441,6 +1442,10 @@ qrsequence_test_LDADD = $(TESS_LIBS)
 recodebeam_test_SOURCES = unittest/recodebeam_test.cc
 recodebeam_test_CPPFLAGS = $(unittest_CPPFLAGS)
 recodebeam_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+recoder_test_SOURCES = unittest/recoder_test.cc
+recoder_test_CPPFLAGS = $(unittest_CPPFLAGS)
+recoder_test_LDADD = $(TESS_LIBS)
 
 rect_test_SOURCES = unittest/rect_test.cc
 rect_test_CPPFLAGS = $(unittest_CPPFLAGS)

@@ -400,6 +400,7 @@ void UnicharCompress::SetupDecoder() {
   for (unsigned c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID &code = encoder_[c];
     decoder_[code] = c;
+    ASSERT_HOST(code(0) >= 0 && code(0) < code_range_);
     is_valid_start_[code(0)] = true;
     RecodedCharID prefix = code;
     uint32_t len = code.length();
