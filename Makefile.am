@@ -949,7 +949,7 @@ text2image_SOURCES = src/training/text2image.cpp
 text2image_LDADD = libtesseract_training.la
 text2image_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 text2image_LDADD += $(extralib)
-text2image_LDADD += $(ICU_UC_LIBS) $(cairo_LIBS)
+text2image_LDADD += $(cairo_LIBS)
 text2image_LDADD += $(pango_LIBS) $(pangocairo_LIBS) $(pangoft2_LIBS)
 
 unicharset_extractor_CPPFLAGS = $(training_CPPFLAGS)
@@ -1588,7 +1588,7 @@ $(TESTING_DIR)/Arial_Bold_Italic.ttf:
 	mv Arialbi.TTF $@
 
 $(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
-	curl -sSL http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
+	curl -sSL https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
 	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
 
 $(TESTING_DIR)/Lohit-Hindi.ttf:

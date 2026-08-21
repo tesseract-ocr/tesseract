@@ -135,7 +135,7 @@ SVSemaphore::~SVSemaphore() {
 #  elif defined(__APPLE__)
   sem_close(semaphore_);
 #  else
-  sem_close(&semaphore_);
+  sem_destroy(&semaphore_);
 #  endif
 }
 
@@ -360,7 +360,9 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
 #  ifdef _WIN32
   // WSACleanup();  // This cause ScrollView windows is not displayed
 #  endif // _WIN32
-  freeaddrinfo(addr_info);
+  if (addr_info != nullptr) {
+    freeaddrinfo(addr_info);
+  }
 }
 
 SVNetwork::~SVNetwork() {
