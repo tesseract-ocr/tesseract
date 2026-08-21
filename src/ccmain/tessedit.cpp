@@ -169,7 +169,12 @@ bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineM
 #endif // ndef DISABLED_LEGACY_ENGINE
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix.c_str());
-      ASSERT_HOST(lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : "", mgr));
+      if (!lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : "", mgr)) {
+        delete lstm_recognizer_;
+        lstm_recognizer_ = nullptr;
+        tprintf("Error: Failed to load the LSTM model from %s\n", tessdata_path.c_str());
+        return false;
+      }
     } else {
 #ifdef DISABLED_LEGACY_ENGINE
       // The legacy engine is compiled out, so we cannot fall back to it.

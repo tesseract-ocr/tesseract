@@ -228,6 +228,12 @@ bool Plumbing::DeSerialize(TFile *fp) {
   if (size > 10000) {
     return false;
   }
+  // Reject empty stacks: XScaleFactor, CacheXScaleFactor and other methods
+  // unconditionally dereference stack_[0] during network initialization.
+  // A Series needs at least two networks (see Series::Forward).
+  if (size == 0 || (type() == NT_SERIES && size == 1)) {
+    return false;
+  }
   for (uint32_t i = 0; i < size; ++i) {
     Network *network = CreateFromFile(fp);
     if (network == nullptr) {
