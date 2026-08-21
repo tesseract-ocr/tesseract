@@ -524,9 +524,9 @@ void Classify::EndAdaptiveClassifier() {
  *      classify_use_pre_adapted_templates
  *                            enables use of pre-adapted templates
  */
-void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
+bool Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
   if (!CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE) {
-    return;
+    return true;
   }
   if (AllProtosOn != nullptr) {
     EndAdaptiveClassifier(); // Don't leak with multiple inits.
@@ -538,6 +538,11 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     TFile fp;
     ASSERT_HOST(mgr->GetComponent(TESSDATA_INTTEMP, &fp));
     PreTrainedTemplates = ReadIntTemplates(&fp);
+    if (PreTrainedTemplates == nullptr) {
+      tprintf("Error: invalid inttemp component in traineddata, "
+              "cannot initialize the legacy engine.\n");
+      return false;
+    }
 
     if (mgr->GetComponent(TESSDATA_SHAPE_TABLE, &fp)) {
       shape_table_ = new ShapeTable(unicharset);
@@ -580,17 +585,23 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
       tprintf("\nReading pre-adapted templates from %s ...\n", Filename.c_str());
       fflush(stdout);
       AdaptedTemplates = ReadAdaptedTemplates(&fp);
-      tprintf("\n");
-      PrintAdaptedTemplates(stdout, AdaptedTemplates);
+      if (AdaptedTemplates == nullptr) {
+        tprintf("Error: invalid pre-adapted templates in %s, ignoring.\n", Filename.c_str());
+        AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+      } else {
+        tprintf("\n");
+        PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
-      for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
-        BaselineCutoffs[i] = CharNormCutoffs[i];
+        for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
+          BaselineCutoffs[i] = CharNormCutoffs[i];
+        }
       }
     }
   } else {
     delete AdaptedTemplates;
     AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
   }
+  return true;
 } /* InitAdaptiveClassifier */
 
 void Classify::ResetAdaptiveClassifierInternal() {
@@ -1243,8 +1254,8 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
   }
 
   MasterMatcher(Templates->Templates, int_features.size(), &int_features[0], CharNormArray,
-                Templates->Class, matcher_debug_flags, 0, Blob->bounding_box(), Results->CPResults,
-                Results);
+                Templates->Class.data(), matcher_debug_flags, 0, Blob->bounding_box(),
+                Results->CPResults, Results);
 
   delete[] CharNormArray;
   CLASS_ID ClassId = Results->best_unichar_id;

@@ -80,14 +80,14 @@ struct INT_PROTO_STRUCT {
   uint8_t B;
   int8_t C;
   uint8_t Angle;
-  uint32_t Configs[WERDS_PER_CONFIG_VEC];
+  std::array<uint32_t, WERDS_PER_CONFIG_VEC> Configs{};
 };
 
 typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
 
 struct PROTO_SET_STRUCT {
   PROTO_PRUNER ProtoPruner;
-  INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
+  std::array<INT_PROTO_STRUCT, PROTOS_PER_PROTO_SET> Protos{};
 };
 
 typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
@@ -99,9 +99,9 @@ struct INT_CLASS_STRUCT {
   uint16_t NumProtos = 0;
   uint8_t NumProtoSets = 0;
   uint8_t NumConfigs = 0;
-  PROTO_SET_STRUCT *ProtoSets[MAX_NUM_PROTO_SETS];
+  std::array<PROTO_SET_STRUCT *, MAX_NUM_PROTO_SETS> ProtoSets{};
   std::vector<uint8_t> ProtoLengths;
-  uint16_t ConfigLengths[MAX_NUM_CONFIGS];
+  std::array<uint16_t, MAX_NUM_CONFIGS> ConfigLengths{};
   int font_set_id = 0; // FontSet id, see above
 };
 
@@ -110,8 +110,8 @@ struct TESS_API INT_TEMPLATES_STRUCT {
   ~INT_TEMPLATES_STRUCT();
   unsigned NumClasses;
   unsigned NumClassPruners;
-  INT_CLASS_STRUCT *Class[MAX_NUM_CLASSES];
-  CLASS_PRUNER_STRUCT *ClassPruners[MAX_NUM_CLASS_PRUNERS];
+  std::array<INT_CLASS_STRUCT *, MAX_NUM_CLASSES> Class{};
+  std::array<CLASS_PRUNER_STRUCT *, MAX_NUM_CLASS_PRUNERS> ClassPruners{};
 };
 
 /* definitions of integer features*/

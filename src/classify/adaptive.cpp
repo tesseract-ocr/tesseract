@@ -67,10 +67,6 @@ ADAPT_CLASS_STRUCT::ADAPT_CLASS_STRUCT() :
   TempProtos(NIL_LIST) {
   zero_all_bits(PermProtos, WordsInVectorOfSize(MAX_NUM_PROTOS));
   zero_all_bits(PermConfigs, WordsInVectorOfSize(MAX_NUM_CONFIGS));
-
-  for (int i = 0; i < MAX_NUM_CONFIGS; i++) {
-    TempConfigFor(this, i) = nullptr;
-  }
 }
 
 ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
@@ -92,25 +88,24 @@ ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
 
 /// Constructor for adapted templates.
 /// Add an empty class for each char in unicharset to the newly created templates.
-ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) {
-  Templates = new INT_TEMPLATES_STRUCT;
-  NumPermClasses = 0;
-  NumNonEmptyClasses = 0;
-
-  /* Insert an empty class for each unichar id in unicharset */
-  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
-    Class[i] = nullptr;
-    if (i < unicharset.size()) {
-      AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i);
-    }
+ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) :
+  Templates(new INT_TEMPLATES_STRUCT), NumNonEmptyClasses(0), NumPermClasses(0) {
+  // Insert an empty class for each unichar id in unicharset.
+  // Class is value-initialized to nullptr in-class.
+  for (unsigned i = 0; i < unicharset.size(); i++) {
+    AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i);
   }
 }
 
 ADAPT_TEMPLATES_STRUCT::~ADAPT_TEMPLATES_STRUCT() {
-  for (unsigned i = 0; i < (Templates)->NumClasses; i++) {
-    delete Class[i];
+  if (Templates != nullptr) {
+    // NumClasses comes from an untrusted file, so never trust it to bound
+    // the loop over the fixed-size Class[] array.
+    for (unsigned i = 0; i < (Templates)->NumClasses && i < MAX_NUM_CLASSES; i++) {
+      delete Class[i];
+    }
+    delete Templates;
   }
-  delete Templates;
 }
 
 // Returns FontinfoId of the given config of the given adapted class.
@@ -180,23 +175,32 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
  * @note Globals: none
  */
 ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
-  int NumTempProtos;
-  int NumConfigs;
+  int NumTempProtos = 0;
+  int NumConfigs = 0;
   int i;
   ADAPT_CLASS_STRUCT *Class;
 
-  /* first read high level adapted class structure */
+  // first read high level adapted class structure
   Class = new ADAPT_CLASS_STRUCT;
   fp->FRead(Class, sizeof(ADAPT_CLASS_STRUCT), 1);
 
-  /* then read in the definitions of the permanent protos and configs */
+  // then read in the definitions of the permanent protos and configs
   Class->PermProtos = NewBitVector(MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector(MAX_NUM_CONFIGS);
   fp->FRead(Class->PermProtos, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_PROTOS));
   fp->FRead(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
-  /* then read in the list of temporary protos */
+  // then read in the list of temporary protos
   fp->FRead(&NumTempProtos, sizeof(int), 1);
+  if (NumTempProtos < 0 || NumTempProtos > MAX_NUM_PROTOS) {
+    tprintf("Bad read of adapted class!\n");
+    // Reset file-sourced pointers so the destructor does not delete them.
+    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+      Class->Config[i].Temp = nullptr;
+    }
+    delete Class;
+    return nullptr;
+  }
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     auto TempProto = new TEMP_PROTO_STRUCT;
@@ -204,8 +208,20 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
     Class->TempProtos = push_last(Class->TempProtos, TempProto);
   }
 
-  /* then read in the adapted configs */
+  // then read in the adapted configs
   fp->FRead(&NumConfigs, sizeof(int), 1);
+  // NumConfigs is used as a loop bound that writes into the fixed-size
+  // Config[] array, so reject a corrupt or malicious file instead of
+  // writing out of bounds.
+  if (NumConfigs < 0 || NumConfigs > MAX_NUM_CONFIGS) {
+    tprintf("Bad read of adapted class!\n");
+    // Reset file-sourced pointers so the destructor does not delete them.
+    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+      Class->Config[i].Temp = nullptr;
+    }
+    delete Class;
+    return nullptr;
+  }
   for (i = 0; i < NumConfigs; i++) {
     if (test_bit(Class->PermConfigs, i)) {
       Class->Config[i].Perm = ReadPermConfig(fp);
@@ -231,18 +247,35 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
 ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
   auto Templates = new ADAPT_TEMPLATES_STRUCT;
 
-  /* first read the high level adaptive template struct */
-  fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
+  // first read in the high level adaptive template struct
+  if (fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1) != 1) {
+    tprintf("Bad read of adapted templates!\n");
+    delete Templates;
+    return nullptr;
+  }
+  // The Class[] array was just filled with pointers read from the file;
+  // those are not valid allocations, so reset it before storing real ones.
+  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
+    Templates->Class[i] = nullptr;
+  }
 
-  /* then read in the basic integer templates */
+  // then read in the basic integer templates
   Templates->Templates = ReadIntTemplates(fp);
+  if (Templates->Templates == nullptr) {
+    delete Templates;
+    return nullptr;
+  }
 
-  /* then read in the adaptive info for each class */
+  // then read in the adaptive info for each class
   for (unsigned i = 0; i < (Templates->Templates)->NumClasses; i++) {
     Templates->Class[i] = ReadAdaptedClass(fp);
+    if (Templates->Class[i] == nullptr) {
+      tprintf("Bad read of adapted templates (class %u)!\n", i);
+      delete Templates;
+      return nullptr;
+    }
   }
   return (Templates);
-
 } /* ReadAdaptedTemplates */
 
 /*---------------------------------------------------------------------------*/

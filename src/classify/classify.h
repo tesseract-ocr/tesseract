@@ -164,7 +164,7 @@ public:
   // provided to explicitly clarify the character segmentation.
   void LearnPieces(const char *fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char *correct_text, WERD_RES *word);
-  void InitAdaptiveClassifier(TessdataManager *mgr);
+  bool InitAdaptiveClassifier(TessdataManager *mgr);
   void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS_STRUCT *Class,
                         ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,

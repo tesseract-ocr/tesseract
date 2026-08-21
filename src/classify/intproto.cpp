@@ -286,11 +286,10 @@ int AddIntProto(INT_CLASS_STRUCT *Class) {
     Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
   }
 
-  /* initialize proto so its length is zero and it isn't in any configs */
+  // initialize proto so its length is zero and it isn't in any configs
   Class->ProtoLengths[Index] = 0;
   auto Proto = ProtoForProtoId(Class, Index);
-  for (uint32_t *Word = Proto->Configs; Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0) {
-  }
+  Proto->Configs.fill(0);
 
   return (Index);
 }
@@ -583,41 +582,36 @@ INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos) :
   assert(NumProtoSets <= MAX_NUM_PROTO_SETS);
 
   for (int i = 0; i < NumProtoSets; i++) {
-    /* allocate space for a proto set, install in class, and initialize */
+    // allocate space for a proto set, install in class, and initialize
     auto ProtoSet = new PROTO_SET_STRUCT;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
     ProtoSets[i] = ProtoSet;
 
-    /* allocate space for the proto lengths and install in class */
+    // allocate space for the proto lengths and install in class
   }
-  memset(ConfigLengths, 0, sizeof(ConfigLengths));
 }
 
 INT_CLASS_STRUCT::~INT_CLASS_STRUCT() {
-  for (int i = 0; i < NumProtoSets; i++) {
+  // NumProtoSets comes from an untrusted file, so never trust it to bound
+  // the loop over the fixed-size ProtoSets[] array.
+  for (int i = 0; i < NumProtoSets && i < MAX_NUM_PROTO_SETS; i++) {
     delete ProtoSets[i];
   }
 }
 
 /// This constructor allocates a new set of integer templates
 /// initialized to hold 0 classes.
-INT_TEMPLATES_STRUCT::INT_TEMPLATES_STRUCT() {
-  NumClasses = 0;
-  NumClassPruners = 0;
-
-  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
-    ClassForClassId(this, i) = nullptr;
-  }
-  for (int i = 0; i < MAX_NUM_CLASS_PRUNERS; i++) {
-    ClassPruners[i] = nullptr;
-  }
+INT_TEMPLATES_STRUCT::INT_TEMPLATES_STRUCT() : NumClasses(0), NumClassPruners(0) {
+  // Class and ClassPruners are value-initialized to nullptr in-class.
 }
 
 INT_TEMPLATES_STRUCT::~INT_TEMPLATES_STRUCT() {
-  for (unsigned i = 0; i < NumClasses; i++) {
+  // The counts come from an untrusted file, so never trust them to bound
+  // the loops over the fixed-size arrays.
+  for (unsigned i = 0; i < NumClasses && i < MAX_NUM_CLASSES; i++) {
     delete Class[i];
   }
-  for (unsigned i = 0; i < NumClassPruners; i++) {
+  for (unsigned i = 0; i < NumClassPruners && i < MAX_NUM_CLASS_PRUNERS; i++) {
     delete ClassPruners[i];
   }
 }
@@ -669,6 +663,20 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     Templates->NumClasses = version_id;
   }
 
+  // The counts read from the file are used as loop bounds that write into
+  // fixed-size arrays (Class[], ClassPruners[], TempClassPruner[] and
+  // IndexFor[]), so reject a corrupt or malicious file instead of writing
+  // out of bounds.
+  if (unicharset_size > MAX_NUM_CLASSES ||
+      Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS ||
+      Templates->NumClasses > MAX_NUM_CLASSES) {
+    tprintf("Error: invalid counts in inttemp: unicharset_size=%u, NumClassPruners=%u, "
+            "NumClasses=%u\n",
+            unicharset_size, Templates->NumClassPruners, Templates->NumClasses);
+    delete Templates;
+    return nullptr;
+  }
+
   if (version_id < 3) {
     MaxNumConfigs = OLD_MAX_NUM_CONFIGS;
     WerdsPerConfigVec = OLD_WERDS_PER_CONFIG_VEC;
@@ -707,6 +715,16 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
       if (ClassIdFor[i] > max_class_id) {
         max_class_id = ClassIdFor[i];
       }
+    }
+    // Class ids index Class[] and (divided by CLASSES_PER_CP) ClassPruners[],
+    // so reject a corrupt or malicious file instead of writing out of bounds.
+    if (max_class_id >= MAX_NUM_CLASSES) {
+      tprintf("Error: class id %u in inttemp exceeds MAX_NUM_CLASSES\n", max_class_id);
+      for (unsigned i = 0; i < Templates->NumClassPruners; i++) {
+        delete TempClassPruner[i];
+      }
+      delete Templates;
+      return nullptr;
     }
     for (int i = 0; i <= CPrunerIdFor(max_class_id); i++) {
       Templates->ClassPruners[i] = new CLASS_PRUNER_STRUCT;
@@ -777,8 +795,20 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
       }
     }
     unsigned num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
-    ASSERT_HOST(num_configs <= MaxNumConfigs);
-    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uint16_t), num_configs) != num_configs) {
+    // Class->NumProtoSets is used as a loop bound that writes into the
+    // fixed-size ProtoSets[] array, so reject a corrupt or malicious file
+    // instead of writing out of bounds.
+    if (Class->NumProtos > MAX_NUM_PROTOS || Class->NumProtoSets > MAX_NUM_PROTO_SETS ||
+        num_configs > MaxNumConfigs) {
+      tprintf("Error: invalid counts for class %u in inttemp: NumProtos=%u, NumProtoSets=%u, "
+              "NumConfigs=%u\n",
+              i, Class->NumProtos, Class->NumProtoSets, Class->NumConfigs);
+      Class->NumProtoSets = 0; // no proto sets allocated yet; keep destructor safe
+      delete Class;
+      delete Templates;
+      return nullptr;
+    }
+    if (fp->FReadEndian(Class->ConfigLengths.data(), sizeof(uint16_t), num_configs) != num_configs) {
       tprintf("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
@@ -812,8 +842,9 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
             fp->FRead(&ProtoSet->Protos[x].Angle, sizeof(ProtoSet->Protos[x].Angle), 1) != 1) {
           tprintf("Bad read of inttemp!\n");
         }
-        if (fp->FReadEndian(&ProtoSet->Protos[x].Configs, sizeof(ProtoSet->Protos[x].Configs[0]),
-                            WerdsPerConfigVec) != WerdsPerConfigVec) {
+        if (fp->FReadEndian(ProtoSet->Protos[x].Configs.data(),
+                            sizeof(ProtoSet->Protos[x].Configs[0]), WerdsPerConfigVec) !=
+            WerdsPerConfigVec) {
           tprintf("Bad read of inttemp!\n");
         }
       }

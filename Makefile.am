@@ -1163,6 +1163,7 @@ check_PROGRAMS += imagedata_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += indexmapbidi_test
 check_PROGRAMS += intfeaturemap_test
+check_PROGRAMS += intproto_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += intsimdmatrix_test
 check_PROGRAMS += lang_model_test
@@ -1308,6 +1309,12 @@ if !DISABLED_LEGACY_ENGINE
 intfeaturemap_test_SOURCES = unittest/intfeaturemap_test.cc
 intfeaturemap_test_CPPFLAGS = $(unittest_CPPFLAGS)
 intfeaturemap_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+if !DISABLED_LEGACY_ENGINE
+intproto_test_SOURCES = unittest/intproto_test.cc
+intproto_test_CPPFLAGS = $(unittest_CPPFLAGS)
+intproto_test_LDADD = $(TESS_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
 intsimdmatrix_test_SOURCES = unittest/intsimdmatrix_test.cc

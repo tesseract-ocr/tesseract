@@ -50,7 +50,7 @@ public:
   virtual ~Wordrec() = default;
 
   // tface.cpp
-  void program_editup(const std::string &textbase, TessdataManager *init_classifier,
+  bool program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void program_editdown();
   int end_recog();
@@ -243,7 +243,7 @@ public:
   }
 
   // tface.cpp
-  void program_editup(const std::string &textbase, TessdataManager *init_classifier,
+  bool program_editup(const std::string &textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void cc_recog(WERD_RES *word);
   void program_editdown();

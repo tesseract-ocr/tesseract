@@ -20,6 +20,7 @@
 #include "intproto.h"
 #include "oldlist.h"
 
+#include <array>
 #include <cstdio>
 
 namespace tesseract {
@@ -61,18 +62,18 @@ struct ADAPT_CLASS_STRUCT {
   BIT_VECTOR PermProtos;
   BIT_VECTOR PermConfigs;
   LIST TempProtos;
-  ADAPTED_CONFIG Config[MAX_NUM_CONFIGS];
+  std::array<ADAPTED_CONFIG, MAX_NUM_CONFIGS> Config{};
 };
 
 class ADAPT_TEMPLATES_STRUCT {
 public:
-  ADAPT_TEMPLATES_STRUCT() = default;
+  ADAPT_TEMPLATES_STRUCT() : Templates(nullptr), NumNonEmptyClasses(0), NumPermClasses(0) {}
   ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset);
   ~ADAPT_TEMPLATES_STRUCT();
   INT_TEMPLATES_STRUCT *Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
-  ADAPT_CLASS_STRUCT *Class[MAX_NUM_CLASSES];
+  std::array<ADAPT_CLASS_STRUCT *, MAX_NUM_CLASSES> Class{};
 };
 
 /*----------------------------------------------------------------------------
