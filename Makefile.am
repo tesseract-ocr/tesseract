@@ -1159,6 +1159,7 @@ check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
 check_PROGRAMS += fullyconnected_test
+check_PROGRAMS += genericvector_test
 check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
 if !DISABLED_LEGACY_ENGINE
@@ -1298,6 +1299,10 @@ fileio_test_LDADD = $(TRAINING_LIBS)
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fullyconnected_test_LDADD = $(TESS_LIBS)
+
+genericvector_test_SOURCES = unittest/genericvector_test.cc
+genericvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
+genericvector_test_LDADD = $(TESS_LIBS)
 
 heap_test_SOURCES = unittest/heap_test.cc
 heap_test_CPPFLAGS = $(unittest_CPPFLAGS)

@@ -654,8 +654,18 @@ bool GenericVector<T>::read(TFile *f, const std::function<bool(TFile *, T *)> &c
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
   }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  const uint32_t limit = 50000000;
+  if (reserved < 0 || static_cast<uint32_t>(reserved) > limit) {
+    return false;
+  }
   reserve(reserved);
   if (f->FReadEndian(&size_used_, sizeof(size_used_), 1) != 1) {
+    return false;
+  }
+  // size_used_ is an independent file field; without this check the reads
+  // below land past the end of the buffer sized from reserved.
+  if (size_used_ < 0 || size_used_ > reserved) {
     return false;
   }
   if (cb != nullptr) {
