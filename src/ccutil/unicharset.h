@@ -754,7 +754,8 @@ public:
   // SpecialUnicharCodes available. If false then there are normal unichars
   // at these codes and they should not be used.
   bool has_special_codes() const {
-    return get_fragment(UNICHAR_BROKEN) != nullptr &&
+    return contains_unichar_id(UNICHAR_BROKEN) &&
+           get_fragment(UNICHAR_BROKEN) != nullptr &&
            strcmp(id_to_unichar(UNICHAR_BROKEN),
                   kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }

@@ -40,6 +40,13 @@ const char kMinUnicharset[] =
     "Joined 7 0,69,188,255,486,1218,0,30,486,1188 Latin 26 0 98 Joined\n"
     "|Broken|0|1 f 0,69,186,255,892,2138,0,80,892,2058 Common 84 10 84 |Broken|0|1\n";
 
+// A unicharset without the special codes (Broken in particular), as in
+// older models.
+const char kSmallUnicharset[] =
+    "2\n"
+    "NULL 0 NULL 0\n"
+    "a 1 0,255,0,255,0,0,0,0,0,0 Latin 2 0 2\n";
+
 // Appends raw little-endian values to a byte buffer.
 class ByteWriter {
 public:
@@ -55,6 +62,7 @@ public:
     data_.insert(data_.end(), s, s + std::strlen(s));
   }
   void PutRaw(const char *s) { data_.insert(data_.end(), s, s + std::strlen(s)); }
+  void PutBytes(const std::vector<char> &b) { data_.insert(data_.end(), b.begin(), b.end()); }
   const std::vector<char> &data() const { return data_; }
 
 private:
@@ -75,8 +83,8 @@ void AppendNetworkHeader(ByteWriter *w, NetworkType type) {
   w->PutString(""); // name
 }
 
-// A minimal valid child network (NT_INPUT with a 1x1x1x1 shape).
-void AppendInputChild(ByteWriter *w) {
+// A minimal valid NT_INPUT network (header plus a 1x1x1x1 shape).
+void AppendInputNetwork(ByteWriter *w) {
   AppendNetworkHeader(w, NT_INPUT);
   w->PutS32(1); // batch
   w->PutS32(1); // height
@@ -85,25 +93,41 @@ void AppendInputChild(ByteWriter *w) {
   w->PutS32(0); // loss type
 }
 
-// Builds a TESSDATA_LSTM component whose top-level network is a plumbing
-// layer of the given type with the given (corrupt) stack size, followed by
-// the remaining fields of LSTMRecognizer::DeSerialize.
-std::vector<char> MakeLstmComponent(NetworkType type, uint32_t stack_size) {
+// Builds a serialized top-level network: a plumbing layer of the given
+// type with the given (corrupt) stack size of NT_INPUT children.
+std::vector<char> MakePlumbingNetwork(NetworkType type, uint32_t stack_size) {
   ByteWriter w;
   AppendNetworkHeader(&w, type);
   w.PutU32(stack_size); // Plumbing::DeSerialize reads this as uint32
   for (uint32_t i = 0; i < stack_size; ++i) {
-    AppendInputChild(&w);
+    AppendInputNetwork(&w);
   }
-  w.PutRaw(kMinUnicharset); // unicharset (raw text, no recoder/unicharset components)
-  w.PutString("");             // network_str_
-  w.PutS32(0);                 // training_flags_
-  w.PutS32(0);                 // training_iteration_
-  w.PutS32(0);                 // sample_iteration_
-  w.PutS32(0);                 // null_char_
-  w.PutU32(0);                 // adam_beta_ (float 0.0)
-  w.PutU32(0);                 // learning_rate_ (float 0.0)
-  w.PutU32(0);                 // momentum_ (float 0.0)
+  return w.data();
+}
+
+// Builds a serialized top-level NT_INPUT network.
+std::vector<char> MakeInputNetwork() {
+  ByteWriter w;
+  AppendInputNetwork(&w);
+  return w.data();
+}
+
+// Builds a TESSDATA_LSTM component with the given serialized network and
+// the given (corrupt) unicharset, followed by the remaining fields of
+// LSTMRecognizer::DeSerialize.
+std::vector<char> MakeLstmComponent(const std::vector<char> &network,
+                                    const char *unicharset) {
+  ByteWriter w;
+  w.PutBytes(network);
+  w.PutRaw(unicharset); // unicharset (raw text, no recoder/unicharset components)
+  w.PutString("");      // network_str_
+  w.PutS32(0);          // training_flags_
+  w.PutS32(0);          // training_iteration_
+  w.PutS32(0);          // sample_iteration_
+  w.PutS32(0);          // null_char_
+  w.PutU32(0);          // adam_beta_ (float 0.0)
+  w.PutU32(0);          // learning_rate_ (float 0.0)
+  w.PutU32(0);          // momentum_ (float 0.0)
   return w.data();
 }
 
@@ -141,24 +165,34 @@ protected:
 // Empty NT_SERIES stack: Series::CacheXScaleFactor would dereference
 // stack_[0] on the empty vector during initialization.
 TEST_F(PlumbingTest, RejectsEmptySeriesStack) {
-  ExpectInitFails(MakeLstmComponent(NT_SERIES, 0));
+  ExpectInitFails(MakeLstmComponent(MakePlumbingNetwork(NT_SERIES, 0), kMinUnicharset));
 }
 
 // Empty NT_PARALLEL stack: Plumbing::XScaleFactor would dereference
 // stack_[0] on the empty vector during initialization.
 TEST_F(PlumbingTest, RejectsEmptyParallelStack) {
-  ExpectInitFails(MakeLstmComponent(NT_PARALLEL, 0));
+  ExpectInitFails(MakeLstmComponent(MakePlumbingNetwork(NT_PARALLEL, 0), kMinUnicharset));
 }
 
 // Empty NT_XREVERSED stack: same crash as the parallel case.
 TEST_F(PlumbingTest, RejectsEmptyReversedStack) {
-  ExpectInitFails(MakeLstmComponent(NT_XREVERSED, 0));
+  ExpectInitFails(MakeLstmComponent(MakePlumbingNetwork(NT_XREVERSED, 0), kMinUnicharset));
 }
 
 // A Series with a single network: Series::Forward requires at least two
 // networks, so such a model can never work.
 TEST_F(PlumbingTest, RejectsSingleNetworkSeries) {
-  ExpectInitFails(MakeLstmComponent(NT_SERIES, 1));
+  ExpectInitFails(MakeLstmComponent(MakePlumbingNetwork(NT_SERIES, 1), kMinUnicharset));
+}
+
+// A valid network but a unicharset without the special codes, as in
+// older models: has_special_codes used to abort on the missing Broken
+// special code; the model must now load cleanly.
+TEST_F(PlumbingTest, ToleratesUnicharsetWithoutSpecialCodes) {
+  ASSERT_TRUE(WriteCorruptTraineddata(
+      dir_, MakeLstmComponent(MakeInputNetwork(), kSmallUnicharset)));
+  tesseract::TessBaseAPI api;
+  EXPECT_EQ(api.Init(dir_.c_str(), "eng", tesseract::OEM_LSTM_ONLY), 0);
 }
 
 } // namespace
