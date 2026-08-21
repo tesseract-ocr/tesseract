@@ -641,6 +641,7 @@ void NetworkIO::AddTimeStep(int t, TFloat *inout) const {
 
 // Adds part of a single timestep to floats.
 void NetworkIO::AddTimeStepPart(int t, int offset, int num_features, float *inout) const {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
     const int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
@@ -662,6 +663,7 @@ void NetworkIO::WriteTimeStep(int t, const TFloat *input) {
 // Writes a single timestep from floats in the range [-1, 1] writing only
 // num_features elements of input to (*this)[t], starting at offset.
 void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input) {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {

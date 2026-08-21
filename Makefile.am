@@ -1172,6 +1172,7 @@ check_PROGRAMS += layout_test
 check_PROGRAMS += ligature_table_test
 check_PROGRAMS += linlsq_test
 check_PROGRAMS += list_test
+check_PROGRAMS += lstm_layer_test
 if ENABLE_TRAINING
 check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
@@ -1358,6 +1359,10 @@ list_test_LDADD = $(TESS_LIBS)
 loadlang_test_SOURCES = unittest/loadlang_test.cc
 loadlang_test_CPPFLAGS = $(unittest_CPPFLAGS)
 loadlang_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+lstm_layer_test_SOURCES = unittest/lstm_layer_test.cc
+lstm_layer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_layer_test_LDADD = $(TESS_LIBS)
 
 lstm_recode_test_SOURCES = unittest/lstm_recode_test.cc
 lstm_recode_test_CPPFLAGS = $(unittest_CPPFLAGS)

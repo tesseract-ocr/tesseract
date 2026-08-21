@@ -274,10 +274,30 @@ bool LSTM::DeSerialize(TFile *fp) {
       is_2d_ = na_ - nf_ == ni_ + 2 * ns_;
     }
   }
+  // The deserialized dimensions must be mutually consistent: the forward
+  // pass sizes its buffers from na_, no_ and ns_ while the gate matrices
+  // drive their own dimensions.
+  if (na_ != ni_ + nf_ + (is_2d_ ? 2 : 1) * ns_) {
+    return false;
+  }
+  for (int w = 0; w < WT_COUNT; ++w) {
+    if (w == GFS && !Is2D()) {
+      continue;
+    }
+    if (gate_weights_[w].Dim1() != ns_ || gate_weights_[w].Dim2() != na_ + 1) {
+      return false;
+    }
+  }
+  if ((type_ == NT_LSTM || type_ == NT_LSTM_SUMMARY) && ns_ != no_) {
+    return false;
+  }
   delete softmax_;
   if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
     softmax_ = static_cast<FullyConnected *>(Network::CreateFromFile(fp));
     if (softmax_ == nullptr) {
+      return false;
+    }
+    if (softmax_->NumInputs() != ns_ || softmax_->NumOutputs() != no_) {
       return false;
     }
   } else {
