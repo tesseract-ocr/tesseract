@@ -8,8 +8,6 @@ execution: code
 product_contract_source: ce-plan-bootstrap
 ---
 
-# Fix `IndexMapBiDi::SetMap` sparse-index bounds - Plan
-
 ## Goal
 
 Prevent `IndexMapBiDi::SetMap` from writing outside `sparse_map_` when given an invalid sparse index, while preserving every valid mapping operation and adding focused regression coverage.
