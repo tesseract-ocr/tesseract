@@ -97,6 +97,43 @@ TEST_F(IndexMapBiDiTest, Primes) {
   TestPrimes(read_map);
 }
 
+// Invalid sparse indices are ignored, while valid boundary indices retain
+// their mapping behavior.
+TEST_F(IndexMapBiDiTest, SetMapBounds) {
+  IndexMapBiDi map;
+  map.Init(3, false);
+  map.SetMap(0, true);
+  map.SetMap(1, false);
+  map.SetMap(2, true);
+  map.SetMap(-1, true);
+  map.SetMap(-1, false);
+  map.SetMap(3, true);
+  map.SetMap(3, false);
+  map.SetMap(1324324, true);
+  map.SetMap(1324324, false);
+  map.Setup();
+
+  EXPECT_EQ(3, map.SparseSize());
+  EXPECT_EQ(2, map.CompactSize());
+  EXPECT_EQ(0, map.SparseToCompact(0));
+  EXPECT_EQ(-1, map.SparseToCompact(1));
+  EXPECT_EQ(1, map.SparseToCompact(2));
+  EXPECT_EQ(0, map.CompactToSparse(0));
+  EXPECT_EQ(2, map.CompactToSparse(1));
+}
+
+// SetMap is also safe before a map has been initialized.
+TEST_F(IndexMapBiDiTest, SetMapEmpty) {
+  IndexMapBiDi map;
+  map.SetMap(0, true);
+  map.SetMap(-1, false);
+  map.SetMap(1324324, true);
+  map.Setup();
+
+  EXPECT_EQ(0, map.SparseSize());
+  EXPECT_EQ(0, map.CompactSize());
+}
+
 // Tests the many-to-one setup feature.
 TEST_F(IndexMapBiDiTest, ManyToOne) {
   // Test the example in the comment on CompleteMerges.
