@@ -74,7 +74,7 @@ public class SVMenuBar implements ActionListener {
     // A duplicate entry - we just throw it away, since its already in.
     if (items.get(name) != null) { return; }
     // A new submenu at the top-level
-    if (parent.equals("")) {
+    if (parent.isEmpty()) {
       JMenu jli = new JMenu(name);
       SVAbstractMenuItem mli = new SVSubMenuItem(name, jli);
       items.put(name, mli);
