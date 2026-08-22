@@ -223,12 +223,16 @@ std::vector<char32> UNICHAR::UTF8ToUTF32(const char *utf8_str) {
   unicodes.reserve(utf8_length);
   const_iterator end_it(end(utf8_str, utf8_length));
   for (const_iterator it(begin(utf8_str, utf8_length)); it != end_it; ++it) {
-    if (it.is_legal()) {
-      unicodes.push_back(*it);
-    } else {
+    // utf8_step() reports the width from the leading byte alone; reject a
+    // truncated trailing sequence rather than let the iterator run past the
+    // end of the string (issue #4495).
+    const int remaining = end_it.utf8_data() - it.utf8_data();
+    const int step = utf8_step(it.utf8_data());
+    if (step <= 0 || step > remaining) {
       unicodes.clear();
       return unicodes;
     }
+    unicodes.push_back(*it);
   }
   return unicodes;
 }

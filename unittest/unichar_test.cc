@@ -40,4 +40,21 @@ TEST(UnicharTest, InvalidText) {
   EXPECT_TRUE(utf8.empty());
 }
 
+TEST(UnicharTest, TruncatedUtf8) {
+  // This test verifies that UTF8ToUTF32 does not read past the end of a
+  // string that ends with a truncated multibyte prefix (issue #4495).
+  // A truncated multibyte prefix is invalid UTF-8, so the conversion
+  // must return an empty vector instead of reading past the NUL.
+  const char *kTruncated2 = "\xC2\0";
+  const char *kTruncated3 = "\xE8\0";
+  const char *kTruncated4 = "\xF0\0";
+  const char *kTruncatedMid = "ab\xE8\0";
+  const char *kIllegalLeading = "\x80\0";
+  EXPECT_TRUE(UNICHAR::UTF8ToUTF32(kTruncated2).empty());
+  EXPECT_TRUE(UNICHAR::UTF8ToUTF32(kTruncated3).empty());
+  EXPECT_TRUE(UNICHAR::UTF8ToUTF32(kTruncated4).empty());
+  EXPECT_TRUE(UNICHAR::UTF8ToUTF32(kTruncatedMid).empty());
+  EXPECT_TRUE(UNICHAR::UTF8ToUTF32(kIllegalLeading).empty());
+}
+
 } // namespace tesseract
