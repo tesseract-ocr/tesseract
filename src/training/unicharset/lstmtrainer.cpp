@@ -182,7 +182,7 @@ bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index,
   return true;
 }
 
-// Resets all the iteration counters for fine tuning or traininng a head,
+// Resets all the iteration counters for fine tuning or training a head,
 // where we want the error reporting to reset.
 void LSTMTrainer::InitIterations() {
   sample_iteration_ = 0;
