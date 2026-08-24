@@ -1185,6 +1185,7 @@ check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += matrix_test
 check_PROGRAMS += networkio_test
+check_PROGRAMS += normproto_test
 if ENABLE_TRAINING
 check_PROGRAMS += normstrngs_test
 endif # ENABLE_TRAINING
@@ -1394,6 +1395,10 @@ matrix_test_LDADD = $(TESS_LIBS)
 networkio_test_SOURCES = unittest/networkio_test.cc
 networkio_test_CPPFLAGS = $(unittest_CPPFLAGS)
 networkio_test_LDADD = $(TESS_LIBS)
+
+normproto_test_SOURCES = unittest/normproto_test.cc
+normproto_test_CPPFLAGS = $(unittest_CPPFLAGS)
+normproto_test_LDADD = $(TESS_LIBS)
 
 normstrngs_test_SOURCES = unittest/normstrngs_test.cc
 normstrngs_test_CPPFLAGS = $(unittest_CPPFLAGS)

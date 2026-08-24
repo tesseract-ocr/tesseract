@@ -60,6 +60,7 @@ set(LEGACY_TESTS
     intfeaturemap_test.cc
     intproto_test.cc
     mastertrainer_test.cc
+    normproto_test.cc
     osd_test.cc
     params_model_test.cc
     shapetable_test.cc
