@@ -243,24 +243,54 @@ bool IsUTF8Whitespace(const char *text) {
 
 unsigned int SpanUTF8Whitespace(const char *text) {
   int n_white = 0;
-  for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text)); ++it) {
-    if (!IsWhitespace(*it)) {
+  const char *p = text;
+  const char *const end = p + strlen(text);
+  while (p < end) {
+    const int step = UNICHAR::utf8_step(p);
+    if (step <= 0) {
+      // The iterator maps an illegal leading byte to a space (one byte).
+      ++n_white;
+      ++p;
+      continue;
+    }
+    if (step > end - p) {
+      // A multibyte sequence truncated at the end of the string is not a
+      // whitespace character. Stopping here also avoids reading past the NUL
+      // terminator.
       break;
     }
-    n_white += it.utf8_len();
+    if (!IsWhitespace(UNICHAR(p, step).first_uni())) {
+      break;
+    }
+    n_white += step;
+    p += step;
   }
   return n_white;
 }
 
 unsigned int SpanUTF8NotWhitespace(const char *text) {
   int n_notwhite = 0;
-  for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text)); ++it) {
-    if (IsWhitespace(*it)) {
+  const char *p = text;
+  const char *const end = p + strlen(text);
+  while (p < end) {
+    const int step = UNICHAR::utf8_step(p);
+    if (step <= 0) {
+      // The iterator maps an illegal leading byte to a space, which ends the
+      // span of non-whitespace.
       break;
     }
-    n_notwhite += it.utf8_len();
+    if (step > end - p) {
+      // A multibyte sequence truncated at the end of the string is not
+      // whitespace. Count the remaining bytes without reading past the NUL
+      // terminator.
+      n_notwhite += static_cast<int>(end - p);
+      break;
+    }
+    if (IsWhitespace(UNICHAR(p, step).first_uni())) {
+      break;
+    }
+    n_notwhite += step;
+    p += step;
   }
   return n_notwhite;
 }
