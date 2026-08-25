@@ -45,8 +45,11 @@ static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
 
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
-    alto_str << " WC=\"" << wc / 100 << "." << (wc % 100 < 10 ? "0" : "")
-             << wc % 100 << "\"";
+    // Note: std::fixed and std::setprecision persist on alto_str, but this
+    // is the only floating-point value ever written to that stream, so the
+    // formatting state cannot affect any other output.
+    alto_str << " WC=\"" << std::fixed << std::setprecision(2)
+             << wc / 100.0f << "\"";
   } else {
     alto_str << ">";
   }
