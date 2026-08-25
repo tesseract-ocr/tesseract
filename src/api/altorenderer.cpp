@@ -20,6 +20,8 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
 
+#include <iomanip> // for std::fixed, std::setprecision
+#include <locale>  // for std::locale::classic
 #include <memory>
 #include <sstream> // for std::stringstream
 
@@ -45,7 +47,11 @@ static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
 
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
-    alto_str << " WC=\"0." << wc << "\"";
+    // Note: std::fixed and std::setprecision persist on alto_str, but this
+    // is the only floating-point value ever written to that stream, so the
+    // formatting state cannot affect any other output.
+    alto_str << " WC=\"" << std::fixed << std::setprecision(2)
+             << wc / 100.0f << "\"";
   } else {
     alto_str << ">";
   }
