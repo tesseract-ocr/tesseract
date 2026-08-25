@@ -53,6 +53,9 @@ public:
   // CompactToSparse takes a compact index to the corresponding index in the
   // sparse space.
   int CompactToSparse(int compact_index) const {
+    if (compact_index < 0 || static_cast<size_t>(compact_index) >= compact_map_.size()) {
+      return -1;
+    }
     return compact_map_[compact_index];
   }
   // The size of the sparse space.
@@ -130,6 +133,10 @@ public:
   bool Merge(int compact_index1, int compact_index2);
   // Returns true if the given compact index has been deleted.
   bool IsCompactDeleted(int index) const {
+    // An index outside the compact space is not a live compact index.
+    if (index < 0 || static_cast<size_t>(index) >= compact_map_.size()) {
+      return true;
+    }
     return MasterCompactIndex(index) < 0;
   }
   // Completes one or more Merge operations by further compacting the
@@ -138,6 +145,9 @@ public:
 
   // SparseToCompact takes a sparse index to an index in the compact space.
   int SparseToCompact(int sparse_index) const override {
+    if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_map_.size()) {
+      return -1;
+    }
     return sparse_map_[sparse_index];
   }
   // The size of the sparse space.
