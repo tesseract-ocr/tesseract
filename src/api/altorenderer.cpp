@@ -45,7 +45,8 @@ static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
 
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
-    alto_str << " WC=\"0." << wc << "\"";
+    alto_str << " WC=\"" << wc / 100 << "." << (wc % 100 < 10 ? "0" : "")
+             << wc % 100 << "\"";
   } else {
     alto_str << ">";
   }
