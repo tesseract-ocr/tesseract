@@ -45,6 +45,8 @@ TEST(UnicharTest, TruncatedUtf8) {
   // string that ends with a truncated multibyte prefix (issue #4495).
   // A truncated multibyte prefix is invalid UTF-8, so the conversion
   // must return an empty vector instead of reading past the NUL.
+  // Keep the explicit NULs to make the truncation boundary visible in each
+  // fixture; without them, the literal terminator is implicit.
   const char *kTruncated2 = "\xC2\0";
   const char *kTruncated3 = "\xE8\0";
   const char *kTruncated4 = "\xF0\0";
