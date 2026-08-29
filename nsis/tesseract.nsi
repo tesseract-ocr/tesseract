@@ -146,6 +146,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !include MUI2.nsh
 !include LogicLib.nsh
 !include winmessages.nsh # include for some of the windows messages defines
+!include FileFunc.nsh
 
 # Variables
 Var StartMenuGroup
@@ -1103,6 +1104,32 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
 
 SectionGroupEnd
 
+Section /o "Add to PATH environment variable" SecAddEnvPath
+  ; Check if the installer is running in "Current User" mode
+  StrCmp $MultiUser.InstallMode "CurrentUser" SetUserPath 0
+
+  ; If "All Users" mode, verify that the current process is actually elevated
+  UserInfo::GetAccountType
+  Pop $0
+  StrCmp $0 "Admin" SetSystemPath SetUserPath
+
+  SetSystemPath:
+    EnVar::SetHKLM
+    WriteRegDWORD HKLM "${REGKEY}" "AddedToEnvPath" 1
+    Goto UpdatePath
+
+  SetUserPath:
+    WriteRegDWORD HKCU "${REGKEY}" "AddedToEnvPath" 1
+    EnVar::SetHKCU
+
+  UpdatePath:
+    EnVar::AddValue "Path" "$INSTDIR"
+    Pop $0 ; Returns 0 on success, non-zero on error
+    StrCmp $0 "0" +3 0
+    DetailPrint "Warning: Failed to add installation directory to PATH (EnVar::AddValue returned $0)."
+    MessageBox MB_ICONEXCLAMATION "Warning: The installer could not add Tesseract to the PATH environment variable.$\r$\nYou may need to add '$INSTDIR' to PATH manually."
+SectionEnd
+
 ;--------------------------------
 ;Descriptions
   ; At first we need to localize installer for languages which supports well in tesseract: Eng, Spa, Ger, Ita, Dutch + Russian (it is authors native language)
@@ -1141,6 +1168,7 @@ SectionGroupEnd
   LangString DESC_SecGrp_LD ${LANG_PORTUGUESE} "Instala o pacote básico de idioma inglês e o módulo de Orientação e Detecção de Roteiro (OSD)."
   LangString DESC_SecGrp_ASD ${LANG_PORTUGUESE} "Um grupo opcional de seções que baixam arquivos de dados em nível de script."
   LangString DESC_SecGrp_ALD ${LANG_PORTUGUESE} "Um grupo opcional contendo dezenas de pacotes de idiomas específicos."
+  LangString DESC_SecAddEnvPath ${LANG_PORTUGUESE} "Permite executar o Tesseract a partir de qualquer linha de comando."
 
   LangString DESC_SEC0001 ${LANG_SLOVAK} "Súbory inštalácie."
   ;LangString DESC_SecHelp ${LANG_SLOVAK} "Pomocné informácie."
@@ -1163,6 +1191,7 @@ SectionGroupEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_LD} $(DESC_SecGrp_LD)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_ASD} $(DESC_SecGrp_ASD)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGrp_ALD} $(DESC_SecGrp_ALD)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecAddEnvPath} $(DESC_SecAddEnvPath)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
@@ -1195,6 +1224,39 @@ Section -un.Main UNSEC0000
   RMDir "$INSTDIR\doc"
   RMDir /r "$INSTDIR\tessdata"
   RMDir "$INSTDIR"
+
+  # remove from PATH only if we added it during installation
+  ClearErrors
+  StrCmp $MultiUser.InstallMode "CurrentUser" UnSetUserPath 0
+
+  UserInfo::GetAccountType
+  Pop $0
+  StrCmp $0 "Admin" UnSetSystemPath UnSetUserPath
+
+  UnSetSystemPath:
+    ReadRegDWORD $1 HKLM "${REGKEY}" "AddedToEnvPath"
+    ${If} $1 == 1
+      EnVar::SetHKLM
+      Goto RemovePath
+    ${EndIf}
+    Goto SkipPathRemoval
+
+  UnSetUserPath:
+    ReadRegDWORD $1 HKCU "${REGKEY}" "AddedToEnvPath"
+    ${If} $1 == 1
+      EnVar::SetHKCU
+      Goto RemovePath
+    ${EndIf}
+    Goto SkipPathRemoval
+
+  RemovePath:
+    EnVar::DeleteValue "Path" "$INSTDIR"
+    Pop $0
+    StrCmp $0 "0" +2 0
+    DetailPrint "Warning: failed to remove $INSTDIR from PATH (EnVar::DeleteValue result: $0)"
+
+  SkipPathRemoval:
+
 SectionEnd
 
 Function PageReinstall
@@ -1433,6 +1495,17 @@ Function .onInit
     Vietnamese: !insertmacro SelectSection ${SecLang_vie}
 
     lang_end:
+
+    ; --- Command Line Parsing ---
+    ${GetParameters} $R0
+
+    ; Check for "Add to PATH environment variable" flag (case-insensitive)
+    ClearErrors
+    ${GetOptions} $R0 "/ADDENVPATH" $R1
+    ${IfNot} ${Errors}
+      !insertmacro SelectSection ${SecAddEnvPath}
+    ${EndIf}
+    ; ----------------------------
 FunctionEnd
 
 Function un.onInit
