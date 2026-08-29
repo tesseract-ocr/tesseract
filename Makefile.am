@@ -1158,6 +1158,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
+check_PROGRAMS += filelist_test
 check_PROGRAMS += fullyconnected_test
 check_PROGRAMS += genericvector_test
 check_PROGRAMS += heap_test
@@ -1296,6 +1297,10 @@ endif # !DISABLED_LEGACY_ENGINE
 fileio_test_SOURCES = unittest/fileio_test.cc
 fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fileio_test_LDADD = $(TRAINING_LIBS)
+
+filelist_test_SOURCES = unittest/filelist_test.cc
+filelist_test_CPPFLAGS = $(unittest_CPPFLAGS)
+filelist_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)

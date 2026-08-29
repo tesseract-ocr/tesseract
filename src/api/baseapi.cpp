@@ -1141,6 +1141,36 @@ bool TessBaseAPI::ProcessPagesInternal(const char *filename, const char *retry_c
   int r =
       (data != nullptr) ? findFileFormatBuffer(data, &format) : findFileFormat(filename, &format);
 
+  // Leptonica's format probe only checks the TIFF byte-order marker ("II"/"MM"),
+  // so a filelist whose first filename starts with those letters is misdetected
+  // as TIFF (issue #4619). Require the classic TIFF version field (42) before
+  // treating the input as an image; otherwise fall through to the filelist path.
+  if (r == 0 && L_FORMAT_IS_TIFF(format)) {
+    const l_uint8 *hdr = data;
+    l_uint8 file_hdr[4] = {0, 0, 0, 0};
+    size_t hdr_size = 0;
+    if (hdr != nullptr) {
+      hdr_size = buf.size();
+    } else if (filename != nullptr) {
+      if (FILE *fp = fopen(filename, "rb")) {
+        hdr_size = fread(file_hdr, 1, 4, fp);
+        fclose(fp);
+        hdr = file_hdr;
+      }
+    }
+    bool valid_tiff = false;
+    if (hdr != nullptr && hdr_size >= 4) {
+      if (hdr[0] == 'I' && hdr[1] == 'I') {
+        valid_tiff = (hdr[2] == 42 && hdr[3] == 0);
+      } else if (hdr[0] == 'M' && hdr[1] == 'M') {
+        valid_tiff = (hdr[2] == 0 && hdr[3] == 42);
+      }
+    }
+    if (!valid_tiff) {
+      format = IFF_UNKNOWN;
+    }
+  }
+
   // Maybe we have a filelist
   if (r != 0 || format == IFF_UNKNOWN) {
     std::string s;
