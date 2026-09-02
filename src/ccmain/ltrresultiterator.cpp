@@ -47,7 +47,7 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   std::string text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE *best_choice = res_it.word()->best_choice;
-  if (best_choice == nullptr) {
+  if ((level == RIL_WORD || level == RIL_SYMBOL) && best_choice == nullptr) {
     return nullptr; // No recognition results available
   }
   if (level == RIL_SYMBOL) {
@@ -75,7 +75,9 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
           res_it.forward();
           eol = res_it.row() != res_it.prev_row();
         } while (!eol);
-        text.resize(text.length() - 1);
+        if (!text.empty()) {
+          text.resize(text.length() - 1);
+        }
         text += line_separator_;
         eop = res_it.block() != res_it.prev_block() ||
               res_it.row()->row->para() != res_it.prev_row()->row->para();

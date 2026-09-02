@@ -654,6 +654,7 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
 
 TEST_F(ResultIteratorTest, NullBestChoiceRegressionTest) {
   SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
   std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
   ASSERT_NE(r_it, nullptr);
 
