@@ -673,14 +673,24 @@ char *ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       it.IterateAndAppendUTF8TextlineText(&text);
     } break;
     case RIL_WORD:
+      if (it_->word()->best_choice == nullptr) {
+        return nullptr;
+      }
       AppendUTF8WordText(&text);
       break;
     case RIL_SYMBOL: {
+      if (it_->word()->best_choice == nullptr) {
+        return nullptr;
+      }
       bool reading_direction_is_ltr = current_paragraph_is_ltr_ ^ in_minor_direction_;
       if (at_beginning_of_minor_run_) {
         text += reading_direction_is_ltr ? kLRM : kRLM;
       }
-      text = it_->word()->BestUTF8(blob_index_, false);
+      const char *utf8 = it_->word()->BestUTF8(blob_index_, false);
+      if (utf8 == nullptr) {
+        return nullptr;
+      }
+      text = utf8;
       if (IsAtFinalSymbolOfWord()) {
         AppendSuffixMarks(&text);
       }

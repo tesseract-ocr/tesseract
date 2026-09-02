@@ -51,7 +51,11 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
     return nullptr; // No recognition results available
   }
   if (level == RIL_SYMBOL) {
-    text = res_it.word()->BestUTF8(blob_index_, false);
+    const char *utf8 = res_it.word()->BestUTF8(blob_index_, false);
+    if (utf8 == nullptr) {
+      return nullptr;
+    }
+    text = utf8;
   } else if (level == RIL_WORD) {
     text = best_choice->unichar_string();
   } else {
@@ -62,7 +66,9 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
         do {          // for each word in a text line
           best_choice = res_it.word()->best_choice;
           if (best_choice == nullptr) {
-            break; // Skip words without recognition results
+            res_it.forward();
+            eol = res_it.row() != res_it.prev_row();
+            continue; // Skip words without recognition results.
           }
           text += best_choice->unichar_string();
           text += " ";
