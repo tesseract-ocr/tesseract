@@ -690,7 +690,7 @@ char *ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       if (utf8 == nullptr) {
         return nullptr;
       }
-      text = utf8;
+      text += utf8;
       if (IsAtFinalSymbolOfWord()) {
         AppendSuffixMarks(&text);
       }
