@@ -61,7 +61,9 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
     return true; // doesn't matter.
   }
   LTRResultIterator it(*this);
-  it.RestartParagraph();
+  if (!it.PageIterator::IsAtBeginningOf(RIL_PARA)) {
+    it.RestartParagraph();
+  }
   // Try to figure out the ltr-ness of the paragraph.  The rules below
   // make more sense in the context of a difficult paragraph example.
   // Here we denote {ltr characters, RTL CHARACTERS}:
@@ -269,7 +271,9 @@ void ResultIterator::CalculateTextlineOrder(bool paragraph_is_ltr, const LTRResu
 
   // A LTRResultIterator goes strictly left-to-right word order.
   LTRResultIterator ltr_it(resit);
-  ltr_it.RestartRow();
+  if (!ltr_it.PageIterator::IsAtBeginningOf(RIL_TEXTLINE)) {
+    ltr_it.RestartRow();
+  }
   if (ltr_it.Empty(RIL_WORD)) {
     return;
   }
@@ -446,7 +450,9 @@ void ResultIterator::AppendSuffixMarks(std::string *text) const {
 
 void ResultIterator::MoveToLogicalStartOfTextline() {
   std::vector<int> word_indices;
-  RestartRow();
+  if (!PageIterator::IsAtBeginningOf(RIL_TEXTLINE)) {
+    RestartRow();
+  }
   CalculateTextlineOrder(current_paragraph_is_ltr_, dynamic_cast<const LTRResultIterator &>(*this),
                          &word_indices);
   unsigned i = 0;
@@ -489,7 +495,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
       if (!PageIterator::Next(level)) {
         return false;
       }
-      if (IsWithinFirstTextlineOfParagraph()) {
+      if (PageIterator::IsAtBeginningOf(RIL_PARA)) {
         // if we've advanced to a new paragraph,
         // recalculate current_paragraph_is_ltr_
         current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
