@@ -746,6 +746,7 @@ PageIterator *TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
     if (block_list_->empty()) {
       return nullptr; // The page was empty.
     }
+    delete page_res_;
     page_res_ = new PAGE_RES(merge_similar_words, block_list_, nullptr);
     DetectParagraphs(false);
     return new PageIterator(page_res_, tesseract_, thresholder_->GetScaleFactor(),
