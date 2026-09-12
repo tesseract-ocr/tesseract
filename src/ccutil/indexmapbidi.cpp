@@ -111,6 +111,9 @@ void IndexMapBiDi::Init(int size, bool all_mapped) {
 
 // Sets a given index in the sparse_map_ to be mapped or not.
 void IndexMapBiDi::SetMap(int sparse_index, bool mapped) {
+  if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_map_.size()) {
+    return;
+  }
   sparse_map_[sparse_index] = mapped ? 0 : -1;
 }
 
