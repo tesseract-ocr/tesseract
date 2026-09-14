@@ -1,0 +1,65 @@
+name: LLM Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  llm-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+          echo "diff<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$DIFF" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Review with LLM
+        env:
+          LLM_SERVER_URL: ${{ secrets.LLM_SERVER_URL }}
+        run: |
+          if [ -z "$LLM_SERVER_URL" ]; then
+            echo "LLM_SERVER_URL secret not set. Skipping review."
+            exit 0
+          fi
+
+          DIFF='${{ steps.diff.outputs.diff }}'
+
+          RESPONSE=$(curl -s "${LLM_SERVER_URL}/v1/chat/completions" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg diff "$DIFF" \
+              '{
+                model: "default",
+                messages: [
+                  {role: "system", content: "You are a code reviewer. Review the following diff and provide concise feedback on potential issues, bugs, or improvements. Be specific and actionable."},
+                  {role: "user", content: ("Review this diff:\n\n" + $diff)}
+                ],
+                temperature: 0.3
+              }')")
+
+          echo "## LLM Review" >> "$GITHUB_STEP_SUMMARY"
+          echo "$RESPONSE" | jq -r '.choices[0].message.content' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post review comment
+        if: env.LLM_SERVER_URL != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = process.env.GITHUB_STEP_SUMMARY;
+            // Only post if we got a valid review
+            if (summary && summary.includes('## LLM Review')) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
