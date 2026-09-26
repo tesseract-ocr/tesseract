@@ -266,10 +266,13 @@ void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode, PAGE_RES *page_re
   }
   PAGE_RES_IT it(page_res);
   // Find the best row, being the greatest mean word conf.
-  float row_total_conf = 0.0f;
+  // A word without a usable result has certainty -MAX_FLOAT32; summing two
+  // of them in float overflows to -inf, which the tesseract CLI turns into
+  // SIGFPE (it enables FE_OVERFLOW traps), so accumulate in double.
+  double row_total_conf = 0.0;
   int row_word_count = 0;
   ROW_RES *best_row = nullptr;
-  float best_conf = 0.0f;
+  double best_conf = 0.0;
   for (it.restart_page(); it.word() != nullptr; it.forward()) {
     WERD_RES *word = it.word();
     row_total_conf += word->best_choice->certainty();
