@@ -11,6 +11,7 @@ set(TESSERACT_SRC_API
     src/api/pagerenderer.cpp
     src/api/pdfrenderer.cpp
     src/api/renderer.cpp
+    src/api/runtimeparams.cpp
     src/api/wordstrboxrenderer.cpp
 )
 
@@ -132,6 +133,7 @@ set(TESSERACT_SRC_CCUTIL
     src/ccutil/params.cpp
     src/ccutil/scanutils.cpp
     src/ccutil/serialis.cpp
+    src/ccutil/sha256.cpp
     src/ccutil/tessdatamanager.cpp
     src/ccutil/tprintf.cpp
     src/ccutil/unichar.cpp
