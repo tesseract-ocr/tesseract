@@ -1205,6 +1205,7 @@ check_PROGRAMS += params_model_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
+check_PROGRAMS += ratngs_test
 check_PROGRAMS += recodebeam_test
 check_PROGRAMS += recoder_test
 check_PROGRAMS += rect_test
@@ -1453,6 +1454,10 @@ progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 qrsequence_test_SOURCES = unittest/qrsequence_test.cc
 qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)
 qrsequence_test_LDADD = $(TESS_LIBS)
+
+ratngs_test_SOURCES = unittest/ratngs_test.cc
+ratngs_test_CPPFLAGS = $(unittest_CPPFLAGS)
+ratngs_test_LDADD = $(TESS_LIBS)
 
 recodebeam_test_SOURCES = unittest/recodebeam_test.cc
 recodebeam_test_CPPFLAGS = $(unittest_CPPFLAGS)
