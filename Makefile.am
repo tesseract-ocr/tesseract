@@ -137,6 +137,8 @@ libtesseract_la_SOURCES += src/api/hocrrenderer.cpp
 libtesseract_la_SOURCES += src/api/lstmboxrenderer.cpp
 libtesseract_la_SOURCES += src/api/pdfrenderer.cpp
 libtesseract_la_SOURCES += src/api/renderer.cpp
+noinst_HEADERS += src/api/runtimeparams.h
+libtesseract_la_SOURCES += src/api/runtimeparams.cpp
 libtesseract_la_SOURCES += src/api/wordstrboxrenderer.cpp
 
 libtesseract_la_LIBADD += libtesseract_native.la
@@ -395,6 +397,8 @@ libtesseract_la_SOURCES += src/ccutil/ccutil.cpp
 libtesseract_la_SOURCES += src/ccutil/errcode.cpp
 libtesseract_la_SOURCES += src/ccutil/serialis.cpp
 libtesseract_la_SOURCES += src/ccutil/scanutils.cpp
+noinst_HEADERS += src/ccutil/sha256.h
+libtesseract_la_SOURCES += src/ccutil/sha256.cpp
 libtesseract_la_SOURCES += src/ccutil/tessdatamanager.cpp
 libtesseract_la_SOURCES += src/ccutil/tprintf.cpp
 libtesseract_la_SOURCES += src/ccutil/unichar.cpp
@@ -692,6 +696,7 @@ endif
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = src/tesseract.cpp
 tesseract_CPPFLAGS = $(AM_CPPFLAGS)
+tesseract_CPPFLAGS += -I$(top_srcdir)/src/api
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/arch
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 tesseract_CPPFLAGS += -I$(top_srcdir)/src/ccstruct
@@ -1210,6 +1215,7 @@ check_PROGRAMS += recoder_test
 check_PROGRAMS += rect_test
 check_PROGRAMS += resultiterator_test
 check_PROGRAMS += scanutils_test
+check_PROGRAMS += sha256_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += shapetable_test
 endif # !DISABLED_LEGACY_ENGINE
@@ -1474,6 +1480,10 @@ resultiterator_test_LDADD += $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 scanutils_test_SOURCES = unittest/scanutils_test.cc
 scanutils_test_CPPFLAGS = $(unittest_CPPFLAGS)
 scanutils_test_LDADD = $(TRAINING_LIBS)
+
+sha256_test_SOURCES = unittest/sha256_test.cc
+sha256_test_CPPFLAGS = $(unittest_CPPFLAGS)
+sha256_test_LDADD = $(TESS_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
 shapetable_test_SOURCES = unittest/shapetable_test.cc
