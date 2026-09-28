@@ -1186,7 +1186,9 @@ check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += matrix_test
 check_PROGRAMS += networkio_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += normproto_test
+endif # !DISABLED_LEGACY_ENGINE
 if ENABLE_TRAINING
 check_PROGRAMS += normstrngs_test
 endif # ENABLE_TRAINING
