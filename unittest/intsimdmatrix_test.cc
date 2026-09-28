@@ -68,10 +68,11 @@ protected:
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
         std::vector<int8_t> u = RandomVector(num_in, matrix);
         std::vector<TFloat> scales = RandomScales(num_out);
-        int ro = num_out;
-        if (IntSimdMatrix::intSimdMatrix) {
-          ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
-        }
+        // The kernel under test may round the output to a different size than
+        // the globally selected one, so size the result buffer for it.
+        int ro = matrix.matrixDotVectorFunction != nullptr
+                     ? matrix.RoundOutputs(num_out)
+                     : num_out;
         std::vector<TFloat> base_result(num_out);
         IntSimdMatrix::MatrixDotVector(w, scales, u.data(), base_result.data());
         std::vector<TFloat> test_result(ro);
