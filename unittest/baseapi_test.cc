@@ -88,6 +88,34 @@ TEST_F(TesseractTest, BasicTesseractTest) {
   }
 }
 
+// Test that OCR results from multiple regions are returned in box order.
+TEST_F(TesseractTest, UTF8TextForBoxes) {
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+  }
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  CHECK(src_pix);
+  api.SetImage(src_pix);
+
+  const int width = pixGetWidth(src_pix);
+  const int height = pixGetHeight(src_pix);
+  Boxa *boxes = boxaCreate(2);
+  boxaAddBox(boxes, boxCreate(0, 0, width, height), L_INSERT);
+  boxaAddBox(boxes, boxCreate(0, 0, width, height), L_INSERT);
+
+  const std::unique_ptr<char[]> combined(api.GetUTF8TextForBoxes(boxes));
+  ASSERT_NE(combined, nullptr);
+  api.SetRectangle(0, 0, width, height);
+  const std::unique_ptr<char[]> single(api.GetUTF8Text());
+  ASSERT_NE(single, nullptr);
+  EXPECT_EQ(std::string(single.get()) + single.get(), combined.get());
+
+  boxaDestroy(&boxes);
+  src_pix.destroy();
+}
+
 // Test that api.GetComponentImages() will return a set of images for
 // paragraphs even if text recognition was not run.
 TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {

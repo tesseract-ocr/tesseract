@@ -284,6 +284,17 @@ public:
                       int height);
 
   /**
+   * Recognize each rectangle in a Boxa and concatenate the UTF-8 results in
+   * box order. SetImage must be called before this method. The caller owns
+   * the returned string and must free it with delete[].
+   *
+   * This keeps the image and initialized engine shared while processing a
+   * collection of regions, which avoids duplicating the rectangle loop in
+   * applications that need OCR for multiple regions on one image.
+   */
+  char *GetUTF8TextForBoxes(const Boxa *boxes);
+
+  /**
    * Call between pages or documents etc to free up memory and forget
    * adaptive data.
    */

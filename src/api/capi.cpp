@@ -420,6 +420,10 @@ char *TessBaseAPIGetUTF8Text(TessBaseAPI *handle) {
   return handle->GetUTF8Text();
 }
 
+char *TessBaseAPIGetUTF8TextForBoxes(TessBaseAPI *handle, const struct Boxa *boxes) {
+  return handle->GetUTF8TextForBoxes(boxes);
+}
+
 char *TessBaseAPIGetHOCRText(TessBaseAPI *handle, int page_number) {
   return handle->GetHOCRText(nullptr, page_number);
 }
