@@ -1,14 +1,31 @@
 
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
+#include <memory>
 #include <string>
 #include "image.h"      // for Image
+#include "pageres.h"
 #include "scrollview.h"
 
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
 namespace tesseract {
+
+class TestLTRResultIterator : public LTRResultIterator {
+ public:
+  using LTRResultIterator::LTRResultIterator;
+
+  explicit TestLTRResultIterator(const LTRResultIterator &src) : LTRResultIterator(src) {}
+
+  WERD_RES *CurrentWord() const { return it_->word(); }
+
+  void SetCurrentWordBestChoiceNull() {
+    if (it_ != nullptr && it_->word() != nullptr) {
+      it_->word()->best_choice = nullptr;
+    }
+  }
+};
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
@@ -633,6 +650,46 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
     VerifySaneTextlineOrder(true, word_dirs, kNumWords);
     VerifySaneTextlineOrder(false, word_dirs, kNumWords);
   }
+}
+
+TEST_F(ResultIteratorTest, NullBestChoiceRegressionTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  std::vector<std::pair<std::string, TestLTRResultIterator>> words;
+  for (TestLTRResultIterator it(*r_it); !it.Empty(RIL_WORD); it.Next(RIL_WORD)) {
+    if (it.CurrentWord() == nullptr || it.CurrentWord()->best_choice == nullptr) {
+      continue;
+    }
+    char *word = it.GetUTF8Text(RIL_WORD);
+    if (word == nullptr) {
+      continue;
+    }
+    words.emplace_back(word, TestLTRResultIterator(it));
+    delete[] word;
+  }
+  ASSERT_GE(words.size(), 3);
+
+  auto target = words[1];
+  target.second.SetCurrentWordBestChoiceNull();
+  EXPECT_EQ(nullptr, target.second.GetUTF8Text(RIL_WORD));
+  EXPECT_EQ(nullptr, target.second.GetUTF8Text(RIL_SYMBOL));
+
+  char *text = target.second.GetUTF8Text(RIL_TEXTLINE);
+  ASSERT_NE(text, nullptr);
+  std::string text_line(text);
+  delete[] text;
+  EXPECT_NE(text_line.find(words[2].first), std::string::npos)
+      << "A null best_choice should not stop textline traversal";
+
+  char *para_text = target.second.GetUTF8Text(RIL_PARA);
+  ASSERT_NE(para_text, nullptr);
+  std::string para(para_text);
+  delete[] para_text;
+  EXPECT_NE(para.find(words[2].first), std::string::npos)
+      << "A null best_choice should not stop paragraph traversal";
 }
 
 // TODO: Missing image
