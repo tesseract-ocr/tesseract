@@ -161,7 +161,10 @@ bool Network::Serialize(TFile *fp) const {
   if (!fp->Serialize(type_name)) {
     return false;
   }
-  data = training_;
+  // TS_TEMP_DISABLE only exists while a recognition dump is being written,
+  // and CreateFromFile reads anything but TS_ENABLED as TS_DISABLED, so
+  // write what the reader is going to see.
+  data = training_ == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
   if (!fp->Serialize(&data)) {
     return false;
   }
