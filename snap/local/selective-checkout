@@ -1,0 +1,1866 @@
+#!/usr/bin/env bash
+# This scriptlet enhances the pull step that will only build
+# development snapshots snaps if the latest tagged release has been
+# promoted to the stable channel.  This ensures that there's always
+# a revision of the stable release snap available in the edge channel
+# for the publisher to promote to stable as currently the build
+# infrastructure only supports build on code push (but not new tagged
+# releases) at this time.
+# https://forum.snapcraft.io/t/selective-checkout-check-out-the-tagged-release-revision-if-it-isnt-promoted-to-the-stable-channel/10617
+#
+# Copyright 2024 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+SELECTIVE_CHECKOUT_DEBUG="${SELECTIVE_CHECKOUT_DEBUG:-false}"
+
+set \
+    -o errexit \
+    -o errtrace \
+    -o nounset \
+    -o pipefail
+
+for required_command in \
+    curl \
+    cut \
+    head \
+    jq \
+    realpath \
+    sed \
+    sort \
+    tail \
+    tr; do
+    if ! command -v "${required_command}" >/dev/null; then
+        printf -- \
+            'Fatal: This script requires the "%s" command in your command search PATHs.\n' \
+            "${required_command}" \
+            >&2
+        exit 1
+    fi
+done
+
+init(){
+    script="$(
+        realpath \
+            --strip \
+            "${BASH_SOURCE[0]}"
+    )"
+    script_filename="${script##*/}"
+    script_name="${script_filename%%.*}"
+    export SCRIPT_NAME="${script_name}"
+
+    # checkout_mode:
+    # - snapshot: Build as-is
+    # - release: Build the latest tagged release
+    # tag_pattern_release: We assume all tags contains dots or underscores release tags
+    #
+    # Indirection used
+    # shellcheck disable=SC2034
+    local \
+        checkout_mode \
+        flag_append_packaging_version=false \
+        flag_dry_run=false \
+        flag_debug_tracing=false \
+        flag_force_snapshot=false \
+        flag_force_stable=false \
+        packaging_revision \
+        postfix_dirty_marker_packaging=-d \
+        postfix_dirty_marker_upstream=-dirty \
+        tag_pattern_beta='-beta[[:digit:]]+$' \
+        tag_pattern_release='.*[._].*' \
+        tag_pattern_release_candidate='-rc[[:digit:]]+$' \
+        tag_pattern_stable \
+        tag_prefix_release=v \
+        revision_minimal_length_packaging=4 \
+        revision_minimal_length_upstream=7 \
+        snap_version \
+        snap_version_postfix_seperator=+ \
+        upstream_version
+
+    if ! determining_runtime_parameters \
+        flag_append_packaging_version \
+        tag_pattern_beta \
+        flag_debug_tracing \
+        flag_dry_run \
+        flag_force_snapshot \
+        flag_force_stable \
+        postfix_dirty_marker_packaging \
+        revision_minimal_length_packaging \
+        tag_pattern_release_candidate \
+        tag_pattern_release \
+        tag_prefix_release \
+        snap_version_postfix_seperator \
+        tag_pattern_stable \
+        postfix_dirty_marker_upstream \
+        revision_minimal_length_upstream \
+        "${@}"; then
+        printf \
+            'Error: Error(s) occurred while determining the runtime parameters.\n' \
+            1>&2
+        exit 1
+    fi
+
+    if test "${flag_debug_tracing}" = true; then
+        set -o xtrace
+    fi
+
+    vcs_check_runtime_dependencies \
+        "${PWD}"
+
+    if test "${flag_force_snapshot}" = true; then
+        printf -- \
+            '%s: Info: Force building development snapshots\n' \
+            "${script_name}"
+        checkout_mode=snapshot
+    elif test "$(vcs_detect "${PWD}")" = not_found; then
+        printf -- \
+            '%s: Info: Build from source archive\n' \
+            "${script_name}"
+        checkout_mode=snapshot
+    elif vcs_is_dirty \
+        "${PWD}"; then
+        # If tracked files are modified
+        # or staging area not empty
+        printf -- \
+            '%s: Info: Working tree is dirty, building development snapshot with additional changes\n' \
+            "${script_name}"
+        checkout_mode=snapshot
+    elif ! \
+        vcs_has_release_tags \
+            "${PWD}" \
+            "${tag_pattern_release}"; then
+        printf -- \
+            '%s: Warning: No release tags found, assuming building from development snapshots.\n' \
+            "${script_name}" \
+            1>&2
+        checkout_mode=snapshot
+    else
+        printf -- \
+            '%s: Info: Determining version to be built...\n' \
+            "${script_name}"
+        local \
+            release_type_to_build=development-snapshot \
+            last_stable_tag \
+            last_stable_version \
+            last_stable_version_on_the_snap_store \
+            last_release_candidate_tag \
+            last_release_candidate_version \
+            last_release_candidate_version_on_the_snap_store \
+            last_beta_tag \
+            last_beta_version \
+            last_beta_version_on_the_snap_store
+
+        local -a all_release_tags=()
+        local -A \
+            map_of_tag_to_normalized_version \
+            map_of_release_type_to_snap_channel
+
+        map_of_release_type_to_snap_channel=(
+            [stable]=stable
+            [release-candidate]=candidate
+            [beta]=beta
+            [development-snapshot]=edge
+        )
+
+        if ! {
+            test -v CRAFT_PROJECT_NAME \
+            || test -v SNAPCRAFT_PROJECT_NAME
+            }; then
+            printf -- \
+                "%s: Error: This script requires either the CRAFT_PROJECT_NAME or the SNAPCRAFT_PROJECT_NAME environment variable to be set.\\n" \
+                "${script_name}" \
+                >&2
+            exit 1
+        fi
+        local project_name="${CRAFT_PROJECT_NAME:-"${SNAPCRAFT_PROJECT_NAME}"}"
+
+        mapfile \
+            -t all_release_tags \
+            < <(
+            vcs_query_release_tags \
+                "${PWD}" \
+                "${tag_pattern_release}"
+        )
+
+        if ! {
+            test -v CRAFT_PROJECT_DIR \
+            || test -v SNAPCRAFT_PROJECT_DIR
+            }; then
+            printf -- \
+                "%s: Error: This script requires either the CRAFT_PROJECT_DIR or the SNAPCRAFT_PROJECT_DIR environment variable to be set.\\n" \
+                "${script_name}" \
+                >&2
+            exit 1
+        fi
+        project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR}"}"
+
+        printf -- \
+            '%s: INFO: Determining normalized release version strings.\n' \
+            "${script_name}"
+        determine_normalized_release_version_string \
+            map_of_tag_to_normalized_version \
+            "${all_release_tags[@]}"
+
+        printf -- \
+            '%s: INFO: Detecting stable releases...\n' \
+            "${script_name}"
+        determine_stable_release_details \
+            tag_pattern_stable \
+            "${tag_pattern_release_candidate}" \
+            "${tag_pattern_beta}" \
+            last_stable_tag \
+            last_stable_version \
+            last_stable_version_on_the_snap_store \
+            "${snap_version_postfix_seperator}" \
+            "${flag_force_stable}" \
+            "${all_release_tags[@]}"
+
+        printf -- \
+            '%s: INFO: Detecting release candidate releases...\n' \
+            "${script_name}"
+        determine_release_candidate_release_details \
+            "${tag_pattern_release_candidate}" \
+            last_release_candidate_tag \
+            last_release_candidate_version \
+            last_release_candidate_version_on_the_snap_store \
+            "${snap_version_postfix_seperator}" \
+            "${all_release_tags[@]}"
+
+        printf -- \
+            '%s: INFO: Detecting beta releases...\n' \
+            "${script_name}"
+        determine_beta_release_details \
+            "${tag_pattern_beta}" \
+            last_beta_tag \
+            last_beta_version \
+            last_beta_version_on_the_snap_store \
+            "${snap_version_postfix_seperator}" \
+            "${all_release_tags[@]}"
+
+        local \
+            selected_release_tag \
+            selected_release_version \
+            selected_snap_channel_version
+        release_type_to_build="$(
+            determine_which_version_to_build \
+                "${last_stable_tag}" \
+                "${last_stable_version}" \
+                "${last_stable_version_on_the_snap_store}" \
+                "${last_release_candidate_tag}" \
+                "${last_release_candidate_version}" \
+                "${last_release_candidate_version_on_the_snap_store}" \
+                "${last_beta_tag}" \
+                "${last_beta_version}" \
+                "${last_beta_version_on_the_snap_store}" \
+                "${flag_force_stable}" \
+                "${flag_force_snapshot}"
+        )"
+
+
+        case "${release_type_to_build}" in
+            stable)
+                selected_release_tag="${last_stable_tag}"
+                selected_release_version="${last_stable_version}"
+                selected_snap_channel_version="${last_stable_version_on_the_snap_store}"
+            ;;
+            release-candidate)
+                selected_release_tag="${last_release_candidate_tag}"
+                selected_release_version="${last_release_candidate_version}"
+                selected_snap_channel_version="${last_release_candidate_version_on_the_snap_store}"
+            ;;
+            beta)
+                selected_release_tag="${last_beta_tag}"
+                selected_release_version="${last_beta_version}"
+                selected_snap_channel_version="${last_beta_version_on_the_snap_store}"
+            ;;
+            development-snapshot)
+                : # Nothing to do here
+            ;;
+            *)
+                printf -- \
+                    '%s: %s: FATAL: Invalid release_type_to_build(%s), report bug.\n' \
+                    "${script_name}" \
+                    "${FUNCNAME[0]}" \
+                    "${release_type_to_build}" \
+                    1>&2
+                exit 1
+            ;;
+        esac
+
+        unset \
+            flag_version_mismatch_stable \
+            flag_version_mismatch_beta \
+            flag_version_mismatch_release_candidate \
+            flag_force_stable \
+            last_stable_tag \
+            last_stable_version \
+            last_stable_version_on_the_snap_store \
+            last_release_candidate_tag \
+            last_release_candidate_version \
+            last_release_candidate_version_on_the_snap_store \
+            last_beta_tag \
+            last_beta_version \
+            last_beta_version_on_the_snap_store
+
+        if test "${release_type_to_build}" != development-snapshot; then
+            printf -- \
+                "%s: Info: The last tagged %s release(%s) hasn't been promoted to the %s channel(%s) on the Snap Store yet, checking out %s.\\n" \
+                "${script_name}" \
+                "${release_type_to_build}" \
+                "${selected_release_version}" \
+                "${map_of_release_type_to_snap_channel["${release_type_to_build}"]}" \
+                "${selected_snap_channel_version}" \
+                "${selected_release_version}"
+            checkout_mode=release
+        else
+            printf -- '%s: Info: Last tagged releases is all in their respective channels, building development snapshot\n' \
+                "${script_name}"
+            checkout_mode=snapshot
+        fi
+
+        unset \
+            all_release_tags \
+            map_of_release_type_to_snap_channel \
+            release_type_to_build \
+            selected_release_version \
+            selected_snap_channel_version
+    fi
+
+    unset \
+        tag_pattern_release
+
+    case "${checkout_mode}" in
+        snapshot)
+            : # do nothing
+        ;;
+        release)
+            if test "${flag_dry_run}" == true; then
+                printf -- \
+                    '%s: Info: Would check out "%s" tag.\n' \
+                    "${script_name}" \
+                    "${selected_release_tag}"
+            else
+                vcs_checkout_tag \
+                    "${PWD}" \
+                    "${selected_release_tag}"
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: Error: Invalid checkout_mode selected.\n' \
+                "${script_name}" \
+                >&2
+            exit 1
+        ;;
+    esac
+
+    unset \
+        checkout_mode \
+        selected_release_tag
+
+    upstream_version="$(
+        vcs_describe_version \
+            "${PWD}" \
+            "${revision_minimal_length_upstream}" \
+            "${postfix_dirty_marker_upstream}" \
+            | normalize_version
+    )"
+
+    if test "${flag_append_packaging_version}" = true; then
+        packaging_revision="$(
+            vcs_describe_revision \
+                "${project_dir}" \
+                "${revision_minimal_length_packaging}" \
+                "${postfix_dirty_marker_packaging}"
+        )"
+        snap_version="${upstream_version}+pkg-${packaging_revision}"
+        unset \
+            project_dir \
+            packaging_revision \
+            postfix_dirty_marker_packaging \
+            revision_minimal_length_packaging
+    else
+        snap_version="${upstream_version}"
+    fi
+    unset \
+        postfix_dirty_marker_upstream \
+        revision_minimal_length_upstream \
+        tag_prefix_release \
+        upstream_version
+
+    printf -- '%s: Info: Snap version determined to be "%s".\n' \
+        "${script_name}" \
+        "${snap_version}"
+    if test "${flag_dry_run}" = false; then
+        if command -v craftctl >/dev/null; then
+            if ! craftctl set version="${snap_version}"; then
+                printf \
+                    'Error: Unable to set the snap version string.\n' \
+                    1>&2
+                exit 2
+            fi
+        else
+            if ! snapcraftctl set-version "${snap_version}"; then
+                printf \
+                    'Error: Unable to set the snap version string.\n' \
+                    1>&2
+                exit 2
+            fi
+        fi
+    fi
+    exit 0
+}
+
+determining_runtime_parameters(){
+    local -n flag_append_packaging_version_ref="${1}"; shift
+    local -n tag_pattern_beta_ref="${1}"; shift
+    local -n flag_debug_tracing_ref="${1}"; shift
+    local -n flag_dry_run_ref="${1}"; shift
+    local -n flag_force_snapshot_ref="${1}"; shift
+    local -n flag_force_stable_ref="${1}"; shift
+    local -n postfix_dirty_marker_packaging_ref="${1}"; shift
+    local -n revision_minimal_length_packaging_ref="${1}"; shift
+    local -n tag_pattern_release_candidate_ref="${1}"; shift
+    local -n tag_pattern_release_ref="${1}"; shift
+    local -n tag_prefix_release_ref="${1}"; shift
+    local -n snap_version_postfix_seperator_ref="${1}"; shift
+    local -n tag_pattern_stable_ref="${1}"; shift
+    local -n postfix_dirty_marker_upstream_ref="${1}"; shift
+    local -n revision_minimal_length_upstream_ref="${1}"; shift
+
+    while true; do
+        if test "${#}" -eq 0; then
+            break
+        else
+            case "${1}" in
+                # Append packaging revision after snap version
+                --append-packaging-revision)
+                    # Indirect access
+                    # shellcheck disable=SC2034
+                    flag_append_packaging_version_ref=true
+                ;;
+                --beta-tag-pattern*)
+                    if test "${1}" != --beta-tag-pattern; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_beta_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --beta-tag-pattern requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_beta_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                # Enable execution tracing
+                --debug)
+                    printf -- \
+                        '%s: %s: Warning: The --debug command option is deprecated, set the SELECTIVE_CHECKOUT_DEBUG environment variable to "true" for a better debugging experience.\n' \
+                        "${SCRIPT_NAME}" \
+                        "${FUNCNAME[0]}" \
+                        >&2
+                    export SELECTIVE_CHECKOUT_DEBUG=true
+                ;;
+                --debug-tracing)
+                    # Indirect access
+                    # shellcheck disable=SC2034
+                    flag_debug_tracing_ref=true
+                ;;
+                # Don't run snapcraftctl for testing purpose
+                --dry-run)
+                    # Indirect access
+                    # shellcheck disable=SC2034
+                    flag_dry_run_ref=true
+                ;;
+                # Force building development snapshot regardless the status of the snap
+                --force-snapshot)
+                    # Indirect access
+                    # shellcheck disable=SC2034
+                    flag_force_snapshot_ref=true
+                ;;
+                --force-stable)
+                    # Indirect access
+                    # shellcheck disable=SC2034
+                    flag_force_stable_ref=true
+                ;;
+                --packaging-dirty-marker-postfix*)
+                    if test "${1}" != --packaging-dirty-marker-postfix; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        postfix_dirty_marker_packaging_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --packaging-dirty-marker-postfix requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        postfix_dirty_marker_packaging_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --packaging-revision-minimal-length*)
+                    if test "${1}" != --packaging-revision-minimal-length; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        revision_minimal_length_packaging_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --packaging-revision-minimal-length requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        revision_minimal_length_packaging_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --release-candidate-tag-pattern*)
+                    if test "${1}" != --release-candidate-tag-pattern; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_release_candidate_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --release-candidate-tag-pattern requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_release_candidate_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --release-tag-pattern*)
+                    if test "${1}" != --release-tag-pattern; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_release_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --release-tag-pattern requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_release_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                # Set the prefix for all release tags(default: `v`), the prefix will be stripped from snap version string
+                --release-tag-prefix*)
+                    if test "${1}" != --release-tag-prefix; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_prefix_release_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --release-tag-prefix requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_prefix_release_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                # Set the seperator for the postfixed string in the snap version string
+                # the postfixed string will be stripped before comparing with the stripped
+                # uptream release version
+                --snap-postfix-seperator*)
+                    if test "${1}" != --snap-postfix-seperator; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        snap_version_postfix_seperator_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --snap-postfix-seperator requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        snap_version_postfix_seperator_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --stable-tag-pattern*)
+                    if test "${1}" != --stable-tag-pattern; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_stable_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --stable-tag-pattern requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        tag_pattern_stable_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --upstream-dirty-marker-postfix*)
+                    if test "${1}" != --upstream-dirty-marker-postfix; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        postfix_dirty_marker_upstream_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --upstream-dirty-marker-postfix requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        postfix_dirty_marker_upstream_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                --upstream-revision-minimal-length*)
+                    if test "${1}" != --upstream-revision-minimal-length; then
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        revision_minimal_length_upstream_ref="$(
+                            cut \
+                                --delimiter== \
+                                --fields=2 \
+                                <<< "${1}"
+                        )"
+                    else
+                        if test "${#}" -eq 0; then
+                            printf -- \
+                                '%s: %s: Error: --upstream-revision-minimal-length requires one argument.\n' \
+                                "${SCRIPT_NAME}" \
+                                "${FUNCNAME[0]}" \
+                                >&2
+                            return 1
+                        fi
+                        # Indirect access
+                        # shellcheck disable=SC2034
+                        revision_minimal_length_upstream_ref="${2}"
+                        shift 1
+                    fi
+                ;;
+                *)
+                    printf -- \
+                        '%s: %s: Error: Invalid command-line argument "%s".\n' \
+                        "${SCRIPT_NAME}" \
+                        "${FUNCNAME[0]}" \
+                        "${1}" \
+                        >&2
+                    return 1
+                ;;
+            esac
+            shift 1
+        fi
+    done
+}
+
+normalize_version(){
+    # This is not a simple substitution
+    # shellcheck disable=SC2001
+    sed "s#^${tag_prefix_release}##" \
+        | tr _ .
+}
+
+determine_normalized_release_version_string(){
+    local -n map_of_tag_to_normalized_version_ref="${1}"; shift
+    local -a all_release_tags=("${@}"); set --
+
+    local normalized_release_version
+    for tag in "${all_release_tags[@]}"; do
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Found release tag: %s\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${tag}" \
+                1>&2
+        fi
+        normalized_release_version="$(
+            normalize_version <<< "${tag}"
+        )"
+
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Normalized release version: %s\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${normalized_release_version}" \
+                1>&2
+        fi
+        # Indirection
+        # shellcheck disable=SC2034
+        map_of_tag_to_normalized_version_ref["${tag}"]="${normalized_release_version}"
+    done
+    unset \
+        normalized_release_version \
+        tag
+}
+
+determine_stable_release_details(){
+    # Indirection
+    # shellcheck disable=SC2034
+    local -n tag_pattern_stable_ref="${1}"; shift
+    local tag_pattern_release_candidate="${1}"; shift
+    local tag_pattern_beta="${1}"; shift
+    local -n last_stable_tag_ref="${1}"; shift
+    local -n last_stable_version_ref="${1}"; shift
+    local -n last_stable_version_on_the_snap_store_ref="${1}"; shift
+    local snap_version_postfix_seperator="${1}"; shift
+    local flag_force_stable="${1}"; shift
+    local -a all_release_tags=("${@}"); set --
+
+    local stable_tag_pattern_grep_opts
+    if test -v tag_pattern_stable_ref; then
+        stable_tag_pattern_grep_opts=
+    else
+        stable_tag_pattern_grep_opts=--invert-match
+        tag_pattern_stable_ref="${tag_pattern_beta}|${tag_pattern_release_candidate}"
+    fi
+
+    local -a stable_tags=()
+    mapfile \
+        -t stable_tags \
+        < <(
+        echo -n "${all_release_tags[@]}" \
+            | tr ' ' "\\n" \
+            | grep \
+                --extended-regexp \
+                ${stable_tag_pattern_grep_opts} \
+                --regexp="(${tag_pattern_stable_ref})"
+    )
+
+    if test "${#stable_tags[@]}" -eq 0; then
+        last_stable_tag_ref=
+        last_stable_version_ref=
+
+        # NOTE: The store CAN have releases, though...
+        last_stable_version_on_the_snap_store_ref=
+    else
+        last_stable_tag_ref="$(
+            echo -n "${stable_tags[@]}" \
+                | tr ' ' "\\n" \
+                | sort --version-sort \
+                | tail --lines=1
+
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Last stable release tag determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_stable_tag_ref}" \
+                1>&2
+        fi
+
+        last_stable_version_ref="${map_of_tag_to_normalized_version["${last_stable_tag}"]}"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Last stable version determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_stable_version_ref}" \
+                1>&2
+        fi
+
+        last_stable_version_on_the_snap_store_ref="$(
+            snap_query_version \
+                "${project_name}" \
+                stable \
+                "${snap_version_postfix_seperator}"
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Last stable version on the snap store determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_stable_version_on_the_snap_store_ref}" \
+                1>&2
+        fi
+    fi
+    unset \
+        stable_tag_pattern_grep_opts \
+        tag_pattern_stable
+}
+
+determine_release_candidate_release_details(){
+    local tag_pattern_release_candidate="${1}"; shift
+    local -n last_release_candidate_tag_ref="${1}"; shift
+    local -n last_release_candidate_version_ref="${1}"; shift
+    local -n last_release_candidate_version_on_the_snap_store_ref="${1}"; shift
+    local snap_version_postfix_seperator="${1}"; shift
+    local -a all_release_tags=("${@}"); set --
+
+    local -a release_candidate_tags
+    mapfile \
+        -t release_candidate_tags \
+        < <(
+        echo -n "${all_release_tags[@]}" \
+            | tr ' ' "\\n" \
+            | grep \
+                --extended-regexp \
+                --regexp="${tag_pattern_release_candidate}"
+    )
+
+    if test "${#release_candidate_tags[@]}" -eq 0; then
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: No release candidate release tags found.\n' \
+                "${SCRIPT_NAME}" \
+                1>&2
+        fi
+        last_release_candidate_tag_ref=
+        last_release_candidate_version_ref=
+        last_release_candidate_version_on_the_snap_store_ref=
+    else
+        last_release_candidate_tag_ref="$(
+            echo -n "${release_candidate_tags[@]}" \
+                | tr ' ' "\\n" \
+                | grep \
+                    --extended-regexp \
+                    --regexp="${tag_pattern_release_candidate}" \
+                | sort --version-sort \
+                | tail --lines=1
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last release candidate release tag determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_release_candidate_tag_ref}" \
+                1>&2
+        fi
+
+        last_release_candidate_version_ref="${map_of_tag_to_normalized_version["${last_release_candidate_tag_ref}"]}"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last release candidate version determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_release_candidate_version_ref}" \
+                1>&2
+        fi
+
+        last_release_candidate_version_on_the_snap_store_ref="$(
+            snap_query_version \
+                "${project_name}" \
+                candidate \
+                "${snap_version_postfix_seperator}"
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last release candidate version on the snap store determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_release_candidate_version_on_the_snap_store_ref}" \
+                1>&2
+        fi
+    fi
+    unset \
+        tag_pattern_release_candidate
+}
+
+determine_beta_release_details(){
+    local tag_pattern_beta="${1}"; shift
+    local -n last_beta_tag_ref="${1}"; shift
+    local -n last_beta_version_ref="${1}"; shift
+    local -n last_beta_version_on_the_snap_store_ref="${1}"; shift
+    local snap_version_postfix_seperator="${1}"; shift
+    local all_release_tags=("${@}"); set --
+
+    local -a beta_tags
+    mapfile \
+        -t beta_tags \
+        < <(
+        echo -n "${all_release_tags[@]}" \
+            | tr ' ' "\\n" \
+            | grep \
+                --extended-regexp \
+                --regexp="${tag_pattern_beta}"
+    )
+
+    if test "${#beta_tags[@]}" -eq 0; then
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: No beta release tags found.\n' \
+                "${SCRIPT_NAME}" \
+                1>&2
+        fi
+        last_beta_tag_ref=
+        last_beta_version_ref=
+        last_beta_version_on_the_snap_store=
+    else
+        last_beta_tag_ref="$(
+            echo -n "${beta_tags[@]}" \
+                | tr ' ' "\\n" \
+                | grep \
+                    --extended-regexp \
+                    --regexp="${tag_pattern_beta}" \
+                | sort --version-sort \
+                | tail --lines=1
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last beta release tag determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_beta_tag_ref}" \
+                1>&2
+        fi
+
+        last_beta_version_ref="${map_of_tag_to_normalized_version["${last_beta_tag_ref}"]}"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last beta version determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_beta_version_ref}" \
+                1>&2
+        fi
+
+        last_beta_version_on_the_snap_store="$(
+            snap_query_version \
+                "${project_name}" \
+                beta \
+                "${snap_version_postfix_seperator}"
+        )"
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: DEBUG: Last beta version on the snap store determines to be "%s".\n' \
+                "${SCRIPT_NAME}" \
+                "${last_beta_version_on_the_snap_store_ref}" \
+                1>&2
+        fi
+    fi
+    unset \
+        map_of_tag_to_normalized_version \
+        snap_version_postfix_seperator \
+        tag_pattern_beta
+}
+
+determine_which_version_to_build(){
+    local last_stable_tag="${1}"; shift
+    local last_stable_version="${1}"; shift
+    local last_stable_version_on_the_snap_store="${1}"; shift
+    local last_release_candidate_tag="${1}"; shift
+    local last_release_candidate_version="${1}"; shift
+    local last_release_candidate_version_on_the_snap_store="${1}"; shift
+    local last_beta_tag="${1}"; shift
+    local last_beta_version="${1}"; shift
+    local last_beta_version_on_the_snap_store="${1}"; shift
+    local flag_force_stable="${1}"; shift
+    local flag_force_snapshot="${1}"; shift
+
+    local release_type_to_build=undetermined
+
+    # Case: --force-snapshot is specified
+    if test "${flag_force_snapshot}" == true; then
+        printf -- \
+            '%s: %s: DEBUG: The --force-snapshot command option is specified, development snapshot will be built.\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            1>&2
+        release_type_to_build=development-snapshot
+    # Case: Build the stable version when:
+    #
+    # --force-stable command-line option is specified
+    #   AND There is stable release version to build on
+    elif test "${flag_force_stable}" == true; then
+        if test -z "${last_stable_version}"; then
+            printf -- \
+                '%s: %s: Error: The --force-stable command-line option is specified, but no stable versions are found.\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                1>&2
+            return 1
+        fi
+
+        printf -- \
+            '%s: %s: DEBUG: The --force-stable command-line option is specified, stable release will be built.\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            1>&2
+        release_type_to_build=stable
+    # Case: Build the stable version when:
+    #
+    # The stable version is available
+    #   AND (
+    #     There's no snap available in the stable channel of the Snap
+    #     Store
+    #       OR The stable version is newer than the one on the stable
+    #          channel of the snap store
+    #   )
+    elif test -n "${last_stable_version}" \
+        && {
+            test -z "${last_stable_version_on_the_snap_store}" \
+            || version_former_is_greater_than_latter \
+                "${last_stable_version}" \
+                "${last_stable_version_on_the_snap_store}"
+        }; then
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                '%s: %s: DEBUG: Stable version(%s) is newer than the one on the Snap Store(%s), stable release will be built.\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_stable_version}" \
+                "${last_stable_version_on_the_snap_store:-none}" \
+                1>&2
+        fi
+        release_type_to_build=stable
+    # Case: Build release candidate version when:
+    #
+    # Release candidate version is available
+    #   AND (
+    #     There's no snap on the Snap Store's stable channel
+    #       OR The release candidate version is newer than the version
+    #          on the Snap Store's stable channel
+    #   )
+    #   AND (
+    #     There's no release in the Snap Store's candidate channel
+    #       OR The release candidate version is newer than the version
+    #          in the Snap Store's candidate channel
+    #   )
+    elif test -n "${last_release_candidate_version}" \
+        && {
+            test -z "${last_stable_version_on_the_snap_store}" \
+                || version_former_is_greater_than_latter \
+                    "${last_release_candidate_version}" \
+                    "${last_stable_version_on_the_snap_store}"
+        } && {
+            test -z "${last_release_candidate_version_on_the_snap_store}" \
+                ||  version_former_is_greater_than_latter \
+                    "${last_release_candidate_version}" \
+                    "${last_release_candidate_version_on_the_snap_store}"
+        }; then
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                "%s: %s: DEBUG: Release candidate version(%s) is not on the Snap Store's candidate channel and is newer than the version on the stable channel(%s), release candidate version will be built.\\n" \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_release_candidate_version}" \
+                "${last_stable_version_on_the_snap_store:-none}" \
+                1>&2
+        fi
+        release_type_to_build=release-candidate
+    # Case: Build beta version when
+    #
+    # The beta version is available
+    #   AND (
+    #     There's NO snap on the stable channel of the Snap Store
+    #       OR The beta version is newer than the stable version on
+    #          the Snap Store
+    #   )
+    #   AND (
+    #     There's NO snap on the candidate channel of the Snap Store
+    #       OR The beta version is newer than the candidate version
+    #          on the Snap Store
+    #   )
+    #   AND (
+    #     There's NO snap on the beta channel of the Snap Store
+    #       OR The beta version is newer than the beta version on
+    #          the Snap Store
+    #   )
+    elif test -n "${last_beta_version}" \
+        && {
+            test -z "${last_stable_version_on_the_snap_store}" \
+                || version_former_is_greater_than_latter \
+                    "${last_beta_version}" \
+                    "${last_stable_version_on_the_snap_store}"
+        } && {
+            test -z "${last_release_candidate_version_on_the_snap_store}" \
+                || version_former_is_greater_than_latter \
+                    "${last_beta_version}" \
+                    "${last_release_candidate_version_on_the_snap_store}"
+        } && {
+            test -z "${last_beta_version_on_the_snap_store}" \
+                || version_former_is_greater_than_latter \
+                    "${last_beta_version}" \
+                    "${last_beta_version_on_the_snap_store}"
+        }; then
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                "%s: %s: DEBUG: Beta version(%s) is newer than the versions in the stabler channels(stable(%s), candidate(%s)), and is newer than the one shipped in the Snap Store's beta channel(%s), beta version will be built.\\n" \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_beta_version}" \
+                "${last_stable_version_on_the_snap_store:-none}" \
+                "${last_release_candidate_version_on_the_snap_store:-none}" \
+                "${last_beta_version_on_the_snap_store:-none}" \
+                1>&2
+        fi
+        release_type_to_build=beta
+    # Case: Build development snapshot when:
+    #
+    # All other versions are built
+    else
+        if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+            printf -- \
+                "%s: %s: DEBUG: All other versions are on the Snap Store(stable(%s), candidate(%s), beta(%s)), development snapshot will be built.\\n" \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                "${last_stable_version_on_the_snap_store:-none}" \
+                "${last_release_candidate_version_on_the_snap_store:-none}" \
+                "${last_beta_version_on_the_snap_store:-none}" \
+                1>&2
+        fi
+        release_type_to_build=development-snapshot
+    fi
+
+    printf \
+        '%s' \
+        "${release_type_to_build}"
+}
+
+# Query snap version for specific channel, we use the Snap Store API
+# Output: snap version string, or null string if the channel has no
+# snap
+# http://api.snapcraft.io/docs/info.html#snap_info
+snap_query_version(){
+    if test $# -ne 3; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    # positional parameters
+    local snap_identifier="${1}"; shift
+    local release_channel="${1}"; shift
+    local snap_version_postfix_seperator="${1}"; shift
+
+    snap_arch="${SNAP_ARCH:-amd64}"
+
+    local snap_version_in_release_channel
+    local info_store_api_call_response
+
+    if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+        printf -- \
+            '%s: %s: DEBUG: Checking what snap revisions are available for the %s snap at the %s release channel...\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            "${snap_identifier}" \
+            "${release_channel}" \
+            1>&2
+    fi
+    if ! info_store_api_call_response="$(
+        curl \
+            --fail \
+            --silent \
+            --show-error \
+            --header 'Snap-Device-Series: 16' \
+            "https://api.snapcraft.io/v2/snaps/info/${snap_identifier}?fields=version&architecture=${snap_arch}" \
+            2>&1
+        )"; then
+        # If the response is 404, the snap hasn't published to the
+        # the specified channel(or, at all) at the Snap Store yet
+        regex_curl_request_returns_404='\(22\).*: 404$'
+        grep_opts=(
+            --extended-regexp
+            --regexp="${regex_curl_request_returns_404}"
+            --quiet
+        )
+        if grep "${grep_opts[@]}" <<<"${info_store_api_call_response}"; then
+            if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+                printf -- \
+                    "%s: %s: DEBUG: The /snaps/info/ Snap Store API call returns 404, interpreting as the snap hasn't published to the store...\\n" \
+                    "${SCRIPT_NAME}" \
+                    "${FUNCNAME[0]}" \
+                    1>&2
+            fi
+            return 0
+        fi
+
+        printf \
+            '%s: %s: Error: Unable to call the Snap Store info API to retrieve snap revision info: %s\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            "${info_store_api_call_response}" \
+            1>&2
+        return 1
+    fi
+
+    if ! snap_version_in_release_channel="$(
+        jq \
+            --raw-output \
+            ".\"channel-map\"[]
+            | select(
+                .channel.name == \"${release_channel}\"
+            ).version" \
+            <<< "${info_store_api_call_response}" \
+            2>&1
+        )"; then
+        printf \
+            '%s: %s: Error: Unable to query the snap version from the store info API response: %s\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            "${snap_version_in_release_channel}" \
+            1>&2
+        return 2
+    fi
+    if test -z "${snap_version_in_release_channel}"; then
+        # No snaps available in the channel
+        return 0
+    fi
+    if test "${SELECTIVE_CHECKOUT_DEBUG}" == true; then
+        printf \
+            '%s: %s: DEBUG: Snap version determined to be: "%s".\n' \
+            "${SCRIPT_NAME}" \
+            "${FUNCNAME[0]}" \
+            "${snap_version_in_release_channel}" \
+            1>&2
+    fi
+
+    printf %s "${snap_version_in_release_channel}"
+}
+
+# Determine which VCS is used
+# FIXME: Allow specifying any node under the working directory, not just the root node
+vcs_detect(){
+    if test $# -ne 1; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local source_tree_root_dir="${1}"; shift 1
+
+    if test -e "${source_tree_root_dir}"/.git; then
+        printf git
+    elif test -e "${source_tree_root_dir}"/.hg; then
+        printf mercurial
+    elif test -e "${source_tree_root_dir}"/.svn; then
+        printf subversion
+    else
+        printf not_found
+    fi
+}
+
+# Ensure depending software is available before using them
+vcs_check_runtime_dependencies(){
+    if test $# -ne 1; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            if ! command -v git &>/dev/null; then
+                # Markdown code markup is not Bash tilde expression
+                # shellcheck disable=SC2016
+                printf -- \
+                    '%s: %s: Error: `git` command not found in the command search PATHs.\n' \
+                    "${SCRIPT_NAME}" \
+                    "${FUNCNAME[0]}" \
+                    >&2
+                return 1
+            fi
+        ;;
+        mercurial)
+            if ! command -v hg &>/dev/null; then
+                # Markdown code markup is not Bash tilde expression
+                # shellcheck disable=SC2016
+                printf -- \
+                    '%s: %s: Error: `hg` command not found in the command search PATHs.\n' \
+                    "${SCRIPT_NAME}" \
+                    "${FUNCNAME[0]}" \
+                    >&2
+                return 1
+            fi
+        ;;
+        subversion)
+            if ! command -v svn &>/dev/null; then
+                # Markdown code markup is not Bash tilde expression
+                # shellcheck disable=SC2016
+                printf -- \
+                    '%s: %s: Error: `svn` command not found in the command search PATHs.\n' \
+                    "${SCRIPT_NAME}" \
+                    "${FUNCNAME[0]}" \
+                    >&2
+                return 1
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: %s: Warning: Unknown VCS type, assuming none.\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                >&2
+            return 0
+        ;;
+    esac
+}
+
+vcs_is_dirty(){
+    if test $# -ne 1; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            # If tracked files are modified
+            # or staging area not empty
+            if ! \
+                git -C "${source_tree_root_dir}" diff \
+                    --quiet \
+                || ! \
+                git -C "${source_tree_root_dir}"  diff \
+                    --staged \
+                    --quiet; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        mercurial)
+            # NOTE:
+            # The existence of untracked files is not consider dirty,
+            # imitating Git's `--dirty` option of the describe
+            # subcommand
+            if test -n "$(
+                hg --cwd "${source_tree_root_dir}" status \
+                    --added \
+                    --deleted \
+                    --modified \
+                    --removed
+            )"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        subversion)
+            # NOTE: Is there any straightforward way to check this?
+            if test -n "$(
+                svn status -q
+            )"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: %s: Warning: Unknown VCS type, assuming dirty.\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                >&2
+            return 0
+        ;;
+    esac
+}
+
+vcs_has_release_tags() {
+    if test $# -ne 2; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+
+    # Pattern to match a release tag, in extended regular expression(ERE)
+    local -r tag_pattern_release="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            if git -C "${source_tree_root_dir}" tag \
+                --list \
+                | grep \
+                    --extended-regexp \
+                    --quiet \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        mercurial)
+            if hg --cwd "${source_tree_root_dir}" tags \
+                | grep \
+                    --extended-regexp \
+                    --quiet \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        subversion)
+            local \
+                source_tree_root_url \
+                tags_dir_url
+
+            source_tree_root_url="$(
+                svn info \
+                    --show-item url \
+                    "${source_tree_root_dir}"
+            )"
+
+            # Supported source URLs:
+            # * /trunk
+            # * /tags/_tag_name_
+            case "${source_tree_root_url}" in
+                */trunk)
+                    # Strip trailing shortest matched pattern
+                    # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+                    tags_dir_url="${source_tree_root_url%/trunk}/tags"
+                ;;
+                */tags/*)
+                    tags_dir_url="${source_tree_root_url%/*}"
+                ;;
+                *)
+                    printf -- \
+                        'Warning: %s: Unsupported SVN source URL, assuming no release tags found.\n' \
+                        "${FUNCNAME[0]}" \
+                        >&2
+                    return 1
+                ;;
+            esac
+
+            if svn list \
+                "${tags_dir_url}" \
+                | sed 's#/$##' \
+                | grep \
+                    --extended-regexp \
+                    --quiet \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: Warning: Unknown VCS type, assuming no release tags found.\n' \
+                "${FUNCNAME[0]}" \
+                >&2
+            return 1
+        ;;
+    esac
+}
+
+vcs_query_release_tags(){
+    if test $# -ne 2; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+
+    # Pattern to match a release tag, in extended regular expression(ERE)
+    local -r tag_pattern_release="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            if git -C "${source_tree_root_dir}" tag \
+                --list \
+                | grep \
+                    --extended-regexp \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        mercurial)
+            if hg --cwd "${source_tree_root_dir}" tags \
+                --quiet \
+                | grep \
+                    --extended-regexp \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        subversion)
+            local \
+                source_tree_root_url \
+                tags_dir_url
+
+            source_tree_root_url="$(
+                svn info \
+                    --show-item url \
+                    "${source_tree_root_dir}"
+            )"
+
+            # Supported source URLs:
+            # * /trunk
+            # * /tags/_tag_name_
+            case "${source_tree_root_url}" in
+                */trunk)
+                    # Strip trailing shortest matched pattern
+                    # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+                    tags_dir_url="${source_tree_root_url%/trunk}/tags"
+                ;;
+                */tags/*)
+                    tags_dir_url="${source_tree_root_url%/*}"
+                ;;
+                *)
+                    printf -- \
+                        'Warning: %s: Unsupported SVN source URL, assuming no release tags found.\n' \
+                        "${FUNCNAME[0]}" \
+                        >&2
+                    return 1
+                ;;
+            esac
+
+            if svn list \
+                "${tags_dir_url}" \
+                | sed 's#/$##' \
+                | grep \
+                    --extended-regexp \
+                    --regexp="${tag_pattern_release}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: Warning: Unknown VCS type, assuming no release tags found.\n' \
+                "${FUNCNAME[0]}" \
+                >&2
+            return 1
+        ;;
+    esac
+}
+
+vcs_checkout_tag(){
+    if test $# -ne 2; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+    local -r tag_to_be_checked_out="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            git -C "${source_tree_root_dir}" checkout \
+                "${tag_to_be_checked_out}"
+            return 0
+        ;;
+        mercurial)
+            hg --cwd "${source_tree_root_dir}" checkout \
+                --rev "${tag_to_be_checked_out}"
+            return 0
+        ;;
+        subversion)
+            local \
+                source_tree_root_url \
+                tags_dir_url
+
+            source_tree_root_url="$(
+                svn info \
+                    --show-item url \
+                    "${source_tree_root_dir}"
+            )"
+
+            # Supported source URLs:
+            # * /trunk
+            # * /tags/_tag_name_
+            case "${source_tree_root_url}" in
+                */trunk)
+                    # Strip trailing shortest matched pattern
+                    # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+                    tags_dir_url="${source_tree_root_url%/trunk}/tags"
+                ;;
+                */tags/*)
+                    tags_dir_url="${source_tree_root_url%/*}"
+                ;;
+                *)
+                    printf -- \
+                        'Warning: %s: Unsupported SVN source URL, assuming check out failed.\n' \
+                        "${FUNCNAME[0]}" \
+                        >&2
+                    return 1
+                ;;
+            esac
+
+            if svn checkout \
+                "${tags_dir_url}"/"${tag_to_be_checked_out}"; then
+                return 0
+            else
+                return 1
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: Warning: Unknown VCS type, not doing anything.\n' \
+                "${FUNCNAME[0]}" \
+                >&2
+            return 1
+        ;;
+    esac
+}
+
+# Describe software version, use tags when available
+vcs_describe_version(){
+    if test $# -ne 3; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+    local -r revision_identifier_length_minimum="${1}"; shift 1
+    local -r dirty_postfix="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            git describe \
+                --abbrev="${revision_identifier_length_minimum}" \
+                --always \
+                --dirty="${dirty_postfix}" \
+                --tags
+            return 0
+        ;;
+        mercurial)
+            hg --cwd "${source_tree_root_dir}" log \
+                --rev . \
+                --template "{latesttag}{sub('^-0-.*', '', '-{latesttagdistance}-m{shortest(node, ${revision_identifier_length_minimum})}')}"
+            if vcs_is_dirty "${source_tree_root_dir}"; then
+                printf -- %s "${dirty_postfix}"
+            fi
+            return 0
+        ;;
+        subversion)
+            local \
+                source_tree_root_url
+
+            source_tree_root_url="$(
+                svn info \
+                    --show-item url \
+                    "${source_tree_root_dir}"
+            )"
+
+            # Supported source URLs:
+            # * /trunk
+            # * /tags/_tag_name_
+            case "${source_tree_root_url}" in
+                */trunk)
+                    printf %s \
+                        "rev$(
+                            svn info \
+                                --show-item revision \
+                                "${source_tree_root_dir}"
+                        )"
+                ;;
+                */tags/*)
+                    local tag
+                    tag="${source_tree_root_url##*/}"
+                    printf %s "${tag}"
+                ;;
+                *)
+                    printf -- \
+                        'Warning: %s: Unsupported SVN source URL.\n' \
+                        "${FUNCNAME[0]}" \
+                        >&2
+                    printf unknown
+                    return 1
+                ;;
+            esac
+
+            if vcs_is_dirty "${source_tree_root_dir}"; then
+                printf -- %s "${dirty_postfix}"
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: Warning: Unknown VCS type.\n' \
+                "${FUNCNAME[0]}" \
+                >&2
+            printf unknown
+            return 0
+        ;;
+    esac
+}
+
+# Describe version control revision, only revision identifier/hash with
+# customizable minimum length
+# FIXME: Some node among source tree should be enough for source_tree_root_dir
+vcs_describe_revision(){
+    if test $# -ne 3; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r source_tree_root_dir="${1}"; shift 1
+    local -r revision_identifier_length_minimum="${1}"; shift 1
+    local -r dirty_postfix="${1}"; shift 1
+
+    case "$(vcs_detect "${source_tree_root_dir}")" in
+        git)
+            if ! git -C "${source_tree_root_dir}" describe --always >/dev/null; then
+                printf unknown
+            else
+                git -C "${source_tree_root_dir}" describe \
+                    --abbrev="${revision_identifier_length_minimum}" \
+                    --always \
+                    --dirty="${dirty_postfix}" \
+                    --match=nothing
+            fi
+            return 0
+        ;;
+        mercurial)
+            if ! hg --cwd "${source_tree_root_dir}" status >/dev/null; then
+                printf unknown
+            else
+                # FIXME: Is there a better way of generating this only using Mercurial?
+                local hg_revision
+
+                hg_revision+="$(
+                    hg --cwd "${source_tree_root_dir}" log \
+                        --rev . \
+                        --template "{shortest(node, ${revision_identifier_length_minimum})}"
+                )"
+
+                if vcs_is_dirty \
+                    "${SCRIPT_NAME}" \
+                    "${source_tree_root_dir}"; then
+                    hg_revision+="${dirty_postfix}"
+                fi
+
+                printf -- %s "${hg_revision}"
+            fi
+            return 0
+        ;;
+        subversion)
+            svn info \
+                --show-item revision \
+                    "${source_tree_root_dir}"
+
+            if vcs_is_dirty \
+                "${SCRIPT_NAME}" \
+                "${source_tree_root_dir}"; then
+                printf -- %s "${dirty_postfix}"
+            fi
+        ;;
+        *)
+            printf -- \
+                '%s: %s: Warning: Unknown VCS type.\n' \
+                "${SCRIPT_NAME}" \
+                "${FUNCNAME[0]}" \
+                >&2
+            printf unknown
+            return 0
+        ;;
+    esac
+}
+
+# Check whether a version string is newer than the other version string
+# identical version is considered "not newer"
+version_former_is_greater_than_latter(){
+    if test $# -ne 2; then
+        printf 'FATAL: %s: Parameter quantity mismatch.\n' "${FUNCNAME[0]}" >&2
+        exit 1
+    fi
+
+    local -r former="${1}"; shift
+    local -r latter="${1}"; shift
+
+    if test "${former}" = "${latter}"; then
+        return 1
+    fi
+
+    local newer_version
+    newer_version="$(
+        printf \
+            -- \
+            '%s\n%s' \
+            "${former}" \
+            "${latter}" \
+            | sort \
+                --version-sort \
+                --reverse \
+            | head \
+                --lines=1
+    )"
+
+    if test "${newer_version}" = "${former}"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+init "${@}"
