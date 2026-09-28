@@ -303,7 +303,11 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level, int *left,
       break;
     case RIL_PARA:
       para = it_->row()->row->para();
-      // Fall through.
+      // For a paragraph the box is the union of the full bounding boxes of
+      // all its rows. Do not seed with the current row's restricted box: the
+      // restricted box excludes upper/lower dots, so the result would depend
+      // on which row the iterator currently sits on.
+      break;
     case RIL_TEXTLINE:
       box = it_->row()->row->restricted_bounding_box(include_upper_dots_,
                                                      include_lower_dots_);
