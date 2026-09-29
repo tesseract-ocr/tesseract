@@ -24,24 +24,6 @@
 
 namespace tesseract {
 
-static void countMatchingBlobs(int16_t &match_count, int /*index*/) {
-  ++match_count;
-}
-
-static void countAcceptedBlobs(WERD_RES *word, int16_t &match_count, int16_t &accepted_match_count,
-                               int index) {
-  if (word->reject_map[index].accepted()) {
-    ++accepted_match_count;
-  }
-  ++match_count;
-}
-
-static void acceptIfGoodQuality(WERD_RES *word, int index) {
-  if (word->reject_map[index].accept_if_good_quality()) {
-    word->reject_map[index].setrej_quality_accept();
-  }
-}
-
 /*************************************************************************
  * word_blob_quality()
  * How many blobs in the box_word are identical to those of the inword?
@@ -52,9 +34,8 @@ int16_t Tesseract::word_blob_quality(WERD_RES *word) {
   int16_t match_count = 0;
   if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
       !word->rebuild_word->blobs.empty()) {
-    using namespace std::placeholders; // for _1
     word->bln_boxes->ProcessMatchedBlobs(*word->rebuild_word,
-                                         std::bind(countMatchingBlobs, match_count, _1));
+                                         [&match_count](int /*index*/) { ++match_count; });
   }
   return match_count;
 }
@@ -84,10 +65,13 @@ void Tesseract::word_char_quality(WERD_RES *word, int16_t *match_count,
   *accepted_match_count = 0;
   if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
       !word->rebuild_word->blobs.empty()) {
-    using namespace std::placeholders; // for _1
     word->bln_boxes->ProcessMatchedBlobs(
-        *word->rebuild_word,
-        std::bind(countAcceptedBlobs, word, *match_count, *accepted_match_count, _1));
+        *word->rebuild_word, [word, match_count, accepted_match_count](int index) {
+          if (word->reject_map[index].accepted()) {
+            ++*accepted_match_count;
+          }
+          ++*match_count;
+        });
   }
 }
 
@@ -98,9 +82,11 @@ void Tesseract::word_char_quality(WERD_RES *word, int16_t *match_count,
 void Tesseract::unrej_good_chs(WERD_RES *word) {
   if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
       word->rebuild_word->blobs.empty()) {
-    using namespace std::placeholders; // for _1
-    word->bln_boxes->ProcessMatchedBlobs(*word->rebuild_word,
-                                         std::bind(acceptIfGoodQuality, word, _1));
+    word->bln_boxes->ProcessMatchedBlobs(*word->rebuild_word, [word](int index) {
+      if (word->reject_map[index].accept_if_good_quality()) {
+        word->reject_map[index].setrej_quality_accept();
+      }
+    });
   }
 }
 
