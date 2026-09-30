@@ -56,7 +56,7 @@ sudo apt-get update --quiet
 sudo apt-get install --assume-yes --no-install-recommends --quiet \
   asciidoctor ruby-asciidoctor-pdf curl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
-  mingw-w64-tools nsis $GXX \
+  mingw-w64-tools nsis ${GXX:+"$GXX"} \
   makepkg pacman-package-manager python3-venv unzip
 
 # Configure pacman.
@@ -89,18 +89,18 @@ sudo pacman -Syu --noconfirm
 
 # Install required pacman packages.
 sudo pacman -S --noconfirm \
- $PKG-curl-winssl \
- $PKG-giflib \
- $PKG-icu \
- $PKG-leptonica \
- $PKG-libarchive \
- $PKG-libidn2 \
- $PKG-openjpeg2 \
- $PKG-openssl \
- $PKG-pango \
- $PKG-libpng \
- $PKG-libtiff \
- $PKG-libwebp
+ "$PKG-curl-winssl" \
+ "$PKG-giflib" \
+ "$PKG-icu" \
+ "$PKG-leptonica" \
+ "$PKG-libarchive" \
+ "$PKG-libidn2" \
+ "$PKG-openjpeg2" \
+ "$PKG-openssl" \
+ "$PKG-pango" \
+ "$PKG-libpng" \
+ "$PKG-libtiff" \
+ "$PKG-libwebp"
 
 git config --global user.email "sw@weilnetz.de"
 git config --global user.name "Stefan Weil"
