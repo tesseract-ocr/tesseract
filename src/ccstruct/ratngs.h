@@ -261,6 +261,12 @@ const char *ScriptPosToString(ScriptPos script_pos);
 class TESS_API WERD_CHOICE : public ELIST<WERD_CHOICE>::LINK {
 public:
   static const float kBadRating;
+  // Worst-case (most negative) certainty, mirroring kBadRating (highest rating).
+  // A deliberately finite value so that it can be summed and scaled without
+  // overflowing to -inf (which the tesseract CLI turns into a SIGFPE, since
+  // main1() enables the FE_OVERFLOW trap). See WERD_CHOICE::make_bad() and
+  // WERD_RES::FakeWordFromRatings().
+  static const float kBadCertainty;
   static const char *permuter_name(uint8_t permuter);
 
   WERD_CHOICE(const UNICHARSET *unicharset) : unicharset_(unicharset) {
@@ -423,7 +429,7 @@ public:
   inline void make_bad() {
     length_ = 0;
     rating_ = kBadRating;
-    certainty_ = -FLT_MAX;
+    certainty_ = kBadCertainty;
   }
 
   /// This function assumes that there is enough space reserved

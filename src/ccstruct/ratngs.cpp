@@ -35,6 +35,7 @@
 namespace tesseract {
 
 const float WERD_CHOICE::kBadRating = 100000.0;
+const float WERD_CHOICE::kBadCertainty = -100000.0f;
 // Min offset in baseline-normalized coords to make a character a subscript.
 const int kMinSubscriptOffset = 20;
 // Min offset in baseline-normalized coords to make a character a superscript.

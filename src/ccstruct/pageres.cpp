@@ -936,7 +936,7 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
     UNICHAR_ID unichar_id = UNICHAR_SPACE;
     // Initialize rating and certainty like in WERD_CHOICE::make_bad().
     float rating = WERD_CHOICE::kBadRating;
-    float certainty = -FLT_MAX;
+    float certainty = WERD_CHOICE::kBadCertainty;
     BLOB_CHOICE_LIST *choices = ratings->get(b, b);
     if (choices != nullptr && !choices->empty()) {
       BLOB_CHOICE_IT bc_it(choices);
