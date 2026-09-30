@@ -23,6 +23,7 @@
 #include <sstream>             // for std::stringstream
 #include <tesseract/renderer.h>
 #include "helpers.h"        // for copy_string
+#include "runtimeparams.h"  // for EscapeForXmlAttribute
 #include "tesseractclass.h" // for Tesseract
 
 namespace tesseract {
@@ -477,6 +478,10 @@ TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
   font_info_ = font_info;
 }
 
+void TessHOcrRenderer::SetRuntimeParameters(const std::string &json) {
+  runtime_parameters_ = json;
+}
+
 bool TessHOcrRenderer::BeginDocumentHandler() {
   AppendString(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -496,8 +501,13 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   if (font_info_) {
     AppendString(" ocrp_font ocrp_fsize");
   }
+  AppendString("'/>\n");
+  if (!runtime_parameters_.empty()) {
+    AppendString("  <meta name='ocr-runtime-parameters' content='");
+    AppendString(EscapeForXmlAttribute(runtime_parameters_).c_str());
+    AppendString("'/>\n");
+  }
   AppendString(
-      "'/>\n"
       " </head>\n"
       " <body>\n");
 
