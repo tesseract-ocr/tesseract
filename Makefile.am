@@ -1226,6 +1226,7 @@ check_PROGRAMS += tatweel_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += textlineprojection_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += textord_test
 check_PROGRAMS += tfile_test
 if ENABLE_TRAINING
 check_PROGRAMS += unichar_test
@@ -1525,6 +1526,10 @@ tatweel_test_LDADD = $(TRAINING_LIBS)
 textlineprojection_test_SOURCES = unittest/textlineprojection_test.cc
 textlineprojection_test_CPPFLAGS = $(unittest_CPPFLAGS)
 textlineprojection_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
+textord_test_SOURCES = unittest/textord_test.cc
+textord_test_CPPFLAGS = $(unittest_CPPFLAGS)
+textord_test_LDADD = $(TESS_LIBS)
 
 tfile_test_SOURCES = unittest/tfile_test.cc
 tfile_test_CPPFLAGS = $(unittest_CPPFLAGS)
