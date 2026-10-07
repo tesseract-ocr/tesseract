@@ -67,7 +67,7 @@ set(GENERIC_MAJOR_VERSION ${VERSION_MAJOR})
 set(GENERIC_MINOR_VERSION ${VERSION_MINOR})
 set(GENERIC_MICRO_VERSION ${VERSION_PATCH})
 
-set(MINIMUM_LEPTONICA_VERSION 1.74)
+set(MINIMUM_LEPTONICA_VERSION 1.80)
 
 # ##############################################################################
 #
