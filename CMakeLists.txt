@@ -8,8 +8,8 @@
 #
 # ##############################################################################
 
-# Require CMake 3.18 for modern features like precompiled headers, unity builds, and better target management
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+# Require CMake 3.22 for modern features like precompiled headers, unity builds, and better target management
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 # In-source builds are disabled.
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
