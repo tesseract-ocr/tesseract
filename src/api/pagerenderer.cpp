@@ -327,26 +327,29 @@ static void AddBoxToPAGE(const ResultIterator *it, PageIteratorLevel level,
            << bottom << "\"/>\n";
 }
 
-///
-/// Join ltr and rtl polygon information
-///
-static void AppendLinePolygon(Pta *pts_ltr, Pta *pts_rtl, Pta *ptss,
+// Appends the current word polygon (ptss) to the line polygon accumulator for
+// its writing direction. The RTL accumulator is passed by pointer-to-pointer
+// so that, when an RTL run is flushed into the LTR accumulator, the caller's
+// pointer can be updated to a fresh PTA (leaving it by value would leave the
+// caller with a dangling pointer after DestroyAndCreatePta). ptss is only
+// read, never destroyed, since the caller keeps using it afterwards.
+static void AppendLinePolygon(Pta *pts_ltr, Pta **pts_rtl, Pta *ptss,
                               tesseract::WritingDirection writing_direction) {
-  // If writing direction is NOT right-to-left, handle the left-to-right case.
   if (writing_direction != WRITING_DIRECTION_RIGHT_TO_LEFT) {
-    if (ptaGetCount(pts_rtl) != 0) {
-      ptaJoin(pts_ltr, pts_rtl, 0, -1);
-      DestroyAndCreatePta(pts_rtl);
+    if (ptaGetCount(*pts_rtl) != 0) {
+      ptaJoin(pts_ltr, *pts_rtl, 0, -1);
+      *pts_rtl = DestroyAndCreatePta(*pts_rtl);
     }
     ptaJoin(pts_ltr, ptss, 0, -1);
   } else {
-    // For right-to-left, work with a copy of ptss initially.
+    // For right-to-left, the new word precedes the words collected so far,
+    // so build the new accumulator as ptss followed by the old contents.
     PTA *ptsd = ptaCopy(ptss);
-    if (ptaGetCount(pts_rtl) != 0) {
-      ptaJoin(ptsd, pts_rtl, 0, -1);
+    if (ptaGetCount(*pts_rtl) != 0) {
+      ptaJoin(ptsd, *pts_rtl, 0, -1);
     }
-    ptaDestroy(&pts_rtl);
-    ptaCopy(ptsd);
+    ptaDestroy(pts_rtl);
+    *pts_rtl = ptsd;
   }
 }
 
@@ -932,9 +935,9 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
       word_bottom_pts = RecalcPolygonline(word_bottom_pts, 0 + ttb_flag);
 
       // AppendLinePolygon
-      AppendLinePolygon(line_top_ltr_pts, line_top_rtl_pts, word_top_pts,
+      AppendLinePolygon(line_top_ltr_pts, &line_top_rtl_pts, word_top_pts,
                         writing_direction);
-      AppendLinePolygon(line_bottom_ltr_pts, line_bottom_rtl_pts,
+      AppendLinePolygon(line_bottom_ltr_pts, &line_bottom_rtl_pts,
                         word_bottom_pts, writing_direction);
 
       // Word level polygon
