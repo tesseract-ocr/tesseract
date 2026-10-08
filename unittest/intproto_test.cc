@@ -67,7 +67,7 @@ std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
 // Builds an inttemp component in the old (version 1) on-disk layout. Besides
 // the common header this carries the IndexFor[] table (unicharset_size x
 // int16), the ClassIdFor[] table (num_classes x int32) and one class pruner
-// (24^3 x 4 uint32 words), as read by the version < 2 path of
+// (NUM_CP_BUCKETS^3 x WERDS_PER_CP_VECTOR uint32 words), as read by the version < 2 path of
 // Classify::ReadIntTemplates.
 std::vector<char> MakeLegacyInttemp(int32_t version_id, uint32_t num_classes,
                                     uint32_t unicharset_size,

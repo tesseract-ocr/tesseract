@@ -692,10 +692,9 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
       tprintf("Bad read of inttemp!\n");
     }
     // Each class id indexes Class[] and (divided by CLASSES_PER_CP)
-    // ClassPruners[]. A corrupt or malicious file may carry a negative or
-    // oversized id that the max_class_id upper-bound check below cannot catch
-    // (a negative id never raises that max), so validate every id
-    // individually before it is used.
+    // ClassPruners[]. A negative id does not raise max_class_id and therefore
+    // evades the upper-bound check below. Validate every id, including oversized
+    // positive values, before any class pruner is allocated or the id is used.
     for (unsigned i = 0; i < Templates->NumClasses; i++) {
       if (!LegalClassId(ClassIdFor[i])) {
         tprintf("Error: illegal class id %d in inttemp\n", ClassIdFor[i]);
