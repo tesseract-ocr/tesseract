@@ -1137,6 +1137,9 @@ unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/goog
 unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googlemock/include
 
 check_PROGRAMS = apiexample_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += adaptive_test
+endif # !DISABLED_LEGACY_ENGINE
 if ENABLE_TRAINING
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += applybox_test
@@ -1250,6 +1253,12 @@ apiexample_test_SOURCES = unittest/apiexample_test.cc
 apiexample_test_CPPFLAGS = $(unittest_CPPFLAGS)
 apiexample_test_LDFLAGS = $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+adaptive_test_SOURCES = unittest/adaptive_test.cc
+adaptive_test_CPPFLAGS = $(unittest_CPPFLAGS)
+adaptive_test_LDADD = $(TESS_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 if !DISABLED_LEGACY_ENGINE
 applybox_test_SOURCES = unittest/applybox_test.cc
