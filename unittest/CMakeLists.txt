@@ -53,6 +53,7 @@ set(TRAINING_TESTS
 set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc stringrenderer_test.cc)
 
 set(LEGACY_TESTS
+    adaptive_test.cc
     applybox_test.cc
     bitvector_test.cc
     equationdetect_test.cc

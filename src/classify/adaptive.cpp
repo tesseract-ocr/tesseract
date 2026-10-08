@@ -182,7 +182,22 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
 
   // first read high level adapted class structure
   Class = new ADAPT_CLASS_STRUCT;
+  // The FRead below overwrites the whole struct, including the PermProtos and
+  // PermConfigs pointers the constructor just allocated; release those
+  // allocations first or the clobbering leaks them.
+  FreeBitVector(Class->PermProtos);
+  FreeBitVector(Class->PermConfigs);
   fp->FRead(Class, sizeof(ADAPT_CLASS_STRUCT), 1);
+  // The read above overwrote every member with file bytes, including the
+  // pointer-bearing ones (the TempProtos list and the Config[] union
+  // pointers). The destructor unconditionally destroys all MAX_NUM_CONFIGS
+  // Config entries and walks TempProtos, so neutralise the file-sourced
+  // pointers before any exit path can reach it; the members are then filled
+  // with real allocations below.
+  Class->TempProtos = NIL_LIST;
+  for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+    Class->Config[i].Temp = nullptr;
+  }
 
   // then read in the definitions of the permanent protos and configs
   Class->PermProtos = NewBitVector(MAX_NUM_PROTOS);
@@ -194,14 +209,9 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
   fp->FRead(&NumTempProtos, sizeof(int), 1);
   if (NumTempProtos < 0 || NumTempProtos > MAX_NUM_PROTOS) {
     tprintf("Bad read of adapted class!\n");
-    // Reset file-sourced pointers so the destructor does not delete them.
-    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
-      Class->Config[i].Temp = nullptr;
-    }
     delete Class;
     return nullptr;
   }
-  Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     auto TempProto = new TEMP_PROTO_STRUCT;
     fp->FRead(TempProto, sizeof(TEMP_PROTO_STRUCT), 1);
@@ -215,10 +225,6 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
   // writing out of bounds.
   if (NumConfigs < 0 || NumConfigs > MAX_NUM_CONFIGS) {
     tprintf("Bad read of adapted class!\n");
-    // Reset file-sourced pointers so the destructor does not delete them.
-    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
-      Class->Config[i].Temp = nullptr;
-    }
     delete Class;
     return nullptr;
   }
