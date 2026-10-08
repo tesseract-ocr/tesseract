@@ -37,9 +37,10 @@ namespace {
 std::vector<char> MakeAdaptedClassRecord(int32_t num_temp_protos, int32_t num_configs,
                                          uint8_t fill) {
   std::vector<char> data(sizeof(ADAPT_CLASS_STRUCT), static_cast<char>(fill));
-  ADAPT_CLASS_STRUCT *s = reinterpret_cast<ADAPT_CLASS_STRUCT *>(data.data());
-  s->NumPermConfigs = 0;
-  s->MaxNumTimesSeen = 0;
+  ADAPT_CLASS_STRUCT layout;
+  const auto *base = reinterpret_cast<const char *>(&layout);
+  data[reinterpret_cast<const char *>(&layout.NumPermConfigs) - base] = 0;
+  data[reinterpret_cast<const char *>(&layout.MaxNumTimesSeen) - base] = 0;
   // PermProtos and PermConfigs are reallocated by ReadAdaptedClass, so their
   // initial (file) values are irrelevant; leave them as the fill value.
   auto append = [&data](const void *p, size_t n) {
