@@ -307,6 +307,15 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (size > 100000000) {
       return false;
     }
+    // A valid model carries one scale per output row: the generic
+    // (non-SIMD) MatrixDotVector reads scales_[i] for i < wi_.dim1(), and the
+    // SIMD path resizes to a rounded size no smaller than that. So the
+    // serialized scale vector must have at least wi_.dim1() entries. Check
+    // this here, before resizing below, where a zero size would otherwise
+    // make the &scales_[0] read index an empty vector (undefined behaviour).
+    if (static_cast<size_t>(size) < static_cast<size_t>(wi_.dim1())) {
+      return false;
+    }
 #ifdef FAST_FLOAT
     scales_.reserve(size);
     for (auto n = size; n > 0; n--) {
@@ -318,7 +327,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     }
 #else
     scales_.resize(size);
-    if (!fp->DeSerialize(&scales_[0], size)) {
+    if (size > 0 && !fp->DeSerialize(&scales_[0], size)) {
       return false;
     }
     for (auto &scale : scales_) {
