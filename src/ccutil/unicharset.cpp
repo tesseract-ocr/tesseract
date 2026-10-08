@@ -21,7 +21,9 @@
 #include "params.h"
 
 #include <tesseract/unichar.h>
+#include "matchdefs.h" // for MAX_NUM_CLASSES
 #include "serialis.h"
+#include "tesserrstream.h" // for tesserr
 
 #include <algorithm>
 #include <cassert>
@@ -792,6 +794,17 @@ bool UNICHARSET::load_via_fgets(
     return false;
   }
   if (unicharset_size <= 0) {
+    return false;
+  }
+  // A unichar id indexes fixed-size arrays of MAX_NUM_CLASSES entries in the
+  // legacy classifier (Class[], CharNormCutoffs[]/BaselineCutoffs[], the
+  // intproto/adaptive templates, ...), so reject a set that would overflow
+  // them. Capping it here, in the single parser every load_from_file funnels
+  // through, protects every consumer rather than relying on each one to do
+  // its own size check.
+  if (unicharset_size > MAX_NUM_CLASSES) {
+    tesserr << "Error: unicharset has " << unicharset_size
+            << " characters, more than MAX_NUM_CLASSES " << MAX_NUM_CLASSES << "\n";
     return false;
   }
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
