@@ -1239,6 +1239,7 @@ check_PROGRAMS += validate_myanmar_test
 check_PROGRAMS += validator_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += weightmatrix_intdim_test
+check_PROGRAMS += weightmatrix_scales_test
 
 check_PROGRAMS: libtesseract.la libtesseract_training.la
 
@@ -1570,6 +1571,10 @@ validator_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 weightmatrix_intdim_test_SOURCES = unittest/weightmatrix_intdim_test.cc
 weightmatrix_intdim_test_CPPFLAGS = $(unittest_CPPFLAGS)
 weightmatrix_intdim_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_scales_test_SOURCES = unittest/weightmatrix_scales_test.cc
+weightmatrix_scales_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_scales_test_LDADD = $(TESS_LIBS)
 
 # for windows
 if T_WIN
