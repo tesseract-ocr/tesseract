@@ -81,6 +81,37 @@ bool LSTMRecognizer::Load(const ParamsVectors *params, const std::string &lang,
   if (!DeSerialize(mgr, &fp)) {
     return false;
   }
+  // Recoded codes and the null char are used as indices into the network
+  // softmax output (top_n_flags_/outputs), both sized to the network output
+  // count. The recoder and the null char are loaded independently of the
+  // network, so tie them to that count: a corrupt model with a code range or
+  // null char wider than the softmax would index out of bounds during beam
+  // search. This covers both the recoding and the pass-through recoder.
+  //
+  // These checks belong in Load, not in DeSerialize: the recognition path
+  // (LSTMRecognizer::Load) always has the final network and recoder, whereas
+  // the training path (LSTMTrainer::TryLoadingCheckpoint) deserializes an old
+  // network together with a target-traineddata recoder that may legitimately
+  // have a wider code range; that path reconciles the two with RemapOutputs,
+  // which must be allowed to run.
+  //
+  // They apply only when the network actually has a softmax output. A model
+  // with zero outputs has no softmax array to index into (such a degenerate
+  // model is unusable for recognition and is handled by the plumbing-layer
+  // validation, and must still be tolerated at load time for models that only
+  // lack a recoder/unicharset component).
+  if (network_->NumOutputs() > 0) {
+    if (recoder_.code_range() > network_->NumOutputs()) {
+      tprintf("Error: recoder code range %d exceeds network output count %d\n",
+              recoder_.code_range(), network_->NumOutputs());
+      return false;
+    }
+    if (null_char_ < 0 || null_char_ >= network_->NumOutputs()) {
+      tprintf("Error: null char %d is not within network output count %d\n", null_char_,
+              network_->NumOutputs());
+      return false;
+    }
+  }
   if (lang.empty()) {
     return true;
   }
