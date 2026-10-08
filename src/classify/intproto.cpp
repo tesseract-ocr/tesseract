@@ -219,15 +219,20 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
  *
  * Globals: none
  */
-void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class) {
+bool AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class) {
   int Pruner;
 
-  assert(LegalClassId(ClassId));
+  // ClassId indexes Class[] and (divided by CLASSES_PER_CP) ClassPruners[],
+  // so reject an out-of-range id instead of writing out of bounds. The
+  // previous check was a debug-only assertion that release builds skip.
+  if (!LegalClassId(ClassId)) {
+    tesserr << "Error: illegal class id " << ClassId << " in AddIntClass\n";
+    return false;
+  }
   if (static_cast<unsigned>(ClassId) != Templates->NumClasses) {
-    fprintf(stderr,
-            "Please make sure that classes are added to templates"
+    tprintf("Please make sure that classes are added to templates"
             " in increasing order of ClassIds\n");
-    exit(1);
+    return false;
   }
   ClassForClassId(Templates, ClassId) = Class;
   Templates->NumClasses++;
@@ -237,6 +242,7 @@ void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_ST
     Templates->ClassPruners[Pruner] = new CLASS_PRUNER_STRUCT;
     memset(Templates->ClassPruners[Pruner], 0, sizeof(CLASS_PRUNER_STRUCT));
   }
+  return true;
 } /* AddIntClass */
 
 /**
@@ -494,6 +500,15 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
   INT_CLASS_STRUCT *IClass;
   int ProtoId;
   int ConfigId;
+
+  // A unichar id indexes the fixed-size Class[] array (MAX_NUM_CLASSES
+  // entries), so a set larger than that would write out of bounds in
+  // AddIntClass below. Reject it up front rather than part-way through.
+  if (target_unicharset.size() > MAX_NUM_CLASSES) {
+    tesserr << "Error: unicharset has " << target_unicharset.size()
+            << " characters, more than MAX_NUM_CLASSES " << MAX_NUM_CLASSES << "\n";
+    return nullptr;
+  }
 
   auto IntTemplates = new INT_TEMPLATES_STRUCT;
 

@@ -95,7 +95,13 @@ public:
 
 #define IncreaseConfidence(TempConfig) ((TempConfig)->NumTimesSeen++)
 
-void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId);
+// Adds a new adapted class. On success takes ownership of Class. Returns
+// false (and deletes Class) if ClassId is out of range (which would
+// otherwise write out of bounds into Templates->Class[]), or if the
+// delegated AddIntClass rejects it -- i.e. ClassId is a legal id that is not
+// the next sequential id (classes must be added in increasing order of
+// ClassId).
+bool AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId);
 
 ADAPT_CLASS_STRUCT *ReadAdaptedClass(tesseract::TFile *File);
 
