@@ -291,6 +291,14 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (!wi_.DeSerialize(fp)) {
       return false;
     }
+    // The second dimension is the number of inputs plus the bias column, so
+    // it must be at least 1. A zero dimension would make IntSimdMatrix::Init
+    // compute num_in = dim2 - 1 = -1 and read the bias from array_[-1] on an
+    // unallocated (null) array, so reject the corrupt model instead of
+    // crashing.
+    if (wi_.dim2() < 1) {
+      return false;
+    }
     uint32_t size;
     if (!fp->DeSerialize(&size)) {
       return false;
