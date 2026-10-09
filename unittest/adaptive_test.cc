@@ -3,7 +3,8 @@
 // Description: Tests that ReadAdaptedClass rejects a corrupt
 //              ADAPT_CLASS_STRUCT without passing file-controlled
 //              pointers to the destructor (which unconditionally deletes
-//              the Config[] entries and walks the TempProtos list).
+//              the Config[] entries and walks the TempProtos list). Covers
+//              both the Temp and Perm Config[] union branches.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,11 +32,11 @@ namespace {
 //   [int32 NumTempProtos] [int32 NumConfigs]
 // All bytes of the struct are set to a non-null fill value so that the
 // pointer-bearing members (TempProtos, Config[]) hold file-controlled
-// pointers. PermConfigs is left zero (no permanent configs), and
-// NumConfigs controls how many Config[] entries are filled with real
-// (nullptr) allocations.
+// pointers. NumConfigs controls how many Config[] entries are filled with
+// real (nullptr) allocations, and perm_configs controls which slots the file
+// marks permanent.
 std::vector<char> MakeAdaptedClassRecord(int32_t num_temp_protos, int32_t num_configs,
-                                         uint8_t fill) {
+                                         uint8_t fill, const std::vector<uint32_t> &perm_configs) {
   std::vector<char> data(sizeof(ADAPT_CLASS_STRUCT), static_cast<char>(fill));
   ADAPT_CLASS_STRUCT layout;
   const auto *base = reinterpret_cast<const char *>(&layout);
@@ -48,7 +49,6 @@ std::vector<char> MakeAdaptedClassRecord(int32_t num_temp_protos, int32_t num_co
     data.insert(data.end(), b, b + n);
   };
   std::vector<uint32_t> perm_protos(WordsInVectorOfSize(MAX_NUM_PROTOS), 0);
-  std::vector<uint32_t> perm_configs(WordsInVectorOfSize(MAX_NUM_CONFIGS), 0);
   append(perm_protos.data(), perm_protos.size() * sizeof(uint32_t));
   append(perm_configs.data(), perm_configs.size() * sizeof(uint32_t));
   append(&num_temp_protos, sizeof(int32_t));
@@ -75,8 +75,9 @@ class ReadAdaptedClassTest : public testing::Test {
 // pointer, and TempProtos is a file-controlled (bogus) list. The destructor
 // must not delete them.
 TEST_F(ReadAdaptedClassTest, SuccessPathDoesNotDeleteFilePointers) {
-  auto record = MakeAdaptedClassRecord(/*num_temp_protos=*/0,
-                                       /*num_configs=*/0, /*fill=*/0x42);
+  std::vector<uint32_t> perm_configs(WordsInVectorOfSize(MAX_NUM_CONFIGS), 0);
+  auto record = MakeAdaptedClassRecord(/*num_temp_protos=*/0, /*num_configs=*/0, /*fill=*/0x42,
+                                       perm_configs);
   ADAPT_CLASS_STRUCT *Class = Read(record);
   EXPECT_NE(Class, nullptr);
   // Destroying the class must not delete the file-controlled Config[]
@@ -88,10 +89,24 @@ TEST_F(ReadAdaptedClassTest, SuccessPathDoesNotDeleteFilePointers) {
 // before TempProtos is ever reset. The file-controlled TempProtos list
 // must not be walked by the destructor.
 TEST_F(ReadAdaptedClassTest, RejectPathDoesNotWalkFileTempProtos) {
-  auto record = MakeAdaptedClassRecord(/*num_temp_protos=*/-1,
-                                       /*num_configs=*/0, /*fill=*/0x42);
+  std::vector<uint32_t> perm_configs(WordsInVectorOfSize(MAX_NUM_CONFIGS), 0);
+  auto record = MakeAdaptedClassRecord(/*num_temp_protos=*/-1, /*num_configs=*/0, /*fill=*/0x42,
+                                       perm_configs);
   ADAPT_CLASS_STRUCT *Class = Read(record);
   EXPECT_EQ(Class, nullptr);
+}
+
+// Success path where the file marks every config permanent but loads none
+// (NumConfigs = 0). The destructor takes the Perm branch for all 64 slots
+// the load loop never filled, so it must read the (aliased, nulled) Perm
+// member rather than delete a file-controlled pointer.
+TEST_F(ReadAdaptedClassTest, PermBranchDoesNotDeleteFilePointers) {
+  std::vector<uint32_t> perm_configs(WordsInVectorOfSize(MAX_NUM_CONFIGS), 0xFFFFFFFF);
+  auto record = MakeAdaptedClassRecord(/*num_temp_protos=*/0, /*num_configs=*/0, /*fill=*/0x42,
+                                       perm_configs);
+  ADAPT_CLASS_STRUCT *Class = Read(record);
+  EXPECT_NE(Class, nullptr);
+  delete Class;
 }
 
 } // namespace

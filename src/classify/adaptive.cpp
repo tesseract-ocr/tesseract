@@ -204,6 +204,14 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
   Class->PermConfigs = NewBitVector(MAX_NUM_CONFIGS);
   fp->FRead(Class->PermProtos, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_PROTOS));
   fp->FRead(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS));
+  // The loop above activated the Temp member of every Config[] union slot.
+  // For slots the file marks permanent, activate the (aliased) Perm member so
+  // the destructor reads the active union member rather than an inactive one.
+  for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+    if (test_bit(Class->PermConfigs, i)) {
+      Class->Config[i].Perm = nullptr;
+    }
+  }
 
   // then read in the list of temporary protos
   fp->FRead(&NumTempProtos, sizeof(int), 1);
