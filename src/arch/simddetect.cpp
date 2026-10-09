@@ -256,8 +256,9 @@ SIMDDetect::SIMDDetect() {
 #  elif defined(HAVE_GETAUXVAL)
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
 #  elif defined(HAVE_ELF_AUX_INFO)
-  unsigned long hwcap = 0;
-  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  unsigned long hwcap;
+  if (elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap) != 0)
+    hwcap = 0;
   neon_available_ = hwcap & HWCAP_NEON;
 #  endif
 #endif
@@ -267,8 +268,9 @@ SIMDDetect::SIMDDetect() {
   const unsigned long hwcap = getauxval(AT_HWCAP);
   rvv_available_ = hwcap & HWCAP_RV('V');
 #  elif defined(HAVE_ELF_AUX_INFO)
-  unsigned long hwcap = 0;
-  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  unsigned long hwcap;
+  if (elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap) != 0)
+    hwcap = 0;
   rvv_available_ = hwcap & HWCAP_RV('V');
 #  endif
 #endif
