@@ -17,6 +17,7 @@
 
 #include "adaptive.h" // for ADAPT_CLASS_STRUCT, ReadAdaptedClass
 #include "bitvec.h"   // for WordsInVectorOfSize
+#include "classify.h" // for Classify (ReadAdaptedTemplates)
 #include "serialis.h" // for TFile
 
 #include <cstdint>
@@ -107,6 +108,37 @@ TEST_F(ReadAdaptedClassTest, PermBranchDoesNotDeleteFilePointers) {
   ADAPT_CLASS_STRUCT *Class = Read(record);
   EXPECT_NE(Class, nullptr);
   delete Class;
+}
+
+// ReadAdaptedTemplates has the same one-line-too-late reset: a truncated
+// ADAPT_TEMPLATES_STRUCT record takes the FRead != 1 reject path with
+// Templates->Templates (offset 0) still holding file bytes, and the Class[]
+// reset loop sits below that branch. ~ADAPT_TEMPLATES_STRUCT reads
+// Templates->NumClasses through the file-sourced pointer, so the record must
+// be neutralised before the destructor runs.
+class ReadAdaptedTemplatesTest : public testing::Test {
+ protected:
+  // A truncated record: the whole struct is fill, with the first word set to
+  // a non-null pointer so the destructor's Templates != nullptr check is true
+  // and it reads (Templates)->NumClasses through it. Shorter than the struct
+  // size, so FRead copies fewer than sizeof and returns != 1.
+  std::vector<char> MakeTruncatedRecord(uint8_t fill, uint64_t first_word) {
+    std::vector<char> data(sizeof(ADAPT_TEMPLATES_STRUCT), static_cast<char>(fill));
+    std::memcpy(data.data(), &first_word, sizeof(uint64_t));
+    data.resize(64); // smaller than sizeof(ADAPT_TEMPLATES_STRUCT) -> FRead != 1
+    return data;
+  }
+
+  Classify classifier_;
+};
+
+// A short record with a non-null first word must be rejected cleanly, not
+// crash the destructor on the file-sourced Templates pointer.
+TEST_F(ReadAdaptedTemplatesTest, RejectPathDoesNotReadFilePointer) {
+  auto record = MakeTruncatedRecord(/*fill=*/0x45, /*first_word=*/0x4545454545454540ULL);
+  TFile fp;
+  ASSERT_TRUE(fp.Open(record.data(), record.size()));
+  EXPECT_EQ(classifier_.ReadAdaptedTemplates(&fp), nullptr);
 }
 
 } // namespace
