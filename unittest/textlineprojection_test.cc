@@ -243,11 +243,15 @@ protected:
 
 // Tests all word boxes on an unrotated image.
 TEST_F(TextlineProjectionTest, Unrotated) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "osd");
   VerifyBoxes("phototest.tif", 31);
 }
 
 // Tests character-level applyboxes on italic Times New Roman.
 TEST_F(TextlineProjectionTest, Rotated) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "osd");
   VerifyBoxes("phototestrot.tif", 31);
 }
 
