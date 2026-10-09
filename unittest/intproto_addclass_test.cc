@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intproto_addclass_test.cc
 // Description: Tests that AddIntClass rejects an out-of-range class id
-//              (instead of writing out of bounds into Class[]) and leaves
+//              (instead of writing out of bounds into Class[]) and a legal
+//              id that is not the next sequential id, in both cases leaving
 //              the template set unchanged.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +31,20 @@ TEST_F(AddIntClassTest, AcceptsValidId) {
   INT_CLASS_STRUCT *Class = new INT_CLASS_STRUCT(1);
   ASSERT_TRUE(AddIntClass(&Templates, 0, Class));
   EXPECT_EQ(Templates.NumClasses, 1);
+}
+
+// A legal id that is not the next sequential id must be rejected and leave
+// the set unchanged; this replaces the former process-terminating behavior.
+TEST_F(AddIntClassTest, RejectsNonSequentialId) {
+  INT_TEMPLATES_STRUCT Templates;
+  INT_CLASS_STRUCT *First = new INT_CLASS_STRUCT(1);
+  ASSERT_TRUE(AddIntClass(&Templates, 0, First));
+  INT_CLASS_STRUCT *Second = new INT_CLASS_STRUCT(1);
+  EXPECT_FALSE(AddIntClass(&Templates, 2, Second));
+  EXPECT_EQ(Templates.NumClasses, 1);
+  // AddIntClass only takes ownership of Class on success; on a reject the
+  // caller keeps it.
+  delete Second;
 }
 
 // An out-of-range (too large) class id must be rejected and leave the set

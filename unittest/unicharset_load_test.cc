@@ -4,7 +4,8 @@
 //              files whose insertions desynchronize the id loop index
 //              from the unichars vector (duplicate or empty
 //              representations), which would make the subsequent set_*
-//              calls write out of bounds, and non-positive size counts.
+//              calls write out of bounds, non-positive size counts and
+//              size counts above MAX_NUM_CLASSES.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +16,12 @@
 
 #include "include_gunit.h"
 
+#include "matchdefs.h" // for MAX_NUM_CLASSES
 #include "serialis.h" // for TFile
 #include "unicharset.h"
 
 #include <cstring>
+#include <string>
 
 namespace tesseract {
 namespace {
@@ -49,6 +52,19 @@ TEST(UnicharsetLoadTest, RejectsNonPositiveCount) {
     UNICHARSET unicharset;
     EXPECT_FALSE(LoadUnicharset(text, &unicharset));
   }
+}
+
+// A size count of MAX_NUM_CLASSES + 1 must be rejected; on unpatched code
+// the load succeeds and the oversized id would index out of bounds in the
+// fixed-size arrays of the legacy classifier.
+TEST(UnicharsetLoadTest, RejectsOversizedCount) {
+  std::string text;
+  text += std::to_string(MAX_NUM_CLASSES + 1);
+  text += '\n';
+  text += "A 0 Latin\n";
+  UNICHARSET unicharset;
+  EXPECT_FALSE(LoadUnicharset(text.c_str(), &unicharset));
+  EXPECT_EQ(unicharset.size(), 0u);
 }
 
 // A valid unicharset must still be accepted.
