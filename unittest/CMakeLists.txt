@@ -21,7 +21,10 @@ endif()
 # Set common compile definitions
 set(COMMON_COMPILE_DEFINITIONS
     "-DTESTING_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testing\""
-    "-DTESSDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../tessdata\""
+    # Trained data models are downloaded to a sibling 'tessdata' directory (see
+    # the CI workflows), matching the autotools TESSDATA_DIR; the in-tree
+    # tessdata/ holds only config files.
+    "-DTESSDATA_DIR=\"${CMAKE_SOURCE_DIR}/../tessdata\""
     "-DTESSBIN_DIR=\"${TESSBIN_DIR}\""
     "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testdata\""
     "-DLANGDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../langdata_lstm\"")
