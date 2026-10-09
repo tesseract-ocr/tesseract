@@ -65,12 +65,13 @@ TEST_F(LSTMTrainerTest, MapCoder) {
 // Tests that the actual fra model can be converted to the deu character set
 // and still read an eng image with 100% accuracy.
 TEST_F(LSTMTrainerTest, ConvertModel) {
+  // Load the fra traineddata, strip out the model, and save to a tmp file.
+  TessdataManager mgr;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_best", "fra");
+  std::string fra_data = file::JoinPath(TESSDATA_DIR "_best", "fra.traineddata");
   // Setup a trainer with a deu charset.
   LSTMTrainer deu_trainer;
   deu_trainer.InitCharSet(TestDataNameToPath("deu/deu.traineddata"));
-  // Load the fra traineddata, strip out the model, and save to a tmp file.
-  TessdataManager mgr;
-  std::string fra_data = file::JoinPath(TESSDATA_DIR "_best", "fra.traineddata");
   CHECK(mgr.Init(fra_data.c_str()));
   LOG(INFO) << "Load " << fra_data << "\n";
   file::MakeTmpdir();

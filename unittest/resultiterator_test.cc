@@ -257,6 +257,7 @@ protected:
 
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(ResultIteratorTest, EasyTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("phototest.tif");
   // Just run layout analysis.
   PageIterator *p_it = api_.AnalyseLayout();
@@ -347,6 +348,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
 // Tests image rebuild on the UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
 TEST_F(ResultIteratorTest, ComplexTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3B.tif");
   // Just run layout analysis.
   PageIterator *it = api_.AnalyseLayout();
@@ -359,6 +361,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
 // Tests that restarting at a paragraph preserves the current paragraph while
 // iterating a page with multiple blocks and paragraphs.
 TEST_F(ResultIteratorTest, RestartParagraphTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3B.tif");
   ASSERT_EQ(api_.Recognize(nullptr), 0);
   ResultIterator *it = api_.GetIterator();
@@ -394,6 +397,7 @@ TEST_F(ResultIteratorTest, RestartParagraphTest) {
 
 // Tests image rebuild on the UNLV page numbered 8087_054.3G.tif. (Dubrovnik)
 TEST_F(ResultIteratorTest, GreyTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3G.tif");
   // Just run layout analysis.
   PageIterator *it = api_.AnalyseLayout();
@@ -406,6 +410,7 @@ TEST_F(ResultIteratorTest, GreyTest) {
 // Tests that higher-level iteration lands at both the logical and physical
 // start of each LTR object, including when constructed from an interior word.
 TEST_F(ResultIteratorTest, IteratorLevelStartsTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3B.tif");
   char *text = api_.GetUTF8Text();
   delete[] text;
@@ -443,6 +448,7 @@ TEST_F(ResultIteratorTest, IteratorLevelStartsTest) {
 // Tests that RTL iteration remains at logical starts even when those differ
 // from the physical left-to-right starts used by PageIterator.
 TEST_F(ResultIteratorTest, RightToLeftIteratorStartsTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
   SetImage("hebrew.png", "heb", tesseract::OEM_DEFAULT);
   char *text = api_.GetUTF8Text();
   ASSERT_NE(nullptr, text);
@@ -474,6 +480,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   // Skip test as LSTM mode does not recognize smallcaps & dropcaps attributes.
   GTEST_SKIP();
 #else
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8071_093.3B.tif");
   char *result = api_.GetUTF8Text();
   delete[] result;
@@ -670,6 +677,7 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
 // TODO: Missing image
 TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
   //  SetImage("line6.tiff");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("trainingitalline.tif");
   api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
   // Force recognition so we can used the result iterator.

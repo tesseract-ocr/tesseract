@@ -73,6 +73,7 @@ TEST_F(TesseractTest, BasicTesseractTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
     Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
     CHECK(src_pix);
@@ -92,6 +93,7 @@ TEST_F(TesseractTest, BasicTesseractTest) {
 // paragraphs even if text recognition was not run.
 TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
   tesseract::TessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
     api.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
     api.SetVariable("paragraph_debug_level", "3");
@@ -121,6 +123,7 @@ TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
 // call SetInputName().
 TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
   tesseract::TessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -139,6 +142,7 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
 // hOCR output should contain baseline info for upright textlines.
 TEST_F(TesseractTest, HOCRContainsBaseline) {
   tesseract::TessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -174,6 +178,7 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -209,6 +214,7 @@ TEST_F(TesseractTest, BasicLSTMTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -232,6 +238,7 @@ TEST_F(TesseractTest, BasicLSTMTest) {
 TEST_F(TesseractTest, LSTMGeometryTest) {
   Image src_pix = pixRead(TestDataNameToPath("deslant.tif").c_str());
   FriendlyTessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
     // eng.traineddata not found.
     GTEST_SKIP();
@@ -275,6 +282,9 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
 TEST_F(TesseractTest, InitConfigOnlyTest) {
   // Languages for testing initialization.
   const char *langs[] = {"eng", "chi_tra", "jpn", "vie"};
+  for (const char *lang : langs) {
+    REQUIRE_TRAINEDDATA(TESSDATA_DIR, lang);
+  }
   std::unique_ptr<tesseract::TessBaseAPI> api;
   CycleTimer timer;
   for (auto &lang : langs) {
@@ -316,6 +326,7 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   // Preload images and verify that OCR is correct on them individually.
   std::vector<Image > pix(num_langs);
   for (int i = 0; i < num_langs; ++i) {
+    REQUIRE_TRAINEDDATA(TESSDATA_DIR, langs[i]);
     std::string tracestring = "Single instance test with lang = ";
     tracestring += langs[i];
     SCOPED_TRACE(tracestring);
@@ -368,6 +379,8 @@ TEST(TesseractInstanceTest, TestMultipleTessInstanceVariables) {
   double double_param[2] = {0.01, 2};
 
   const std::string kTessdataPath = TESSDATA_DIR;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "hin");
 
   tesseract::TessBaseAPI tess1, tess2;
   for (int i = 0; i < 2; ++i) {
@@ -398,6 +411,7 @@ TEST(TesseractInstanceTest, TestMultipleTessInstanceVariables) {
 // Test that PAGE XML output properly closes all Page tags for multi-page documents.
 TEST_F(TesseractTest, PAGEXMLMultiPageClosingTags) {
   tesseract::TessBaseAPI api;
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   if (api.Init(TessdataPath().c_str(), "eng") == -1) {
     GTEST_SKIP();
   }
