@@ -64,6 +64,50 @@ std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
   return data;
 }
 
+// Builds an inttemp component in the old (version 1) on-disk layout. Besides
+// the common header this carries the IndexFor[] table (unicharset_size x
+// int16), the ClassIdFor[] table (num_classes x int32) and one class pruner
+// (NUM_CP_BUCKETS^3 x WERDS_PER_CP_VECTOR uint32 words), as read by the version < 2 path of
+// Classify::ReadIntTemplates.
+std::vector<char> MakeLegacyInttemp(int32_t version_id, uint32_t num_classes,
+                                    uint32_t unicharset_size,
+                                    const std::vector<int32_t> &class_ids) {
+  std::vector<char> data;
+  auto append = [&data](const void *p, size_t n) {
+    const char *b = static_cast<const char *>(p);
+    data.insert(data.end(), b, b + n);
+  };
+  uint32_t num_class_pruners = 1;
+  append(&unicharset_size, sizeof(unicharset_size));
+  append(&version_id, sizeof(version_id));
+  append(&num_class_pruners, sizeof(num_class_pruners));
+  append(&num_classes, sizeof(num_classes));
+  for (uint32_t i = 0; i < unicharset_size; ++i) {
+    int16_t index = 0;
+    append(&index, sizeof(index));
+  }
+  for (uint32_t i = 0; i < num_classes; ++i) {
+    int32_t class_id =
+        i < class_ids.size() ? class_ids[i] : static_cast<int32_t>(i);
+    append(&class_id, sizeof(class_id));
+  }
+  // One class pruner is NUM_CP_BUCKETS^3 vectors of WERDS_PER_CP_VECTOR words
+  // each, i.e. WERDS_PER_CP uint32 words total.
+  for (uint32_t w = 0; w < WERDS_PER_CP; ++w) {
+    uint32_t zero = 0;
+    append(&zero, sizeof(zero));
+  }
+  uint16_t num_protos = 0;
+  uint8_t num_proto_sets = 0;
+  uint8_t num_configs = 0;
+  for (uint32_t c = 0; c < num_classes && c < MAX_NUM_CLASSES; ++c) {
+    append(&num_protos, sizeof(num_protos));
+    append(&num_proto_sets, sizeof(num_proto_sets));
+    append(&num_configs, sizeof(num_configs));
+  }
+  return data;
+}
+
 // Writes a traineddata file with a minimal unicharset and the given
 // (corrupt) inttemp component to dir/eng.traineddata.
 bool WriteCorruptTraineddata(const std::string &dir, const std::vector<char> &inttemp) {
@@ -118,6 +162,20 @@ TEST_F(IntprotoTest, RejectsTooManyProtoSets) {
 // read would write past the end of IndexFor[].
 TEST_F(IntprotoTest, RejectsTooLargeUnicharsetSize) {
   ExpectInitFails(MakeInttemp(-1, 0, 0, MAX_NUM_CLASSES + 1));
+}
+
+// A version 1 inttemp whose ClassIdFor[] carries a negative class id. The
+// max_class_id upper-bound check can never fire for a negative id, so it
+// must be rejected by the individual LegalClassId check before it indexes
+// Class[].
+TEST_F(IntprotoTest, RejectsNegativeClassId) {
+  ExpectInitFails(MakeLegacyInttemp(-1, 1, 2, {static_cast<int32_t>(-30000)}));
+}
+
+// Same, with a class id at exactly MAX_NUM_CLASSES: above the legal range,
+// but still a positive value.
+TEST_F(IntprotoTest, RejectsTooLargeClassId) {
+  ExpectInitFails(MakeLegacyInttemp(-1, 1, 2, {MAX_NUM_CLASSES}));
 }
 
 } // namespace
