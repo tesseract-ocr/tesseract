@@ -262,15 +262,20 @@ ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
   auto Templates = new ADAPT_TEMPLATES_STRUCT;
 
   // first read in the high level adaptive template struct
-  if (fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1) != 1) {
+  const size_t ReadCount = fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
+  // The read above overwrote every member with file bytes, including the
+  // Templates pointer and the Class[] array. ~ADAPT_TEMPLATES_STRUCT reads
+  // Templates->NumClasses through Templates and deletes each Class[] entry,
+  // so neutralise the file-sourced pointers before the reject path below can
+  // reach the destructor; they are then filled with real allocations.
+  Templates->Templates = nullptr;
+  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
+    Templates->Class[i] = nullptr;
+  }
+  if (ReadCount != 1) {
     tprintf("Bad read of adapted templates!\n");
     delete Templates;
     return nullptr;
-  }
-  // The Class[] array was just filled with pointers read from the file;
-  // those are not valid allocations, so reset it before storing real ones.
-  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
-    Templates->Class[i] = nullptr;
   }
 
   // then read in the basic integer templates
