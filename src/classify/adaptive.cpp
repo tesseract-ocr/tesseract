@@ -106,6 +106,12 @@ ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) :
   // Class is value-initialized to nullptr in-class.
   for (unsigned i = 0; i < unicharset.size(); i++) {
     if (!AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i)) {
+      // A rejected ClassId i means the classes 0..NumClasses-1 were stored
+      // successfully. The destructor skips the Class[] cleanup once Templates
+      // is set to nullptr below, so free them here.
+      for (unsigned j = 0; j < Templates->NumClasses; j++) {
+        delete Class[j];
+      }
       delete Templates;
       Templates = nullptr;
       return;
