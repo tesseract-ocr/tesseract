@@ -18,6 +18,7 @@
 #include "adaptive.h"
 
 #include "classify.h"
+#include "tesserrstream.h" // for tesserr
 
 #include <cassert>
 #include <cstdio>
@@ -38,19 +39,30 @@ namespace tesseract {
  *
  * @note Globals: none
  */
-void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId) {
+bool AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId) {
   assert(Templates != nullptr);
   assert(Class != nullptr);
-  assert(LegalClassId(ClassId));
-  assert(UnusedClassIdIn(Templates->Templates, ClassId));
   assert(Class->NumPermConfigs == 0);
 
+  // ClassId indexes the fixed-size Templates->Class[] array, so reject an
+  // out-of-range id instead of writing out of bounds below.
+  if (!LegalClassId(ClassId)) {
+    tesserr << "Error: illegal class id " << ClassId << " in AddAdaptedClass\n";
+    delete Class;
+    return false;
+  }
+
   auto IntClass = new INT_CLASS_STRUCT(1);
-  AddIntClass(Templates->Templates, ClassId, IntClass);
+  if (!AddIntClass(Templates->Templates, ClassId, IntClass)) {
+    delete IntClass;
+    delete Class;
+    return false;
+  }
 
   assert(Templates->Class[ClassId] == nullptr);
   Templates->Class[ClassId] = Class;
 
+  return true;
 } /* AddAdaptedClass */
 
 /*---------------------------------------------------------------------------*/
@@ -93,7 +105,17 @@ ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) :
   // Insert an empty class for each unichar id in unicharset.
   // Class is value-initialized to nullptr in-class.
   for (unsigned i = 0; i < unicharset.size(); i++) {
-    AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i);
+    if (!AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i)) {
+      // A rejected ClassId i means the classes 0..NumClasses-1 were stored
+      // successfully. The destructor skips the Class[] cleanup once Templates
+      // is set to nullptr below, so free them here.
+      for (unsigned j = 0; j < Templates->NumClasses; j++) {
+        delete Class[j];
+      }
+      delete Templates;
+      Templates = nullptr;
+      return;
+    }
   }
 }
 

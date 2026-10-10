@@ -631,6 +631,11 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
   INT_TEMPLATES_STRUCT *int_templates =
       classify->CreateIntTemplates(float_classes, shape_set);
+  if (int_templates == nullptr) {
+    tprintf("Error: failed to create integer templates\n");
+    delete classify;
+    return;
+  }
   FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", inttemp_file);

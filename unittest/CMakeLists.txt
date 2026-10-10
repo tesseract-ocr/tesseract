@@ -59,6 +59,7 @@ set(LEGACY_TESTS
     equationdetect_test.cc
     indexmapbidi_test.cc
     intfeaturemap_test.cc
+    intproto_addclass_test.cc
     intproto_test.cc
     mastertrainer_test.cc
     normproto_test.cc

@@ -229,6 +229,15 @@ int main(int argc, char **argv) {
       snprintf(shape_label, sizeof(shape_label), "sh%04d", s);
       shape_set.unichar_insert(shape_label);
     }
+    // The shape_set is built in memory, so the unicharset parser cap does not
+    // apply here. The id indexes the fixed-size arrays of the int/adaptive
+    // classifier, so reject an oversized set up front rather than producing
+    // no templates after the training run.
+    if (shape_set.size() > MAX_NUM_CLASSES) {
+      tprintf("Error: number of shapes %zu exceeds MAX_NUM_CLASSES %d\n",
+              shape_set.size(), MAX_NUM_CLASSES);
+      return EXIT_FAILURE;
+    }
   }
 
   // Now train each config separately.
