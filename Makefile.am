@@ -118,6 +118,7 @@ lib_LTLIBRARIES = libtesseract.la
 libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS)
 libtesseract_la_LDFLAGS += $(libarchive_LIBS)
 libtesseract_la_LDFLAGS += $(libcurl_LIBS)
+libtesseract_la_LDFLAGS += $(FRAMEWORK_ACCELERATE)
 if T_WIN
 libtesseract_la_LDFLAGS += -no-undefined -lws2_32
 else
