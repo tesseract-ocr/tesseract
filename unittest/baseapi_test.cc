@@ -471,4 +471,58 @@ TEST_F(TesseractTest, PAGEXMLMultiPageClosingTags) {
   src_pix.destroy();
 }
 
+// Regression test for GHSA-vf7v-2h4f-6f4j: the PAGE XML renderer's
+// AppendLinePolygon previously freed the caller-owned right-to-left polygon
+// accumulator (leaving a dangling pointer in line_top_rtl_pts /
+// line_bottom_rtl_pts). On a line containing at least two right-to-left
+// words, the dangling pointer was read and freed again (use-after-free /
+// double-free), and the stale coordinates were joined into the line polygon,
+// which could trigger a heap-buffer-overflow in RecalcPolygonline.
+// hebrew.png (already in the test data) has several RTL words per line; the
+// CI "heb" model recognises them, so rendering it through GetPAGEText at
+// word level with polygons enabled exercises the RTL branch of
+// AppendLinePolygon. Under AddressSanitizer this call crashes on the
+// unfixed code and is clean on the fixed code.
+TEST_F(TesseractTest, PAGEXMLRightToLeftPolygon) {
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "heb") == -1) {
+    GTEST_SKIP() << "heb.traineddata not found";
+  }
+  Image src_pix = pixRead(TestDataNameToPath("hebrew.png").c_str());
+  ASSERT_TRUE(src_pix) << "Could not read hebrew.png";
+  api.SetVariable("page_xml_polygon", "1");
+  // Word level emits a readingDirection attribute per <Word>, which lets us
+  // verify that RTL words were actually recognised (i.e. the buggy code path
+  // was exercised). The double-free/UAF fires at both line and word level.
+  api.SetVariable("page_xml_level", "1");
+  api.SetInputName("hebrew.png");
+  api.SetImage(src_pix);
+
+  char *page = api.GetPAGEText(0);
+  ASSERT_TRUE(page != nullptr);
+  std::string page_str(page);
+  delete[] page;
+
+  // Confirm we actually exercised the right-to-left branch: at least one
+  // word must be recognised with RTL reading direction. On the unfixed code,
+  // the GetPAGEText call above already crashes under AddressSanitizer
+  // before reaching this point. If the loaded model does not mark the
+  // recognised characters as right-to-left, the buggy path is not exercised,
+  // so skip rather than fail.
+  size_t rtl_words = 0;
+  size_t pos = 0;
+  while ((pos = page_str.find("readingDirection=\"right-to-left\"", pos)) !=
+         std::string::npos) {
+    rtl_words++;
+    pos += 28;
+  }
+  if (rtl_words == 0) {
+    GTEST_SKIP() << "no right-to-left word recognised; RTL path not exercised";
+  }
+  // A line polygon should have been generated (this is the structure the
+  // dangling pointer corrupted on the unfixed code).
+  EXPECT_THAT(page_str, HasSubstr("<Coords points=\""));
+  src_pix.destroy();
+}
+
 } // namespace tesseract
