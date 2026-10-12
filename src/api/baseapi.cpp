@@ -286,6 +286,7 @@ void TessBaseAPI::PrintFontsTable(FILE *fp) const {
 
 /** Print Tesseract parameters to the given file. */
 void TessBaseAPI::PrintVariables(FILE *fp) const {
+  fprintf(fp, "\"Variable name\"\tValue\tDescription\n");
   ParamUtils::PrintParams(fp, tesseract_->params());
 }
 
@@ -1239,7 +1240,7 @@ bool TessBaseAPI::ProcessPage(Pix *pix, int page_index, const char *filename,
     if (fp == nullptr) {
       tprintf("Error, failed to open file \"%s\"\n", kOldVarsFile);
     } else {
-      PrintVariables(fp);
+      ParamUtils::PrintParams(fp, tesseract_->params());
       fclose(fp);
     }
     // Switch to alternate mode for retry.

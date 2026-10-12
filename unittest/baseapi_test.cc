@@ -21,6 +21,7 @@
 
 #include "gmock/gmock-matchers.h"
 
+#include <cstdio>
 #include <memory>
 #include <regex>
 #include <string>
@@ -66,6 +67,21 @@ protected:
 TEST_F(TesseractTest, StaticTessBaseAPI) {
   static tesseract::TessBaseAPI api;
   api.End();
+}
+
+TEST_F(TesseractTest, PrintVariablesStartsWithTsvHeader) {
+  tesseract::TessBaseAPI api;
+  api.InitForAnalysePage();
+
+  FILE *fp = tmpfile();
+  ASSERT_NE(fp, nullptr);
+  api.PrintVariables(fp);
+  rewind(fp);
+
+  char line[128];
+  ASSERT_NE(fgets(line, sizeof(line), fp), nullptr);
+  EXPECT_STREQ("\"Variable name\"\tValue\tDescription\n", line);
+  fclose(fp);
 }
 
 // Tests that Tesseract gets exactly the right answer on phototest.
