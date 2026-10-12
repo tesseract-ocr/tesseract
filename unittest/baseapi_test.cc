@@ -69,11 +69,17 @@ TEST_F(TesseractTest, StaticTessBaseAPI) {
   api.End();
 }
 
+struct FileCloser {
+  void operator()(FILE *fp) const {
+    fclose(fp);
+  }
+};
+
 TEST_F(TesseractTest, PrintVariablesStartsWithTsvHeader) {
   tesseract::TessBaseAPI api;
   api.InitForAnalysePage();
 
-  std::unique_ptr<FILE, decltype(&fclose)> fp(tmpfile(), fclose);
+  std::unique_ptr<FILE, FileCloser> fp(tmpfile());
   ASSERT_NE(fp.get(), nullptr);
   api.PrintVariables(fp.get());
   rewind(fp.get());
