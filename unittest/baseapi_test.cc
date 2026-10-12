@@ -73,15 +73,14 @@ TEST_F(TesseractTest, PrintVariablesStartsWithTsvHeader) {
   tesseract::TessBaseAPI api;
   api.InitForAnalysePage();
 
-  FILE *fp = tmpfile();
-  ASSERT_NE(fp, nullptr);
-  api.PrintVariables(fp);
-  rewind(fp);
+  std::unique_ptr<FILE, decltype(&fclose)> fp(tmpfile(), fclose);
+  ASSERT_NE(fp.get(), nullptr);
+  api.PrintVariables(fp.get());
+  rewind(fp.get());
 
   char line[128];
-  ASSERT_NE(fgets(line, sizeof(line), fp), nullptr);
+  ASSERT_NE(fgets(line, sizeof(line), fp.get()), nullptr);
   EXPECT_STREQ("\"Variable name\"\tValue\tDescription\n", line);
-  fclose(fp);
 }
 
 // Tests that Tesseract gets exactly the right answer on phototest.
