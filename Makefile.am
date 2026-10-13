@@ -1187,6 +1187,7 @@ check_PROGRAMS += loadlang_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += matrix_deserializesize_test
 check_PROGRAMS += matrix_test
 check_PROGRAMS += networkio_test
 if !DISABLED_LEGACY_ENGINE
@@ -1406,6 +1407,10 @@ mastertrainer_test_SOURCES = unittest/mastertrainer_test.cc
 mastertrainer_test_CPPFLAGS = $(unittest_CPPFLAGS)
 mastertrainer_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
+
+matrix_deserializesize_test_SOURCES = unittest/matrix_deserializesize_test.cc
+matrix_deserializesize_test_CPPFLAGS = $(unittest_CPPFLAGS)
+matrix_deserializesize_test_LDADD = $(TESS_LIBS)
 
 matrix_test_SOURCES = unittest/matrix_test.cc
 matrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
