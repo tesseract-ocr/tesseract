@@ -2132,6 +2132,9 @@ int TessBaseAPI::FindLines() {
       }
     }
   }
+  if (osd_tess != nullptr && osd_tess != tesseract_) {
+    osd_tess->min_characters_to_try.set_value(tesseract_->min_characters_to_try);
+  }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
   if (tesseract_->SegmentPage(input_file_.c_str(), block_list_, osd_tess, &osr) < 0) {
