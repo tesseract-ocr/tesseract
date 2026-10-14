@@ -161,3 +161,40 @@ jobs:
              ls -la
              # git log -3 --pretty=format:'%h %ad %s | %an'
         if: always()
+
+  unittest-frameworks:
+    name: Unit tests (system GoogleTest=${{ matrix.system_gtest }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        system_gtest: ['ON', 'OFF']
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libleptonica-dev libicu-dev
+
+      - name: Install system GoogleTest and GoogleMock
+        if: matrix.system_gtest == 'ON'
+        run: sudo apt-get install -y libgtest-dev libgmock-dev
+
+      - name: Initialize bundled GoogleTest
+        if: matrix.system_gtest == 'OFF'
+        run: git submodule update --init --depth 1 unittest/third_party/googletest
+
+      - name: Configure tests
+        run: >-
+          cmake -S . -B build
+          -DBUILD_TESTS=ON
+          -DUSE_SYSTEM_GTEST=${{ matrix.system_gtest }}
+          -DBUILD_TRAINING_TOOLS=OFF
+          -DDISABLE_ARCHIVE=ON
+          -DDISABLE_CURL=ON
+          -DGRAPHICS_DISABLED=ON
+
+      - name: Build tests including GoogleMock users
+        run: cmake --build build --parallel 2 --target bitvector_test heap_test intsimdmatrix_test baseapi_test progress_test
+
+      - name: Run tests that do not require external data
+        run: ctest --test-dir build --output-on-failure --no-tests=error -R '^(bitvector_test|heap_test|intsimdmatrix_test)$'

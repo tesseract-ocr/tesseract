@@ -77,6 +77,39 @@
 
 ## Run tests
 
+### CMake
+
+By default, CMake uses the `unittest/third_party/googletest` submodule:
+
+```sh
+git submodule update --init unittest/third_party/googletest
+cmake -S . -B build -DBUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+To use an installed GoogleTest package instead, install both GoogleTest and
+GoogleMock (for example, `libgtest-dev` and `libgmock-dev` on Debian/Ubuntu) and
+configure with `-DUSE_SYSTEM_GTEST=ON`:
+
+```sh
+cmake -S . -B build -DBUILD_TESTS=ON -DUSE_SYSTEM_GTEST=ON
+```
+
+If the package is installed outside the standard search paths, add its prefix to
+`CMAKE_PREFIX_PATH`, or set `GTest_DIR` to the directory containing
+`GTestConfig.cmake`. The installed package must provide the `GTest::gtest_main`
+and `GTest::gmock` targets. With CMake 3.22, use a package that provides
+`GTestConfig.cmake`; CMake's module-based GoogleMock discovery requires 3.23 or
+newer.
+
+This replaces only the testing framework, not the test data, language models,
+or fonts listed above. Those files are still required by the relevant tests.
+When tests are requested but the selected framework is unavailable, configuration
+fails rather than silently omitting the tests.
+
+### Autotools
+
 To run the tests, do the following in tesseract folder
 
 ```

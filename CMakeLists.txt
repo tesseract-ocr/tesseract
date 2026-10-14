@@ -99,6 +99,7 @@ option(ENABLE_NATIVE
 # https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
+option(USE_SYSTEM_GTEST "Use installed GoogleTest and GoogleMock for tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 option(DISABLE_TIFF "Disable build with libtiff (if available)" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
@@ -597,6 +598,7 @@ message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
 message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
+message(STATUS "Use system GoogleTest [USE_SYSTEM_GTEST]: ${USE_SYSTEM_GTEST}")
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message(
   STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
@@ -873,12 +875,24 @@ endif()
 
 # ##############################################################################
 
-if(BUILD_TESTS
-   AND EXISTS
-       ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
-)
+if(BUILD_TESTS)
+  if(USE_SYSTEM_GTEST)
+    find_package(GTest REQUIRED)
+    if(NOT TARGET GTest::gtest_main OR NOT TARGET GTest::gmock)
+      message(FATAL_ERROR
+              "Unit tests require GTest::gtest_main and GTest::gmock. Install "
+              "GoogleTest and GoogleMock together, or use the googletest submodule "
+              "with USE_SYSTEM_GTEST=OFF.")
+    endif()
+  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt)
+    add_subdirectory(unittest/third_party/googletest)
+  else()
+    message(FATAL_ERROR
+            "Unit tests require GoogleTest and GoogleMock. Run "
+            "'git submodule update --init unittest/third_party/googletest', "
+            "or install GoogleTest and GoogleMock and set USE_SYSTEM_GTEST=ON.")
+  endif()
   enable_testing()
-  add_subdirectory(unittest/third_party/googletest)
   add_subdirectory(unittest)
 endif()
 
