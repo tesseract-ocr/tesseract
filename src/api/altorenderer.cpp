@@ -95,7 +95,10 @@ bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
       "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
       "\t\t<sourceImageInformation>\n"
       "\t\t\t<fileName>");
-    AppendString(api->GetInputName());
+    const char *input_name = api->GetInputName();
+    if (input_name != nullptr) {
+      AppendString(HOcrEscape(input_name).c_str());
+    }
     AppendString(
       "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
