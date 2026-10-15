@@ -101,17 +101,43 @@ TEST_F(TesseractTest, UTF8TextForBoxes) {
 
   const int width = pixGetWidth(src_pix);
   const int height = pixGetHeight(src_pix);
-  Boxa *boxes = boxaCreate(2);
-  boxaAddBox(boxes, boxCreate(0, 0, width, height), L_INSERT);
-  boxaAddBox(boxes, boxCreate(0, 0, width, height), L_INSERT);
+  api.SetPageSegMode(tesseract::PSM_SINGLE_LINE);
+  Boxa *words =
+      api.GetComponentImages(tesseract::RIL_WORD, true, nullptr, nullptr);
+  ASSERT_NE(words, nullptr);
+  ASSERT_EQ(boxaGetCount(words), 2);
 
+  int left, top, box_width, box_height;
+  boxaGetBoxGeometry(words, 0, &left, &top, &box_width, &box_height);
+  api.SetRectangle(left, top, box_width, box_height);
+  const std::unique_ptr<char[]> hello(api.GetUTF8Text());
+  ASSERT_NE(hello, nullptr);
+  EXPECT_THAT(hello.get(), HasSubstr("Hello"));
+  boxaGetBoxGeometry(words, 1, &left, &top, &box_width, &box_height);
+  api.SetRectangle(left, top, box_width, box_height);
+  const std::unique_ptr<char[]> google(api.GetUTF8Text());
+  ASSERT_NE(google, nullptr);
+  EXPECT_THAT(google.get(), HasSubstr("Google"));
+  ASSERT_NE(std::string(hello.get()), google.get());
+
+  // Reverse the regions to distinguish input order from reading order.
+  Boxa *boxes = boxaCreate(2);
+  boxaAddBox(boxes, boxaGetBox(words, 1, L_COPY), L_INSERT);
+  boxaAddBox(boxes, boxaGetBox(words, 0, L_COPY), L_INSERT);
   const std::unique_ptr<char[]> combined(api.GetUTF8TextForBoxes(boxes));
   ASSERT_NE(combined, nullptr);
-  api.SetRectangle(0, 0, width, height);
-  const std::unique_ptr<char[]> single(api.GetUTF8Text());
-  ASSERT_NE(single, nullptr);
-  EXPECT_EQ(std::string(single.get()) + single.get(), combined.get());
+  EXPECT_EQ(std::string(google.get()) + hello.get(), combined.get());
+  boxaDestroy(&boxes);
+  boxaDestroy(&words);
 
+  boxes = boxaCreate(2);
+  boxaAddBox(boxes, boxCreate(0, 0, width, height), L_INSERT);
+  boxaAddBox(boxes, boxCreate(width - 1, 0, 2, height), L_INSERT);
+  EXPECT_EQ(api.GetUTF8TextForBoxes(boxes), nullptr);
+  boxaDestroy(&boxes);
+  boxes = boxaCreate(1);
+  boxaAddBox(boxes, boxCreate(0, height, 1, 1), L_INSERT);
+  EXPECT_EQ(api.GetUTF8TextForBoxes(boxes), nullptr);
   boxaDestroy(&boxes);
   src_pix.destroy();
 }
@@ -120,7 +146,8 @@ TEST_F(TesseractTest, UTF8TextForBoxes) {
 // paragraphs even if text recognition was not run.
 TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
   tesseract::TessBaseAPI api;
-  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) !=
+      -1) {
     api.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
     api.SetVariable("paragraph_debug_level", "3");
 #if 0 // TODO: b622.png is missing
