@@ -30,7 +30,11 @@ public:
 
   // Accessors.
   std::string spec() const override {
-    std::string s = "Do" + std::to_string(dropout_rate_);
+    // %g gives a compact representation (eg "0.5") instead of the six-decimal
+    // padding of std::to_string (eg "0.500000").
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "Do%g", static_cast<double>(dropout_rate_));
+    std::string s = buf;
     if (dropout_dim_ != 0)
       s += "," + std::to_string(dropout_dim_);
     return s;

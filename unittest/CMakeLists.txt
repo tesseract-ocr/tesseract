@@ -37,6 +37,7 @@ set(COMMON_LINK_LIBS libtesseract GTest::gtest_main common_training
 set(TRAINING_TESTS
     commandlineflags_test.cc
     dawg_test.cc
+    dropout_test.cc
     lstm_recode_test.cc
     lstm_squashed_test.cc
     lstm_test.cc

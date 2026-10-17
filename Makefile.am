@@ -1157,6 +1157,7 @@ check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
+check_PROGRAMS += dropout_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
@@ -1297,6 +1298,10 @@ commandlineflags_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 dawg_test_SOURCES = unittest/dawg_test.cc
 dawg_test_CPPFLAGS = $(unittest_CPPFLAGS)
 dawg_test_LDADD = $(TRAINING_LIBS)
+
+dropout_test_SOURCES = unittest/dropout_test.cc
+dropout_test_CPPFLAGS = $(unittest_CPPFLAGS)
+dropout_test_LDADD = $(TRAINING_LIBS)
 
 denorm_test_SOURCES = unittest/denorm_test.cc
 denorm_test_CPPFLAGS = $(unittest_CPPFLAGS)

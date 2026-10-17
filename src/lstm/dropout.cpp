@@ -23,6 +23,9 @@
 #include "serialis.h"
 #include "tesserrstream.h" // for tesserr
 
+#include <cstring>    // for memset
+#include <stdexcept>  // for std::invalid_argument
+
 namespace tesseract {
 
 Dropout::Dropout(const std::string &name, int ni, float dropout_rate, unsigned dropout_dim)
@@ -124,8 +127,12 @@ void Dropout::Forward(bool debug, const NetworkIO &input,
       }
     }
   } else {
-    // Inference mode (or dropout_rate_ == 0): pass input through unchanged.
-    output->CopyAll(input);
+    // Inference mode (or dropout_rate_ == 0): pass the input through unchanged.
+    // CopyTimeStepFrom is mode-aware, so a converted (int-mode) recognition
+    // network still gets the correct identity, not the float buffer.
+    for (int t = 0; t < width; ++t) {
+      output->CopyTimeStepFrom(t, input, t);
+    }
   }
 
 #ifndef GRAPHICS_DISABLED
@@ -174,8 +181,10 @@ bool Dropout::Backward(bool debug, const NetworkIO &fwd_deltas,
       }
     }
   } else {
-    // Inference mode: pass gradients through unchanged.
-    back_deltas->CopyAll(fwd_deltas);
+    // Inference mode: pass gradients through unchanged (mode-aware).
+    for (int t = 0; t < width; ++t) {
+      back_deltas->CopyTimeStepFrom(t, fwd_deltas, t);
+    }
   }
 
 #ifndef GRAPHICS_DISABLED
