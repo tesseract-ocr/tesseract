@@ -24,7 +24,12 @@ jobs:
       matrix:
         config:
           - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
-          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++' }
+          # Ubuntu 22.04's packaged libc++ is built with -Bsymbolic-functions,
+          # so its std::logic_error allocation escapes AddressSanitizer's
+          # interposition and any thrown or caught exception misreports
+          # alloc-dealloc-mismatch (llvm/llvm-project#59432). Disable that one
+          # check for the clang job; it is a toolchain false positive.
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++', asan_options: 'alloc_dealloc_mismatch=0' }
     steps:
     - uses: actions/checkout@v7
       with:
@@ -82,6 +87,8 @@ jobs:
            tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
 
     - name: Make and run Unit Tests
+      env:
+        ASAN_OPTIONS: ${{ matrix.config.asan_options }}
       run: |
            make check
 
