@@ -1655,8 +1655,7 @@ $(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
 	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
 
 $(TESTING_DIR)/Lohit-Hindi.ttf:
-	curl -sSL https://releases.pagure.org/lohit/lohit-hindi-ttf-2.4.3.tar.gz | \
-	tar -xzO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
+	curl -sSL https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf -o $@
 
 $(TESTING_DIR)/Times_New_Roman.ttf:
 	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
