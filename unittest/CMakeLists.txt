@@ -1,4 +1,3 @@
-# find_package(GTest REQUIRED)
 include(GoogleTest) # Todo install GoogleTests?
 
 # Set common include directories
@@ -9,8 +8,7 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/viewer
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/unicharset
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/googlemock/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/common)
 
 if (MSVC)
     set(TESSBIN_DIR ${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>)
@@ -33,6 +31,15 @@ file(
 
 set(COMMON_LINK_LIBS libtesseract GTest::gtest_main common_training
                      unicharset_training)
+
+set(GMOCK_TESTS
+    baseapi_test
+    lang_model_test
+    pango_font_info_test
+    progress_test
+    unichar_test
+    unicharset_test
+    validator_test)
 
 set(TRAINING_TESTS
     commandlineflags_test.cc
@@ -99,7 +106,7 @@ foreach(test_source IN LISTS TEST_SOURCES)
          ${CMAKE_CURRENT_SOURCE_DIR}/util/utf8)
   endif()
   add_executable(${test_name} ${test_source})
-  if(${test_name} MATCHES "progress_test")
+  if(test_name IN_LIST GMOCK_TESTS)
     target_link_libraries(${test_name} PRIVATE GTest::gmock)
   endif()
   target_compile_definitions(${test_name} PRIVATE ${COMMON_COMPILE_DEFINITIONS})
