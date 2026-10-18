@@ -770,7 +770,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
   }
   reading_order_str << "\" " << "imageWidth=\"" << rect_width_ << "\" "
                     << "imageHeight=\"" << rect_height_ << "\">\n";
-  std::size_t ro_id = std::hash<std::string>{}(GetInputName());
+  std::size_t ro_id = std::hash<std::string>{}(input_name ? input_name : "");
   reading_order_str << "\t\t<ReadingOrder>\n"
                     << "\t\t\t<OrderedGroup id=\"ro" << ro_id
                     << "\" caption=\"Regions reading order\">\n";
