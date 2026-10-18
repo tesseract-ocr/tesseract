@@ -309,6 +309,9 @@ TEST_F(TesseractTest, OsdEngineUsesMinCharactersToTry) {
     src_pix.reset();
     GTEST_SKIP();
   }
+  // Ensure a separate OSD engine was actually created, so that the value
+  // checks below verify propagation to a distinct engine.
+  ASSERT_NE(osd_tess, api.tesseract());
   EXPECT_EQ(1, static_cast<int>(osd_tess->min_characters_to_try));
 
   ASSERT_TRUE(api.SetVariable("min_characters_to_try", "2"));
