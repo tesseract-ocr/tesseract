@@ -18,6 +18,7 @@
 #include "pageres.h"
 
 #include <tesseract/baseapi.h>
+#include <tesseract/renderer.h>
 
 #include "gmock/gmock-matchers.h"
 
@@ -468,6 +469,82 @@ TEST_F(TesseractTest, PAGEXMLMultiPageClosingTags) {
   EXPECT_EQ(close_count, 1) << "Second page should have exactly one closing </Page> tag";
   
   delete[] page2;
+  src_pix.destroy();
+}
+
+TEST_F(TesseractTest, PAGEEscapesImageFilename) {
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    GTEST_SKIP();
+  }
+
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  ASSERT_TRUE(src_pix);
+  api.SetInputName("alpha&beta.pgm");
+  api.SetImage(src_pix);
+
+  std::unique_ptr<const char[]> page(api.GetPAGEText(0));
+  ASSERT_TRUE(page != nullptr);
+  EXPECT_THAT(page.get(), HasSubstr("imageFilename=\"alpha&amp;beta.pgm\""));
+
+  src_pix.destroy();
+}
+
+TEST_F(TesseractTest, ALTOEscapesFileName) {
+  file::MakeTmpdir();
+  const std::string output_base = file::JoinPath(FLAGS_test_tmpdir, "alto-escaped-input-name");
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    GTEST_SKIP();
+  }
+
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  ASSERT_TRUE(src_pix);
+  api.SetInputName("alpha&beta.pgm");
+  api.SetImage(src_pix);
+
+  {
+    tesseract::TessAltoRenderer renderer(output_base.c_str());
+    ASSERT_TRUE(renderer.BeginDocument("escaped input name"));
+    ASSERT_TRUE(renderer.AddImage(&api));
+    ASSERT_TRUE(renderer.EndDocument());
+  }
+
+  std::string alto;
+  CHECK_OK(file::GetContents(output_base + ".xml", &alto, file::Defaults()));
+  EXPECT_THAT(alto, HasSubstr("<fileName>alpha&amp;beta.pgm</fileName>"));
+
+  src_pix.destroy();
+}
+
+TEST_F(TesseractTest, PAGERendererEscapesExternalRefAndImageFilename) {
+  file::MakeTmpdir();
+  const std::string output_base = file::JoinPath(FLAGS_test_tmpdir, "page-escaped-input-name");
+  constexpr const char *kInputName = "https://example.test/image?a=1&b=2";
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    GTEST_SKIP();
+  }
+
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  ASSERT_TRUE(src_pix);
+  api.SetInputName(kInputName);
+  api.SetImage(src_pix);
+
+  {
+    tesseract::TessPAGERenderer renderer(output_base.c_str());
+    ASSERT_TRUE(renderer.BeginDocument("escaped input name"));
+    ASSERT_TRUE(renderer.AddImage(&api));
+    ASSERT_TRUE(renderer.EndDocument());
+  }
+
+  std::string page;
+  CHECK_OK(file::GetContents(output_base + ".page.xml", &page, file::Defaults()));
+  EXPECT_THAT(page,
+              HasSubstr("externalRef=\"https://example.test/image?a=1&amp;b=2\""));
+  EXPECT_THAT(page,
+              HasSubstr("imageFilename=\"https://example.test/image?a=1&amp;b=2\""));
+
   src_pix.destroy();
 }
 

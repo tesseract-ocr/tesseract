@@ -641,10 +641,11 @@ bool TessPAGERenderer::AddImageHandler(TessBaseAPI *api) {
 
     // If a URL is used to recognize an image add it as <Metadata
     // externalRef="url">
-    if (std::regex_search(api->GetInputName(),
-                          std::regex("^(https?|ftp|ssh):"))) {
+    const char *input_name = api->GetInputName();
+    if (input_name != nullptr &&
+        std::regex_search(input_name, std::regex("^(https?|ftp|ssh):"))) {
       AppendString(" externalRef=\"");
-      AppendString(api->GetInputName());
+      AppendString(HOcrEscape(input_name).c_str());
       AppendString("\" ");
     }
 
@@ -762,11 +763,14 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
 
   // Use "C" locale (needed for int values larger than 999).
   page_str.imbue(std::locale::classic());
-  reading_order_str << "\t<Page " << "imageFilename=\"" << GetInputName();
-  // AppendString(api->GetInputName());
+  reading_order_str << "\t<Page " << "imageFilename=\"";
+  const char *input_name = GetInputName();
+  if (input_name != nullptr) {
+    reading_order_str << HOcrEscape(input_name);
+  }
   reading_order_str << "\" " << "imageWidth=\"" << rect_width_ << "\" "
                     << "imageHeight=\"" << rect_height_ << "\">\n";
-  std::size_t ro_id = std::hash<std::string>{}(GetInputName());
+  std::size_t ro_id = std::hash<std::string>{}(input_name ? input_name : "");
   reading_order_str << "\t\t<ReadingOrder>\n"
                     << "\t\t\t<OrderedGroup id=\"ro" << ro_id
                     << "\" caption=\"Regions reading order\">\n";
