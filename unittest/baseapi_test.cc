@@ -306,7 +306,6 @@ TEST_F(TesseractTest, OsdEngineUsesMinCharactersToTry) {
   Tesseract *osd_tess = api.osd_tesseract();
   if (osd_tess == nullptr) {
     // osd.traineddata not found.
-    src_pix.reset();
     GTEST_SKIP();
   }
   // Ensure a separate OSD engine was actually created, so that the value
