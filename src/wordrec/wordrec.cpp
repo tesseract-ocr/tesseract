@@ -77,6 +77,10 @@ Wordrec::Wordrec()
     , double_MEMBER(chop_width_change_knob, 5.0, "Width change adjustment", params())
     , double_MEMBER(chop_ok_split, 100.0, "OK split limit", params())
     , double_MEMBER(chop_good_split, 50.0, "Good split limit", params())
+    , INT_MEMBER(chop_max_seam_evals, 200000,
+                 "Max number of seam evaluations per word. Bounds the seam "
+                 "search on degenerate inputs where it never converges.",
+                 params())
     , INT_MEMBER(chop_x_y_weight, 3, "X / Y  length weight", params())
     , BOOL_MEMBER(assume_fixed_pitch_char_segment, false,
                   "include fixed-pitch heuristics in char segmentation", params())

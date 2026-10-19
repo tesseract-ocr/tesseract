@@ -209,6 +209,7 @@ public:
   double_VAR_H(chop_width_change_knob);
   double_VAR_H(chop_ok_split);
   double_VAR_H(chop_good_split);
+  INT_VAR_H(chop_max_seam_evals);
   INT_VAR_H(chop_x_y_weight);
   BOOL_VAR_H(assume_fixed_pitch_char_segment);
   INT_VAR_H(wordrec_debug_level);
@@ -389,6 +390,15 @@ public:
   // Function used to fill char choice lattices.
   void (Wordrec::*fill_lattice_)(const MATRIX &ratings, const WERD_CHOICE_LIST &best_choices,
                                  const UNICHARSET &unicharset, BlamerBundle *blamer_bundle);
+
+  // Budget of seam evaluations (choose_best_seam queue-loop iterations) left
+  // for the word currently being chopped. Reset at the start of
+  // chop_word_main()/chop_one_blob() and decremented in choose_best_seam().
+  // Bounds the worst-case cost of the seam search on degenerate inputs where
+  // the search never finds a good enough seam (OSS-Fuzz issue 483188622).
+  int seam_evals_remaining_ = 0;
+  // Set once per word so the "budget exhausted" warning is printed only once.
+  bool seam_evals_warning_ = true;
 
 protected:
   inline bool SegSearchDone(int num_futile_classifications) {

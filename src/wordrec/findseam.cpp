@@ -104,6 +104,17 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
                                SEAM **seam_result, TBLOB *blob, SeamPile *seam_pile) {
   SEAM *seam;
   float my_priority;
+
+  // The per-word seam-evaluation budget may already be exhausted (it is reset
+  // in chop_word_main()/chop_one_blob() and decremented for every seam
+  // evaluated in the queue loop below). If so, stop searching without doing
+  // any more work and keep the best seam found so far (if any). This bounds
+  // the worst-case cost of the seam search on degenerate inputs that never
+  // yield a good enough seam (OSS-Fuzz issue 483188622).
+  if (seam_evals_remaining_ <= 0) {
+    return;
+  }
+
   /* Add seam of split */
   my_priority = priority;
   if (split != nullptr) {
@@ -122,11 +133,24 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
   }
 
   TBOX bbox = blob->bounding_box();
-  /* Queue loop */
-  while (!seam_queue->empty()) {
+  /* Queue loop.
+   * The per-word seam-evaluation budget (seam_evals_remaining_) bounds the
+   * loop so that a degenerate input where the seam search never finds a good
+   * enough seam cannot run for an unbounded amount of time (OSS-Fuzz issue
+   * 483188622). The warning is printed once when the budget is reached.
+   */
+  while (!seam_queue->empty() && seam_evals_remaining_ > 0) {
     SeamPair seam_pair;
     seam_queue->Pop(&seam_pair);
     seam = seam_pair.extract_data();
+    --seam_evals_remaining_;
+    if (seam_evals_remaining_ == 0 && !seam_evals_warning_) {
+      tprintf("WARNING: reached the seam evaluation budget "
+              "(chop_max_seam_evals = %d) for this word; stopping the seam "
+              "search early.\n",
+              (int)chop_max_seam_evals);
+      seam_evals_warning_ = true;
+    }
     /* Set full priority */
     my_priority =
         seam->FullPriority(bbox.left(), bbox.right(), chop_overlap_knob, chop_centered_maxwidth,
