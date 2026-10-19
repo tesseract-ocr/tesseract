@@ -1033,7 +1033,12 @@ void TBLOB::EliminateDuplicateOutlines() {
     TESSLINE *last_outline = outline;
     for (TESSLINE *other_outline = outline->next; other_outline != nullptr;
          last_outline = other_outline, other_outline = other_outline->next) {
-      if (outline->SameBox(*other_outline)) {
+      // Note: The same bounding box is not sufficient to detect duplicate
+      // outlines: different outline cycles can have identical bounding boxes
+      // (this happens when thin outlines are split into small pieces), and
+      // the EDGEPTs of different cycles must not be confused. Only outlines
+      // walking the same cycle share their EDGEPTs and may be eliminated.
+      if (outline->SameBox(*other_outline) && outline->SameOutlineCycle(*other_outline)) {
         last_outline->next = other_outline->next;
         // This doesn't leak - the outlines share the EDGEPTs.
         other_outline->loop = nullptr;

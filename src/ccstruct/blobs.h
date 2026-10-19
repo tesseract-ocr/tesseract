@@ -250,6 +250,25 @@ struct TESSLINE {
   bool SameBox(const TESSLINE &other) const {
     return topleft == other.topleft && botright == other.botright;
   }
+  // Returns true if *this and other walk the same cycle of edge points, i.e.
+  // other.loop is one of the points of *this's loop. Note that two outlines
+  // with the same bounding box do not necessarily share their edge points
+  // (after splitting thin outlines into many small pieces, different cycles
+  // can end up with identical bounding boxes), and only outlines of the same
+  // cycle are safe to treat as duplicates of each other.
+  bool SameOutlineCycle(const TESSLINE &other) const {
+    if (loop == nullptr || other.loop == nullptr) {
+      return false;
+    }
+    const EDGEPT *pt = loop;
+    do {
+      if (pt == other.loop) {
+        return true;
+      }
+      pt = pt->next;
+    } while (pt != loop);
+    return false;
+  }
   // Returns true if the given line segment crosses any outline of this blob.
   bool SegmentCrosses(const TPOINT &pt1, const TPOINT &pt2) const {
     if (Contains(pt1) && Contains(pt2)) {
