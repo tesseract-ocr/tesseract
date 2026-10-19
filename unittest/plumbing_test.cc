@@ -72,20 +72,24 @@ private:
 // Serialized network header as written by Network::Serialize:
 //   int8 type, int8 training, int8 needs_to_backprop, int32 network_flags,
 //   int32 ni, int32 no, int32 num_weights, string name.
-void AppendNetworkHeader(ByteWriter *w, NetworkType type) {
+void AppendNetworkHeader(ByteWriter *w, NetworkType type, int no = 0) {
   w->PutU8(static_cast<uint32_t>(type));
   w->PutU8(0); // training: TS_DISABLED
   w->PutU8(0); // needs_to_backprop
   w->PutU32(0); // network_flags
   w->PutU32(0); // ni
-  w->PutU32(0); // no
+  w->PutU32(static_cast<uint32_t>(no)); // no (0 for corrupt fixtures, >=1 where the null-char range check must pass)
   w->PutU32(0); // num_weights
   w->PutString(""); // name
 }
 
 // A minimal valid NT_INPUT network (header plus a 1x1x1x1 shape).
+// Declares one output so that the null_char range check in
+// LSTMRecognizer::DeSerialize (null_char_ must be < NumOutputs()) passes
+// for the Tolerates* test; the Rejects* fixtures are dropped on the
+// empty-stack check before the null_char value is even read.
 void AppendInputNetwork(ByteWriter *w) {
-  AppendNetworkHeader(w, NT_INPUT);
+  AppendNetworkHeader(w, NT_INPUT, /*no=*/1);
   w->PutS32(1); // batch
   w->PutS32(1); // height
   w->PutS32(1); // width
