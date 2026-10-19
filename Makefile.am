@@ -1150,6 +1150,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += bitvector_test
 endif # !DISABLED_LEGACY_ENGINE
 endif # ENABLE_TRAINING
+check_PROGRAMS += blobs_test
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
@@ -1280,6 +1281,10 @@ bitvector_test_SOURCES = unittest/bitvector_test.cc
 bitvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
 bitvector_test_LDADD = $(TRAINING_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
+
+blobs_test_SOURCES = unittest/blobs_test.cc
+blobs_test_CPPFLAGS = $(unittest_CPPFLAGS)
+blobs_test_LDADD = $(TESS_LIBS)
 
 cleanapi_test_SOURCES = unittest/cleanapi_test.cc
 cleanapi_test_CPPFLAGS = $(unittest_CPPFLAGS)
