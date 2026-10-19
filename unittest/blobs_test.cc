@@ -60,7 +60,10 @@ int CycleSize(EDGEPT *start) {
 }
 
 // Two TESSLINEs walking the same cycle are true duplicates: only one may
-// remain, and the cycle's EDGEPTs must survive for the survivor.
+// remain, and the cycle's EDGEPTs must survive for the survivor. The two
+// outlines are deliberately rooted at *different* points of the cycle (as
+// SPLIT::UnsplitOutlineList produces them), so SameOutlineCycle must actually
+// traverse the cycle to recognize the shared points.
 TEST(EliminateDuplicateOutlinesTest, SameCycleIsEliminated) {
   EDGEPT *cycle1 = MakeCycle({TPOINT(0, 0), TPOINT(0, 20), TPOINT(20, 20), TPOINT(20, 0)});
 
@@ -73,7 +76,7 @@ TEST(EliminateDuplicateOutlinesTest, SameCycleIsEliminated) {
   auto *outline2 = new TESSLINE;
   outline2->topleft = {0, 20};
   outline2->botright = {20, 20};
-  outline2->loop = cycle1; // same cycle as outline1
+  outline2->loop = cycle1->next; // same cycle as outline1, different root point
   outline1->next = outline2;
   blob.outlines = outline1;
 
