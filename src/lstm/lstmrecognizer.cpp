@@ -156,6 +156,15 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
   if (!fp->DeSerialize(&null_char_)) {
     return false;
   }
+  // null_char_ is used as an index into the network softmax output
+  // (top_n_flags_/outputs), so it must lie within the output range. A
+  // corrupt or malicious model may store a negative or oversized value,
+  // which would index out of bounds during recognition, so reject it here.
+  if (null_char_ < 0 || null_char_ >= network_->NumOutputs()) {
+    tprintf("Error: null_char %d out of range for network with %d outputs\n",
+            null_char_, network_->NumOutputs());
+    return false;
+  }
   if (!fp->DeSerialize(&adam_beta_)) {
     return false;
   }
