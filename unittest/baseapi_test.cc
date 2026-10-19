@@ -16,6 +16,7 @@
 #include "log.h"        // for LOG
 #include "ocrblock.h"   // for class BLOCK
 #include "pageres.h"
+#include "tesseractclass.h" // for Tesseract
 
 #include <tesseract/baseapi.h>
 #include <tesseract/renderer.h>
@@ -41,6 +42,14 @@ static const char *gt_text[] = {"Hello Google", "\x74\x69\xe1\xba\xbf\x6e\x67",
 
 class FriendlyTessBaseAPI : public tesseract::TessBaseAPI {
   FRIEND_TEST(TesseractTest, LSTMGeometryTest);
+
+public:
+  int FindLines() {
+    return TessBaseAPI::FindLines();
+  }
+  Tesseract *osd_tesseract() const {
+    return osd_tesseract_;
+  }
 };
 
 std::string GetCleanedTextResult(tesseract::TessBaseAPI *tess, Image pix) {
@@ -271,6 +280,46 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
     }
   }
   src_pix.destroy();
+}
+
+// Tests that min_characters_to_try reaches the separate OSD engine, including
+// when the variable changes after that engine has been created.
+TEST_F(TesseractTest, OsdEngineUsesMinCharactersToTry) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because the separate OSD engine requires the legacy engine.
+  GTEST_SKIP();
+#else
+  FriendlyTessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+  }
+  api.SetPageSegMode(tesseract::PSM_AUTO_OSD);
+  ASSERT_TRUE(api.SetVariable("min_characters_to_try", "1"));
+
+  auto pix_deleter = [](Pix *pix) { pixDestroy(&pix); };
+  std::unique_ptr<Pix, decltype(pix_deleter)> src_pix(
+      pixRead(TestDataNameToPath("phototest.tif").c_str()), pix_deleter);
+  ASSERT_TRUE(src_pix != nullptr);
+
+  api.SetImage(src_pix.get());
+  ASSERT_EQ(0, api.FindLines());
+  Tesseract *osd_tess = api.osd_tesseract();
+  if (osd_tess == nullptr) {
+    // osd.traineddata not found.
+    GTEST_SKIP();
+  }
+  // Ensure a separate OSD engine was actually created, so that the value
+  // checks below verify propagation to a distinct engine.
+  ASSERT_NE(osd_tess, api.tesseract());
+  EXPECT_EQ(1, static_cast<int>(osd_tess->min_characters_to_try));
+
+  ASSERT_TRUE(api.SetVariable("min_characters_to_try", "2"));
+  api.SetImage(src_pix.get());
+  ASSERT_EQ(0, api.FindLines());
+  ASSERT_EQ(osd_tess, api.osd_tesseract());
+  EXPECT_EQ(2, static_cast<int>(osd_tess->min_characters_to_try));
+#endif
 }
 
 TEST_F(TesseractTest, InitConfigOnlyTest) {
