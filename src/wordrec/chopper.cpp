@@ -367,6 +367,12 @@ SEAM *Wordrec::improve_one_blob(const std::vector<BLOB_CHOICE *> &blob_choices, 
 SEAM *Wordrec::chop_one_blob(const std::vector<TBOX> &boxes,
                              const std::vector<BLOB_CHOICE *> &blob_choices, WERD_RES *word_res,
                              unsigned *blob_number) {
+  // Bound the seam search for this call (see choose_best_seam() in
+  // findseam.cpp, OSS-Fuzz issue 483188622). Note: unlike chop_word_main(),
+  // callers of chop_one_blob() may invoke it in a loop, so the budget is
+  // refreshed per call here.
+  seam_evals_remaining_ = chop_max_seam_evals;
+  seam_evals_warning_ = false;
   if (prioritize_division) {
     return chop_overlapping_blob(boxes, true, word_res, blob_number);
   } else {
@@ -383,6 +389,10 @@ SEAM *Wordrec::chop_one_blob(const std::vector<TBOX> &boxes,
  * enough.  The results are returned in the WERD_RES.
  */
 void Wordrec::chop_word_main(WERD_RES *word) {
+  // Start a fresh per-word seam-evaluation budget so the seam search below is
+  // bounded (see choose_best_seam() in findseam.cpp, OSS-Fuzz issue 483188622).
+  seam_evals_remaining_ = chop_max_seam_evals;
+  seam_evals_warning_ = false;
   int num_blobs = word->chopped_word->NumBlobs();
   if (word->ratings == nullptr) {
     word->ratings = new MATRIX(num_blobs, wordrec_max_join_chunks);
