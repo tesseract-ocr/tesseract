@@ -355,7 +355,13 @@ bool WeightMatrix::DeSerializeOld([[maybe_unused]] bool training,
                                   [[maybe_unused]] TFile *fp) {
 #ifdef FAST_FLOAT
   // Not implemented.
-  ASSERT_HOST(!"not implemented");
+  // Return false, like the other error paths of DeSerialize, instead of
+  // aborting the process: a corrupt or malicious model file with a weight
+  // matrix in the old (float) format must simply fail to load. Aborting
+  // (via ASSERT_HOST) would take down the whole host application, e.g. a
+  // long-running service embedding Tesseract, on a single bad input.
+  tprintf("Error: old format weight matrix not supported, "
+          "cannot load model\n");
   return false;
 #else
   if (int_mode_) {
