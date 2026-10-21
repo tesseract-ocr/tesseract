@@ -41,6 +41,7 @@
 #include "workingpartset.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace tesseract {
 
@@ -1617,34 +1618,78 @@ static void AppendEligibleOsdBlobs(BLOBNBOX_LIST *src, BLOBNBOX_C_IT *dst) {
   }
 }
 
-// True when this block's own blobs strongly prefer the opposite quarter-turn
-// from the historical convention. A fresh OSResults is used so page-level
-// scores are not modified, and only this TO_BLOCK's blobs are sampled.
-static bool VerticalBlockOsdPrefersOpposite(TO_BLOCK *to_block, const FCOORD &block_rotation,
-                                            const FCOORD &rerotate, Tesseract *osd_tess,
+// Adds this TO_BLOCK's OSD-eligible blobs, loose and in rows, to dst.
+static void AppendEligibleBlockBlobs(TO_BLOCK *to_block, BLOBNBOX_C_IT *dst) {
+  AppendEligibleOsdBlobs(&to_block->blobs, dst);
+  TO_ROW_IT row_it(to_block->get_rows());
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    AppendEligibleOsdBlobs(row_it.data()->blob_list(), dst);
+  }
+}
+
+// Log-score margin by which the eligible blobs prefer the opposite polarity
+// over convention_id. A fresh OSResults is used so page-level scores are not
+// modified. Returns 0 (no evidence) when OSD declines to score the blobs.
+static double OppositeOrientationMargin(BLOBNBOX_CLIST *eligible, int convention_id,
+                                        Tesseract *osd_tess,
+                                        const std::vector<int> *allowed_scripts) {
+  OSResults osr;
+  int sampled = os_detect_blobs(allowed_scripts, eligible, &osr, osd_tess);
+  eligible->shallow_clear();
+  if (sampled <= 0) {
+    return 0.0;
+  }
+  int opposite_id = (convention_id + 2) % 4;
+  double margin = static_cast<double>(osr.orientations[opposite_id]) -
+                  static_cast<double>(osr.orientations[convention_id]);
+  if (textord_debug_tabfind) {
+    tprintf("Vertical OSD sampled %d, convention id %d (%.2f) opposite id %d (%.2f), margin %.2f\n",
+            sampled, convention_id, osr.orientations[convention_id], opposite_id,
+            osr.orientations[opposite_id], margin);
+  }
+  return margin;
+}
+
+// Layout often splits one minority region into a block per text line or
+// paragraph, each too small for a decisive score on its own. This pools the
+// blobs of all minority vertical blocks, which share one conventional
+// quarter-turn, and returns their opposite-polarity margin. Returns 0 when
+// there are fewer than two such blocks, as a single block scores itself.
+static double VerticalRegionOppositeMargin(TO_BLOCK_LIST *blocks, int convention_id,
+                                           Tesseract *osd_tess,
+                                           const std::vector<int> *allowed_scripts) {
+  BLOBNBOX_CLIST eligible;
+  BLOBNBOX_C_IT eligible_it(&eligible);
+  int vertical_blocks = 0;
+  TO_BLOCK_IT it(blocks);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    TO_BLOCK *to_block = it.data();
+    if (to_block->block->pdblk.poly_block()->isA() == PT_VERTICAL_TEXT) {
+      AppendEligibleBlockBlobs(to_block, &eligible_it);
+      ++vertical_blocks;
+    }
+  }
+  if (vertical_blocks < 2) {
+    eligible.shallow_clear();
+    return 0.0;
+  }
+  return OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+}
+
+// True when the evidence strongly prefers the opposite quarter-turn from the
+// historical convention. A block that is decisive on its own, either way, keeps
+// its own answer, so separate minority regions can differ. Otherwise the pooled
+// region_margin from VerticalRegionOppositeMargin decides.
+static bool VerticalBlockOsdPrefersOpposite(TO_BLOCK *to_block, int convention_id,
+                                            double region_margin, Tesseract *osd_tess,
                                             const std::vector<int> *allowed_scripts,
                                             double min_orientation_margin) {
   BLOBNBOX_CLIST eligible;
   BLOBNBOX_C_IT eligible_it(&eligible);
-  AppendEligibleOsdBlobs(&to_block->blobs, &eligible_it);
-  TO_ROW_IT row_it(to_block->get_rows());
-  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-    AppendEligibleOsdBlobs(row_it.data()->blob_list(), &eligible_it);
-  }
-  OSResults block_osr;
-  int sampled = os_detect_blobs(allowed_scripts, &eligible, &block_osr, osd_tess);
-  eligible.shallow_clear();
-  if (sampled <= 0) {
-    return false;
-  }
-  int convention_id = OrientationIdForBlockRotation(block_rotation, rerotate);
-  int opposite_id = (convention_id + 2) % 4;
-  double margin = static_cast<double>(block_osr.orientations[opposite_id]) -
-                  static_cast<double>(block_osr.orientations[convention_id]);
-  if (textord_debug_tabfind) {
-    tprintf("Block OSD sampled %d, convention id %d (%.2f) opposite id %d (%.2f), margin %.2f\n",
-            sampled, convention_id, block_osr.orientations[convention_id], opposite_id,
-            block_osr.orientations[opposite_id], margin);
+  AppendEligibleBlockBlobs(to_block, &eligible_it);
+  double margin = OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+  if (std::fabs(margin) < min_orientation_margin) {
+    margin = region_margin;
   }
   return margin >= min_orientation_margin;
 }
@@ -1671,6 +1716,15 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     deskew_ = reskew_;
     reskew_ = tmp;
   }
+  // Pooled minority evidence must be scored before any outlines are rotated.
+  double vertical_region_margin = 0.0;
+#ifndef DISABLED_LEGACY_ENGINE
+  if (osd_tess != nullptr) {
+    FCOORD convention = ConventionalVerticalBlockRotation(rerotate_);
+    vertical_region_margin = VerticalRegionOppositeMargin(
+        blocks, OrientationIdForBlockRotation(convention, rerotate_), osd_tess, allowed_scripts);
+  }
+#endif
   TO_BLOCK_IT it(blocks);
   int block_index = 1;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -1687,8 +1741,8 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     // Save the skew angle in the block for baseline computations.
     block->set_skew(reskew_);
     block->pdblk.set_index(block_index++);
-    FCOORD blob_rotation = ComputeBlockAndClassifyRotation(to_block, osd_tess, allowed_scripts,
-                                                           min_orientation_margin);
+    FCOORD blob_rotation = ComputeBlockAndClassifyRotation(
+        to_block, osd_tess, allowed_scripts, min_orientation_margin, vertical_region_margin);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
     STATS widths(0, block->pdblk.bounding_box().width() - 1);
@@ -1714,11 +1768,13 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
 // them sit in the rotated block.
 FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tesseract *osd_tess,
                                                      const std::vector<int> *allowed_scripts,
-                                                     double min_orientation_margin) {
+                                                     double min_orientation_margin,
+                                                     double vertical_region_margin) {
 #ifdef DISABLED_LEGACY_ENGINE
   (void)osd_tess;
   (void)allowed_scripts;
   (void)min_orientation_margin;
+  (void)vertical_region_margin;
 #endif
   BLOCK *block = to_block->block;
   // The text_rotation_ tells us the gross page text rotation that needs
@@ -1736,8 +1792,9 @@ FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tessera
     block_rotation = ConventionalVerticalBlockRotation(rerotate_);
 #ifndef DISABLED_LEGACY_ENGINE
     if (osd_tess != nullptr &&
-        VerticalBlockOsdPrefersOpposite(to_block, block_rotation, rerotate_, osd_tess,
-                                        allowed_scripts, min_orientation_margin)) {
+        VerticalBlockOsdPrefersOpposite(
+            to_block, OrientationIdForBlockRotation(block_rotation, rerotate_),
+            vertical_region_margin, osd_tess, allowed_scripts, min_orientation_margin)) {
       block_rotation.rotate(FCOORD(-1.0f, 0.0f));
     }
 #endif
