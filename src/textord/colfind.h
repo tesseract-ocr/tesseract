@@ -294,9 +294,12 @@ private:
   // of the given block.
   // Returns the rotation that needs to be applied to the blobs to make
   // them sit in the rotated block.
+  // vertical_region_margin is the pooled opposite-polarity margin of all
+  // minority vertical blocks, used when this block's own evidence is weak.
   FCOORD ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tesseract *osd_tess,
                                          const std::vector<int> *allowed_scripts,
-                                         double min_orientation_margin);
+                                         double min_orientation_margin,
+                                         double vertical_region_margin);
 
   // If true then the page language is cjk, so it is safe to perform
   // FixBrokenCJK.
