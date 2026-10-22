@@ -15,14 +15,17 @@
 
 #include "include_gunit.h"
 
-#include "serialis.h"    // for TFile
-#include "weightmatrix.h" // for WeightMatrix
+#include "serialis.h"                // for TFile
+#include "weightmatrix.h"             // for WeightMatrix
+#include "weightmatrix_test_helper.h" // for DeserializeWeightMatrix
 
 #include <cstdint>
 #include <vector>
 
 namespace tesseract {
 namespace {
+
+using namespace unittest;
 
 // Serializes a valid float-mode WeightMatrix with WeightMatrix::Serialize,
 // then patches the mode byte (the first byte of the blob) to the given
@@ -41,28 +44,16 @@ std::vector<char> MakeWeightMatrixBlob(uint8_t mode) {
   return blob;
 }
 
-// Feeds the given blob to WeightMatrix::DeSerialize, which reads the mode
-// byte first, exactly like the layer DeSerialize functions do.
-bool DeSerialize(const std::vector<char> &blob, WeightMatrix *m) {
-  TFile fp;
-  fp.Open(blob.data(), blob.size());
-  if (fp.RemainingBytes() != blob.size()) {
-    return false;
-  }
-  return m->DeSerialize(false, &fp);
+// Feeds a blob with the given mode byte to WeightMatrix::DeSerialize,
+// which reads the mode byte first, exactly like the layer DeSerialize
+// functions do.
+bool DeSerializeWithMode(uint8_t mode, WeightMatrix *m) {
+  return DeserializeWeightMatrix(MakeWeightMatrixBlob(mode), m);
 }
-
-class WeightMatrixDeSerializeTest : public testing::Test {
- protected:
-  // Runs DeSerialize on a valid blob with the given mode byte.
-  bool DeSerializeWithMode(uint8_t mode, WeightMatrix *m) {
-    return DeSerialize(MakeWeightMatrixBlob(mode), m);
-  }
-};
 
 // A current-format (kDoubleFlag) weight matrix must still deserialize
 // successfully.
-TEST_F(WeightMatrixDeSerializeTest, AcceptsDoubleFlagMode) {
+TEST(WeightMatrixDeSerializeTest, AcceptsDoubleFlagMode) {
   WeightMatrix m;
   EXPECT_TRUE(DeSerializeWithMode(128, &m)); // kDoubleFlag
   EXPECT_EQ(3, m.Dim1());
@@ -72,7 +63,7 @@ TEST_F(WeightMatrixDeSerializeTest, AcceptsDoubleFlagMode) {
 // A mode byte without kDoubleFlag selects the old (float) format, which is
 // not supported with FAST_FLOAT. It must be rejected with a false return
 // instead of aborting the process.
-TEST_F(WeightMatrixDeSerializeTest, RejectsOldFormatMode) {
+TEST(WeightMatrixDeSerializeTest, RejectsOldFormatMode) {
 #ifdef FAST_FLOAT
   WeightMatrix m;
   EXPECT_FALSE(DeSerializeWithMode(0, &m));
@@ -84,7 +75,7 @@ TEST_F(WeightMatrixDeSerializeTest, RejectsOldFormatMode) {
 }
 
 // Same, with the other mode flag bits set, as in a crafted file.
-TEST_F(WeightMatrixDeSerializeTest, RejectsOldFormatModeWithFlags) {
+TEST(WeightMatrixDeSerializeTest, RejectsOldFormatModeWithFlags) {
 #ifdef FAST_FLOAT
   WeightMatrix m;
   EXPECT_FALSE(DeSerializeWithMode(1, &m)); // kInt8Flag only
