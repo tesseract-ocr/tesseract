@@ -20,10 +20,10 @@
 
 #include "network.h"        // for NetworkType
 #include "tessdatamanager.h" // for TessdataManager, TESSDATA_LSTM
+#include "util/tempdir.h"    // for CreateTempDir, RemoveTempDir
 
 #include <cstdint>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -146,14 +146,11 @@ bool WriteCorruptTraineddata(const std::string &dir, const std::vector<char> &ls
 class PlumbingTest : public testing::Test {
 protected:
   void SetUp() override {
-    tmpl_ = "/tmp/tess_plumbing_test_XXXXXX";
-    char *dir = mkdtemp(tmpl_.data());
-    ASSERT_NE(dir, nullptr);
-    dir_ = dir;
+    dir_ = CreateTempDir("tess_plumbing_test_");
+    ASSERT_FALSE(dir_.empty());
   }
   void TearDown() override {
-    std::remove((dir_ + "/eng.traineddata").c_str());
-    rmdir(dir_.c_str());
+    RemoveTempDir(dir_);
   }
   // Expects the LSTM engine to reject the corrupted traineddata
   // gracefully (init failure) instead of crashing.
@@ -163,7 +160,6 @@ protected:
     EXPECT_EQ(api.Init(dir_.c_str(), "eng", tesseract::OEM_LSTM_ONLY), -1);
   }
   std::string dir_;
-  std::string tmpl_;
 };
 
 // Empty NT_SERIES stack: Series::CacheXScaleFactor would dereference

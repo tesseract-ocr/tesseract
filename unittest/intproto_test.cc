@@ -21,10 +21,10 @@
 
 #include "intproto.h"     // for MAX_NUM_CLASS_PRUNERS, MAX_NUM_CLASSES
 #include "tessdatamanager.h"
+#include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
 
 #include <cstdint>
 #include <cstdio>
-#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -120,14 +120,11 @@ bool WriteCorruptTraineddata(const std::string &dir, const std::vector<char> &in
 class IntprotoTest : public testing::Test {
 protected:
   void SetUp() override {
-    tmpl_ = "/tmp/tess_intproto_test_XXXXXX";
-    char *dir = mkdtemp(tmpl_.data());
-    ASSERT_NE(dir, nullptr);
-    dir_ = dir;
+    dir_ = CreateTempDir("tess_intproto_test_");
+    ASSERT_FALSE(dir_.empty());
   }
   void TearDown() override {
-    std::remove((dir_ + "/eng.traineddata").c_str());
-    rmdir(dir_.c_str());
+    RemoveTempDir(dir_);
   }
   // Expects the legacy engine to reject the corrupted traineddata
   // gracefully (init failure) instead of corrupting memory.
@@ -137,7 +134,6 @@ protected:
     EXPECT_EQ(api.Init(dir_.c_str(), "eng", tesseract::OEM_TESSERACT_ONLY), -1);
   }
   std::string dir_;
-  std::string tmpl_;
 };
 
 // NumClassPruners exceeds MAX_NUM_CLASS_PRUNERS: the pruner-read loop would

@@ -345,7 +345,9 @@ protected:
   // Index into training sample set. sample_iteration >= training_iteration_.
   int32_t sample_iteration_;
   // Index in softmax of null character. May take the value UNICHAR_BROKEN or
-  // ccutil_.unicharset.size().
+  // ccutil_.unicharset.size(). Must be smaller than the number of outputs of
+  // the network, as it is used as an index into the softmax output; a model
+  // with an out-of-range value is rejected when it is loaded.
   int32_t null_char_;
   // Learning rate and momentum multipliers of deltas in backprop.
   float learning_rate_;
