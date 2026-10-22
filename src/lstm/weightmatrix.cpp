@@ -381,6 +381,12 @@ bool WeightMatrix::DeSerializeOld([[maybe_unused]] bool training,
     if (!fp->DeSerialize(old_scales)) {
       return false;
     }
+    // The generic (non-SIMD) IntSimdMatrix::MatrixDotVector reads
+    // scales_[i] for i < wi_.dim1(), so the old format carries at least
+    // one scale per output row as well.
+    if (old_scales.size() < static_cast<size_t>(wi_.dim1())) {
+      return false;
+    }
     scales_.reserve(old_scales.size());
     for (float old_scale : old_scales) {
       scales_.push_back(old_scale);

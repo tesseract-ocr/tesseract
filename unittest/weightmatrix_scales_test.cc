@@ -67,6 +67,30 @@ std::vector<char> MakeIntWeightMatrix(int32_t dim1, int32_t dim2, int32_t num_sc
   return w.data();
 }
 
+// Builds an int-mode WeightMatrix blob in the old (float) format, i.e. one
+// whose mode byte has kInt8Flag but not kDoubleFlag. The old format stores
+// the scales as floats instead of doubles.
+std::vector<char> MakeLegacyIntWeightMatrix(int32_t dim1, int32_t dim2, int32_t num_scales) {
+  WmWriter w;
+  w.PutU8(1); // kInt8Flag only, so the old format is selected
+  w.PutI32(dim1);
+  w.PutI32(dim2);
+  w.PutU8(0); // empty_ (unused cell)
+  for (int32_t i = 0; i < dim1 * dim2; ++i) {
+    w.PutU8(0);
+  }
+  w.PutU32(static_cast<uint32_t>(num_scales));
+  for (int32_t i = 0; i < num_scales; ++i) {
+    union {
+      float f;
+      uint32_t u;
+    } conv;
+    conv.f = 1.0f;
+    w.PutU32(conv.u);
+  }
+  return w.data();
+}
+
 class WeightMatrixScalesTest : public testing::Test {
  protected:
   bool DeSerialize(const std::vector<char> &blob, WeightMatrix *m) {
@@ -105,6 +129,23 @@ TEST_F(WeightMatrixScalesTest, RejectsTooFewScales) {
   WeightMatrix m;
   EXPECT_FALSE(DeSerialize(MakeIntWeightMatrix(2, 2, 1), &m));
 }
+
+// The old (float) format carries the scales as floats and has the same
+// requirement of one scale per output row.
+TEST_F(WeightMatrixScalesTest, RejectsLegacyShortScales) {
+  WeightMatrix m;
+  EXPECT_FALSE(DeSerialize(MakeLegacyIntWeightMatrix(2, 2, 1), &m));
+}
+
+// A legacy matrix with a full scale vector must still load. With
+// FAST_FLOAT the old format is rejected outright, so this test only
+// guards the double precision code path.
+#ifndef FAST_FLOAT
+TEST_F(WeightMatrixScalesTest, AcceptsLegacyFullScales) {
+  WeightMatrix m;
+  EXPECT_TRUE(DeSerialize(MakeLegacyIntWeightMatrix(2, 2, 2), &m));
+}
+#endif
 
 } // namespace
 } // namespace tesseract
