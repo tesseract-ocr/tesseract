@@ -192,7 +192,14 @@ inline constexpr bool ClipMatchEvidenceOn(int D) { return (D & CLIP_MATCH_EVIDEN
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class);
+// Adds a new class to the template set. Returns true and takes ownership of
+// Class on success. Returns false (leaving Templates unchanged and leaving
+// ownership of Class with the caller) in either of two cases: ClassId is out
+// of range (which would otherwise write out of bounds into Class[]/
+// ClassPruners[]), or ClassId is a legal id that is not exactly
+// Templates->NumClasses -- classes must be added in increasing order of
+// ClassId.
+bool AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class);
 
 int AddIntConfig(INT_CLASS_STRUCT *Class);
 
