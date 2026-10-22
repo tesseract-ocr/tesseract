@@ -20,6 +20,7 @@ endif
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
 # Header shared by the unit tests, not listed in any _SOURCES.
 EXTRA_DIST += unittest/util/tempdir.h
+EXTRA_DIST += unittest/weightmatrix_test_helper.h
 
 DIST_SUBDIRS = $(SUBDIRS)
 
