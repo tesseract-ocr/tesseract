@@ -19,9 +19,9 @@
 
 #include "classify.h"
 #include "serialis.h" // for TFile
+#include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
 
 #include <cstdio>
-#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -48,10 +48,8 @@ std::vector<char> MakeNormproto(const std::string &lines) {
 class NormprotoTest : public testing::Test {
 protected:
   void SetUp() override {
-    tmpl_ = "/tmp/tess_normproto_test_XXXXXX";
-    char *dir = mkdtemp(tmpl_.data());
-    ASSERT_NE(dir, nullptr);
-    dir_ = dir;
+    dir_ = CreateTempDir("tess_normproto_test_");
+    ASSERT_FALSE(dir_.empty());
     std::string uc_path = dir_ + "/eng.unicharset";
     FILE *f = fopen(uc_path.c_str(), "w");
     ASSERT_NE(f, nullptr);
@@ -63,11 +61,9 @@ protected:
     ASSERT_TRUE(classifier_.unicharset.load_from_file(uc_path.c_str()));
   }
   void TearDown() override {
-    std::remove((dir_ + "/eng.unicharset").c_str());
-    rmdir(dir_.c_str());
+    RemoveTempDir(dir_);
   }
   std::string dir_;
-  std::string tmpl_;
   Classify classifier_;
 };
 
