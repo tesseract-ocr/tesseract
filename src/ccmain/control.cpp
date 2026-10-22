@@ -293,6 +293,21 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
                                 int dopasses) {
   PAGE_RES_IT page_res_it(page_res);
 
+#ifndef DISABLED_LEGACY_ENGINE
+  // Start a fresh per-pass seam-evaluation budget for the recognition pass
+  // (see choose_best_seam() in findseam.cpp, OSS-Fuzz issue 4775901406232576).
+  // Reading the parameter here (rather than at SetImage()) means a change of
+  // chop_max_seam_evals_pass between SetImage() and Recognize() takes effect.
+  // The sub-language Tesseract objects must get a budget too: words are
+  // chopped by whichever language recognizes them (RetryWithLanguage()), so
+  // a secondary language running with an unset budget would lose chopping
+  // silently.
+  ResetSeamEvalsBudget();
+  for (auto *sub_lang : sub_langs_) {
+    sub_lang->ResetSeamEvalsBudget();
+  }
+#endif // ndef DISABLED_LEGACY_ENGINE
+
   if (tessedit_minimal_rej_pass1) {
     tessedit_test_adaption.set_value(true);
     tessedit_minimal_rejection.set_value(true);
