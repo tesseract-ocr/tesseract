@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        weightmatrix_intdim_test.cc
-// Description: Tests that an int-mode WeightMatrix whose second
-//              dimension is 0 is rejected by WeightMatrix::DeSerialize
+// Description: Tests that an int-mode WeightMatrix with a zero first or
+//              second dimension is rejected by WeightMatrix::DeSerialize
 //              instead of crashing in IntSimdMatrix::Init (which would
 //              compute num_in = dim2 - 1 = -1 and read the bias from
 //              array_[-1] on an unallocated array).
@@ -41,6 +41,13 @@ TEST(WeightMatrixIntDimTest, RejectsZeroDim2) {
   }
   WeightMatrix m;
   EXPECT_FALSE(DeserializeWeightMatrix(MakeIntWeightMatrix(2, 0, 0), &m));
+}
+
+// A zero first dimension means that the matrix has no output rows at all,
+// so it must be rejected as well.
+TEST(WeightMatrixIntDimTest, RejectsZeroDim1) {
+  WeightMatrix m;
+  EXPECT_FALSE(DeserializeWeightMatrix(MakeIntWeightMatrix(0, 2, 0), &m));
 }
 
 } // namespace

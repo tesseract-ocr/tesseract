@@ -291,6 +291,12 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (!wi_.DeSerialize(fp)) {
       return false;
     }
+    // The first dimension is the number of output rows, so it must be at
+    // least 1. A zero dimension would leave the reshaped weight matrix and
+    // the scale vector empty, so reject the corrupt model.
+    if (wi_.dim1() < 1) {
+      return false;
+    }
     // The second dimension is the number of inputs plus the bias column, so
     // it must be at least 1. A zero dimension would make IntSimdMatrix::Init
     // compute num_in = dim2 - 1 = -1 and read the bias from array_[-1] on an
