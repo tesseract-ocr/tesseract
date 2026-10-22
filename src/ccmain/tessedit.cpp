@@ -225,6 +225,15 @@ bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineM
                                      use_ambigs_for_adaption, &unicharset);
   }
 
+  // Loading the ambiguities inserts the correct n-grams and their fragments
+  // into the unicharset, so it may have grown beyond the limit checked above.
+  // A unichar id indexes fixed-size arrays of MAX_NUM_CLASSES entries in the
+  // legacy classifier, so reject it here rather than failing later.
+  if (unicharset.size() > MAX_NUM_CLASSES) {
+    tprintf("Error: Size of unicharset is greater than MAX_NUM_CLASSES\n");
+    return false;
+  }
+
   // Init ParamsModel.
   // Load pass1 and pass2 weights (for now these two sets are the same, but in
   // the future separate sets of weights can be generated).
