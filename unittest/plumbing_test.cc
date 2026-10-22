@@ -78,18 +78,23 @@ void AppendNetworkHeader(ByteWriter *w, NetworkType type, int no = 0) {
   w->PutU8(0); // needs_to_backprop
   w->PutU32(0); // network_flags
   w->PutU32(0); // ni
-  w->PutU32(static_cast<uint32_t>(no)); // no (0 for corrupt fixtures, >=1 where the null-char range check must pass)
+  w->PutU32(static_cast<uint32_t>(no)); // no (0 for corrupt fixtures, wide enough where the null-char and recoder-range checks must pass)
   w->PutU32(0); // num_weights
   w->PutString(""); // name
 }
 
 // A minimal valid NT_INPUT network (header plus a 1x1x1x1 shape).
-// Declares one output so that the null_char range check in
-// LSTMRecognizer::DeSerialize (null_char_ must be < NumOutputs()) passes
-// for the Tolerates* test; the Rejects* fixtures are dropped on the
-// empty-stack check before the null_char value is even read.
+// Declares three outputs, matching what a real pass-through model with the
+// two-unichar, no-special-codes fixture unicharset would have (the
+// pass-through recoder codes unichars 0..1 plus one extra, so
+// code_range = 3 and the softmax is sized to it). With no=3 both the
+// null_char range check in LSTMRecognizer::DeSerialize (null_char_ must be
+// < NumOutputs()) and the recoder code-range check in
+// LSTMRecognizer::Load (code_range must be <= NumOutputs()) pass for the
+// Tolerates* test; the Rejects* fixtures are dropped on the empty-stack
+// check before either field is read.
 void AppendInputNetwork(ByteWriter *w) {
-  AppendNetworkHeader(w, NT_INPUT, /*no=*/1);
+  AppendNetworkHeader(w, NT_INPUT, /*no=*/3);
   w->PutS32(1); // batch
   w->PutS32(1); // height
   w->PutS32(1); // width
