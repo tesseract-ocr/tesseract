@@ -60,12 +60,14 @@ set(TRAINING_TESTS
 set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc stringrenderer_test.cc)
 
 set(LEGACY_TESTS
+    adaptive_templates_test.cc
     adaptive_test.cc
     applybox_test.cc
     bitvector_test.cc
     equationdetect_test.cc
     indexmapbidi_test.cc
     intfeaturemap_test.cc
+    intproto_addclass_test.cc
     intproto_test.cc
     mastertrainer_test.cc
     normproto_test.cc
