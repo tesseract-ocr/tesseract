@@ -13,9 +13,12 @@ on:
         type: choice
         options:
           - 'Windows (64 bit)'
+          - 'Windows (ARM64)'
+          - 'Windows (64 bit and ARM64)'
 
 jobs:
   build64:
+    if: inputs.targets != 'Windows (ARM64)'
     runs-on: [ubuntu-24.04]
     steps:
     - uses: actions/checkout@v7
@@ -25,4 +28,17 @@ jobs:
       with:
         name: Tesseract Installer for Windows (64 bit)
         path: bin/ndebug/x86_64-w64-mingw32/nsis/tesseract-ocr-w*-setup-*.exe
+        archive: false
+
+  buildarm64:
+    if: inputs.targets != 'Windows (64 bit)'
+    runs-on: [ubuntu-24.04]
+    steps:
+    - uses: actions/checkout@v7
+    - name: Build Tesseract installer (ARM64)
+      run: nsis/build.sh aarch64
+    - uses: actions/upload-artifact@v7
+      with:
+        name: Tesseract Installer for Windows (ARM64)
+        path: bin/ndebug/aarch64-w64-mingw32/nsis/tesseract-ocr-arm64-setup-*.exe
         archive: false

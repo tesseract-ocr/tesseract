@@ -13,6 +13,8 @@ ARCH=$1
 
 if [ "$ARCH" = "i686" ]; then
   MINGW=/mingw32
+elif [ "$ARCH" = "aarch64" ]; then
+  MINGW=/clangarm64
 else
   ARCH=x86_64
   MINGW=/mingw64
@@ -23,13 +25,38 @@ HOST=$ARCH-w64-mingw32
 TAG=$(cat VERSION).$(date +%Y%m%d)
 BUILDDIR=bin/ndebug/$HOST
 PKG_ARCH=mingw-w64-${ARCH/_/-}
+PKG=mingw-w64-$ARCH
+GXX=g++-$PKG_ARCH
+CXX=$HOST-g++-posix
+INCLUDE=-isystem
+STRIP_FLAG=-s
+
+if [ "$ARCH" = "aarch64" ]; then
+  # No ARM64 MinGW g++ in Ubuntu. LLVM must not be newer than MSYS2 libc++.
+  LLVM_MINGW=llvm-mingw-20260616-ucrt-ubuntu-22.04-x86_64
+  curl -sSL https://github.com/mstorsjo/llvm-mingw/releases/download/20260616/$LLVM_MINGW.tar.xz |
+    sudo tar -xJ -C /opt
+  export PATH=/opt/$LLVM_MINGW/bin:$PATH
+  export CC=$HOST-clang
+  export PKG_CONFIG_SYSTEM_INCLUDE_PATH=$MINGW/include
+  PKG=mingw-w64-clang-aarch64
+  GXX=
+  CXX=$HOST-clang++
+  # MSYS2 headers must come after the libc++ headers.
+  INCLUDE=-idirafter
+  # libtool drops compiler-rt, which provides __chkstk.
+  EXTRA_LDFLAGS=-Wl,$($CC -print-libgcc-file-name)
+  WINPATH_CXX="$CXX -static"
+  # The strip of the build host does not know ARM64 Windows binaries.
+  STRIP_FLAG="-s --strip-program=$HOST-strip"
+fi
 
 # Install packages.
 sudo apt-get update --quiet
 sudo apt-get install --assume-yes --no-install-recommends --quiet \
   asciidoctor ruby-asciidoctor-pdf curl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
-  mingw-w64-tools nsis g++-"$PKG_ARCH" \
+  mingw-w64-tools nsis ${GXX:+"$GXX"} \
   makepkg pacman-package-manager python3-venv unzip
 
 # Configure pacman.
@@ -49,7 +76,7 @@ sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-keyring/master/msys
 sudo mkdir -p /etc/pacman.d
 cd /etc/pacman.d
 cat <<eod | sudo tee mirrorlist >/dev/null
-[mingw64]
+[${MINGW#/}]
 Include = /etc/pacman.d/mirrorlist.mingw
 eod
 sudo curl -OsS https://raw.githubusercontent.com/msys2/MSYS2-packages/master/pacman-mirrors/mirrorlist.mingw
@@ -62,18 +89,18 @@ sudo pacman -Syu --noconfirm
 
 # Install required pacman packages.
 sudo pacman -S --noconfirm \
- mingw-w64-x86_64-curl-winssl \
- mingw-w64-x86_64-giflib \
- mingw-w64-x86_64-icu \
- mingw-w64-x86_64-leptonica \
- mingw-w64-x86_64-libarchive \
- mingw-w64-x86_64-libidn2 \
- mingw-w64-x86_64-openjpeg2 \
- mingw-w64-x86_64-openssl \
- mingw-w64-x86_64-pango \
- mingw-w64-x86_64-libpng \
- mingw-w64-x86_64-libtiff \
- mingw-w64-x86_64-libwebp
+ "$PKG-curl-winssl" \
+ "$PKG-giflib" \
+ "$PKG-icu" \
+ "$PKG-leptonica" \
+ "$PKG-libarchive" \
+ "$PKG-libidn2" \
+ "$PKG-openjpeg2" \
+ "$PKG-openssl" \
+ "$PKG-pango" \
+ "$PKG-libpng" \
+ "$PKG-libtiff" \
+ "$PKG-libwebp"
 
 git config --global user.email "sw@weilnetz.de"
 git config --global user.name "Stefan Weil"
@@ -90,20 +117,24 @@ PKG_CONFIG_PATH=$MINGW/lib/pkgconfig
 export PKG_CONFIG_PATH
 # Disable OpenMP (see https://github.com/tesseract-ocr/tesseract/issues/1662).
 ../../../configure --disable-openmp --host="$HOST" --prefix="/usr/$HOST" \
-  CXX="$HOST-g++-posix" \
-  CXXFLAGS="-fno-math-errno -Wall -Wextra -Wpedantic -g -O2 -isystem $MINGW/include" \
-  LDFLAGS="-L$MINGW/lib"
+  CXX="$CXX" \
+  CXXFLAGS="-fno-math-errno -Wall -Wextra -Wpedantic -g -O2 $INCLUDE $MINGW/include" \
+  LDFLAGS="-L$MINGW/lib $EXTRA_LDFLAGS" \
+  lt_cv_to_host_file_cmd=func_convert_file_noop
 
 make all -j$(nproc)
 make training -j$(nproc)
 
 MINGW_INSTALL=${PWD}${MINGW}
-make install-jars install training-install html prefix="$MINGW_INSTALL" INSTALL_STRIP_FLAG=-s
+make install-jars install training-install html prefix="$MINGW_INSTALL" INSTALL_STRIP_FLAG="$STRIP_FLAG"
 test -d venv || python3 -m venv venv
 source venv/bin/activate
 pip install pefile
 mkdir -p dll
-ln -sv $("$ROOTDIR/nsis/find_deps.py" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL"/bin/*.dll) dll/
-ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libstdc++-6.dll dll/
-ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libgcc_s_seh-1.dll dll/
-make winsetup prefix="$MINGW_INSTALL"
+ln -sv $("$ROOTDIR/nsis/find_deps.py" --dlldir "$MINGW/bin/" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL"/bin/*.dll) dll/
+if [ -n "$GXX" ]; then
+  ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libstdc++-6.dll dll/
+  ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libgcc_s_seh-1.dll dll/
+fi
+make winsetup prefix="$MINGW_INSTALL" \
+  ${WINPATH_CXX:+"WINPATH_CXX=$WINPATH_CXX" "WINPATH_STRIP=$HOST-strip"}
