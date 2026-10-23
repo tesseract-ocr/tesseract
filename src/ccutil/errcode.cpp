@@ -70,17 +70,11 @@ void ERRCODE::error(         // handle error
       return; // report only
     case TESSEXIT:
     case ABORT:
-#if !defined(NDEBUG)
-      // Create a deliberate abnormal exit as the stack trace is more useful
-      // that way. This is done only in debug builds, because the
-      // error message "segmentation fault" confuses most normal users.
-#  if defined(__GNUC__)
-      __builtin_trap();
-#  else
-      *reinterpret_cast<int *>(0) = 0;
-#  endif
-#endif
-      abort();
+      // This used to trigger a segfault or abort();
+      // However, at least for library use, only exceptions should be acceptable.
+      // Even in the standalone application case, exceptions are better,
+      // because the default handler will print the message along with the stack trace.
+      throw std::runtime_error(msg.str());
     default:
       BADERRACTION.error("error", ABORT);
   }
