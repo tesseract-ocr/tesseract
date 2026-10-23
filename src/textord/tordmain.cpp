@@ -531,15 +531,13 @@ bool Textord::clean_noise_from_row( // remove empties
       }
     }
   }
-  // TODO: check whether `&& super_norm_count < textord_noise_sncount`should always be added here.
-  bool rejected = dot_count > norm_count * textord_noise_normratio &&
-                  dot_count > 2;
+  const bool rejected = dot_count > norm_count * textord_noise_rowratio && dot_count > 2;
   if (textord_noise_debug) {
     tprintf("Row ending at (%d,%g):", blob_box.right(), row->base_line(blob_box.right()));
     tprintf(" R=%g, dc=%d, nc=%d, %s\n",
             norm_count > 0 ? static_cast<float>(dot_count) / norm_count : 9999, dot_count,
             norm_count,
-            rejected? "REJECTED": "ACCEPTED");
+            rejected ? "REJECTED" : "ACCEPTED");
   }
   return super_norm_count < textord_noise_sncount && rejected;
 }
