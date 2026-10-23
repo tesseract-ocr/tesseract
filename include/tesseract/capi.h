@@ -387,6 +387,14 @@ TESS_API TessMutableIterator *TessBaseAPIGetMutableIterator(
 TESS_API char *TessBaseAPIGetUTF8Text(TessBaseAPI *handle);
 
 /**
+ * Recognizes each rectangle in a Boxa and concatenates the UTF-8 results in
+ * box order. The caller is responsible for freeing the returned string using
+ * TessDeleteText().
+ */
+TESS_API char *TessBaseAPIGetUTF8TextForBoxes(TessBaseAPI *handle,
+                                              const struct Boxa *boxes);
+
+/**
  * Returns the HOCR text for the page.
  *
  * The caller is responsible for freeing the returned string using TessDeleteText().

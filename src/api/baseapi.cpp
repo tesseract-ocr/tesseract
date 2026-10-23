@@ -480,6 +480,43 @@ char *TessBaseAPI::TesseractRect(const unsigned char *imagedata, int bytes_per_p
   return GetUTF8Text();
 }
 
+char *TessBaseAPI::GetUTF8TextForBoxes(const Boxa *boxes) {
+  if (tesseract_ == nullptr || thresholder_ == nullptr ||
+      thresholder_->IsEmpty() || boxes == nullptr) {
+    return nullptr;
+  }
+
+  int rect_left, rect_top, rect_width, rect_height, image_width, image_height;
+  thresholder_->GetImageSizes(&rect_left, &rect_top, &rect_width, &rect_height,
+                              &image_width, &image_height);
+  const int box_count = boxaGetCount(const_cast<Boxa *>(boxes));
+  // Validate every region before changing the recognition rectangle.
+  for (int i = 0; i < box_count; ++i) {
+    int left, top, width, height;
+    if (boxaGetBoxGeometry(const_cast<Boxa *>(boxes), i, &left, &top, &width,
+                           &height) != 0 ||
+        left < 0 || top < 0 || left >= image_width || top >= image_height ||
+        width <= 0 || height <= 0 || width > image_width - left ||
+        height > image_height - top) {
+      return nullptr;
+    }
+  }
+
+  std::string text;
+  for (int i = 0; i < box_count; ++i) {
+    int left, top, width, height;
+    boxaGetBoxGeometry(const_cast<Boxa *>(boxes), i, &left, &top, &width,
+                       &height);
+    SetRectangle(left, top, width, height);
+    std::unique_ptr<char[]> box_text(GetUTF8Text());
+    if (!box_text) {
+      return nullptr;
+    }
+    text += box_text.get();
+  }
+  return copy_string(text);
+}
+
 #ifndef DISABLED_LEGACY_ENGINE
 /**
  * Call between pages or documents etc to free up memory and forget
