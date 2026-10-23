@@ -11,11 +11,10 @@
 // limitations under the License.
 
 #include "ccutil.h"
+#include "tesserrstream.h"  // for tesserr
 #include "tprintf.h"  // for tprintf
 
 #include <cstdlib>
-#include <cstring>    // for std::strrchrA
-#include <filesystem> // for std::filesystem
 
 namespace tesseract {
 
@@ -33,68 +32,72 @@ CCUtil::CCUtil()
 CCUtil::~CCUtil() = default;
 
 /**
+ * @brief Finds the path to the tessdata directory.
+ *
+ * This function determines the location of the tessdata directory based on the
+ * following order of precedence:
+ * 1. If `argv0` is provided, use it.
+ * 2. If `TESSDATA_PREFIX` environment variable is set and the path exists, use
+ *    it.
+ * 3. On Windows, check for a "tessdata" directory in the executable's directory
+ *    and use it.
+ * 4. If `TESSDATA_PREFIX` is defined at compile time, use it.
+ * 5. Otherwise, use the current working directory.
+ *
+ * @param argv0 argument to be considered as the data directory path.
+ * @return The path to the tessdata directory or current directory.
+ */
+static std::filesystem::path find_data_path(const std::string &argv0) {
+  // If argv0 is set, always use it even if it is not a valid directory
+  if (!argv0.empty()) {
+    std::filesystem::path path(argv0);
+    if (!std::filesystem::is_directory(path)) {
+      tesserr << "Warning (tessdata): '" << argv0 << "' is not a valid directory.\n";
+    }
+    return path;
+  }
+
+  // Check environment variable if argv0 is not specified
+  if (const char *tessdata_prefix = std::getenv("TESSDATA_PREFIX")) {
+    std::filesystem::path path(tessdata_prefix);
+    if (std::filesystem::exists(path)) {
+      return path;
+    } else {
+      tprintf("Warning: TESSDATA_PREFIX %s does not exist, ignoring.\n",
+              tessdata_prefix);
+    }
+  }
+
+#ifdef _WIN32
+  // Windows-specific: check for 'tessdata' not existing in the executable
+  // directory
+  wchar_t path[MAX_PATH];
+  if (DWORD length = GetModuleFileNameW(nullptr, path, MAX_PATH);
+      length > 0 && length < MAX_PATH) {
+    std::filesystem::path exe_path(path);
+    auto tessdata_subdir = exe_path.parent_path() / "tessdata";
+    if (std::filesystem::exists(tessdata_subdir)) {
+      return tessdata_subdir;
+    }
+  }
+#endif
+
+  // Fallback to compile-time or current directory
+#ifdef TESSDATA_PREFIX
+  return std::filesystem::path(TESSDATA_PREFIX) / "tessdata";
+#else
+  return std::filesystem::current_path();
+#endif
+}
+
+
+/**
  * @brief CCUtil::main_setup - set location of tessdata and name of image
  *
  * @param argv0 - paths to the directory with language files and config files.
- * An actual value of argv0 is used if not nullptr, otherwise TESSDATA_PREFIX is
- * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If
- * previous is not successful - use current directory.
- * @param basename - name of image
  */
 void CCUtil::main_setup(const std::string &argv0, const std::string &basename) {
   imagebasename = basename; /**< name of image */
-
-  const char *tessdata_prefix = getenv("TESSDATA_PREFIX");
-
-  // Ignore TESSDATA_PREFIX if there is no matching filesystem entry.
-  if (tessdata_prefix != nullptr && !std::filesystem::exists(tessdata_prefix)) {
-    tprintf("Warning: TESSDATA_PREFIX %s does not exist, ignore it\n", tessdata_prefix);
-    tessdata_prefix = nullptr;
-  }
-
-  if (!argv0.empty()) {
-    /* Use tessdata prefix from the command line. */
-    datadir = argv0;
-  } else if (tessdata_prefix) {
-    /* Use tessdata prefix from the environment. */
-    datadir = tessdata_prefix;
-#if defined(_WIN32)
-  } else if (datadir.empty() || !std::filesystem::exists(datadir)) {
-    /* Look for tessdata in directory of executable. */
-    char path[_MAX_PATH];
-    DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
-    if (length > 0 && length < sizeof(path)) {
-      char *separator = std::strrchr(path, '\\');
-      if (separator != nullptr) {
-        *separator = '\0';
-        std::string subdir = path;
-        subdir += "/tessdata";
-        if (std::filesystem::exists(subdir)) {
-          datadir = subdir;
-        }
-      }
-    }
-#endif /* _WIN32 */
-  }
-
-  // datadir may still be empty:
-  if (datadir.empty()) {
-#if defined(TESSDATA_PREFIX)
-    // Use tessdata prefix which was compiled in.
-    datadir = TESSDATA_PREFIX "/tessdata/";
-    // Note that some software (for example conda) patches TESSDATA_PREFIX
-    // in the binary, so it might be shorter. Recalculate its length.
-    datadir.resize(std::strlen(datadir.c_str()));
-#else
-    datadir = "./";
-#endif /* TESSDATA_PREFIX */
-  }
-
-  // check for missing directory separator
-  const char lastchar = datadir.back();
-  if (lastchar != '/' && lastchar != '\\') {
-    datadir += '/';
-  }
+  datadir = find_data_path(argv0);
 }
-
 } // namespace tesseract
