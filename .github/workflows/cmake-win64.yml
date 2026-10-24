@@ -1,5 +1,5 @@
 # Build Tesseract on Windows using cmake.
-name: cmake-win64
+name: cmake-win
 on:
   push:
     paths:
@@ -15,13 +15,27 @@ on:
   workflow_dispatch:
 
 env:
-  ILOC: d:/a/local
   png_ver: 1651
 
 jobs:
   build:
-    name: cmake-win64
-    runs-on: windows-latest
+    name: cmake-${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: win64
+            os: windows-latest
+            icu: release-78.3/icu4c-78.3-Win64-MSVC2022.zip
+            iloc: d:/a/local
+          - name: winarm64
+            os: windows-11-arm
+            icu: release-79.1rc/icu4c-79.1rc-WinARM64-MSVC2026.zip
+            # The ARM64 runner has no D: drive.
+            iloc: c:/a/local
+    env:
+      ILOC: ${{ matrix.config.iloc }}
     steps:
       - uses: microsoft/setup-msbuild@v3
       - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
@@ -50,8 +64,19 @@ jobs:
         id: get_icu
         shell: cmd
         run: |
-          curl -L -o icu.zip https://github.com/unicode-org/icu/releases/download/release-78.3/icu4c-78.3-Win64-MSVC2022.zip
+          curl -L -o icu.zip https://github.com/unicode-org/icu/releases/download/${{ matrix.config.icu }}
           powershell -Command "Expand-Archive icu.zip -DestinationPath %ILOC%"
+
+      # The ARM64 package has no top-level icu folder and uses binARM64/libARM64,
+      # which FindICU does not search, so move it into the layout of the x64 package.
+      - name: Normalize ICU layout
+        if: matrix.config.name == 'winarm64'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force ${{env.ILOC}}/icu | Out-Null
+          Move-Item ${{env.ILOC}}/include ${{env.ILOC}}/icu/include
+          Move-Item ${{env.ILOC}}/binARM64 ${{env.ILOC}}/icu/bin
+          Move-Item ${{env.ILOC}}/libARM64 ${{env.ILOC}}/icu/lib
 
       - name: Build and Install zlib-ng
         shell: cmd
@@ -122,7 +147,7 @@ jobs:
       - name: Upload Build Results
         uses: actions/upload-artifact@v7
         with:
-          name: tesseract-${{ steps.get_version.outputs.version }}-${{steps.get_version.outputs.stamp}}-VS2019_win64
+          name: tesseract-${{ steps.get_version.outputs.version }}-${{steps.get_version.outputs.stamp}}-VS2019_${{ matrix.config.name }}
           path: ${{env.ILOC}}
           retention-days: 5
 
