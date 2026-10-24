@@ -107,21 +107,25 @@ protected:
 
 // Tests character-level applyboxes on normal Times New Roman.
 TEST_F(ApplyBoxTest, TimesCharLevel) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   VerifyBoxesAndText("trainingtimes.tif", kTruthTextWords, "trainingtimes.box", false);
 }
 
 // Tests character-level applyboxes on italic Times New Roman.
 TEST_F(ApplyBoxTest, ItalicCharLevel) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   VerifyBoxesAndText("trainingital.tif", kTruthTextWords, "trainingital.box", false);
 }
 
 // Tests line-level applyboxes on normal Times New Roman.
 TEST_F(ApplyBoxTest, TimesLineLevel) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   VerifyBoxesAndText("trainingtimesline.tif", kTruthTextLine, "trainingtimes.box", true);
 }
 
 // Tests line-level applyboxes on italic Times New Roman.
 TEST_F(ApplyBoxTest, ItalLineLevel) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   VerifyBoxesAndText("trainingitalline.tif", kTruthTextLine, "trainingital.box", true);
 }
 

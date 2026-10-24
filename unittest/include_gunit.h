@@ -18,6 +18,9 @@
 #include "gtest/gtest.h"
 #include "log.h" // for LOG
 
+#include <filesystem>
+#include <string>
+
 static const char *FLAGS_test_tmpdir = "./tmp";
 
 namespace tesseract {
@@ -70,6 +73,24 @@ public:
     return JoinPath(JoinPath(s1, s2), s3);
   }
 };
+
+// Skips the current test if the traineddata file for the given language is not
+// present in the given tessdata directory. Uses only the standard library
+// (no tesseract::File) so it links in tests that do not link the training lib.
+// Expands to a GTEST_SKIP() at the call site, so it must be used directly in
+// the test body (or in a void SetUp()).
+#define REQUIRE_TRAINEDDATA(tessdata_dir, lang)                     \
+  do {                                                              \
+    std::string required_traineddata = tessdata_dir;                \
+    required_traineddata += "/";                                    \
+    required_traineddata += lang;                                   \
+    required_traineddata += ".traineddata";                         \
+    if (!std::filesystem::exists(required_traineddata)) {           \
+      LOG(INFO) << "Skip test because of missing "                  \
+                << required_traineddata << '\n';                    \
+      GTEST_SKIP();                                                 \
+    }                                                               \
+  } while (false)
 
 // /usr/include/tensorflow/core/platform/default/logging.h defines the CHECK* macros.
 #if !defined(CHECK)

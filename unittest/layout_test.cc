@@ -199,6 +199,7 @@ TEST_F(LayoutTest, ArraySizeTest) {
 // Tests that Tesseract gets the important blocks and in the right order
 // on a UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
 TEST_F(LayoutTest, UNLV8087_054) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3B.tif", "eng");
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);
@@ -212,6 +213,8 @@ TEST_F(LayoutTest, UNLV8087_054) {
 // on GOOGLE:13510798882202548:74:84.sj-79.tif (Hebrew image)
 // TODO: replace hebrew.png by Google image referred above
 TEST_F(LayoutTest, HebrewOrderingAndSkew) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
   SetImage("hebrew.png", "eng");
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);

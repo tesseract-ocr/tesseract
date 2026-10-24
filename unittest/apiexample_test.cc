@@ -81,16 +81,19 @@ void OCRTester(const char *imgname, const char *groundtruth, const char *tessdat
 class MatchGroundTruth : public QuickTest, public ::testing::WithParamInterface<const char *> {};
 
 TEST_P(MatchGroundTruth, FastPhototestOCR) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_fast", GetParam());
   OCRTester(TESTING_DIR "/phototest.tif", TESTING_DIR "/phototest.txt", TESSDATA_DIR "_fast",
             GetParam());
 }
 
 TEST_P(MatchGroundTruth, BestPhototestOCR) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_best", GetParam());
   OCRTester(TESTING_DIR "/phototest.tif", TESTING_DIR "/phototest.txt", TESSDATA_DIR "_best",
             GetParam());
 }
 
 TEST_P(MatchGroundTruth, TessPhototestOCR) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, GetParam());
   OCRTester(TESTING_DIR "/phototest.tif", TESTING_DIR "/phototest.txt", TESSDATA_DIR, GetParam());
 }
 
@@ -102,6 +105,7 @@ INSTANTIATE_TEST_SUITE_P(DISABLED_Arabic, MatchGroundTruth, ::testing::Values("s
 class EuroText : public QuickTest {};
 
 TEST_F(EuroText, FastLatinOCR) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_fast", "script/Latin");
   OCRTester(TESTING_DIR "/eurotext.tif", TESTING_DIR "/eurotext.txt", TESSDATA_DIR "_fast",
             "script/Latin");
 }
