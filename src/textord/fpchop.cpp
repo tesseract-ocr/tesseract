@@ -745,6 +745,10 @@ static void join_segments(  // join pieces
   }
 
   stepcount = bottom->stepcount + fake_count + top->stepcount;
+  if (stepcount > C_OUTLINE::kMaxOutlineLength) {
+    fake_count -= stepcount - C_OUTLINE::kMaxOutlineLength;
+    stepcount = C_OUTLINE::kMaxOutlineLength;
+  }
   steps = new DIR128[stepcount];
   memmove(steps, bottom->steps, bottom->stepcount);
   memset(steps + bottom->stepcount, fake_step.get_dir(), fake_count);
