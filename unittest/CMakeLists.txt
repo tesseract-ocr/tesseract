@@ -47,6 +47,7 @@ set(GMOCK_TESTS
 set(TRAINING_TESTS
     commandlineflags_test.cc
     dawg_test.cc
+    dropout_test.cc
     lstm_recode_test.cc
     lstm_squashed_test.cc
     lstm_test.cc
