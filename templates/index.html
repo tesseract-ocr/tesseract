@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesseract OCR Web Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding-top: 50px;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .form-container h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        input[type="file"], select, input[type="submit"] {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            border: 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .result-container {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap; /* Keeps formatting */
+            border-radius: 8px;
+        }
+        .alert {
+            padding: 15px;
+            background-color: #f44336;
+            color: white;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if error %}
+        <div class="alert">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="form-container">
+        <h2>Tesseract OCR: Upload Image for Text Extraction</h2>
+        <form method="POST" action="/" enctype="multipart/form-data">
+            <label for="file">Select an image:</label>
+            <input type="file" name="file" id="file" required>
+
+            <label for="lang">Select Language:</label>
+            <select name="lang" id="lang">
+                <option value="eng">English</option>
+                <option value="hin">Hindi</option>
+                <option value="eng+hin">English + Hindi</option>
+            </select>
+
+            <label for="mode">Select Document Type:</label>
+            <select name="mode" id="mode">
+                <option value="printed">Printed Text (Default)</option>
+                <option value="handwriting">Handwriting (Experimental)</option>
+            </select>
+
+            <input type="submit" value="Extract Text">
+        </form>
+    </div>
+
+    {% if extracted_text %}
+        <div class="result-container">
+            <h3>Extracted Text:</h3>
+            <div>{{ extracted_text }}</div>
+        </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
