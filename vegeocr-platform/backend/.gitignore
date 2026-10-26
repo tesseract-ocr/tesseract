@@ -6,3 +6,4 @@ tessdata/
 *.pyc
 .pytest_cache/
 celerybeat-schedule*
+scripts/.mnist/

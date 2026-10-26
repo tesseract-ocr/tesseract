@@ -167,3 +167,22 @@ backend/tests/e2e_lab.py             ~90 API checks against a running stack (ext
 backend/tests/eval_enhancement.py    the measurement behind the table above
 backend/tests/lab_samples.py         synthetic pages and degradations used by all of the above
 ```
+
+## 11. Order forms (発注書)
+
+Whole-page OCR garbles dense order forms, so `app/ocrlab/forms.py` reads them cell by cell:
+
+1. **Grid**: table lines are extracted morphologically and the enclosed cells become code / item / quantity cells.
+2. **Printed rows**: each item cell is fingerprinted (ink box stretched to a fixed size, so photo scale does not matter) and matched
+   against a **catalog** learned from one clean copy of the form. The item that normally sits in that slot gets a head start; a
+   degraded copy still has to resemble it. Unknown items fall back to OCR and are flagged.
+3. **Handwritten quantities**: a small CNN (`scripts/train_digits.py`, MNIST with slant/thickness augmentation, run in plain numpy
+   at serve time) reads the digits; the printed unit in the cell corner and cell borders are ignored. Highlighter is painted out by hue.
+4. **Review flags**: low match, ambiguous twins (e.g. 10g vs 30g), marked/degraded cells and unsure digits come back with
+   `review: true`. Nothing is guessed silently.
+
+`POST /api/web/lab/forms/read` (image + optional `catalog`) returns the rows; `GET /api/web/lab/forms/catalogs` lists catalogs.
+Build one with `PYTHONPATH=. python scripts/build_form_catalog.py <clean.jpg> app/ocrlab/assets/form_catalogs/<id>` after listing
+the printed rows in the script. **Measured** on the supplied 丸五水産 (雅山GARDEN) form: clean photo 50/50 items and 5/5
+quantities, 0 flagged; faxed copy with marker and pen 50/50 items (3/4 quantities correct, the rest flagged for review).
+Other stores' forms need their own catalog and, for tilted phone photos, a perspective-correction step (not built yet).

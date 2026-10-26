@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const TABS = [["/learning", "Courses"], ["/learning/lab", "Extraction lab"], ["/learning/datasets", "My training data"]] as const;
+const TABS = [["/learning", "Courses"], ["/learning/lab", "Extraction lab"], ["/learning/forms", "Order forms"], ["/learning/datasets", "My training data"]] as const;
 
 /** The three areas of the Learning section: lessons, the handwriting/enhancement lab, and your own training data. */
 export default function LearningTabs() {

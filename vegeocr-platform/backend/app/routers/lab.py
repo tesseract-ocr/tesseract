@@ -14,7 +14,7 @@ from ..db import get_db
 from ..deps import current_user
 from ..errors import ApiError
 from ..models import Dataset, DatasetModel, DatasetSample, LabRun, User
-from ..ocrlab import datasets as ds_svc, service, train
+from ..ocrlab import datasets as ds_svc, forms as form_svc, natori, service, train
 
 router = APIRouter(prefix="/api/web/lab", tags=["web: OCR lab"])
 
@@ -249,3 +249,55 @@ def deactivate_model(dataset_id: int, model_id: int, db: Session = Depends(get_d
     ds, m = own_model(db, dataset_id, model_id, user)
     train.activate(db, ds, m, False)
     return ds_svc.model_out(m)
+
+
+# ---- order forms (発注書) -----------------------------------------------------------------------------------------
+
+def _catalogs():
+    """Catalogs shipped with the app plus any built into storage (storage wins on a name clash)."""
+    found = {}
+    for root in (form_svc.ASSETS / "form_catalogs", settings.storage_dir / "form_catalogs"):
+        if root.exists():
+            found.update({d.name: d for d in sorted(root.iterdir()) if (d / "catalog.json").exists()})
+    return found
+
+
+@router.get("/forms/catalogs")
+def form_catalogs(_: User = Depends(current_user)):
+    import json
+    out = []
+    for name, d in _catalogs().items():
+        meta = json.loads((d / "catalog.json").read_text(encoding="utf-8"))
+        out.append({"id": name, "title": meta.get("title", name), "items": len(meta["items"])})
+    out.append({"id": "natori", "title": "なとりデリカ 発注書", "items": len(natori.ITEMS)})
+    return {"catalogs": out, "handwriting_model": form_svc.digits.available()}
+
+
+@router.post("/forms/read")
+async def read_form(file: UploadFile = File(...), catalog: str = Form(""), _: User = Depends(current_user)):
+    """Read one photographed/scanned order form: printed rows are matched to the catalog, handwritten quantities are read, and
+    anything doubtful comes back with review=true instead of a guess."""
+    import cv2
+    import numpy as np
+    data = await file.read(service.MAX_UPLOAD + 1)
+    if len(data) > service.MAX_UPLOAD:
+        raise ApiError(413, "file_too_large", "That file is too large.")
+    img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        raise ApiError(400, "bad_image", "That file is not a readable image (use JPG or PNG; export PDF pages as images first).")
+    if max(img.shape[:2]) > 6000:
+        raise ApiError(413, "image_too_large", "Image is too large; please use one under 6000 px on the long side.")
+    cats = _catalogs()
+    if catalog == "natori":
+        from starlette.concurrency import run_in_threadpool
+        res = await run_in_threadpool(natori.read, img)
+        return {**res.as_dict(), "review_count": sum(r.review for r in res.rows), "catalog": "natori"}
+    if catalog and catalog not in cats:
+        raise ApiError(404, "unknown_catalog", "No such form catalog.")
+    cat = form_svc.Catalog.load(cats[catalog or next(iter(cats))]) if cats else None
+    from starlette.concurrency import run_in_threadpool
+    res = await run_in_threadpool(form_svc.read_form, img, cat)
+    out = res.as_dict()
+    out["review_count"] = sum(r.review for r in res.rows)
+    out["catalog"] = catalog or (next(iter(cats)) if cats else None)
+    return out
