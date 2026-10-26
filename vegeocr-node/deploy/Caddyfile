@@ -1,0 +1,26 @@
+# NOT TESTED in this repo: a starting point. Caddy gives you TLS (automatic certs), HTTP/2 and HTTP/3 out of the box.
+ocr.example.com {
+	# Static front-end: serve the .zst/.br/.gz files made by `npm run build:public`; no on-the-fly compression.
+	handle /api/* {
+		# No `encode` here on purpose: Node already negotiates zstd/br/gzip and caches the compressed variants.
+		request_body {
+			max_size 25MB
+		}
+		reverse_proxy 127.0.0.1:4000 {
+			flush_interval -1                      # stream Server-Sent Events immediately
+			header_up X-Request-Id {http.request.uuid}
+			transport http {
+				keepalive 60s                      # < Node's keepAliveTimeout (65 s)
+				response_header_timeout 150s       # > REQUEST_TIMEOUT_MS
+			}
+		}
+	}
+	handle {
+		root * /srv/vegeocr/public
+		file_server {
+			precompressed zstd br gzip
+		}
+		@hashed path_regexp \.[0-9a-f]{8,}\.(js|css)$
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+	}
+}

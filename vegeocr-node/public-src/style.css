@@ -1,0 +1,8 @@
+body{font-family:system-ui,sans-serif;background:#f6f8fa;color:#1b2430;margin:0}
+main{max-width:760px;margin:2rem auto;padding:0 16px}
+h1{color:#2e7d32}
+form{display:flex;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:14px}
+button{background:#2e7d32;color:#fff;border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+progress{width:100%;margin-top:12px}
+#status{color:#5b6773}
+pre{white-space:pre-wrap;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:14px}

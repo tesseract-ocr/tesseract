@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VegeOCR</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>VegeOCR</h1>
+    <form id="form">
+      <input type="file" name="file" accept="image/*,.pdf" required>
+      <select name="lang"><option value="eng">English</option><option value="jpn">日本語</option><option value="chi_sim">简体中文</option><option value="chi_tra">繁體中文</option></select>
+      <button>Run OCR</button>
+    </form>
+    <progress id="bar" max="1" value="0" hidden></progress>
+    <p id="status" role="status"></p>
+    <pre id="out"></pre>
+  </main>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
