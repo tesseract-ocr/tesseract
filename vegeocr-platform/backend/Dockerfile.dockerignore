@@ -1,0 +1,14 @@
+.git
+**/node_modules
+**/.venv
+**/.next
+**/__pycache__
+**/storage
+**/tessdata/*.traineddata
+webapp
+vegeocr-platform
+!vegeocr-platform/backend/requirements.txt
+!vegeocr-platform/backend/requirements-handwriting.txt
+!vegeocr-platform/backend/scripts
+!vegeocr-platform/backend/app
+!vegeocr-platform/backend/entrypoint.sh

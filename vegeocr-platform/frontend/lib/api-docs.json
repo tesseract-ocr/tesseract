@@ -1,0 +1,547 @@
+{
+  "auth": {
+    "header": "X-API-Key",
+    "note": "Create keys under API keys. The secret is shown once; store it somewhere safe. Pick the fewest scopes the integration needs."
+  },
+  "errors": [
+    {
+      "status": 401,
+      "code": "missing_api_key",
+      "meaning": "No X-API-Key header"
+    },
+    {
+      "status": 401,
+      "code": "invalid_api_key",
+      "meaning": "The key is not recognised"
+    },
+    {
+      "status": 401,
+      "code": "disabled_api_key",
+      "meaning": "The key is switched off (enable it in API keys)"
+    },
+    {
+      "status": 401,
+      "code": "expired_api_key",
+      "meaning": "The key passed its expiration date (rotate it or create a new one)"
+    },
+    {
+      "status": 401,
+      "code": "revoked_api_key",
+      "meaning": "An administrator revoked the key"
+    },
+    {
+      "status": 403,
+      "code": "insufficient_scope",
+      "meaning": "The key is valid but lacks the scope this endpoint needs (see X-Required-Scope)"
+    },
+    {
+      "status": 403,
+      "code": "suspended",
+      "meaning": "The key's owner is suspended"
+    },
+    {
+      "status": 404,
+      "code": "module_not_found / lesson_not_found / quiz_not_found / not_found",
+      "meaning": "No such resource"
+    },
+    {
+      "status": 422,
+      "code": "invalid_answers / invalid_lang / validation errors",
+      "meaning": "The request body or parameters are invalid"
+    },
+    {
+      "status": 429,
+      "code": "rate_limited / quota_exceeded",
+      "meaning": "Wait for Retry-After; quota resets monthly"
+    }
+  ],
+  "errorExample": {
+    "error": {
+      "code": "insufficient_scope",
+      "message": "This API key lacks the required scope: learning:write"
+    }
+  },
+  "endpoints": [
+    {
+      "group": "OCR",
+      "method": "POST",
+      "path": "/api/v1/ocr",
+      "scope": "write",
+      "summary": "Extract text from an image or PDF",
+      "description": "Small files answer immediately (200). Large PDFs or async=true return 202: poll GET /api/v1/jobs/{id}.",
+      "curl": "curl -X POST $API/api/v1/ocr \\\n  -H \"X-API-Key: YOUR_KEY\" \\\n  -F \"file=@invoice.png\" -F \"lang=jpn+eng\"",
+      "params": [
+        {
+          "name": "file",
+          "in": "form",
+          "desc": "PNG, JPEG, TIFF, BMP, WEBP or PDF, up to 20 MB"
+        },
+        {
+          "name": "lang",
+          "in": "form",
+          "desc": "jpn, jpn_vert, chi_sim, chi_tra, eng, joined with +. Default jpn+eng"
+        },
+        {
+          "name": "async",
+          "in": "form",
+          "desc": "true to queue the job"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "label": "Finished",
+          "body": {
+            "id": "4f6c1d2e9a7b4c5d8e0f1a2b3c4d5e6f",
+            "status": "done",
+            "filename": "invoice.png",
+            "lang": "jpn+eng",
+            "pages": 1,
+            "created_at": "2026-10-26T10:15:00+09:00",
+            "finished_at": "2026-10-26T10:15:03+09:00",
+            "text": "請求書\n合計金額 9,800 円",
+            "confidence": 93.4,
+            "result": [
+              {
+                "page": 1,
+                "source": "ocr",
+                "lines": [
+                  {
+                    "text": "請求書",
+                    "confidence": 96.1,
+                    "bbox": [
+                      40,
+                      30,
+                      210,
+                      78
+                    ]
+                  },
+                  {
+                    "text": "合計金額 9,800 円",
+                    "confidence": 90.7,
+                    "bbox": [
+                      40,
+                      96,
+                      420,
+                      148
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "status": 202,
+          "label": "Queued (large file or async=true)",
+          "body": {
+            "id": "9b1e7c3a5d2f4e6a8b0c1d2e3f4a5b6c",
+            "status": "queued",
+            "filename": "scan.pdf",
+            "lang": "jpn+eng",
+            "pages": 12,
+            "created_at": "2026-10-26T10:20:00+09:00",
+            "finished_at": null
+          }
+        }
+      ]
+    },
+    {
+      "group": "OCR",
+      "method": "GET",
+      "path": "/api/v1/jobs/{id}",
+      "scope": "read",
+      "summary": "Check an OCR job",
+      "description": "Returns the current status and, when done, the text.",
+      "curl": "curl $API/api/v1/jobs/4f6c1d2e9a7b4c5d8e0f1a2b3c4d5e6f \\\n  -H \"X-API-Key: YOUR_KEY\"",
+      "params": [],
+      "responses": [
+        {
+          "status": 200,
+          "label": "Done",
+          "body": {
+            "id": "4f6c1d2e9a7b4c5d8e0f1a2b3c4d5e6f",
+            "status": "done",
+            "filename": "invoice.png",
+            "lang": "jpn+eng",
+            "pages": 1,
+            "created_at": "2026-10-26T10:15:00+09:00",
+            "finished_at": "2026-10-26T10:15:03+09:00",
+            "text": "請求書\n合計金額 9,800 円",
+            "confidence": 93.4,
+            "result": [
+              {
+                "page": 1,
+                "source": "ocr",
+                "lines": [
+                  {
+                    "text": "請求書",
+                    "confidence": 96.1,
+                    "bbox": [
+                      40,
+                      30,
+                      210,
+                      78
+                    ]
+                  },
+                  {
+                    "text": "合計金額 9,800 円",
+                    "confidence": 90.7,
+                    "bbox": [
+                      40,
+                      96,
+                      420,
+                      148
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "status": 200,
+          "label": "Still queued",
+          "body": {
+            "id": "9b1e7c3a5d2f4e6a8b0c1d2e3f4a5b6c",
+            "status": "queued",
+            "filename": "scan.pdf",
+            "lang": "jpn+eng",
+            "pages": 12,
+            "created_at": "2026-10-26T10:20:00+09:00",
+            "finished_at": null
+          }
+        }
+      ]
+    },
+    {
+      "group": "OCR",
+      "method": "POST",
+      "path": "/api/v1/training-data",
+      "scope": "write",
+      "summary": "Submit a corrected line to improve the model",
+      "description": "Send the image of ONE text line and exactly what it says. Samples wait for administrator approval.",
+      "curl": "curl -X POST $API/api/v1/training-data \\\n  -H \"X-API-Key: YOUR_KEY\" \\\n  -F \"image=@line.png\" -F \"text=請求書\" -F \"lang=jpn\"",
+      "params": [],
+      "responses": [
+        {
+          "status": 201,
+          "label": "Accepted for review",
+          "body": {
+            "id": 42,
+            "status": "pending"
+          }
+        }
+      ]
+    },
+    {
+      "group": "OCR",
+      "method": "GET",
+      "path": "/api/v1/usage",
+      "scope": "read",
+      "summary": "Usage of the calling key",
+      "description": "Quota, limits and request counts for the key you authenticate with.",
+      "curl": "curl $API/api/v1/usage -H \"X-API-Key: YOUR_KEY\"",
+      "params": [],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "key": {
+              "name": "Warehouse app",
+              "prefix": "vocr_aB3dE9x"
+            },
+            "rate_limit_per_min": 60,
+            "quota": {
+              "monthly": 1000,
+              "used": 128,
+              "resets_at": "2026-11-01T00:00:00+00:00"
+            },
+            "total_requests": 341,
+            "error_requests": 4,
+            "last_7_days": [
+              {
+                "date": "2026-10-26",
+                "requests": 57,
+                "errors": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "group": "Learning",
+      "method": "GET",
+      "path": "/api/v1/modules",
+      "scope": "learning:read",
+      "summary": "List learning modules",
+      "description": "Title, topic, difficulty and lesson count for every published module.",
+      "curl": "curl $API/api/v1/modules -H \"X-API-Key: YOUR_KEY\"",
+      "params": [],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "modules": [
+              {
+                "id": 1,
+                "slug": "ocr-basics",
+                "title": "OCR basics",
+                "topic": "Getting started",
+                "difficulty": "beginner",
+                "summary": "What OCR is, how to run your first extraction, and how to read the results.",
+                "lesson_count": 3,
+                "estimated_minutes": 13
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "group": "Learning",
+      "method": "GET",
+      "path": "/api/v1/modules/{id}",
+      "scope": "learning:read",
+      "summary": "A module with its lessons",
+      "description": "Lessons include their content and quiz questions. The correct answers are never included.",
+      "curl": "curl $API/api/v1/modules/1 -H \"X-API-Key: YOUR_KEY\"",
+      "params": [],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "id": 1,
+            "slug": "ocr-basics",
+            "title": "OCR basics",
+            "topic": "Getting started",
+            "difficulty": "beginner",
+            "summary": "What OCR is, how to run your first extraction, and how to read the results.",
+            "lesson_count": 3,
+            "estimated_minutes": 13,
+            "lessons": [
+              {
+                "id": 1,
+                "position": 1,
+                "title": "What is OCR?",
+                "minutes": 4,
+                "has_quiz": true,
+                "quiz_id": 1,
+                "content": "# What is OCR?\n\n**Optical Character Recognition** turns pictures of text into text...",
+                "quiz": {
+                  "id": 1,
+                  "title": "Check: what is OCR?",
+                  "pass_percent": 70,
+                  "questions": [
+                    {
+                      "id": 1,
+                      "prompt": "What does OCR do?",
+                      "kind": "single",
+                      "options": [
+                        "Compresses images",
+                        "Turns pictures of text into text",
+                        "Translates between languages",
+                        "Encrypts documents"
+                      ]
+                    },
+                    {
+                      "id": 2,
+                      "prompt": "Which inputs can VegeOCR read?",
+                      "kind": "multiple",
+                      "options": [
+                        "Images (PNG, JPEG...)",
+                        "PDF files",
+                        "Audio recordings",
+                        "Scanned pages"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "id": 2,
+                "position": 2,
+                "title": "Running your first extraction",
+                "minutes": 5,
+                "has_quiz": false,
+                "quiz_id": null,
+                "content": "# Running your first extraction\n\n..."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "group": "Learning",
+      "method": "GET",
+      "path": "/api/v1/progress",
+      "scope": "learning:read",
+      "summary": "The key owner's learning progress",
+      "description": "Status (not_started, in_progress, completed), percent done and where to continue, per module. Add ?module_id= to filter.",
+      "curl": "curl \"$API/api/v1/progress?module_id=1\" -H \"X-API-Key: YOUR_KEY\"",
+      "params": [
+        {
+          "name": "module_id",
+          "in": "query",
+          "desc": "Only this module (optional)"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "modules": [
+              {
+                "module_id": 1,
+                "title": "OCR basics",
+                "status": "in_progress",
+                "percent": 33,
+                "lessons_completed": 1,
+                "lessons_total": 3,
+                "last_activity_at": "2026-10-26T10:15:03+09:00",
+                "continue_lesson_id": 2,
+                "lessons": [
+                  {
+                    "lesson_id": 1,
+                    "completed": true,
+                    "completed_at": "2026-10-26T10:15:03+09:00"
+                  },
+                  {
+                    "lesson_id": 2,
+                    "completed": false,
+                    "completed_at": null
+                  },
+                  {
+                    "lesson_id": 3,
+                    "completed": false,
+                    "completed_at": null
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "modules_total": 3,
+              "completed": 0,
+              "in_progress": 1,
+              "not_started": 2
+            },
+            "continue": {
+              "module_id": 1,
+              "module_title": "OCR basics",
+              "lesson_id": 2,
+              "lesson_title": "Running your first extraction"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "Learning",
+      "method": "POST",
+      "path": "/api/v1/progress",
+      "scope": "learning:write",
+      "summary": "Mark a lesson complete (or not)",
+      "description": "completed defaults to true. Returns the updated progress of the lesson's module.",
+      "curl": "curl -X POST $API/api/v1/progress \\\n  -H \"X-API-Key: YOUR_KEY\" -H \"Content-Type: application/json\" \\\n  -d '{\"lesson_id\": 1, \"completed\": true}'",
+      "params": [
+        {
+          "name": "lesson_id",
+          "in": "body",
+          "desc": "Lesson to update"
+        },
+        {
+          "name": "completed",
+          "in": "body",
+          "desc": "true (default) or false"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "lesson_id": 1,
+            "completed": true,
+            "module": {
+              "module_id": 1,
+              "title": "OCR basics",
+              "status": "in_progress",
+              "percent": 33,
+              "lessons_completed": 1,
+              "lessons_total": 3,
+              "last_activity_at": "2026-10-26T10:15:03+09:00",
+              "continue_lesson_id": 2,
+              "lessons": [
+                {
+                  "lesson_id": 1,
+                  "completed": true,
+                  "completed_at": "2026-10-26T10:15:03+09:00"
+                },
+                {
+                  "lesson_id": 2,
+                  "completed": false,
+                  "completed_at": null
+                },
+                {
+                  "lesson_id": 3,
+                  "completed": false,
+                  "completed_at": null
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "group": "Learning",
+      "method": "POST",
+      "path": "/api/v1/quizzes/{id}/submit",
+      "scope": "learning:write",
+      "summary": "Submit quiz answers and get a score",
+      "description": "selected holds 0-based option indexes. Unanswered questions count as wrong. Passing marks the lesson complete.",
+      "curl": "curl -X POST $API/api/v1/quizzes/1/submit \\\n  -H \"X-API-Key: YOUR_KEY\" -H \"Content-Type: application/json\" \\\n  -d '{\"answers\": [{\"question_id\": 1, \"selected\": [1]}, {\"question_id\": 2, \"selected\": [0, 1, 3]}]}'",
+      "params": [
+        {
+          "name": "answers",
+          "in": "body",
+          "desc": "List of {question_id, selected: [option indexes]}"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "label": "OK",
+          "body": {
+            "quiz_id": 1,
+            "lesson_id": 1,
+            "score": 100,
+            "correct": 2,
+            "total": 2,
+            "passed": true,
+            "pass_percent": 70,
+            "lesson_completed": true,
+            "results": [
+              {
+                "question_id": 1,
+                "correct": true,
+                "explanation": "OCR recognises characters in an image and outputs them as text."
+              },
+              {
+                "question_id": 2,
+                "correct": true,
+                "explanation": "Images, PDFs and scanned pages work; audio is not supported."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

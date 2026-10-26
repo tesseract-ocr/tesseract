@@ -1,0 +1,6 @@
+# OPTIONAL: handwriting recognition engine (TrOCR). Needs ~2 GB RAM; do not install on a 1 GB host.
+# CPU-only PyTorch: on Linux use  pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+transformers>=4.40,<5
+safetensors>=0.4
+sentencepiece>=0.2

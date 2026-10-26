@@ -1,0 +1,35 @@
+# Edge for the Next.js app. Caddy terminates HTTP (add a domain here for automatic HTTPS + HTTP/2/3) and does two jobs:
+#   1. /_next/static/*  -> hashed build output, served from disk, PRE-COMPRESSED (zstd 19 / br 11 / gzip 9, made at image build)
+#   2. everything else  -> Next.js, compressed on the fly (zstd or gzip; stock Caddy has no dynamic brotli encoder)
+{
+	admin off
+}
+
+# SITE_ADDRESS defaults to :3000 (local Docker). In production set it to :80 (plain HTTP on an IP) or to a domain name
+# (Caddy then gets and renews a Let's Encrypt certificate by itself; ports 80 and 443 must be reachable).
+{$SITE_ADDRESS::3000} {
+	handle /_next/static/* {
+		root * /srv
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server {
+			# Order = preference when the client rates encodings equally. Missing files (e.g. a tiny .js) just fall back to the original.
+			precompressed zstd br gzip
+		}
+	}
+
+	# Same-origin API: the browser only ever talks to this one port. FastAPI compresses its own responses, so no `encode` here.
+	@api path /api/* /docs /redoc /openapi.json /health
+	handle @api {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		encode {
+			zstd
+			gzip 6
+			minimum_length 1024   # don't bother below ~1 KB
+			# Default content-type list: text/*, JSON, XML, SVG, JS. Images, fonts, video, ZIP, PDF are never compressed.
+		}
+		reverse_proxy frontend:3000
+	}
+}

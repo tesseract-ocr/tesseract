@@ -1,0 +1,115 @@
+# Production stack for a SMALL single host (tested target: 2 vCPU / ~1 GB RAM / 8 GB disk, amd64).
+# Only Caddy is published (80, and 443 if you use a domain). Postgres, Redis and the API are reachable only inside the Docker network.
+#
+#   cp .env.prod.example .env   # fill in real secrets, then:
+#   docker compose -f docker-compose.prod.yml up -d
+name: vegeocr
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }   # unbounded container logs fill a small disk
+
+x-backend: &backend
+  image: vegeocr/backend:prod
+  platform: linux/amd64
+  build:
+    context: ..
+    dockerfile: vegeocr-platform/backend/Dockerfile
+  restart: unless-stopped
+  logging: *logging
+  environment: &backend-env
+    # Small host: keep image work within memory. (The TrOCR handwriting engine is NOT installed here: it needs ~2 GB of RAM.)
+    LAB_MAX_PIXELS: "12000000"
+    LAB_MAX_SIDE: "3500"
+    DATABASE_URL: postgresql+psycopg://vegeocr:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/vegeocr
+    REDIS_URL: redis://redis:6379/0
+    JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+    ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+    ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+    CORS_ORIGINS: ${PUBLIC_WEB_URL:?set PUBLIC_WEB_URL in .env}
+    RETRAIN_THRESHOLD: ${RETRAIN_THRESHOLD:-50}
+    RETRAIN_SCHEDULE_HOURS: ${RETRAIN_SCHEDULE_HOURS:-24}
+  volumes:
+    - appdata:/data
+  depends_on:
+    db: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 220m
+    # Small-box tuning: Postgres's defaults assume far more memory than this host has.
+    command: ["postgres", "-c", "shared_buffers=48MB", "-c", "max_connections=60", "-c", "work_mem=4MB", "-c", "maintenance_work_mem=32MB", "-c", "effective_cache_size=256MB"]
+    environment:
+      POSTGRES_USER: vegeocr
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: vegeocr
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U vegeocr"], interval: 5s, retries: 20 }
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 80m
+    command: ["redis-server", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction", "--appendonly", "no"]
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 5s, retries: 10 }
+
+  api:
+    <<: *backend
+    mem_limit: 300m
+    # --proxy-headers: trust X-Forwarded-For from Caddy so rate limits and login throttling see the real client IP.
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips=*"]
+    healthcheck: { test: ["CMD", "curl", "-fs", "http://localhost:8000/health"], interval: 10s, retries: 30, start_period: 90s }
+
+  # OCR for big files + training + the auto-retrain timer. One at a time: a 300 dpi page needs a few hundred MB.
+  worker:
+    <<: *backend
+    mem_limit: 520m
+    command: ["celery", "-A", "app.worker.celery_app.celery", "worker", "-B", "-Q", "ocr,training,celery", "-c", "1", "-l", "info"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  frontend:
+    image: vegeocr/frontend:prod
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      target: runtime
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-}   # empty = same origin (recommended)
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 170m
+    environment:
+      NODE_OPTIONS: --max-old-space-size=110
+    depends_on: [api]
+
+  edge:
+    image: vegeocr/edge:prod
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      target: edge
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-}   # empty = same origin (recommended)
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 80m
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data   # keeps Let's Encrypt certificates across restarts when a domain is used
+    depends_on: [frontend, api]
+
+volumes:
+  pgdata:
+  appdata:
+  caddy_data:
