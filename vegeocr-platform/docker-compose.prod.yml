@@ -19,8 +19,8 @@ x-backend: &backend
   logging: *logging
   environment: &backend-env
     # Small host: keep image work within memory. (The TrOCR handwriting engine is NOT installed here: it needs ~2 GB of RAM.)
-    LAB_MAX_PIXELS: "12000000"
-    LAB_MAX_SIDE: "3500"
+    LAB_MAX_PIXELS: "40000000"
+    LAB_MAX_SIDE: "6000"
     DATABASE_URL: postgresql+psycopg://vegeocr:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/vegeocr
     REDIS_URL: redis://redis:6379/0
     JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
