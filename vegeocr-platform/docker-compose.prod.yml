@@ -102,9 +102,11 @@ services:
     mem_limit: 80m
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      LEGACY_HOST: ${LEGACY_HOST:-legacy-host.invalid}   # the bare IP people used over http://: redirected to https://SITE_ADDRESS
     ports:
-      - "80:80"
+      - "80:80"      # ACME (Let's Encrypt) challenge + redirect to HTTPS
       - "443:443"
+      - "443:443/udp"  # HTTP/3
     volumes:
       - caddy_data:/data   # keeps Let's Encrypt certificates across restarts when a domain is used
     depends_on: [frontend, api]

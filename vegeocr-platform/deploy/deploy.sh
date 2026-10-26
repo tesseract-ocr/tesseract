@@ -26,10 +26,11 @@ scp -i "$KEY" -q docker-compose.prod.yml "$TARGET":~/vegeocr/docker-compose.yml
 
 echo "== (re)starting"
 "${SSH[@]}" 'cd ~/vegeocr && sudo docker compose up -d --no-build --remove-orphans && sudo docker image prune -f >/dev/null'
+# Healthy = Caddy answers. With HTTPS on, plain http://localhost is (correctly) redirected, so 301/308 count as up too.
 for i in $(seq 1 40); do
   S="$("${SSH[@]}" "curl -s -o /dev/null -w '%{http_code}' http://localhost/health" || true)"
-  [ "$S" = "200" ] && break; sleep 3
+  case "$S" in 200|301|308) break;; esac; sleep 3
 done
 "${SSH[@]}" 'cd ~/vegeocr && sudo docker compose ps --format "table {{.Service}}\t{{.Status}}"'
 echo "health through Caddy: HTTP $S"
-[ "$S" = "200" ]
+case "$S" in 200|301|308) exit 0;; *) exit 1;; esac

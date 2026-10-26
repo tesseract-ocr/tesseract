@@ -124,9 +124,27 @@ deploy/deploy.sh ec2-user@HOST /path/to/KEY.pem
 ```
 **Open the firewall:** in the EC2 *Security group* allow inbound **TCP 80** (and **443** for HTTPS) from the internet, and restrict **22** to your own IP.
 
-**HTTPS:** over plain HTTP, passwords and tokens cross the network unencrypted. Point a domain at the server, set `SITE_ADDRESS=your.domain` and `PUBLIC_WEB_URL=https://your.domain` in the server's `.env`
-(leave `PUBLIC_API_URL` empty: the web app calls the API on its own address, so no rebuild is needed for a new address), open 443, and restart
-(`sudo docker compose up -d`). Caddy then obtains and renews the certificate itself.
+**HTTPS with a free Let's Encrypt certificate** (Caddy gets it, serves it and renews it by itself about 30 days before it expires; nothing to cron):
+
+1. Pick a **name** for the server. Let's Encrypt certifies names, not bare IP addresses.
+   - **You own a domain:** add a DNS **A record** `ocr.example.com → <server IP>`.
+   - **No domain:** use the free public DNS service sslip.io: `203-0-113-7.sslip.io` (your IP with dashes) already resolves to your IP, with nothing to sign up for.
+     Caveats: certificate requests for `*.sslip.io` share Let's Encrypt's weekly rate limit with everyone else using it, and the name changes if the server's IP changes
+     (give the instance an **Elastic IP**). For anything lasting, use your own domain.
+2. In the EC2 **security group** allow inbound **TCP 80** (the certificate challenge and the redirect), **TCP 443**, and optionally **UDP 443** (HTTP/3).
+3. On the server, edit `~/vegeocr/.env`:
+   ```
+   SITE_ADDRESS=ocr.example.com
+   PUBLIC_WEB_URL=https://ocr.example.com
+   LEGACY_HOST=<the bare IP people used before>      # optional: http://<ip> is then redirected to https://ocr.example.com
+   ```
+   (leave `PUBLIC_API_URL` empty: the web app calls the API on its own address, so nothing needs rebuilding for a new name.)
+4. `deploy/deploy.sh ec2-user@HOST /path/key.pem` (the web edge image carries the Caddyfile), then watch `sudo docker compose logs -f edge`
+   for `certificate obtained successfully`. Certificates live in the `caddy_data` volume, so restarts do not request new ones.
+
+Behaviour: `http://` → `https://` (308), HSTS (`max-age` 30 days) on HTTPS only, HTTP/2 and HTTP/3, the API under the same name at `/api`.
+If issuance fails, Caddy retries with backoff and falls back to another free CA (ZeroSSL); the site keeps answering on port 80 meanwhile.
+Test the redirect/HSTS/proxy behaviour without a real certificate by running Caddy with `SITE_ADDRESS=localhost` (it then uses its own local CA).
 
 **Can't open the firewall yet? Use an SSH tunnel** (SSH is already open): `ssh -i KEY -N -L 8080:localhost:80 ec2-user@HOST`, then browse http://localhost:8080.
 

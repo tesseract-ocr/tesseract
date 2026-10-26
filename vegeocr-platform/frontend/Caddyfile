@@ -5,9 +5,17 @@
 	admin off
 }
 
-# SITE_ADDRESS defaults to :3000 (local Docker). In production set it to :80 (plain HTTP on an IP) or to a domain name
-# (Caddy then gets and renews a Let's Encrypt certificate by itself; ports 80 and 443 must be reachable).
+# SITE_ADDRESS defaults to :3000 (local Docker). In production set it to:
+#   :80                         plain HTTP on an IP address (no certificate possible: Let's Encrypt only certifies names)
+#   shop.example.com            your own domain  -> Caddy gets AND renews a free Let's Encrypt certificate by itself
+#   203.0.113.7.sslip.io        no domain? sslip.io is a free public DNS service that resolves "<ip>.sslip.io" to <ip>
+# For a certificate, DNS must point the name at this server, and ports 80 AND 443 must be reachable from the internet
+# (80 answers the ACME challenge and redirects to HTTPS). Certificates are kept in the /data volume.
 {$SITE_ADDRESS::3000} {
+	# Only sent over HTTPS (Caddy ignores this on a plain-HTTP site). 30 days while the setup is young; raise it once you are sure.
+	@https protocol https
+	header @https Strict-Transport-Security "max-age=2592000"
+
 	handle /_next/static/* {
 		root * /srv
 		header Cache-Control "public, max-age=31536000, immutable"
@@ -27,9 +35,14 @@
 		encode {
 			zstd
 			gzip 6
-			minimum_length 1024   # don't bother below ~1 KB
+			minimum_length 1024 # don't bother below ~1 KB
 			# Default content-type list: text/*, JSON, XML, SVG, JS. Images, fonts, video, ZIP, PDF are never compressed.
 		}
 		reverse_proxy frontend:3000
 	}
+}
+
+# Anyone still using the bare IP over HTTP is sent to the HTTPS name. LEGACY_HOST is that IP (unset = this block never matches anything).
+http://{$LEGACY_HOST:legacy-host.invalid} {
+	redir https://{$SITE_ADDRESS::3000}{uri} permanent
 }
