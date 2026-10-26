@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VegeOCR</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#1b2430;--mute:#6b7785;--line:#e3e8ee;--brand:#2e7d32;--brand-d:#1f5c23;--brand-l:#e8f5e9;--danger:#c62828}
+@media (prefers-color-scheme:dark){:root{--bg:#10151a;--card:#182027;--ink:#e6edf3;--mute:#8b98a5;--line:#2a3540;--brand:#4caf50;--brand-d:#66bb6a;--brand-l:#1b3a1f;--danger:#ef5350}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.logo i{width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-style:normal;font-size:15px}
+main.wrap{padding-top:24px;padding-bottom:48px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.stat b{display:block;font-size:24px}.stat span{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:20px}
+.panel h2{margin:0;font-size:15px}.ph{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.drop{display:block;margin:18px;border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--mute);cursor:pointer;transition:.15s}
+.drop.on,.drop:hover{border-color:var(--brand);background:var(--brand-l);color:var(--ink)}
+.drop strong{color:var(--brand)}.drop small{display:block;margin-top:4px}
+.row-up{display:flex;gap:10px;align-items:center;justify-content:center;margin:0 18px 18px;flex-wrap:wrap}
+input[type=text],input[type=search]{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit}
+input[type=search]{width:240px}select{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--brand);color:var(--brand)}.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}.btn.pri:hover{background:var(--brand-d);color:#fff}
+.btn.del:hover{border-color:var(--danger);color:var(--danger)}.btn.sm{padding:3px 10px;font-size:12px}
+.err{background:#fdecea;color:#b71c1c;border:1px solid #f5c2c0;padding:10px 14px;border-radius:8px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--bg)}
+td{padding:12px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.item:hover td{background:var(--bg)}
+.file{display:flex;gap:10px;align-items:flex-start}
+.badge{flex:none;min-width:44px;text-align:center;font-size:11px;font-weight:700;padding:4px 6px;border-radius:6px;color:#fff}
+.b-pdf{background:#d32f2f}.b-docx{background:#1565c0}.b-xlsx{background:#2e7d32}.b-img{background:#8e24aa}
+.name{font-weight:600;word-break:break-all}.sub{color:var(--mute);font-size:12px}
+.prev{color:var(--mute);max-width:380px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.act{white-space:nowrap;text-align:right}.act form{display:inline}
+tr.full td{background:var(--bg)}tr.full pre{margin:0;white-space:pre-wrap;word-break:break-word;font:13px/1.55 ui-monospace,Menlo,monospace;max-height:340px;overflow:auto}
+.empty{padding:48px;text-align:center;color:var(--mute)}
+.pill{background:var(--brand-l);color:var(--brand-d);font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+@media(max-width:720px){.stats{grid-template-columns:1fr}.hide-m{display:none}}
+</style></head><body>
+<header><div class="wrap"><div class="logo"><i>V</i>VegeOCR</div><span class="sub">Document text extraction</span></div></header>
+<main class="wrap">
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<div class="stats">
+  <div class="stat"><span>Documents</span><b>{{ rows|length }}</b></div>
+  <div class="stat"><span>Characters extracted</span><b>{{ '{:,}'.format(total_chars) }}</b></div>
+  <div class="stat"><span>Latest</span><b style="font-size:16px;padding-top:6px">{{ rows[0][4].strftime('%Y-%m-%d %H:%M') if rows else '—' }}</b></div>
+</div>
+
+<form class="panel" id="up" action="/upload" method="post" enctype="multipart/form-data">
+  <div class="ph"><h2>New extraction</h2><span class="sub">Images · PDF · DOCX · XLSX</span></div>
+  <label class="drop" id="drop"><input id="file" type="file" name="image" accept="{{ exts }}" hidden required>
+    <div><strong>Click to choose</strong> or drag a file here</div><small id="fname">Scanned PDFs are OCR'd at 300 dpi</small></label>
+  <div class="row-up"><label class="sub">Language <select name="lang">{% for code, label in langs %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></label>
+    <button class="btn pri" id="go" type="submit">Run OCR</button></div>
+</form>
+
+<section class="panel">
+  <div class="ph"><h2>History <span class="pill">{{ rows|length }}</span></h2>
+    <input type="search" id="q" placeholder="Search file name or text…"></div>
+  {% if rows %}
+  <table id="tbl"><thead><tr><th>Document</th><th class="hide-m">Extracted text</th><th class="hide-m">Date</th><th></th></tr></thead><tbody>
+  {% for id, name, lang, text, ts in rows %}
+    {% set ext = name.rsplit('.',1)[-1].lower() if '.' in name else '' %}
+    <tr class="item" data-s="{{ (name ~ ' ' ~ text)|lower }}">
+      <td><div class="file"><span class="badge b-{{ ext if ext in ('pdf','docx','xlsx') else 'img' }}">{{ (ext or 'file')|upper }}</span>
+        <div><div class="name">{{ name }}</div><div class="sub">#{{ id }} · {{ lang }} · {{ '{:,}'.format(text|length) }} chars</div></div></div></td>
+      <td class="hide-m"><div class="prev">{{ text or '(no text found)' }}</div></td>
+      <td class="hide-m sub">{{ ts.strftime('%Y-%m-%d') }}<br>{{ ts.strftime('%H:%M:%S') }}</td>
+      <td class="act">
+        <button class="btn sm" type="button" onclick="tog(this)">View</button>
+        <button class="btn sm" type="button" onclick="cp(this)">Copy</button>
+        <a class="btn sm" href="/download/{{ id }}.txt">.txt</a>
+        <form action="/delete/{{ id }}" method="post" onsubmit="return confirm('Delete this result?')"><button class="btn sm del">Delete</button></form>
+      </td></tr>
+    <tr class="full" hidden><td colspan="4"><pre>{{ text }}</pre></td></tr>
+  {% endfor %}</tbody></table>
+  <div class="empty" id="none" hidden>No matches.</div>
+  {% else %}<div class="empty">No documents yet. Upload one above to get started.</div>{% endif %}
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s),drop=$('#drop'),file=$('#file');
+file.onchange=()=>{if(file.files[0])$('#fname').textContent=file.files[0].name};
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',x=>{file.files=x.dataTransfer.files;file.onchange()});
+$('#up').onsubmit=()=>{const b=$('#go');b.disabled=true;b.textContent='Processing…'};
+function tog(b){const r=b.closest('tr').nextElementSibling;r.hidden=!r.hidden;b.textContent=r.hidden?'View':'Hide'}
+function cp(b){navigator.clipboard.writeText(b.closest('tr').nextElementSibling.innerText).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1200)})}
+const q=$('#q');if(q)q.oninput=()=>{const v=q.value.toLowerCase();let n=0;document.querySelectorAll('tr.item').forEach(r=>{const m=r.dataset.s.includes(v);r.hidden=!m;r.nextElementSibling.hidden=true;n+=m});$('#none').hidden=n>0}
+</script></body></html>

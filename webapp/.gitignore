@@ -1,0 +1,3 @@
+.venv/
+__pycache__/
+tessdata/*.traineddata
