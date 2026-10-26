@@ -81,7 +81,7 @@ function Body() {
             <label className="block text-sm">Name<input name="name" required maxLength={80} className="input mt-1" placeholder="e.g. My handwriting" autoFocus /></label>
             <label className="block text-sm">Category<input name="category" list="category-hints" defaultValue="general" maxLength={40} className="input mt-1" />
               <datalist id="category-hints">{(cap?.training.categories || ["handwriting", "printed", "blurry", "general"]).map((c: string) => <option key={c} value={c} />)}</datalist></label>
-            <label className="block text-sm">Language the samples are in<select name="lang" className="input mt-1" defaultValue="eng">{(cap?.training.languages || ["eng", "jpn", "chi_sim", "chi_tra"]).map((l: string) => <option key={l}>{l}</option>)}</select></label>
+            <label className="block text-sm">Language the samples are in<select name="lang" className="input mt-1" defaultValue="jpn">{(cap?.training.languages || ["jpn", "chi_sim", "chi_tra"]).map((l: string) => <option key={l}>{l}</option>)}</select></label>
             <label className="block text-sm">Description (optional)<input name="description" maxLength={500} className="input mt-1" /></label>
             <div className="flex justify-end gap-2"><button type="button" className="btn-ghost" onClick={() => setCreating(false)}>Cancel</button><button className="btn-primary">Create</button></div>
           </form>

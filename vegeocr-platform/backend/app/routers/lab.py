@@ -27,7 +27,7 @@ def capabilities(_: User = Depends(current_user)):
 # ---- extraction runs --------------------------------------------------------------------------------------------
 
 @router.post("/runs", status_code=202)
-async def create_run(file: UploadFile = File(...), mode: str = Form("printed"), lang: str = Form("eng"), enhance: str = Form("auto"),
+async def create_run(file: UploadFile = File(...), mode: str = Form("printed"), lang: str = Form("jpn"), enhance: str = Form("auto"),
                      engine: str = Form("auto"), dataset_id: Optional[int] = Form(None), db: Session = Depends(get_db), user: User = Depends(current_user)):
     data = await file.read(service.MAX_UPLOAD + 1)
     return service.out(service.create_run(db, user, file.filename or "upload", data, mode, lang, enhance, engine, dataset_id), with_result=False)
@@ -82,7 +82,7 @@ def correct(run_id: str, body: Correction, db: Session = Depends(get_db), user: 
 class DatasetIn(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     category: str = Field(default="general", max_length=40)
-    lang: str = "eng"
+    lang: str = "jpn"
     description: str = Field(default="", max_length=500)
 
 
@@ -115,7 +115,7 @@ async def import_new_dataset(file: UploadFile = File(...), name: str = Form(""),
     data = await file.read(60 * 1024 * 1024)
     _, _, meta = ds_svc.read_zip(data)
     stem = (file.filename or "imported").rsplit(".", 1)[0]
-    ds = ds_svc.create(db, user, name or meta.get("name") or stem, category or meta.get("category") or "general", lang or meta.get("lang") or "eng", meta.get("description", ""))
+    ds = ds_svc.create(db, user, name or meta.get("name") or stem, category or meta.get("category") or "general", lang or meta.get("lang") or "jpn", meta.get("description", ""))
     try:
         report = ds_svc.import_zip(db, ds, data)
     except ApiError:

@@ -262,7 +262,7 @@ class Dataset(Base):
     name: Mapped[str] = mapped_column(String(80))
     category: Mapped[str] = mapped_column(String(40), default="general", index=True)
     description: Mapped[str] = mapped_column(Text, default="")
-    lang: Mapped[str] = mapped_column(String(20), default="eng")      # the Tesseract language this dataset fine-tunes
+    lang: Mapped[str] = mapped_column(String(20), default="jpn")      # the Tesseract language this dataset fine-tunes
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)
     samples = relationship("DatasetSample", back_populates="dataset", cascade="all, delete-orphan", order_by="DatasetSample.id")

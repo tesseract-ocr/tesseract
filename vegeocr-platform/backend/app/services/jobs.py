@@ -12,7 +12,7 @@ from ..worker.dispatch import dispatch
 from . import ocr
 from .files import validate_upload
 
-ALLOWED_LANGS = {"jpn", "jpn_vert", "chi_sim", "chi_tra", "eng"}
+ALLOWED_LANGS = {"jpn", "jpn_vert", "chi_sim", "chi_tra"}
 
 
 def check_lang(lang: str) -> str:

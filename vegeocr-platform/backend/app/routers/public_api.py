@@ -22,7 +22,7 @@ ERR = {401: {"description": "Missing / invalid / revoked / disabled / expired AP
 
 @router.post("/ocr", responses=ERR, summary="Extract text from an image or PDF")
 async def ocr(file: UploadFile = File(..., description="PNG, JPEG, TIFF, BMP, WEBP or PDF"),
-              lang: str = Form("jpn+eng", description="Tesseract languages joined by '+': jpn, jpn_vert, chi_sim, chi_tra, eng"),
+              lang: str = Form("jpn", description="Tesseract languages joined by '+': jpn, jpn_vert, chi_sim, chi_tra"),
               async_mode: bool = Form(False, alias="async", description="Queue the job and poll /jobs/{id}"),
               response: Response = None, key: ApiKey = Depends(require_scope("write")), db: Session = Depends(get_db)):
     """Small files are processed immediately (200). Large PDFs, big files, or `async=true` return 202 with a job id."""
@@ -37,7 +37,7 @@ async def ocr(file: UploadFile = File(..., description="PNG, JPEG, TIFF, BMP, WE
 @router.post("/training-data", status_code=201, responses=ERR, summary="Submit an image + correct text to improve the model")
 async def training_data(image: UploadFile = File(..., description="Crop of ONE line of text"),
                         text: str = Form(..., description="The exact text in the image"),
-                        lang: str = Form("jpn", description="Language of the line (jpn, chi_sim, chi_tra, eng)"),
+                        lang: str = Form("jpn", description="Language of the line (jpn, chi_sim, chi_tra)"),
                         key: ApiKey = Depends(require_scope("write")), db: Session = Depends(get_db)):
     """Samples are queued for admin review and only used for training once approved."""
     if lang not in settings.trainable_list:

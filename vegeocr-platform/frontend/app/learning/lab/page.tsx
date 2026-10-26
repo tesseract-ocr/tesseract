@@ -11,8 +11,8 @@ export default function LabPage() {
 }
 
 const MODE_HELP: Record<string, string> = {
-  printed: "Typed or printed text: documents, receipts, forms. Supports Japanese, Chinese and English.",
-  handwriting: "Handwritten notes, print or cursive. The best handwriting engine reads English only; neat block letters often work better as “Printed”.",
+  printed: “Typed or printed text: documents, receipts, forms. Supports Japanese and Chinese.”,
+  handwriting: “Handwritten notes, print or cursive. Neat block letters often work better as “Printed”.”,
 };
 
 function Body() {
@@ -20,7 +20,7 @@ function Body() {
   const [datasets, setDatasets] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [file, setFile] = useState<File | null>(null);
-  const [mode, setMode] = useState("printed"); const [lang, setLang] = useState("eng"); const [enhance, setEnhance] = useState("auto"); const [dataset, setDataset] = useState("");
+  const [mode, setMode] = useState("printed"); const [lang, setLang] = useState("jpn"); const [enhance, setEnhance] = useState("auto"); const [dataset, setDataset] = useState("");
   const [run, setRun] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null); const [busy, setBusy] = useState(false); const [over, setOver] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -52,7 +52,6 @@ function Body() {
   const open = async (id: string) => { setErr(null); try { setRun(await api(`/api/web/lab/runs/${id}`)); window.scrollTo({ top: 0, behavior: "smooth" }); } catch (x: any) { setErr(x.message); } };
 
   const hwNote = mode === "handwriting" && cap && cap.handwriting_engine !== "trocr";
-  const hwEnglishOnly = mode === "handwriting" && cap?.handwriting_engine === "trocr" && lang !== "eng";
   const withModel = datasets.filter(d => d.active_model);
 
   return (
@@ -71,14 +70,13 @@ function Body() {
         <div className="grid gap-4 md:grid-cols-4">
           <fieldset className="md:col-span-2"><legend className="text-sm font-medium">What is in the image?</legend>
             <div className="mt-1 inline-flex rounded-lg border border-slate-200 p-0.5 text-sm" role="radiogroup" aria-label="Mode">
-              {(["printed", "handwriting"] as const).map(m => <label key={m} className={`cursor-pointer rounded-md px-4 py-1.5 ${mode === m ? "bg-brand-600 text-white" : "text-slate-600"}`}><input type="radio" name="mode" value={m} className="sr-only" checked={mode === m} onChange={() => { setMode(m); if (m === "handwriting" && cap?.handwriting_engine === "trocr") setLang("eng"); }} />{m === "printed" ? "Printed text" : "Handwriting"}</label>)}
+              {(["printed", "handwriting"] as const).map(m => <label key={m} className={`cursor-pointer rounded-md px-4 py-1.5 ${mode === m ? "bg-brand-600 text-white" : "text-slate-600"}`}><input type="radio" name="mode" value={m} className="sr-only" checked={mode === m} onChange={() => setMode(m)} />{m === "printed" ? "Printed text" : "Handwriting"}</label>)}
             </div><p className="mt-1.5 text-xs text-slate-500">{MODE_HELP[mode]}</p></fieldset>
           <label className="text-sm font-medium">Language<select className="input mt-1" value={lang} onChange={e => setLang(e.target.value)} aria-label="Language">{LANGS.map(([c, l]) => <option key={c} value={c}>{l}</option>)}</select></label>
           <label className="text-sm font-medium">Image enhancement<select className="input mt-1" value={enhance} onChange={e => setEnhance(e.target.value)} aria-label="Enhancement">
             <option value="auto">Auto: only if the image needs it</option><option value="on">Always enhance</option><option value="off">Never</option></select></label>
         </div>
-        {hwNote && <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">⚠ The handwriting engine (TrOCR) is not installed on this server, so Tesseract will be used. It is much less accurate on handwriting, especially cursive. {cap.engines.trocr.reason}</div>}
-        {hwEnglishOnly && <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">⚠ The handwriting engine reads English only. With “{lang}” Tesseract will be used instead.</div>}
+        {hwNote && <div role=”alert” className=”rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900”>⚠ The handwriting engine (TrOCR) is not installed on this server, so Tesseract will be used. It is much less accurate on handwriting, especially cursive. {cap.engines.trocr.reason}</div>}
         <div className="flex flex-wrap items-end gap-3">
           {withModel.length > 0 && <label className="text-sm font-medium">Model<select className="input mt-1 w-64" value={dataset} onChange={e => setDataset(e.target.value)} aria-label="Model"><option value="">Standard model</option>{withModel.map(d => <option key={d.id} value={d.id}>My model: {d.name}</option>)}</select></label>}
           <button className="btn-primary" disabled={!file || busy}>{busy ? "Working…" : "Extract text"}</button>

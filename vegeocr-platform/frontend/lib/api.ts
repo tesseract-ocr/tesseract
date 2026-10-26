@@ -59,8 +59,7 @@ export async function download(path: string, filename: string, scope: Scope = "u
 }
 
 export const LANGS: [string, string][] = [
-  ["jpn+eng", "日本語 Japanese + English"], ["jpn", "日本語 Japanese"], ["jpn_vert", "日本語 Japanese (vertical)"],
+  ["jpn", "日本語 Japanese"], ["jpn_vert", "日本語 Japanese (vertical)"],
   ["chi_sim", "简体中文 Chinese (Simplified)"], ["chi_tra", "繁體中文 Chinese (Traditional)"],
-  ["chi_sim+eng", "简体中文 Chinese (Simplified) + English"], ["chi_tra+eng", "繁體中文 Chinese (Traditional) + English"],
-  ["eng", "English"],
+  ["jpn+chi_sim", "日本語 + 简体中文"], ["jpn+chi_tra", "日本語 + 繁體中文"],
 ];
