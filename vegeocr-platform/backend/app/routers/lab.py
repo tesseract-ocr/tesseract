@@ -309,9 +309,10 @@ async def extract_form(
     catalog: str = Form(""),
     delivery_date: str = Form(""),
     use_llm: str = Form("auto"),
+    master_data: str = Form(""),   # optional JSON: {product_master, center_master, customer_master, order_history}
     _: User = Depends(current_user),
 ):
-    """Structured order extraction (発注書 → JSON).
+    """Structured order extraction (発注書 → JSON with optional master-data matching).
 
     ``use_llm``:
       * ``auto``  — use Claude vision when ``ANTHROPIC_API_KEY`` is set, else fall back to the
@@ -319,14 +320,30 @@ async def extract_form(
       * ``llm``   — require Claude vision; return 503 if the key is not configured.
       * ``local`` — always use the local cell-grid reader (no LLM call).
 
-    Returns the extraction JSON schema (fields: supplier, customer_name, delivery_date, items …).
+    ``master_data`` (optional JSON string): supply product_master, center_master,
+    customer_master and/or order_history rows. When present the LLM runs master-data
+    matching and returns an ``order_lines`` array ready for import.
+
+    Returns the extraction JSON schema (fields: supplier, customer_name, delivery_date, items,
+    and optionally order_lines).
     """
     import cv2
+    import json as _json
     import numpy as np
 
     data = await file.read(service.MAX_UPLOAD + 1)
     if len(data) > service.MAX_UPLOAD:
         raise ApiError(413, "file_too_large", "That file is too large.")
+
+    # Parse optional master data
+    md: Optional[dict] = None
+    if master_data.strip():
+        try:
+            md = _json.loads(master_data)
+        except _json.JSONDecodeError:
+            raise ApiError(422, "bad_master_data", "master_data must be a JSON object.")
+        if not isinstance(md, dict):
+            raise ApiError(422, "bad_master_data", "master_data must be a JSON object.")
 
     want_llm = use_llm in ("llm", "auto")
     have_llm = llm_extract.llm_available()
@@ -336,14 +353,15 @@ async def extract_form(
                        "Claude vision extraction requires ANTHROPIC_API_KEY to be set.")
 
     if want_llm and have_llm:
-        # Detect media type from magic bytes
         mt = "image/jpeg"
         if data[:4] == b"\x89PNG":
             mt = "image/png"
         elif data[:4] in (b"GIF8", b"GIF9"):
             mt = "image/gif"
         from starlette.concurrency import run_in_threadpool
-        result = await run_in_threadpool(llm_extract.extract_with_llm, data, media_type=mt)
+        result = await run_in_threadpool(
+            llm_extract.extract_with_llm, data, media_type=mt, master_data=md
+        )
         result["_source"] = "llm"
         return result
 
