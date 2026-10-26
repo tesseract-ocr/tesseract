@@ -17,3 +17,4 @@ brotli>=1.1,<2
 zstandard>=0.23,<1
 opencv-python-headless>=4.9,<5
 numpy>=1.24,<3
+anthropic>=0.40,<2

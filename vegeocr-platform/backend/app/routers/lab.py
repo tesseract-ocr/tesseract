@@ -14,7 +14,7 @@ from ..db import get_db
 from ..deps import current_user
 from ..errors import ApiError
 from ..models import Dataset, DatasetModel, DatasetSample, LabRun, User
-from ..ocrlab import datasets as ds_svc, forms as form_svc, natori, service, train
+from ..ocrlab import datasets as ds_svc, forms as form_svc, llm_extract, natori, service, train
 
 router = APIRouter(prefix="/api/web/lab", tags=["web: OCR lab"])
 
@@ -301,3 +301,70 @@ async def read_form(file: UploadFile = File(...), catalog: str = Form(""), _: Us
     out["review_count"] = sum(r.review for r in res.rows)
     out["catalog"] = catalog or (next(iter(cats)) if cats else None)
     return out
+
+
+@router.post("/forms/extract")
+async def extract_form(
+    file: UploadFile = File(...),
+    catalog: str = Form(""),
+    delivery_date: str = Form(""),
+    use_llm: str = Form("auto"),
+    _: User = Depends(current_user),
+):
+    """Structured order extraction (発注書 → JSON).
+
+    ``use_llm``:
+      * ``auto``  — use Claude vision when ``ANTHROPIC_API_KEY`` is set, else fall back to the
+                    local cell-grid reader.
+      * ``llm``   — require Claude vision; return 503 if the key is not configured.
+      * ``local`` — always use the local cell-grid reader (no LLM call).
+
+    Returns the extraction JSON schema (fields: supplier, customer_name, delivery_date, items …).
+    """
+    import cv2
+    import numpy as np
+
+    data = await file.read(service.MAX_UPLOAD + 1)
+    if len(data) > service.MAX_UPLOAD:
+        raise ApiError(413, "file_too_large", "That file is too large.")
+
+    want_llm = use_llm in ("llm", "auto")
+    have_llm = llm_extract.llm_available()
+
+    if use_llm == "llm" and not have_llm:
+        raise ApiError(503, "llm_unavailable",
+                       "Claude vision extraction requires ANTHROPIC_API_KEY to be set.")
+
+    if want_llm and have_llm:
+        # Detect media type from magic bytes
+        mt = "image/jpeg"
+        if data[:4] == b"\x89PNG":
+            mt = "image/png"
+        elif data[:4] in (b"GIF8", b"GIF9"):
+            mt = "image/gif"
+        from starlette.concurrency import run_in_threadpool
+        result = await run_in_threadpool(llm_extract.extract_with_llm, data, media_type=mt)
+        result["_source"] = "llm"
+        return result
+
+    # --- local fallback ---
+    img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        raise ApiError(400, "bad_image",
+                       "That file is not a readable image (JPG or PNG; export PDF pages first).")
+    if max(img.shape[:2]) > 6000:
+        raise ApiError(413, "image_too_large", "Image too large; use one under 6000 px on the long side.")
+
+    cats = _catalogs()
+    dd = delivery_date.strip() or None
+
+    from starlette.concurrency import run_in_threadpool
+    if catalog == "natori":
+        res = await run_in_threadpool(natori.read, img)
+    elif catalog and catalog not in cats:
+        raise ApiError(404, "unknown_catalog", "No such form catalog.")
+    else:
+        cat = form_svc.Catalog.load(cats[catalog or next(iter(cats))]) if cats else None
+        res = await run_in_threadpool(form_svc.read_form, img, cat)
+
+    return llm_extract.local_to_extract(res, catalog=catalog, delivery_date=dd)

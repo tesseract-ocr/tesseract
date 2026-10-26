@@ -123,3 +123,198 @@ def test_vocabulary_snaps_close_readings_and_refuses_far_ones():
     assert v.match("ぴゃぴゃぴゃ")[0] is None              # garbage is not forced onto an item
     v.add("カリフラワー")
     assert v.match("カリフラワ")[0] == "カリフラワー"
+
+
+# ---------------------------------------------------------------------------
+# llm_extract: post-checks and local adapter
+# ---------------------------------------------------------------------------
+
+def test_post_check_unit_normalisation():
+    from app.ocrlab import llm_extract
+    doc = {
+        "supplier": None, "customer_name": None, "customer_code": None,
+        "contact_person": None, "order_date": None, "delivery_date": "2025-09-10",
+        "delivery_location": None, "form_template_id": None, "notes": None,
+        "fax_received_at": None, "change_type": None, "billing_date": None,
+        "flags": [],
+        "items": [
+            {"item_name": "キャベツ", "spec": None, "quantity": 3, "additional_quantity": None,
+             "unit": "ケ", "unit_raw": None, "delivery_date": None, "line_note": None,
+             "unit_price": None, "confidence": 90, "flags": []},
+        ],
+    }
+    out = llm_extract._post_check(doc)
+    item = out["items"][0]
+    assert item["unit"] == "個"
+    assert item["unit_raw"] == "ケ"
+    assert "UNIT_OVERRIDDEN" in item["flags"]
+
+
+def test_post_check_weekday_mismatch():
+    from app.ocrlab import llm_extract
+    doc = {
+        "supplier": None, "customer_name": None, "customer_code": None,
+        "contact_person": None, "order_date": None, "delivery_date": "2025-09-10",  # 2025-09-10 is a Wednesday (水)
+        "delivery_location": None, "form_template_id": None, "notes": None,
+        "fax_received_at": None, "change_type": None, "billing_date": None,
+        "flags": [],
+        "items": [
+            {"item_name": "大根", "spec": None, "quantity": 2, "additional_quantity": None,
+             "unit": "本", "unit_raw": None, "delivery_date": None,
+             "line_note": "月曜日",  # says Monday — mismatch
+             "unit_price": None, "confidence": 88, "flags": []},
+        ],
+    }
+    out = llm_extract._post_check(doc)
+    assert "WEEKDAY_MISMATCH" in out["items"][0]["flags"]
+    assert "WEEKDAY_MISMATCH" in out["flags"]
+
+
+def test_post_check_form_template_id_rejected_if_not_8_digits():
+    from app.ocrlab import llm_extract
+    doc = {
+        "supplier": None, "customer_name": None, "customer_code": None,
+        "contact_person": None, "order_date": None, "delivery_date": None,
+        "delivery_location": None, "form_template_id": "2025",  # 4-digit year — not allowed
+        "notes": None, "fax_received_at": None, "change_type": None, "billing_date": None,
+        "flags": [], "items": [],
+    }
+    out = llm_extract._post_check(doc)
+    assert out["form_template_id"] is None
+
+
+def test_post_check_valid_8_digit_template_id_kept():
+    from app.ocrlab import llm_extract
+    doc = {
+        "supplier": None, "customer_name": None, "customer_code": None,
+        "contact_person": None, "order_date": None, "delivery_date": None,
+        "delivery_location": None, "form_template_id": "20240501",
+        "notes": None, "fax_received_at": None, "change_type": None, "billing_date": None,
+        "flags": [], "items": [],
+    }
+    out = llm_extract._post_check(doc)
+    assert out["form_template_id"] == "20240501"
+
+
+def test_missing_delivery_date_flag():
+    from app.ocrlab import llm_extract
+    doc = {
+        "supplier": None, "customer_name": None, "customer_code": None,
+        "contact_person": None, "order_date": None, "delivery_date": None,
+        "delivery_location": None, "form_template_id": None, "notes": None,
+        "fax_received_at": None, "change_type": None, "billing_date": None,
+        "flags": [],
+        "items": [
+            {"item_name": "ほうれん草", "spec": None, "quantity": 5, "additional_quantity": None,
+             "unit": "袋", "unit_raw": None, "delivery_date": None, "line_note": None,
+             "unit_price": None, "confidence": 80, "flags": []},
+        ],
+    }
+    out = llm_extract._post_check(doc)
+    assert "MISSING_DELIVERY_DATE" in out["items"][0]["flags"]
+
+
+def test_local_to_extract_from_form_result():
+    """local_to_extract converts a FormResult into the extraction schema."""
+    from app.ocrlab import llm_extract
+    from app.ocrlab.forms import FormResult, Row
+
+    rows = [
+        Row(table=0, index=1, code="11032", name="キャベツ", quantity="3", unit="ケース",
+            handwritten=True, confidence=95.0, review=False, note=""),
+        Row(table=0, index=2, code="11090", name="ムキにんにく", quantity="1", unit="kg",
+            handwritten=True, confidence=88.0, review=True, note="追加 2"),
+    ]
+    res = FormResult(rows=rows, cells=30)
+    out = llm_extract.local_to_extract(res, catalog="natori", delivery_date="2025-09-10")
+
+    assert out["_source"] == "local"
+    assert len(out["items"]) == 2
+
+    first = out["items"][0]
+    assert first["item_name"] == "キャベツ"
+    assert first["quantity"] == 3
+    assert first["delivery_date"] == "2025-09-10"
+
+    second = out["items"][1]
+    assert second["additional_quantity"] == 2
+    assert second["line_note"] is None   # "追加 N" is parsed out of note
+    assert "DIGIT_AMBIGUOUS" in second["flags"]   # review=True + handwritten=True
+
+
+def test_llm_unavailable_error_without_key(monkeypatch):
+    from app.ocrlab import llm_extract
+    monkeypatch.setattr("app.ocrlab.llm_extract.llm_available", lambda: False)
+    # Patch the config so anthropic_api_key is empty
+    import app.config as cfg
+    orig = cfg.settings.anthropic_api_key
+    cfg.settings.anthropic_api_key = ""
+    try:
+        with pytest.raises(llm_extract.LLMUnavailableError):
+            llm_extract.extract_with_llm(b"fake")
+    finally:
+        cfg.settings.anthropic_api_key = orig
+
+
+def test_extract_with_llm_mocked(monkeypatch):
+    """extract_with_llm parses the Claude response and runs post-checks."""
+    import app.config as cfg
+    from app.ocrlab import llm_extract
+
+    cfg.settings.anthropic_api_key = "sk-ant-test-key"
+
+    llm_response_json = """{
+  "supplier": "なとりデリカ",
+  "customer_name": null,
+  "customer_code": null,
+  "contact_person": null,
+  "order_date": null,
+  "delivery_date": "2025-09-10",
+  "delivery_location": null,
+  "form_template_id": null,
+  "notes": null,
+  "fax_received_at": null,
+  "change_type": null,
+  "billing_date": null,
+  "flags": [],
+  "items": [
+    {
+      "item_name": "キャベツ",
+      "spec": null,
+      "quantity": 3,
+      "additional_quantity": 1,
+      "unit": "ヶ",
+      "unit_raw": null,
+      "delivery_date": null,
+      "line_note": null,
+      "unit_price": null,
+      "confidence": 92,
+      "flags": []
+    }
+  ]
+}"""
+
+    class _FakeBlock:
+        type = "text"
+        text = llm_response_json
+
+    class _FakeResponse:
+        content = [_FakeBlock()]
+
+    class _FakeMessages:
+        def create(self, **kw):
+            return _FakeResponse()
+
+    class _FakeClient:
+        messages = _FakeMessages()
+
+    import anthropic
+    monkeypatch.setattr(anthropic, "Anthropic", lambda **kw: _FakeClient())
+
+    result = llm_extract.extract_with_llm(b"\xff\xd8\xff\xe0fake-jpeg-bytes")
+    item = result["items"][0]
+    assert item["unit"] == "個"          # normalised from ヶ
+    assert item["unit_raw"] == "ヶ"
+    assert "UNIT_OVERRIDDEN" in item["flags"]
+    assert result["supplier"] == "なとりデリカ"
+    assert result["items"][0]["additional_quantity"] == 1
