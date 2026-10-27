@@ -1208,6 +1208,7 @@ check_PROGRAMS += nthitem_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += osd_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += pageres_test
 check_PROGRAMS += pagesegmode_test
 if ENABLE_TRAINING
 check_PROGRAMS += pango_font_info_test
@@ -1472,6 +1473,10 @@ osd_test_SOURCES = unittest/osd_test.cc
 osd_test_CPPFLAGS = $(unittest_CPPFLAGS)
 osd_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
+
+pageres_test_SOURCES = unittest/pageres_test.cc
+pageres_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pageres_test_LDADD = $(TESS_LIBS)
 
 pagesegmode_test_SOURCES = unittest/pagesegmode_test.cc
 pagesegmode_test_CPPFLAGS = $(unittest_CPPFLAGS)
