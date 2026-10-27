@@ -51,7 +51,6 @@ function Body() {
   const drop = (e: DragEvent) => { e.preventDefault(); setOver(false); pick(e.dataTransfer.files?.[0]); };
   const open = async (id: string) => { setErr(null); try { setRun(await api(`/api/web/lab/runs/${id}`)); window.scrollTo({ top: 0, behavior: "smooth" }); } catch (x: any) { setErr(x.message); } };
 
-  const hwNote = mode === "handwriting" && cap && cap.handwriting_engine !== "trocr";
   const withModel = datasets.filter(d => d.active_model);
 
   return (
@@ -76,7 +75,6 @@ function Body() {
           <label className="text-sm font-medium">Image enhancement<select className="input mt-1" value={enhance} onChange={e => setEnhance(e.target.value)} aria-label="Enhancement">
             <option value="auto">Auto: only if the image needs it</option><option value="on">Always enhance</option><option value="off">Never</option></select></label>
         </div>
-        {hwNote && <div role=”alert” className=”rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900”>⚠ The handwriting engine (TrOCR) is not installed on this server, so Tesseract will be used. It is much less accurate on handwriting, especially cursive. {cap.engines.trocr.reason}</div>}
         <div className="flex flex-wrap items-end gap-3">
           {withModel.length > 0 && <label className="text-sm font-medium">Model<select className="input mt-1 w-64" value={dataset} onChange={e => setDataset(e.target.value)} aria-label="Model"><option value="">Standard model</option>{withModel.map(d => <option key={d.id} value={d.id}>My model: {d.name}</option>)}</select></label>}
           <button className="btn-primary" disabled={!file || busy}>{busy ? "Working…" : "Extract text"}</button>
