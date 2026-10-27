@@ -1387,6 +1387,27 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     return;
   }
   WERD_RES *input_word = word();
+  // With several languages, a language whose recognizer returns no words
+  // passes back its copy of the input word (made by
+  // WERD_RES::InitForRetryRecognition), which shares the input WERD. That
+  // WERD is deleted below, so give such a word a WERD of its own, with a
+  // fake blob at each blob of the input word, like the words from LSTM.
+  for (size_t w = 0; w < words->size(); ++w) {
+    WERD_RES *word_w = (*words)[w];
+    if (word_w->word == input_word->word) {
+      WERD *new_word = input_word->word->shallow_copy();
+      new_word->set_flag(W_BOL, false);
+      new_word->set_flag(W_EOL, false);
+      C_BLOB_IT src_it(input_word->word->cblob_list());
+      C_BLOB_IT dest_it(new_word->cblob_list());
+      for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
+        dest_it.add_after_then_move(
+            C_BLOB::FakeBlob(src_it.data()->bounding_box()));
+      }
+      word_w->word = new_word;
+      word_w->combination = true; // It owns its word.
+    }
+  }
   // Set the BOL/EOL flags on the words from the input word.
   if (input_word->word->flag(W_BOL)) {
     (*words)[0]->word->set_flag(W_BOL, true);
