@@ -1220,6 +1220,7 @@ endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
 check_PROGRAMS += ratngs_test
+check_PROGRAMS += points_test
 check_PROGRAMS += recodebeam_test
 check_PROGRAMS += recoder_test
 check_PROGRAMS += rect_test
@@ -1501,6 +1502,10 @@ progress_test_SOURCES = unittest/progress_test.cc
 progress_test_CPPFLAGS = $(unittest_CPPFLAGS)
 progress_test_LDFLAGS = $(LEPTONICA_LIBS)
 progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+points_test_SOURCES = unittest/points_test.cc
+points_test_CPPFLAGS = $(unittest_CPPFLAGS)
+points_test_LDADD = $(TESS_LIBS)
 
 qrsequence_test_SOURCES = unittest/qrsequence_test.cc
 qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)

@@ -184,14 +184,11 @@ ELISTIZEH(ICOORDELT)
 class TESS_API FCOORD {
 public:
   /// empty constructor
-  FCOORD() = default;
+  constexpr FCOORD() : xcoord(0.0f), ycoord(0.0f) {}
   /// constructor
   ///@param xvalue x value
   ///@param yvalue y value
-  FCOORD(float xvalue, float yvalue) {
-    xcoord = xvalue; // set coords
-    ycoord = yvalue;
-  }
+  constexpr FCOORD(float xvalue, float yvalue) : xcoord(xvalue), ycoord(yvalue) {}
   constexpr FCOORD(              // make from ICOORD
       ICOORD icoord) : xcoord(icoord.xcoord), ycoord(icoord.ycoord) {}
 
@@ -261,11 +258,11 @@ public:
   bool normalise();
 
   /// test equality
-  bool operator==(const FCOORD &other) const {
+  constexpr bool operator==(const FCOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
-  bool operator!=(const FCOORD &other) const {
+  constexpr bool operator!=(const FCOORD &other) const {
     return xcoord != other.xcoord || ycoord != other.ycoord;
   }
   /// rotate 90 deg anti
