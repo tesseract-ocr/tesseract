@@ -177,10 +177,20 @@ case "${host_cpu}" in
     ;;
 
   arm*)
-
-    AX_CHECK_COMPILE_FLAG([-mfpu=neon], [neon=true], [neon=false], [$WERROR])
-    AM_CONDITIONAL([HAVE_NEON], $neon)
-    if $neon; then
+    SAVE_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="-mfpu=neon $CXXFLAGS"
+    AC_MSG_CHECKING([for NEON support])
+    AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([], [[
+    #ifndef __ARM_NEON
+           #error
+    #endif
+    ]])],
+    [neon=yes], [neon=no])
+    AC_MSG_RESULT([$neon])
+    CXXFLAGS="$SAVE_CXXFLAGS"
+    AM_CONDITIONAL([HAVE_NEON], test "xyes" = "x$neon")
+    if test "xyes" = "$neon"; then
       AC_DEFINE([HAVE_NEON], [1], [Enable NEON instructions])
       NEON_CXXFLAGS="-mfpu=neon"
       AC_SUBST([NEON_CXXFLAGS])
