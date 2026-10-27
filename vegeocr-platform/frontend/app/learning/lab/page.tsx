@@ -1,26 +1,21 @@
-"use client";
-import { DragEvent, FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import LabResult from "@/components/LabResult";
-import LearningTabs from "@/components/LearningTabs";
-import Shell from "@/components/Shell";
-import { Badge, Err, fmtDate, Spinner, statusTone } from "@/components/ui";
-import { api, LANGS } from "@/lib/api";
+“use client”;
+import { DragEvent, FormEvent, useCallback, useEffect, useRef, useState } from “react”;
+import LabResult from “@/components/LabResult”;
+import LearningTabs from “@/components/LearningTabs”;
+import Shell from “@/components/Shell”;
+import { Badge, Err, fmtDate, Spinner, statusTone } from “@/components/ui”;
+import { api, LANGS } from “@/lib/api”;
 
 export default function LabPage() {
   return <Shell><Body /></Shell>;
 }
-
-const MODE_HELP: Record<string, string> = {
-  printed: “Typed or printed text: documents, receipts, forms. Supports Japanese and Chinese.”,
-  handwriting: “Handwritten notes, print or cursive. Neat block letters often work better as “Printed”.”,
-};
 
 function Body() {
   const [cap, setCap] = useState<any>(null);
   const [datasets, setDatasets] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [file, setFile] = useState<File | null>(null);
-  const [mode, setMode] = useState("printed"); const [lang, setLang] = useState("jpn"); const [enhance, setEnhance] = useState("auto"); const [dataset, setDataset] = useState("");
+  const [lang, setLang] = useState(“jpn”); const [enhance, setEnhance] = useState(“auto”); const [dataset, setDataset] = useState(“”);
   const [run, setRun] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null); const [busy, setBusy] = useState(false); const [over, setOver] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -42,7 +37,7 @@ function Body() {
     e.preventDefault(); if (!file) return;
     setBusy(true); setErr(null); setRun(null);
     try {
-      const fd = new FormData(); fd.append("file", file); fd.append("mode", mode); fd.append("lang", lang); fd.append("enhance", enhance); fd.append("engine", "auto");
+      const fd = new FormData(); fd.append("file", file); fd.append("mode", "printed"); fd.append("lang", lang); fd.append("enhance", enhance); fd.append("engine", "auto");
       if (dataset) fd.append("dataset_id", dataset);
       setRun(await api("/api/web/lab/runs", { body: fd }));
     } catch (x: any) { setErr(x.message); setBusy(false); }
@@ -66,11 +61,7 @@ function Body() {
           <div className="text-sm"><b className="text-brand-600">Click to choose</b> or drag an image or PDF here</div>
           <div className="mt-1 text-xs text-slate-500">{file ? `${file.name} · ${(file.size / 1024).toFixed(0)} KB` : `PNG, JPG, TIFF, BMP, WEBP or PDF · up to ${cap?.limits.max_upload_mb ?? 15} MB · PDFs: first ${cap?.limits.max_pages ?? 3} pages`}</div>
         </div>
-        <div className="grid gap-4 md:grid-cols-4">
-          <fieldset className="md:col-span-2"><legend className="text-sm font-medium">What is in the image?</legend>
-            <div className="mt-1 inline-flex rounded-lg border border-slate-200 p-0.5 text-sm" role="radiogroup" aria-label="Mode">
-              {(["printed", "handwriting"] as const).map(m => <label key={m} className={`cursor-pointer rounded-md px-4 py-1.5 ${mode === m ? "bg-brand-600 text-white" : "text-slate-600"}`}><input type="radio" name="mode" value={m} className="sr-only" checked={mode === m} onChange={() => setMode(m)} />{m === "printed" ? "Printed text" : "Handwriting"}</label>)}
-            </div><p className="mt-1.5 text-xs text-slate-500">{MODE_HELP[mode]}</p></fieldset>
+        <div className="grid gap-4 md:grid-cols-3">
           <label className="text-sm font-medium">Language<select className="input mt-1" value={lang} onChange={e => setLang(e.target.value)} aria-label="Language">{LANGS.map(([c, l]) => <option key={c} value={c}>{l}</option>)}</select></label>
           <label className="text-sm font-medium">Image enhancement<select className="input mt-1" value={enhance} onChange={e => setEnhance(e.target.value)} aria-label="Enhancement">
             <option value="auto">Auto: only if the image needs it</option><option value="on">Always enhance</option><option value="off">Never</option></select></label>
