@@ -18,6 +18,8 @@
 
 #include "plumbing.h"
 
+#include <limits>
+
 #include <utility> // for std::move
 
 namespace tesseract {
@@ -237,6 +239,15 @@ bool Plumbing::DeSerialize(TFile *fp) {
   for (uint32_t i = 0; i < size; ++i) {
     Network *network = CreateFromFile(fp);
     if (network == nullptr) {
+      return false;
+    }
+    // Validate the dimensions before AddToStack combines the child layers.
+    if (!stack_.empty() &&
+        ((type_ == NT_SERIES && no_ != network->NumInputs()) ||
+         (type_ != NT_SERIES &&
+          (ni_ != network->NumInputs() ||
+           network->NumOutputs() > std::numeric_limits<int>::max() - no_)))) {
+      delete network;
       return false;
     }
     AddToStack(network);
