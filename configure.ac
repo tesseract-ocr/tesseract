@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE([foreign subdir-objects nostdinc])
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2026
-PACKAGE_DATE="07/24"
+PACKAGE_DATE="10/28"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
