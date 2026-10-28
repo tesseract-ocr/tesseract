@@ -31,29 +31,33 @@ size_t TrainingStateOffset(const std::string &type_name) {
   return 1 + 4 + type_name.size();
 }
 
-std::vector<char> SerializeSeries(TrainingState state) {
+// ASSERT_TRUE needs a function that returns nothing, so the bytes come
+// back through the parameter.
+void SerializeSeries(TrainingState state, std::vector<char> *data) {
   Series series("test");
   // TS_TEMP_DISABLE is only reachable from TS_ENABLED, which is how a
   // trainer gets there before writing a recognition dump.
   series.SetEnableTraining(TS_ENABLED);
   series.SetEnableTraining(state);
-  std::vector<char> data;
   TFile fp;
-  fp.OpenWrite(&data);
-  EXPECT_TRUE(series.Serialize(&fp));
-  return data;
+  fp.OpenWrite(data);
+  ASSERT_TRUE(series.Serialize(&fp));
 }
 
 TEST(NetworkSerializeTest, TemporarilyDisabledIsWrittenAsDisabled) {
-  const std::vector<char> data = SerializeSeries(TS_TEMP_DISABLE);
+  std::vector<char> data;
+  ASSERT_NO_FATAL_FAILURE(SerializeSeries(TS_TEMP_DISABLE, &data));
   ASSERT_GT(data.size(), TrainingStateOffset("Series"));
   EXPECT_EQ(TS_DISABLED, data[TrainingStateOffset("Series")]);
   // A recognition dump has to look like a network that was never training.
-  EXPECT_EQ(SerializeSeries(TS_DISABLED), data);
+  std::vector<char> disabled;
+  ASSERT_NO_FATAL_FAILURE(SerializeSeries(TS_DISABLED, &disabled));
+  EXPECT_EQ(disabled, data);
 }
 
 TEST(NetworkSerializeTest, EnabledIsWrittenAsEnabled) {
-  const std::vector<char> data = SerializeSeries(TS_ENABLED);
+  std::vector<char> data;
+  ASSERT_NO_FATAL_FAILURE(SerializeSeries(TS_ENABLED, &data));
   ASSERT_GT(data.size(), TrainingStateOffset("Series"));
   EXPECT_EQ(TS_ENABLED, data[TrainingStateOffset("Series")]);
 }
