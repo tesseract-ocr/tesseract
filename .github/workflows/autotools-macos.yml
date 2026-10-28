@@ -42,6 +42,21 @@ jobs:
       run: |
            ./autogen.sh
 
+    - name: Check shared libtesseract links Accelerate
+      run: |
+           set -o pipefail
+           mkdir build-accelerate-shared
+           cd build-accelerate-shared
+           ../configure '--disable-static' '--disable-openmp' '--disable-doc' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+           grep -E '^#define HAVE_FRAMEWORK_ACCELERATE' include/config_auto.h
+           make NOUNDEFINED=-no-undefined V=1 libtesseract.la 2>&1 | tee libtesseract-link.log
+           awk '/--mode=link/ && /[[:space:]]-o[[:space:]]+libtesseract\.la([[:space:]]|$)/ { print; found=1 } END { exit found ? 0 : 1 }' libtesseract-link.log | tee libtesseract-link-cmd.txt
+           grep -F -- '-framework Accelerate' libtesseract-link-cmd.txt
+           grep -F -- '-no-undefined' libtesseract-link-cmd.txt
+           test -f .libs/libtesseract.dylib
+           otool -L .libs/libtesseract.dylib | tee libtesseract-otool.txt
+           grep Accelerate libtesseract-otool.txt
+
     - name: Configure Tesseract
       run: |
            ./configure '--disable-shared' '--disable-openmp' '--disable-doc' '--with-pic' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
