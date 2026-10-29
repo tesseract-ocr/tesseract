@@ -9,11 +9,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "blobbox.h"
 #include "colpartition.h"
+#include "colpartitiongrid.h"
+#include "ocrblock.h"
 
 #include "include_gunit.h"
 
 namespace tesseract {
+
+namespace {
+
+int ExtractedBlockCount(BlobRegionType type, BlobTextFlowType flow, int box_count) {
+  ColPartitionGrid grid(10, ICOORD(0, 0), ICOORD(100, 100));
+  ColPartition *part =
+      ColPartition::FakePartition(TBOX(10, 10, 20, 20), PT_FLOWING_TEXT, type, flow);
+  for (int i = 1; i < box_count; ++i) {
+    const TBOX box(10 + i * 12, 10, 20 + i * 12, 20);
+    part->AddBox(new BLOBNBOX(C_BLOB::FakeBlob(box)));
+  }
+  // Make each BLOBNBOX own its C_BLOB so the fake blobs aren't leaked.
+  BLOBNBOX_C_IT owns_it(part->boxes());
+  for (owns_it.mark_cycle_pt(); !owns_it.cycled_list(); owns_it.forward()) {
+    owns_it.data()->set_owns_cblob(true);
+  }
+  part->ComputeLimits();
+  part->ClaimBoxes();
+  part->SetBlobTypes();
+  grid.InsertBBox(true, true, part);
+
+  BLOCK_LIST blocks;
+  TO_BLOCK_LIST to_blocks;
+  grid.ExtractPartitionsAsBlocks(&blocks, &to_blocks);
+  return blocks.length();
+}
+
+} // namespace
 
 class TestableColPartition : public ColPartition {
 public:
@@ -71,6 +102,22 @@ TEST_F(ColPartitionTest, IsInSameColumnAsPartialOverlap) {
 
   EXPECT_TRUE(a.IsInSameColumnAs(b));
   EXPECT_TRUE(b.IsInSameColumnAs(a));
+}
+
+TEST(ColPartitionGridTest, RejectsMultiBlobUnknownNonTextPartition) {
+  EXPECT_EQ(0, ExtractedBlockCount(BRT_UNKNOWN, BTFT_NONTEXT, 2));
+}
+
+TEST(ColPartitionGridTest, RetainsMultiBlobUnknownPartitionWithTextFlow) {
+  EXPECT_EQ(1, ExtractedBlockCount(BRT_UNKNOWN, BTFT_NEIGHBOURS, 2));
+}
+
+TEST(ColPartitionGridTest, RejectsSingleBlobUnknownPartition) {
+  EXPECT_EQ(0, ExtractedBlockCount(BRT_UNKNOWN, BTFT_NONTEXT, 1));
+}
+
+TEST(ColPartitionGridTest, RetainsTextPartitionWithNonTextFlow) {
+  EXPECT_EQ(1, ExtractedBlockCount(BRT_TEXT, BTFT_NONTEXT, 2));
 }
 
 } // namespace tesseract
