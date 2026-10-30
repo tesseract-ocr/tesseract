@@ -34,6 +34,7 @@
 #include <tesseract/baseapi.h>
 #include "dict.h"
 #include <tesseract/renderer.h>
+#include "api/runtimeparams.h" // for BuildRuntimeParametersJSON
 #include "simddetect.h"
 #include "tesseractclass.h" // for AnyTessLang
 #include "tprintf.h" // for tprintf
@@ -515,6 +516,12 @@ static void PreloadRenderers(tesseract::TessBaseAPI &api,
       bool font_info;
       api.GetBoolVariable("hocr_font_info", &font_info);
       auto renderer = std::make_unique<tesseract::TessHOcrRenderer>(outputbase, font_info);
+      bool runtime_params = false;
+      api.GetBoolVariable("hocr_runtime_parameters", &runtime_params);
+      if (runtime_params) {
+        renderer->SetRuntimeParameters(
+            tesseract::BuildRuntimeParametersJSON(api));
+      }
       if (renderer->happy()) {
         renderers.push_back(std::move(renderer));
       } else {

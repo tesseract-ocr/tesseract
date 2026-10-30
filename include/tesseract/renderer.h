@@ -173,13 +173,22 @@ public:
   explicit TessHOcrRenderer(const char *outputbase, bool font_info);
   explicit TessHOcrRenderer(const char *outputbase);
 
+  /**
+   * Record the runtime parameters JSON to emit as an
+   * 'ocr-runtime-parameters' meta tag in the hOCR \<head\>.
+   * Must be called before BeginDocument().
+   * Pass an empty string to disable the tag (the default).
+   */
+  void SetRuntimeParameters(const std::string &json);
+
 protected:
   bool BeginDocumentHandler() override;
   bool AddImageHandler(TessBaseAPI *api) override;
   bool EndDocumentHandler() override;
 
 private:
-  bool font_info_; // whether to print font information
+  bool font_info_;              // whether to print font information
+  std::string runtime_parameters_; // empty = disabled
 };
 
 /**
