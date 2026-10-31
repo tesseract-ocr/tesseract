@@ -29,6 +29,7 @@
 #include "colpartitionset.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "equationdetectbase.h"
+#  include <tesseract/osdetect.h>
 #endif
 #include "blobbox.h"
 #include "linefind.h"
@@ -40,6 +41,9 @@
 #include "workingpartset.h"
 
 #include <algorithm>
+#include <cmath>
+#include <map>
+#include <numeric>
 
 namespace tesseract {
 
@@ -281,10 +285,11 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK *block, bool vertical_text_lines,
 // noise/diacriticness determined via classification.
 // Returns -1 if the user hits the 'd' key in the blocks window while running
 // in debug mode, which requests a retry with more debug info.
-int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
-                             TO_BLOCK *input_block, Image photo_mask_pix, Image thresholds_pix,
-                             Image grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
-                             BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks) {
+int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, TO_BLOCK *input_block, Image photo_mask_pix,
+                             Image thresholds_pix, Image grey_pix, DebugPixa *pixa_debug,
+                             BLOCK_LIST *blocks, BLOBNBOX_LIST *diacritic_blobs,
+                             TO_BLOCK_LIST *to_blocks, Tesseract *osd_tess,
+                             const std::vector<int> *allowed_scripts, double min_orientation_margin) {
   photo_mask_pix |= nontext_map_;
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
   stroke_width_->RemoveLineResidue(&big_parts_);
@@ -467,7 +472,15 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
     DisplayBlocks(blocks);
   }
 #endif
-  RotateAndReskewBlocks(input_is_rtl, to_blocks);
+  // Block-local OSD is part of orientation detection, not of plain layout.
+  // Modes without OSD keep the historical minority-block quarter-turn.
+  Tesseract *block_osd = nullptr;
+  const std::vector<int> *block_scripts = nullptr;
+  if (PSM_OSD_ENABLED(pageseg_mode)) {
+    block_osd = osd_tess;
+    block_scripts = allowed_scripts;
+  }
+  RotateAndReskewBlocks(input_is_rtl, to_blocks, block_osd, block_scripts, min_orientation_margin);
   int result = 0;
 #ifndef GRAPHICS_DISABLED
   if (blocks_win_ != nullptr) {
@@ -1536,6 +1549,187 @@ static void RotateAndExplodeBlobList(const FCOORD &blob_rotation, BLOBNBOX_LIST 
   }
 }
 
+// Historical quarter-turn for a minority vertical block, in page-rotated
+// coordinates. If the page is already on its side, undo that rotation so the
+// minority text is the original way up. Otherwise rotate 90 degrees clockwise,
+// which is the image-credit / CJK-heading convention.
+static FCOORD ConventionalVerticalBlockRotation(const FCOORD &rerotate) {
+  if (rerotate.x() == 0.0f) {
+    return rerotate;
+  }
+  return FCOORD(0.0f, -1.0f);
+}
+
+#ifndef DISABLED_LEGACY_ENGINE
+// OSD orientation ids are the CCW quarter-turns that stand a glyph upright.
+// The matching up-vector in the space os_detect_blobs sees is therefore up
+// rotated clockwise by that many quarters: 0 (0,1), 1 (1,0), 2 (0,-1), 3 (-1,0).
+static int OrientationIdForUpVector(const FCOORD &up) {
+  if (up.x() > 0.5f) {
+    return 1;
+  }
+  if (up.x() < -0.5f) {
+    return 3;
+  }
+  if (up.y() < -0.5f) {
+    return 2;
+  }
+  return 0;
+}
+
+// Orientation id, measured on original image outlines, of glyphs that are
+// upright after block_rotation is applied in page-rotated space.
+//
+// Outlines have not been page-rotated, deskewed, or RTL-reflected. Boxes were.
+// rerotate_ undoes the page rotation so the id is comparable with os_detect_blobs.
+// Deskew is omitted: the block polygon is reskewed before block_rotation, and
+// outlines never received the deskew. RTL reflection is undone on the block
+// before this rotation and was never applied to outlines.
+static int OrientationIdForBlockRotation(const FCOORD &block_rotation, const FCOORD &rerotate) {
+  FCOORD up_page(0.0f, 1.0f);
+  up_page.rotate(FCOORD(block_rotation.x(), -block_rotation.y()));
+  up_page.rotate(rerotate);
+  return OrientationIdForUpVector(up_page);
+}
+
+// Same acceptance rule as os_detect(): nearly square blobs tall enough to be
+// characters. Kept local so disabled-legacy builds do not link osdetect.cpp.
+const float kOsdSizeRatioToReject = 2.0f;
+const int kMinOsdBlobHeight = 10;
+
+static void AppendEligibleOsdBlobs(BLOBNBOX_LIST *src, BLOBNBOX_C_IT *dst) {
+  BLOBNBOX_IT it(src);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    BLOBNBOX *blob = it.data();
+    if (blob->cblob() == nullptr) {
+      continue;
+    }
+    // Outlines are still in original image coordinates. That is the space
+    // os_detect_blobs classifies, so filter on the outline box.
+    TBOX box = blob->cblob()->bounding_box();
+    if (box.width() <= 0 || box.height() < kMinOsdBlobHeight) {
+      continue;
+    }
+    float y_x = static_cast<float>(box.height()) / static_cast<float>(box.width());
+    float x_y = 1.0f / y_x;
+    float ratio = x_y > y_x ? x_y : y_x;
+    if (ratio > kOsdSizeRatioToReject) {
+      continue;
+    }
+    dst->add_to_end(blob);
+  }
+}
+
+// Adds this TO_BLOCK's OSD-eligible blobs, loose and in rows, to dst.
+static void AppendEligibleBlockBlobs(TO_BLOCK *to_block, BLOBNBOX_C_IT *dst) {
+  AppendEligibleOsdBlobs(&to_block->blobs, dst);
+  TO_ROW_IT row_it(to_block->get_rows());
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    AppendEligibleOsdBlobs(row_it.data()->blob_list(), dst);
+  }
+}
+
+// Log-score margin by which the eligible blobs prefer the opposite polarity
+// over convention_id. A fresh OSResults is used so page-level scores are not
+// modified. Returns 0 (no evidence) when OSD declines to score the blobs.
+static double OppositeOrientationMargin(BLOBNBOX_CLIST *eligible, int convention_id,
+                                        Tesseract *osd_tess,
+                                        const std::vector<int> *allowed_scripts) {
+  OSResults osr;
+  int sampled = os_detect_blobs(allowed_scripts, eligible, &osr, osd_tess);
+  eligible->shallow_clear();
+  if (sampled <= 0) {
+    return 0.0;
+  }
+  int opposite_id = (convention_id + 2) % 4;
+  double margin = static_cast<double>(osr.orientations[opposite_id]) -
+                  static_cast<double>(osr.orientations[convention_id]);
+  if (textord_debug_tabfind) {
+    tprintf("Vertical OSD sampled %d, convention id %d (%.2f) opposite id %d (%.2f), margin %.2f\n",
+            sampled, convention_id, osr.orientations[convention_id], opposite_id,
+            osr.orientations[opposite_id], margin);
+  }
+  return margin;
+}
+
+// True when two minority blocks are close enough to be one text region: within
+// twice the thinner block's short side, which is about a line thickness for the
+// per-line blocks layout produces. Unrelated sidebars and captions stay apart.
+static bool SameVerticalRegion(const TBOX &a, const TBOX &b) {
+  int thickness = std::min(std::min(a.width(), a.height()), std::min(b.width(), b.height()));
+  TBOX grown = a;
+  grown.pad(2 * thickness, 2 * thickness);
+  return grown.overlap(b);
+}
+
+// Layout often splits one minority region into a block per text line or
+// paragraph, each too small for a decisive score on its own. This groups the
+// minority vertical blocks into regions, pools each region's blobs, which share
+// one conventional quarter-turn, and returns the opposite-polarity margin per
+// block. A block alone in its region gets no entry, as it scores itself.
+static std::map<const TO_BLOCK *, double> VerticalRegionOppositeMargins(
+    TO_BLOCK_LIST *blocks, int convention_id, Tesseract *osd_tess,
+    const std::vector<int> *allowed_scripts) {
+  std::vector<TO_BLOCK *> vertical_blocks;
+  TO_BLOCK_IT it(blocks);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    TO_BLOCK *to_block = it.data();
+    if (to_block->block->pdblk.poly_block()->isA() == PT_VERTICAL_TEXT) {
+      vertical_blocks.push_back(to_block);
+    }
+  }
+  std::vector<size_t> region(vertical_blocks.size());
+  std::iota(region.begin(), region.end(), 0);
+  for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+    for (size_t j = 0; j < i; ++j) {
+      if (region[i] != region[j] &&
+          SameVerticalRegion(vertical_blocks[i]->block->pdblk.bounding_box(),
+                             vertical_blocks[j]->block->pdblk.bounding_box())) {
+        std::replace(region.begin(), region.end(), region[j], region[i]);
+      }
+    }
+  }
+  std::map<const TO_BLOCK *, double> margins;
+  for (size_t id = 0; id < vertical_blocks.size(); ++id) {
+    if (std::count(region.begin(), region.end(), id) < 2) {
+      continue;
+    }
+    BLOBNBOX_CLIST eligible;
+    BLOBNBOX_C_IT eligible_it(&eligible);
+    for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+      if (region[i] == id) {
+        AppendEligibleBlockBlobs(vertical_blocks[i], &eligible_it);
+      }
+    }
+    double margin = OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+    for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+      if (region[i] == id) {
+        margins[vertical_blocks[i]] = margin;
+      }
+    }
+  }
+  return margins;
+}
+
+// True when the evidence strongly prefers the opposite quarter-turn from the
+// historical convention. A block that is decisive on its own, either way, keeps
+// its own answer, so separate minority regions can differ. Otherwise the pooled
+// region_margin of its own region from VerticalRegionOppositeMargins decides.
+static bool VerticalBlockOsdPrefersOpposite(TO_BLOCK *to_block, int convention_id,
+                                            double region_margin, Tesseract *osd_tess,
+                                            const std::vector<int> *allowed_scripts,
+                                            double min_orientation_margin) {
+  BLOBNBOX_CLIST eligible;
+  BLOBNBOX_C_IT eligible_it(&eligible);
+  AppendEligibleBlockBlobs(to_block, &eligible_it);
+  double margin = OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+  if (std::fabs(margin) < min_orientation_margin) {
+    margin = region_margin;
+  }
+  return margin >= min_orientation_margin;
+}
+#endif // !DISABLED_LEGACY_ENGINE
+
 // Undo the deskew that was done in FindTabVectors, as recognition is done
 // without correcting blobs or blob outlines for skew.
 // Reskew the completed blocks to put them back to the original rotated coords
@@ -1548,13 +1742,24 @@ static void RotateAndExplodeBlobList(const FCOORD &blob_rotation, BLOBNBOX_LIST 
 // that they are in, and their bounding boxes are recalculated to be accurate.
 // Record appropriate inverse transformations and required
 // classifier transformation in the blocks.
-void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *blocks) {
+void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *blocks,
+                                         Tesseract *osd_tess, const std::vector<int> *allowed_scripts,
+                                         double min_orientation_margin) {
   if (input_is_rtl) {
     // The skew is backwards because of the reflection.
     FCOORD tmp = deskew_;
     deskew_ = reskew_;
     reskew_ = tmp;
   }
+  // Pooled minority evidence must be scored before any outlines are rotated.
+  std::map<const TO_BLOCK *, double> vertical_region_margins;
+#ifndef DISABLED_LEGACY_ENGINE
+  if (osd_tess != nullptr) {
+    FCOORD convention = ConventionalVerticalBlockRotation(rerotate_);
+    vertical_region_margins = VerticalRegionOppositeMargins(
+        blocks, OrientationIdForBlockRotation(convention, rerotate_), osd_tess, allowed_scripts);
+  }
+#endif
   TO_BLOCK_IT it(blocks);
   int block_index = 1;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -1571,7 +1776,10 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     // Save the skew angle in the block for baseline computations.
     block->set_skew(reskew_);
     block->pdblk.set_index(block_index++);
-    FCOORD blob_rotation = ComputeBlockAndClassifyRotation(block);
+    auto region_margin = vertical_region_margins.find(to_block);
+    FCOORD blob_rotation = ComputeBlockAndClassifyRotation(
+        to_block, osd_tess, allowed_scripts, min_orientation_margin,
+        region_margin == vertical_region_margins.end() ? 0.0 : region_margin->second);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
     STATS widths(0, block->pdblk.bounding_box().width() - 1);
@@ -1595,30 +1803,47 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
 // of the given block.
 // Returns the rotation that needs to be applied to the blobs to make
 // them sit in the rotated block.
-FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(BLOCK *block) {
+FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tesseract *osd_tess,
+                                                     const std::vector<int> *allowed_scripts,
+                                                     double min_orientation_margin,
+                                                     double vertical_region_margin) {
+#ifdef DISABLED_LEGACY_ENGINE
+  (void)osd_tess;
+  (void)allowed_scripts;
+  (void)min_orientation_margin;
+  (void)vertical_region_margin;
+#endif
+  BLOCK *block = to_block->block;
   // The text_rotation_ tells us the gross page text rotation that needs
-  // to be applied for classification
-  // TODO(rays) find block-level classify rotation by orientation detection.
-  // In the mean time, assume that "up" for text printed in the minority
-  // direction (PT_VERTICAL_TEXT) is perpendicular to the line of reading.
-  // Accomplish this by zero-ing out the text rotation.  This covers the
-  // common cases of image credits in documents written in Latin scripts
-  // and page headings for predominantly vertically written CJK books.
+  // to be applied for classification. Minority vertical blocks zero it after
+  // choosing a quarter-turn that leaves the glyphs upright, which is the
+  // image-credit / CJK-heading case rather than vertical CJK writing.
   FCOORD classify_rotation(text_rotation_);
   FCOORD block_rotation(1.0f, 0.0f);
   if (block->pdblk.poly_block()->isA() == PT_VERTICAL_TEXT) {
     // Vertical text needs to be 90 degrees rotated relative to the rest.
-    // If the rest has a 90 degree rotation already, use the inverse, making
-    // the vertical text the original way up. Otherwise use 90 degrees
-    // clockwise.
-    if (rerotate_.x() == 0.0f) {
-      block_rotation = rerotate_;
-    } else {
-      block_rotation = FCOORD(0.0f, -1.0f);
+    // The historical convention picks one polarity along that axis. Block-local
+    // OSD may select the opposite polarity when this block's own blobs say so.
+    // Insufficient samples, weak evidence, or no OSD engine keep the convention,
+    // including genuine vertical CJK where the sideways scores are weak.
+    block_rotation = ConventionalVerticalBlockRotation(rerotate_);
+#ifndef DISABLED_LEGACY_ENGINE
+    if (osd_tess != nullptr &&
+        VerticalBlockOsdPrefersOpposite(
+            to_block, OrientationIdForBlockRotation(block_rotation, rerotate_),
+            vertical_region_margin, osd_tess, allowed_scripts, min_orientation_margin)) {
+      block_rotation.rotate(FCOORD(-1.0f, 0.0f));
     }
+#endif
     block->rotate(block_rotation);
+    // The chosen quarter-turn stands the glyphs upright in the block, so
+    // classification does not apply another rotation. re_rotation below is the
+    // inverse of the same transform applied to the outlines.
     classify_rotation = FCOORD(1.0f, 0.0f);
   }
+  // Compose with the page rotation. Outlines are still in original image
+  // coordinates (not deskewed, not RTL-reflected); this is the rotation that
+  // brings them into the reskewed, un-reflected block.
   block_rotation.rotate(rotation_);
   // block_rotation is now what we have done to the blocks. Now do the same
   // thing to the blobs, but save the inverse rotation in the block, as that

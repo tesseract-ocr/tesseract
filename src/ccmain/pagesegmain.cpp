@@ -198,6 +198,20 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
  * another Tesseract that was initialized especially for osd, and the results
  * will be output into osr (orientation and script result).
  */
+#ifndef DISABLED_LEGACY_ENGINE
+// Helper adds all the scripts from sid_set converted to ids from osd_set to
+// allowed_ids.
+static void AddAllScriptsConverted(const UNICHARSET &sid_set, const UNICHARSET &osd_set,
+                                   std::vector<int> *allowed_ids) {
+  for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
+    if (i != sid_set.null_sid()) {
+      const char *script = sid_set.get_script_from_script_id(i);
+      allowed_ids->push_back(osd_set.get_script_id_from_name(script));
+    }
+  }
+}
+#endif // !DISABLED_LEGACY_ENGINE
+
 int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks,
                            BLOBNBOX_LIST *diacritic_blobs, Tesseract *osd_tess, OSResults *osr) {
   Image photomask_pix = nullptr;
@@ -223,9 +237,20 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
       finder->SetEquationDetect(equ_detect_);
     }
 #endif // ndef DISABLED_LEGACY_ENGINE
-    result = finder->FindBlocks(pageseg_mode, to_block,
-                                photomask_pix, pix_thresholds_, pix_grey_, &pixa_debug_,
-                                &found_blocks, diacritic_blobs, to_blocks);
+    // Same script constraints as page-level OSD. Block-local decisions use a
+    // fresh OSResults and must not be folded back into osr.
+    std::vector<int> osd_scripts;
+#ifndef DISABLED_LEGACY_ENGINE
+    if (osd_tess != nullptr && osd_tess != this) {
+      AddAllScriptsConverted(unicharset, osd_tess->unicharset, &osd_scripts);
+      for (auto &lang : sub_langs_) {
+        AddAllScriptsConverted(lang->unicharset, osd_tess->unicharset, &osd_scripts);
+      }
+    }
+#endif // ndef DISABLED_LEGACY_ENGINE
+    result = finder->FindBlocks(pageseg_mode, to_block, photomask_pix, pix_thresholds_, pix_grey_,
+                                &pixa_debug_, &found_blocks, diacritic_blobs, to_blocks, osd_tess,
+                                &osd_scripts, min_orientation_margin);
     if (result >= 0) {
       finder->GetDeskewVectors(&deskew_, &reskew_);
     }
@@ -242,18 +267,6 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
   // Move the found blocks to the input/output blocks.
   block_it.add_list_after(&found_blocks);
   return result;
-}
-
-// Helper adds all the scripts from sid_set converted to ids from osd_set to
-// allowed_ids.
-static void AddAllScriptsConverted(const UNICHARSET &sid_set, const UNICHARSET &osd_set,
-                                   std::vector<int> *allowed_ids) {
-  for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
-    if (i != sid_set.null_sid()) {
-      const char *script = sid_set.get_script_from_script_id(i);
-      allowed_ids->push_back(osd_set.get_script_id_from_name(script));
-    }
-  }
 }
 
 /**
