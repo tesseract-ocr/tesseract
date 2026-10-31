@@ -294,8 +294,8 @@ private:
   // of the given block.
   // Returns the rotation that needs to be applied to the blobs to make
   // them sit in the rotated block.
-  // vertical_region_margin is the pooled opposite-polarity margin of all
-  // minority vertical blocks, used when this block's own evidence is weak.
+  // vertical_region_margin is the pooled opposite-polarity margin of this
+  // block's minority text region, used when its own evidence is weak.
   FCOORD ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tesseract *osd_tess,
                                          const std::vector<int> *allowed_scripts,
                                          double min_orientation_margin,
