@@ -60,3 +60,13 @@ $CXX $CXXFLAGS \
      $LEPTONICA_CFLAGS \
      -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
+
+$CXX $CXXFLAGS \
+    -I "$SRC"/tesseract/include \
+     "$SRC"/tesseract/unittest/fuzzers/fuzzer_imgfile.cpp -o "$OUT"/fuzzer_imgfile \
+     "$SRC"/tesseract/.libs/libtesseract.a \
+     $LEPTONICA_CFLAGS \
+     -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
+     $LIB_FUZZING_ENGINE
+
+cp "$SRC"/tesseract/unittest/fuzzers/fuzzer_imgfile.options "$OUT"/fuzzer_imgfile.options
