@@ -42,6 +42,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <numeric>
 
 namespace tesseract {
 
@@ -1650,36 +1652,69 @@ static double OppositeOrientationMargin(BLOBNBOX_CLIST *eligible, int convention
   return margin;
 }
 
+// True when two minority blocks are close enough to be one text region: within
+// twice the thinner block's short side, which is about a line thickness for the
+// per-line blocks layout produces. Unrelated sidebars and captions stay apart.
+static bool SameVerticalRegion(const TBOX &a, const TBOX &b) {
+  int thickness = std::min(std::min(a.width(), a.height()), std::min(b.width(), b.height()));
+  TBOX grown = a;
+  grown.pad(2 * thickness, 2 * thickness);
+  return grown.overlap(b);
+}
+
 // Layout often splits one minority region into a block per text line or
-// paragraph, each too small for a decisive score on its own. This pools the
-// blobs of all minority vertical blocks, which share one conventional
-// quarter-turn, and returns their opposite-polarity margin. Returns 0 when
-// there are fewer than two such blocks, as a single block scores itself.
-static double VerticalRegionOppositeMargin(TO_BLOCK_LIST *blocks, int convention_id,
-                                           Tesseract *osd_tess,
-                                           const std::vector<int> *allowed_scripts) {
-  BLOBNBOX_CLIST eligible;
-  BLOBNBOX_C_IT eligible_it(&eligible);
-  int vertical_blocks = 0;
+// paragraph, each too small for a decisive score on its own. This groups the
+// minority vertical blocks into regions, pools each region's blobs, which share
+// one conventional quarter-turn, and returns the opposite-polarity margin per
+// block. A block alone in its region gets no entry, as it scores itself.
+static std::map<const TO_BLOCK *, double> VerticalRegionOppositeMargins(
+    TO_BLOCK_LIST *blocks, int convention_id, Tesseract *osd_tess,
+    const std::vector<int> *allowed_scripts) {
+  std::vector<TO_BLOCK *> vertical_blocks;
   TO_BLOCK_IT it(blocks);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TO_BLOCK *to_block = it.data();
     if (to_block->block->pdblk.poly_block()->isA() == PT_VERTICAL_TEXT) {
-      AppendEligibleBlockBlobs(to_block, &eligible_it);
-      ++vertical_blocks;
+      vertical_blocks.push_back(to_block);
     }
   }
-  if (vertical_blocks < 2) {
-    eligible.shallow_clear();
-    return 0.0;
+  std::vector<size_t> region(vertical_blocks.size());
+  std::iota(region.begin(), region.end(), 0);
+  for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+    for (size_t j = 0; j < i; ++j) {
+      if (region[i] != region[j] &&
+          SameVerticalRegion(vertical_blocks[i]->block->pdblk.bounding_box(),
+                             vertical_blocks[j]->block->pdblk.bounding_box())) {
+        std::replace(region.begin(), region.end(), region[j], region[i]);
+      }
+    }
   }
-  return OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+  std::map<const TO_BLOCK *, double> margins;
+  for (size_t id = 0; id < vertical_blocks.size(); ++id) {
+    if (std::count(region.begin(), region.end(), id) < 2) {
+      continue;
+    }
+    BLOBNBOX_CLIST eligible;
+    BLOBNBOX_C_IT eligible_it(&eligible);
+    for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+      if (region[i] == id) {
+        AppendEligibleBlockBlobs(vertical_blocks[i], &eligible_it);
+      }
+    }
+    double margin = OppositeOrientationMargin(&eligible, convention_id, osd_tess, allowed_scripts);
+    for (size_t i = 0; i < vertical_blocks.size(); ++i) {
+      if (region[i] == id) {
+        margins[vertical_blocks[i]] = margin;
+      }
+    }
+  }
+  return margins;
 }
 
 // True when the evidence strongly prefers the opposite quarter-turn from the
 // historical convention. A block that is decisive on its own, either way, keeps
 // its own answer, so separate minority regions can differ. Otherwise the pooled
-// region_margin from VerticalRegionOppositeMargin decides.
+// region_margin of its own region from VerticalRegionOppositeMargins decides.
 static bool VerticalBlockOsdPrefersOpposite(TO_BLOCK *to_block, int convention_id,
                                             double region_margin, Tesseract *osd_tess,
                                             const std::vector<int> *allowed_scripts,
@@ -1717,11 +1752,11 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     reskew_ = tmp;
   }
   // Pooled minority evidence must be scored before any outlines are rotated.
-  double vertical_region_margin = 0.0;
+  std::map<const TO_BLOCK *, double> vertical_region_margins;
 #ifndef DISABLED_LEGACY_ENGINE
   if (osd_tess != nullptr) {
     FCOORD convention = ConventionalVerticalBlockRotation(rerotate_);
-    vertical_region_margin = VerticalRegionOppositeMargin(
+    vertical_region_margins = VerticalRegionOppositeMargins(
         blocks, OrientationIdForBlockRotation(convention, rerotate_), osd_tess, allowed_scripts);
   }
 #endif
@@ -1741,8 +1776,10 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *block
     // Save the skew angle in the block for baseline computations.
     block->set_skew(reskew_);
     block->pdblk.set_index(block_index++);
+    auto region_margin = vertical_region_margins.find(to_block);
     FCOORD blob_rotation = ComputeBlockAndClassifyRotation(
-        to_block, osd_tess, allowed_scripts, min_orientation_margin, vertical_region_margin);
+        to_block, osd_tess, allowed_scripts, min_orientation_margin,
+        region_margin == vertical_region_margins.end() ? 0.0 : region_margin->second);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
     STATS widths(0, block->pdblk.bounding_box().width() - 1);

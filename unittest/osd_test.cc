@@ -401,6 +401,56 @@ TEST(OSDMixedOrientationTest, WeakEvidenceKeepsConvention) {
 // A short clockwise line has too few usable blobs, so os_detect_blobs declines
 // the block and the historical quarter-turn stays (PAGE_LEFT / textangle 90).
 // The upright block is still read, so the page orientation was not replaced.
+TEST(OSDMixedOrientationTest, ShortCaptionIgnoresUnrelatedSidebarEvidence) {
+#ifdef DISABLED_LEGACY_ENGINE
+  GTEST_SKIP() << "Skip test because block OSD requires the legacy engine.";
+#else
+  Image src = pixRead(TESTING_DIR "/phototest.tif");
+  ASSERT_TRUE(src != nullptr);
+  // A decisive clockwise sidebar and a counterclockwise caption too short to
+  // score, on the same page and far apart. Only the sidebar turns over.
+  Box *clip = boxCreate(30, 88, 170, 36);
+  Image line = pixClipRectangle(src, clip, nullptr);
+  boxDestroy(&clip);
+  ASSERT_TRUE(line != nullptr);
+  Image caption = pixRotate90(line, kTurnCounterclockwise);
+  line.destroy();
+  Image sidebar = pixRotate90(src, kTurnClockwise);
+  int src_w = pixGetWidth(src);
+  int src_h = pixGetHeight(src);
+  int side_w = pixGetWidth(sidebar);
+  int side_h = pixGetHeight(sidebar);
+  int width = src_w + kMixedGutter + side_w + kMixedGutter + pixGetWidth(caption);
+  int height = std::max(2 * src_h + kStackGap, side_h);
+  Image page(pixCreate(width, height, pixGetDepth(src)));
+  l_int32 xres = pixGetXRes(src);
+  l_int32 yres = pixGetYRes(src);
+  if (xres > 0 && yres > 0) {
+    pixSetResolution(page, xres, yres);
+  }
+  for (int i = 0; i < 2; ++i) {
+    pixRasterop(page, 0, i * (src_h + kStackGap), src_w, src_h, PIX_SRC, src, 0, 0);
+  }
+  pixRasterop(page, src_w + kMixedGutter, 0, side_w, side_h, PIX_SRC, sidebar, 0, 0);
+  pixRasterop(page, src_w + 2 * kMixedGutter + side_w, 0, pixGetWidth(caption),
+              pixGetHeight(caption), PIX_SRC, caption, 0, 0);
+  sidebar.destroy();
+  caption.destroy();
+  std::string hocr;
+  std::vector<MixedBlock> blocks;
+  if (!RecognizeAutoOsd(page, nullptr, &hocr, &blocks)) {
+    page.destroy();
+    src.destroy();
+    GTEST_SKIP() << "eng traineddata not available";
+  }
+  ExpectAnchors(TextForOrientation(blocks, ORIENTATION_PAGE_RIGHT));
+  ExpectTextAngle(hocr, ORIENTATION_PAGE_RIGHT);
+  ExpectTextAngle(hocr, ORIENTATION_PAGE_LEFT);
+  page.destroy();
+  src.destroy();
+#endif
+}
+
 TEST(OSDMixedOrientationTest, FewMinorityCharactersKeepConvention) {
 #ifdef DISABLED_LEGACY_ENGINE
   GTEST_SKIP() << "Skip test because block OSD requires the legacy engine.";
