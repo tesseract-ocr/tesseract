@@ -200,6 +200,9 @@ static bool RecognizeAutoOsd(Image image, const char *margin, std::string *hocr,
   }
   api.SetImage(image);
   if (api.Recognize(nullptr) < 0) {
+    // Init succeeded, so traineddata is present. Callers skip on false, and the
+    // failure recorded here keeps a recognition error from passing as a skip.
+    ADD_FAILURE() << "Recognize failed after Init succeeded";
     api.End();
     return false;
   }

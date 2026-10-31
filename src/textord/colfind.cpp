@@ -1726,7 +1726,9 @@ static bool VerticalBlockOsdPrefersOpposite(TO_BLOCK *to_block, int convention_i
   if (std::fabs(margin) < min_orientation_margin) {
     margin = region_margin;
   }
-  return margin >= min_orientation_margin;
+  // Require a positive margin too: with a threshold of 0, a tie or a block with
+  // no evidence (margin 0) keeps the convention instead of a 180 degree turn.
+  return margin > 0.0 && margin >= min_orientation_margin;
 }
 #endif // !DISABLED_LEGACY_ENGINE
 
