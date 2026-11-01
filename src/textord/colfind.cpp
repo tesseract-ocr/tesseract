@@ -1685,7 +1685,11 @@ static std::map<const TO_BLOCK *, double> VerticalRegionOppositeMargins(
       if (region[i] != region[j] &&
           SameVerticalRegion(vertical_blocks[i]->block->pdblk.bounding_box(),
                              vertical_blocks[j]->block->pdblk.bounding_box())) {
-        std::replace(region.begin(), region.end(), region[j], region[i]);
+        // Copy both ids: std::replace takes them by reference, and region[j]
+        // changes during the call.
+        const size_t from = region[j];
+        const size_t to = region[i];
+        std::replace(region.begin(), region.end(), from, to);
       }
     }
   }
