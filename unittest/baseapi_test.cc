@@ -32,6 +32,7 @@ namespace tesseract {
 
 using ::testing::ContainsRegex;
 using ::testing::HasSubstr;
+using ::testing::Not;
 
 static const char *langs[] = {"eng", "vie", "hin", "ara", nullptr};
 static const char *image_files[] = {"HelloGoogle.tif", "viet.tif", "raaj.tif", "arabic.tif",
@@ -169,6 +170,68 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
 
   delete[] result;
   src_pix.destroy();
+}
+
+// Returns what TessHOcrRenderer writes for the start of a document.
+// A null value for languages leaves SetInputLanguages uncalled.
+static std::string HOcrHeader(const char *languages) {
+  file::MakeTmpdir();
+  const std::string outputbase = file::JoinPath(FLAGS_test_tmpdir, "hocr_header_test");
+  {
+    TessHOcrRenderer renderer(outputbase.c_str());
+    EXPECT_TRUE(renderer.happy());
+    if (languages != nullptr) {
+      renderer.SetInputLanguages(languages);
+    }
+    EXPECT_TRUE(renderer.BeginDocument("title"));
+  } // The destructor closes the output file.
+  std::string header;
+  EXPECT_TRUE(file::GetContents(outputbase + ".hocr", &header, file::Defaults()));
+  return header;
+}
+
+// The header has no language metadata unless languages are set.
+TEST_F(TesseractTest, HOCRHeaderWithoutLanguages) {
+  for (const char *languages : {static_cast<const char *>(nullptr), ""}) {
+    const std::string header = HOcrHeader(languages);
+    EXPECT_THAT(header, HasSubstr("<meta name='ocr-capabilities'"));
+    EXPECT_THAT(header, HasSubstr("</head>"));
+    EXPECT_THAT(header, Not(HasSubstr("ocr-langs")));
+    EXPECT_THAT(header, Not(HasSubstr("ocr-scripts")));
+  }
+}
+
+// Language models become ISO 639-1 codes and script models are listed apart.
+TEST_F(TesseractTest, HOCRHeaderLanguagesAndScripts) {
+  const std::string header = HOcrHeader("eng+fra+Latin+Fraktur");
+  EXPECT_THAT(header, HasSubstr("  <meta name='ocr-langs' content='en fr' />\n"));
+  EXPECT_THAT(header, HasSubstr("  <meta name='ocr-scripts' content='Latin Fraktur' />\n"));
+  EXPECT_LT(header.find("ocr-capabilities"), header.find("ocr-langs"));
+  EXPECT_LT(header.find("ocr-scripts"), header.find("</head>"));
+}
+
+// A list of script models gives no ocr-langs tag, and the reverse.
+TEST_F(TesseractTest, HOCRHeaderOmitsEmptyTags) {
+  const std::string scripts_only = HOcrHeader("Latin");
+  EXPECT_THAT(scripts_only, HasSubstr("<meta name='ocr-scripts' content='Latin' />"));
+  EXPECT_THAT(scripts_only, Not(HasSubstr("ocr-langs")));
+
+  const std::string langs_only = HOcrHeader("deu");
+  EXPECT_THAT(langs_only, HasSubstr("<meta name='ocr-langs' content='de' />"));
+  EXPECT_THAT(langs_only, Not(HasSubstr("ocr-scripts")));
+}
+
+// Compound model names resolve by prefix. Unknown names pass through.
+TEST_F(TesseractTest, HOCRHeaderCompoundModelNames) {
+  const std::string header = HOcrHeader("deu_latf+chi_tra_vert+german_print");
+  EXPECT_THAT(header, HasSubstr("<meta name='ocr-langs' content='de zh german_print' />"));
+}
+
+// Meta tag content comes from the -l argument, so it has to be escaped.
+TEST_F(TesseractTest, HOCRHeaderEscapesLanguages) {
+  const std::string header = HOcrHeader("a&b+'c'+<d>+\"e\"");
+  EXPECT_THAT(header, HasSubstr("<meta name='ocr-langs' "
+                                "content='a&amp;b &#39;c&#39; &lt;d&gt; &quot;e&quot;' />"));
 }
 
 // Tests that Tesseract gets exactly the right answer on some page numbers.
