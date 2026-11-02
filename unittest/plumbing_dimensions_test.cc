@@ -21,47 +21,58 @@
 namespace tesseract {
 namespace {
 
-// Each child is valid independently. The parent must check their dimensions.
-bool ReadChildren(Plumbing *parent, const Network &first,
-                  const Network &second) {
-  std::vector<char> data;
+// Serializes the two children into *data.
+bool SerializeChildren(std::vector<char> *data, const Network &first,
+                       const Network &second) {
   TFile writer;
-  writer.OpenWrite(&data);
+  writer.OpenWrite(data);
   const uint32_t count = 2;
-  EXPECT_TRUE(writer.Serialize(&count));
-  EXPECT_TRUE(first.Serialize(&writer));
-  EXPECT_TRUE(second.Serialize(&writer));
-  TFile reader;
-  EXPECT_TRUE(reader.Open(data.data(), data.size()));
-  return parent->DeSerialize(&reader);
+  return writer.Serialize(&count) && first.Serialize(&writer) &&
+         second.Serialize(&writer);
 }
 
 TEST(PlumbingDimensionsTest, RejectsSeriesDimensionMismatch) {
   Reconfig first("first", 2, 3, 1);
   Reconfig second("second", 3, 1, 1);
   Series parent("series");
-  EXPECT_FALSE(ReadChildren(&parent, first, second));
+  std::vector<char> data;
+  ASSERT_TRUE(SerializeChildren(&data, first, second));
+  TFile reader;
+  ASSERT_TRUE(reader.Open(data.data(), data.size()));
+  EXPECT_FALSE(parent.DeSerialize(&reader));
 }
 
 TEST(PlumbingDimensionsTest, RejectsParallelDimensionMismatch) {
   Reconfig first("first", 2, 1, 1);
   Reconfig second("second", 3, 1, 1);
   Parallel parent("parallel", NT_PARALLEL);
-  EXPECT_FALSE(ReadChildren(&parent, first, second));
+  std::vector<char> data;
+  ASSERT_TRUE(SerializeChildren(&data, first, second));
+  TFile reader;
+  ASSERT_TRUE(reader.Open(data.data(), data.size()));
+  EXPECT_FALSE(parent.DeSerialize(&reader));
 }
 
-TEST(PlumbingDimensionsTest, RejectsParallelOutputSumBeyondIntRange) {
+TEST(PlumbingDimensionsTest, RejectsParallelOutputSumOverflow) {
   Reconfig first("first", 1, std::numeric_limits<int>::max(), 1);
   Reconfig second("second", 1, 1, 1);
   Parallel parent("parallel", NT_PARALLEL);
-  EXPECT_FALSE(ReadChildren(&parent, first, second));
+  std::vector<char> data;
+  ASSERT_TRUE(SerializeChildren(&data, first, second));
+  TFile reader;
+  ASSERT_TRUE(reader.Open(data.data(), data.size()));
+  EXPECT_FALSE(parent.DeSerialize(&reader));
 }
 
 TEST(PlumbingDimensionsTest, AcceptsParallelOutputSumAtIntLimit) {
   Reconfig first("first", 1, std::numeric_limits<int>::max() - 1, 1);
   Reconfig second("second", 1, 1, 1);
   Parallel parent("parallel", NT_PARALLEL);
-  ASSERT_TRUE(ReadChildren(&parent, first, second));
+  std::vector<char> data;
+  ASSERT_TRUE(SerializeChildren(&data, first, second));
+  TFile reader;
+  ASSERT_TRUE(reader.Open(data.data(), data.size()));
+  ASSERT_TRUE(parent.DeSerialize(&reader));
   EXPECT_EQ(1, parent.NumInputs());
   EXPECT_EQ(std::numeric_limits<int>::max(), parent.NumOutputs());
   EXPECT_EQ(2U, parent.stack().size());
@@ -71,7 +82,11 @@ TEST(PlumbingDimensionsTest, AcceptsMatchingSeriesDimensions) {
   Reconfig first("first", 2, 3, 1);
   Reconfig second("second", 6, 2, 1);
   Series parent("series");
-  ASSERT_TRUE(ReadChildren(&parent, first, second));
+  std::vector<char> data;
+  ASSERT_TRUE(SerializeChildren(&data, first, second));
+  TFile reader;
+  ASSERT_TRUE(reader.Open(data.data(), data.size()));
+  ASSERT_TRUE(parent.DeSerialize(&reader));
   EXPECT_EQ(2, parent.NumInputs());
   EXPECT_EQ(12, parent.NumOutputs());
   EXPECT_EQ(2U, parent.stack().size());
