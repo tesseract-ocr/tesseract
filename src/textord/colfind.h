@@ -27,6 +27,8 @@
 #include "tabfind.h"
 #include "textlineprojection.h"
 
+#include <vector>
+
 class BLOCK_LIST;
 struct Boxa;
 struct Pixa;
@@ -45,6 +47,7 @@ class LineSpacing;
 class StrokeWidth;
 class TempColumn_LIST;
 class EquationDetectBase;
+class Tesseract;
 
 // The ColumnFinder class finds columns in the grid.
 class TESS_API ColumnFinder : public TabFind {
@@ -154,9 +157,15 @@ public:
   // appropriate word after the rest of layout analysis.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(PageSegMode pageseg_mode, TO_BLOCK *block,
-                 Image photo_mask_pix, Image thresholds_pix, Image grey_pix, DebugPixa *pixa_debug,
-                 BLOCK_LIST *blocks, BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks);
+  // osd_tess and allowed_scripts are the initialized orientation engine and the
+  // script constraints already used for page-level OSD. They are consulted only
+  // for minority vertical blocks; page-level OSResults are left untouched.
+  // Pass nullptr when OSD is not available. min_orientation_margin is the same
+  // acceptance margin as page-level OSD.
+  int FindBlocks(PageSegMode pageseg_mode, TO_BLOCK *block, Image photo_mask_pix,
+                 Image thresholds_pix, Image grey_pix, DebugPixa *pixa_debug, BLOCK_LIST *blocks,
+                 BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks, Tesseract *osd_tess,
+                 const std::vector<int> *allowed_scripts, double min_orientation_margin);
 
   // Get the rotation required to deskew, and its inverse rotation.
   void GetDeskewVectors(FCOORD *deskew, FCOORD *reskew);
@@ -273,14 +282,24 @@ private:
   // that they are in, and their bounding boxes are recalculated to be accurate.
   // Record appropriate inverse transformations and required
   // classifier transformation in the blocks.
-  void RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *to_blocks);
+  // osd_tess / allowed_scripts / min_orientation_margin are used only to choose
+  // the polarity of a minority vertical block. Null osd_tess keeps the
+  // historical quarter-turn.
+  void RotateAndReskewBlocks(bool input_is_rtl, TO_BLOCK_LIST *to_blocks, Tesseract *osd_tess,
+                             const std::vector<int> *allowed_scripts,
+                             double min_orientation_margin);
 
   // Computes the rotations for the block (to make textlines horizontal) and
   // for the blobs (for classification) and sets the appropriate members
   // of the given block.
   // Returns the rotation that needs to be applied to the blobs to make
   // them sit in the rotated block.
-  FCOORD ComputeBlockAndClassifyRotation(BLOCK *block);
+  // vertical_region_margin is the pooled opposite-polarity margin of this
+  // block's minority text region, used when its own evidence is weak.
+  FCOORD ComputeBlockAndClassifyRotation(TO_BLOCK *to_block, Tesseract *osd_tess,
+                                         const std::vector<int> *allowed_scripts,
+                                         double min_orientation_margin,
+                                         double vertical_region_margin);
 
   // If true then the page language is cjk, so it is safe to perform
   // FixBrokenCJK.
