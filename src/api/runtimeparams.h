@@ -16,6 +16,8 @@
 #ifndef TESSERACT_API_RUNTIMEPARAMS_H_
 #define TESSERACT_API_RUNTIMEPARAMS_H_
 
+#include <tesseract/export.h> // for TESS_API
+
 #include <string>
 
 namespace tesseract {
@@ -34,7 +36,7 @@ class TessBaseAPI;
 //
 // The returned string contains no newlines — it is intended to be embedded in
 // an XML attribute.
-std::string BuildRuntimeParametersJSON(TessBaseAPI &api);
+TESS_API std::string BuildRuntimeParametersJSON(TessBaseAPI &api);
 
 // Escape a string for use inside a single-quoted XML attribute value.
 // Only ', &, <, > are escaped.  Double quotes are left literal because

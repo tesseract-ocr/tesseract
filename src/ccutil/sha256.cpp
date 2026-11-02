@@ -15,6 +15,7 @@
 #include "sha256.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 
 #include <cstdio>
@@ -187,6 +188,13 @@ std::string SHA256::FinalHex() {
 
 std::string SHA256File(const char *path) {
   if (path == nullptr) {
+    return "";
+  }
+  // A directory can be opened on some platforms, and whether reading it sets
+  // badbit depends on the standard library (libc++ does not), so reject
+  // anything that is not a regular file up front.
+  std::error_code ec;
+  if (!std::filesystem::is_regular_file(path, ec)) {
     return "";
   }
   std::ifstream in(path, std::ios::binary);
