@@ -111,25 +111,29 @@ public:
     }
   }
 
-  // DoS protection: the maximum number of elements (including the
-  // padding) a single array may hold. Legitimate matrices in tesseract
-  // are far smaller than this; the cap is consistent with the
-  // "unreasonably large" bound applied to the scale vector in
-  // WeightMatrix::DeSerialize.
-  static const int64_t kMaxElements = 100000000;
-
   // Reallocates the array to the given size. Does not keep old data, but does
   // not initialize the array either.
   // The allocated memory is expanded on the end by pad, allowing deliberate
   // access beyond the bounds of the array.
+  //
+  // Denial-of-service protection against *untrusted* sizes (dimensions read
+  // from a .traineddata file) is done at deserialization time in
+  // DeSerializeSize, which bounds each dimension and the total element
+  // count, and the TFile* overload additionally requires the declared
+  // element count to be backed by the bytes remaining in the stream. This
+  // method is also called by trusted runtime callers to size inference and
+  // training buffers -- e.g. a full-width OCR line through a deep Convolve
+  // layer legitimately exceeds 100,000,000 floats -- so it must not impose an
+  // arbitrary element cap here: an early return would leave dim1_/dim2_
+  // stale and corrupt every later access. It only rejects corrupted values
+  // and keeps the int element count below from wrapping.
   void ResizeNoInit(int size1, int size2, int pad = 0) {
     // Compute the total element count in 64 bits so it cannot overflow
-    // (in particular (-1) * (-1) must not pass as 1), then reject
-    // corrupted values (a crafted .traineddata file could produce
-    // negative or oversized dimensions) and bound the allocation against
-    // denial of service.
+    // (in particular (-1) * (-1) must not pass as 1), then reject corrupted
+    // values: negative dimensions, or a total that would wrap the int cast
+    // below.
     const int64_t total = static_cast<int64_t>(size1) * size2 + pad;
-    if (size1 < 0 || size2 < 0 || pad < 0 || total > kMaxElements) {
+    if (size1 < 0 || size2 < 0 || pad < 0 || total > INT32_MAX) {
       return;
     }
     const int new_size = static_cast<int>(total);
@@ -599,6 +603,15 @@ protected:
       return false;
     }
     if (size2 > UINT16_MAX) {
+      return false;
+    }
+    // Unlike the TFile* overload, there is no stream position to check the
+    // declared size against, so bound the total element count as well: a
+    // crafted short file (e.g. 32768 x 65535, ~2.1e9 elements) would
+    // otherwise force a multi-gigabyte allocation before the missing payload
+    // is detected. Legitimate matrices deserialized through this path are
+    // far smaller.
+    if (static_cast<int64_t>(size1) * size2 > 100000000) {
       return false;
     }
     Resize(size1, size2, empty_);
