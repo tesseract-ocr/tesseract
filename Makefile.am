@@ -1447,7 +1447,7 @@ endif # !DISABLED_LEGACY_ENGINE
 
 matrix_deserializesize_test_SOURCES = unittest/matrix_deserializesize_test.cc
 matrix_deserializesize_test_CPPFLAGS = $(unittest_CPPFLAGS)
-matrix_deserializesize_test_LDADD = $(TESS_LIBS)
+matrix_deserializesize_test_LDADD = $(TRAINING_LIBS)
 
 matrix_test_SOURCES = unittest/matrix_test.cc
 matrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
