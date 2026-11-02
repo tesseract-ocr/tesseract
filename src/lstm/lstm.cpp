@@ -292,16 +292,16 @@ bool LSTM::DeSerialize(TFile *fp) {
     return false;
   }
   delete softmax_;
+  softmax_ = nullptr;
   if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    softmax_ = static_cast<FullyConnected *>(Network::CreateFromFile(fp));
-    if (softmax_ == nullptr) {
+    Network *network = Network::CreateFromFile(fp);
+    auto *softmax = dynamic_cast<FullyConnected *>(network);
+    if (softmax == nullptr || softmax->NumInputs() != ns_ ||
+        softmax->NumOutputs() != no_) {
+      delete network;
       return false;
     }
-    if (softmax_->NumInputs() != ns_ || softmax_->NumOutputs() != no_) {
-      return false;
-    }
-  } else {
-    softmax_ = nullptr;
+    softmax_ = softmax;
   }
   return true;
 }

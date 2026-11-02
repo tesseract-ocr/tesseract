@@ -18,6 +18,8 @@
 
 #include "include_gunit.h"
 
+#include "input.h"
+#include "lstm.h"
 #include "network.h" // for Network, NetworkType
 #include "networkio.h"
 #include "networkscratch.h"
@@ -171,6 +173,68 @@ TEST(LstmLayerTest, AcceptsConsistentLayer) {
   Network *net = Network::CreateFromFile(&fp);
   ASSERT_NE(net, nullptr);
   RunForward(net, 1, 2);
+}
+
+// Writes a small LSTM payload using the normal serializers. The child has
+// two inputs and four outputs, independently of its runtime C++ type.
+bool WriteSoftmaxLstmPayload(NetworkType type, const Network &child,
+                             TFile *fp) {
+  const int32_t feedback = type == NT_LSTM_SOFTMAX ? 4 : 2;
+  const int32_t na = 1 + 2 + feedback;
+  if (!fp->Serialize(&na)) {
+    return false;
+  }
+  WeightMatrix gate;
+  gate.InitWeightsFloat(2, na + 1, false, 0.0f, nullptr);
+  for (int g = 0; g < 4; ++g) {
+    if (!gate.Serialize(false, fp)) {
+      return false;
+    }
+  }
+  return child.Serialize(fp);
+}
+
+TEST(LstmLayerTest, RejectsNonFullyConnectedSoftmaxChild) {
+  for (NetworkType type : {NT_LSTM_SOFTMAX, NT_LSTM_SOFTMAX_ENCODED}) {
+    SCOPED_TRACE(type);
+    Input child("Input", 2, 4);
+    child.SetEnableTraining(TS_DISABLED);
+    std::vector<char> bytes;
+    TFile writer;
+    writer.OpenWrite(&bytes);
+    ASSERT_TRUE(WriteSoftmaxLstmPayload(type, child, &writer));
+    TFile reader;
+    ASSERT_TRUE(reader.Open(bytes.data(), bytes.size()));
+    LSTM layer("LSTM", 1, 2, 4, false, type);
+    layer.SetEnableTraining(TS_DISABLED);
+    EXPECT_FALSE(layer.DeSerialize(&reader));
+  }
+}
+
+// A valid child must support deserialization and normal forward initialization.
+TEST(LstmLayerTest, AcceptsValidFullyConnectedSoftmaxChild) {
+  for (NetworkType type : {NT_LSTM_SOFTMAX, NT_LSTM_SOFTMAX_ENCODED}) {
+    SCOPED_TRACE(type);
+    FullyConnected child("Softmax", 2, 4, NT_SOFTMAX);
+    child.InitWeights(0.0f, nullptr);
+    child.SetEnableTraining(TS_DISABLED);
+    std::vector<char> bytes;
+    TFile writer;
+    writer.OpenWrite(&bytes);
+    ASSERT_TRUE(WriteSoftmaxLstmPayload(type, child, &writer));
+    TFile reader;
+    ASSERT_TRUE(reader.Open(bytes.data(), bytes.size()));
+    LSTM layer("LSTM", 1, 2, 4, false, type);
+    layer.SetEnableTraining(TS_DISABLED);
+    ASSERT_TRUE(layer.DeSerialize(&reader));
+    NetworkIO input = MakeInput(1, 2);
+    input.Zero();
+    NetworkScratch scratch;
+    NetworkIO output;
+    layer.Forward(false, input, nullptr, &scratch, &output);
+    EXPECT_EQ(output.NumFeatures(), 4);
+    EXPECT_EQ(output.Width(), input.Width());
+  }
 }
 
 } // namespace
