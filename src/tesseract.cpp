@@ -834,6 +834,11 @@ static int main1(int argc, char **argv) {
     renderers.push_back(nullptr);
   } else if (outputbase != nullptr) {
     PreloadRenderers(api, renderers, pagesegmode, outputbase);
+    if (renderers.empty()) {
+      // PreloadRenderers already reported why; do not report success when
+      // no requested output could be created.
+      ret_val = EXIT_FAILURE;
+    }
   }
 
   if (!renderers.empty()) {
