@@ -103,6 +103,12 @@ bool TFile::DeSerialize(std::string &data) {
     // Arbitrarily limit the size to protect against bad data.
     return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge string while
+    // carrying only a few trailing bytes (denial of service).
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], size);
@@ -124,6 +130,12 @@ bool TFile::DeSerialize(std::vector<char> &data) {
     // Arbitrarily limit the size to protect against bad data.
     return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge vector while
+    // carrying only a few trailing bytes (denial of service).
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], data.size());
