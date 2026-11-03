@@ -27,6 +27,7 @@ Unicode true
 ;define CROSSBUILD
 ;define SHARED
 ;define W64
+;define ARM64
 !ifndef COMMENTS
 !define COMMENTS "GitHub CI build"
 !endif
@@ -54,7 +55,15 @@ Unicode true
 !addplugindir Plugins/x86-unicode
 !endif
 
-!ifdef W64
+!ifdef ARM64
+; Windows on ARM64 is a 64 bit system, so use the 64 bit registry view
+; and program folder like for x86_64.
+!ifndef W64
+!define W64
+!endif
+!define ARCH "aarch64"
+!define SETUP "tesseract-ocr-arm64-setup"
+!else ifdef W64
 !define ARCH "x86_64"
 !define SETUP "tesseract-ocr-w64-setup"
 !else
@@ -72,7 +81,11 @@ OutFile ${OUTFILE}
 !endif
 
 !ifndef PREFIX
+!ifdef ARM64
+!define PREFIX "../clangarm64"
+!else
 !define PREFIX "../mingw64"
+!endif
 !endif
 !define BINDIR "${PREFIX}/bin"
 
@@ -146,6 +159,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !include MUI2.nsh
 !include LogicLib.nsh
 !include winmessages.nsh # include for some of the windows messages defines
+!include x64.nsh
 
 # Variables
 Var StartMenuGroup
@@ -1214,6 +1228,12 @@ FunctionEnd
 !macroend
 
 Function .onInit
+!ifdef ARM64
+  ${IfNot} ${IsNativeARM64}
+    MessageBox MB_OK|MB_ICONSTOP "This installer is for Windows on ARM64 only." /SD IDOK
+    Abort
+  ${EndIf}
+!endif
 !ifdef W64
   SetRegView 64
 !endif
