@@ -744,7 +744,10 @@ static void join_segments(  // join pieces
     fake_step = 96;
   }
 
-  stepcount = bottom->stepcount + fake_count + top->stepcount;
+  int64_t total_stepcount =
+      static_cast<int64_t>(bottom->stepcount) + fake_count + top->stepcount;
+  ASSERT_HOST(total_stepcount > 0 && total_stepcount <= C_OUTLINE::kMaxOutlineLength);
+  stepcount = static_cast<int32_t>(total_stepcount);
   steps = new DIR128[stepcount];
   memmove(steps, bottom->steps, bottom->stepcount);
   memset(steps + bottom->stepcount, fake_step.get_dir(), fake_count);
