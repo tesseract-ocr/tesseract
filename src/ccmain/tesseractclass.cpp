@@ -81,6 +81,13 @@ Tesseract::Tesseract()
                "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
                " (Values from PageSegMode enum in tesseract/publictypes.h)",
                this->params())
+    , INT_MEMBER(tessedit_right_to_left, -1,
+                 "Reading direction of the language's primary script: -1 = derive "
+                 "from the unicharset (majority of character directions), "
+                 "0 = left to right, 1 = right to left. Set it in the config of a "
+                 "model whose unicharset also contains many characters of another "
+                 "script, e.g. Latin letters in a Persian model.",
+                 this->params())
     , INT_MEMBER(thresholding_method,
                  static_cast<int>(ThresholdMethod::Otsu),
                  "Thresholding method: 0 = Otsu, 1 = LeptonicaOtsu, 2 = "
