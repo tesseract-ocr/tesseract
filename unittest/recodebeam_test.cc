@@ -207,7 +207,7 @@ protected:
     TRand random;
     for (int t = 0; t < width; ++t) {
       for (int i = 0; i < num_codes; ++i) {
-        outputs(t, i) = random.UnsignedRand(0.25);
+        outputs(t, i) = random.UnsignedRand(0.25f);
       }
     }
     int t = 0;

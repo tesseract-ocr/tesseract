@@ -42,6 +42,7 @@ enum NetworkType {
   NT_INPUT, // Inputs from an image.
   // Plumbing networks combine other networks or rearrange the inputs.
   NT_CONVOLVE,    // Duplicates inputs in a sliding window neighborhood.
+  NT_DROPOUT,     // Dropout random inputs.
   NT_MAXPOOL,     // Chooses the max result from a rectangle.
   NT_PARALLEL,    // Runs networks in parallel.
   NT_REPLICATED,  // Runs identical networks in parallel.
