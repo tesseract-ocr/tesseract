@@ -23,6 +23,7 @@
 
 #include "gmock/gmock-matchers.h"
 
+#include <cstdio>
 #include <memory>
 #include <regex>
 #include <string>
@@ -76,6 +77,26 @@ protected:
 TEST_F(TesseractTest, StaticTessBaseAPI) {
   static tesseract::TessBaseAPI api;
   api.End();
+}
+
+struct FileCloser {
+  void operator()(FILE *fp) const {
+    fclose(fp);
+  }
+};
+
+TEST_F(TesseractTest, PrintVariablesStartsWithTsvHeader) {
+  tesseract::TessBaseAPI api;
+  api.InitForAnalysePage();
+
+  std::unique_ptr<FILE, FileCloser> fp(tmpfile());
+  ASSERT_NE(fp.get(), nullptr);
+  api.PrintVariables(fp.get());
+  rewind(fp.get());
+
+  char line[128];
+  ASSERT_NE(fgets(line, sizeof(line), fp.get()), nullptr);
+  EXPECT_STREQ("\"Variable name\"\tValue\tDescription\n", line);
 }
 
 // Tests that Tesseract gets exactly the right answer on phototest.
