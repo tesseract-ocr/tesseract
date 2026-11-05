@@ -119,6 +119,7 @@ struct TESS_API IntSimdMatrix {
   static const IntSimdMatrix intSimdMatrixRVV;
   // Only available with AVX2 / AVX / FMA / SSE.
   static const IntSimdMatrix intSimdMatrixAVX2;
+  static const IntSimdMatrix intSimdMatrixAVX512VNNI;
   static const IntSimdMatrix intSimdMatrixSSE;
 };
 
