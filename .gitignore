@@ -119,3 +119,5 @@ times.txt
 # CodeQL and build artifacts
 _codeql_detected_source_root
 install-sh
+venv/
+venv/
