@@ -85,6 +85,10 @@ static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
 // the correct label, rating and certainty.
 void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_res,
                                          FILE *output_file) {
+  // Start fresh budgets of the legacy engine for this page, as
+  // recog_all_words() does.
+  ResetPassBudgets();
+
   std::string box_fname = filename;
   const char *lastdot = strrchr(box_fname.c_str(), '.');
   if (lastdot != nullptr) {

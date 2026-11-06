@@ -21,11 +21,14 @@
 #  include "config_auto.h"
 #endif
 
+#include <algorithm> // for std::all_of
 #include <cctype>
 #include <cmath>
 #include <cstdint> // for int16_t, int32_t
 #include <cstdio>  // for fclose, fopen, FILE
 #include <ctime>   // for clock
+#include <utility> // for std::pair
+#include <vector>  // for std::vector
 #include "control.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "docqual.h"
@@ -267,6 +270,37 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT 
   return true;
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+// Starts fresh per-page budgets for the legacy engine: the seam-evaluation
+// budget (see choose_best_seam() in findseam.cpp, OSS-Fuzz issue
+// 4775901406232576) and the blob-classification budget (see
+// Wordrec::ClassificationBudgetExhausted(), OSS-Fuzz issue 581720522).
+// Reading the parameters here (rather than at SetImage()) means that a change
+// of chop_max_seam_evals_pass or chop_max_classifications_pass between
+// SetImage() and Recognize() takes effect.
+// The sub-language Tesseract objects must get budgets too: words are
+// recognized by whichever language is tried (RetryWithLanguage()), so a
+// secondary language running with an unset budget would lose chopping
+// silently.
+void Tesseract::ResetPassBudgets() {
+  ResetSeamEvalsBudget();
+  ResetClassificationBudget();
+  for (auto *sub_lang : sub_langs_) {
+    sub_lang->ResetSeamEvalsBudget();
+    sub_lang->ResetClassificationBudget();
+  }
+}
+
+// Returns true if the blob-classification budgets of this language and of all
+// sub-languages are used up, so that the legacy engine cannot recognize any
+// further word of this page.
+bool Tesseract::AllClassificationBudgetsExhausted() {
+  return ClassificationBudgetExhausted() &&
+         std::all_of(sub_langs_.begin(), sub_langs_.end(),
+                     [](Tesseract *lang) { return lang->ClassificationBudgetExhausted(); });
+}
+#endif // ndef DISABLED_LEGACY_ENGINE
+
 /**
  * recog_all_words()
  *
@@ -294,18 +328,8 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
   PAGE_RES_IT page_res_it(page_res);
 
 #ifndef DISABLED_LEGACY_ENGINE
-  // Start a fresh per-pass seam-evaluation budget for the recognition pass
-  // (see choose_best_seam() in findseam.cpp, OSS-Fuzz issue 4775901406232576).
-  // Reading the parameter here (rather than at SetImage()) means a change of
-  // chop_max_seam_evals_pass between SetImage() and Recognize() takes effect.
-  // The sub-language Tesseract objects must get a budget too: words are
-  // chopped by whichever language recognizes them (RetryWithLanguage()), so
-  // a secondary language running with an unset budget would lose chopping
-  // silently.
-  ResetSeamEvalsBudget();
-  for (auto *sub_lang : sub_langs_) {
-    sub_lang->ResetSeamEvalsBudget();
-  }
+  // Start fresh budgets of the legacy engine for this page.
+  ResetPassBudgets();
 #endif // ndef DISABLED_LEGACY_ENGINE
 
   if (tessedit_minimal_rej_pass1) {
@@ -932,6 +956,10 @@ static bool WordsAcceptable(const PointerVector<WERD_RES> &words) {
 // sets make_next_word_fuzzy if blob(s) were added to the end of the word.
 bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT *pr_it, bool *make_next_word_fuzzy) {
   *make_next_word_fuzzy = false;
+  if (AllClassificationBudgetsExhausted()) {
+    // No language can classify the noise blobs, so leave them where they are.
+    return false;
+  }
   WERD *real_word = pr_it->word()->word;
   if (real_word->rej_cblob_list()->empty() || real_word->cblob_list()->empty() ||
       real_word->rej_cblob_list()->length() > noise_maxperword) {
@@ -1310,6 +1338,20 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob
 
 #endif // ndef DISABLED_LEGACY_ENGINE
 
+#ifndef DISABLED_LEGACY_ENGINE
+// Returns true if lang certainly needs the legacy engine to recognize a word
+// in pass pass_n, but has used up its blob-classification budget for this
+// page (see Wordrec::ClassificationBudgetExhausted()), so that it must not be
+// given another word. A language which only falls back to the legacy engine
+// for some words (OEM_TESSERACT_LSTM_COMBINED in pass 1) is handled in
+// classify_word_pass1().
+static bool LegacyBudgetExhausted(Tesseract *lang, int pass_n) {
+  const bool needs_legacy = pass_n == 1 ? lang->tessedit_ocr_engine_mode == OEM_TESSERACT_ONLY
+                                        : lang->tessedit_ocr_engine_mode != OEM_LSTM_ONLY;
+  return needs_legacy && lang->ClassificationBudgetExhausted();
+}
+#endif // ndef DISABLED_LEGACY_ENGINE
+
 // Generic function for classifying a word. Can be used either for pass1 or
 // pass2 according to the function passed to recognizer.
 // word_data holds the word to be recognized, and its block and row, and
@@ -1318,6 +1360,9 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT *pr_it, C_BLOB *blob
 // Recognizes in the current language, and if successful that is all.
 // If recognition was not successful, tries all available languages until
 // it gets a successful result or runs out of languages. Keeps the best result.
+// Languages which have used up their classification budget are not tried. If
+// that leaves no language, a word without a result gets a fake result (as
+// for a timeout), and a word with a result from an earlier pass keeps it.
 void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordData *word_data) {
 #ifdef DISABLED_LEGACY_ENGINE
   WordRecognizer recognizer = &Tesseract::classify_word_pass1;
@@ -1354,22 +1399,47 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
     for (sub = 0; sub < sub_langs_.size() && most_recently_used_ != sub_langs_[sub]; ++sub) {
     }
   }
-  most_recently_used_->RetryWithLanguage(*word_data, recognizer, debug, &word_data->lang_words[sub],
-                                         &best_words);
-  Tesseract *best_lang_tess = most_recently_used_;
-  if (!WordsAcceptable(best_words)) {
-    // Try all the other languages to see if they are any better.
-    if (most_recently_used_ != this &&
-        this->RetryWithLanguage(*word_data, recognizer, debug,
-                                &word_data->lang_words[sub_langs_.size()], &best_words) > 0) {
-      best_lang_tess = this;
+  // The languages to try, each with its index in lang_words: the most
+  // recently used language first, then all the other languages.
+  std::vector<std::pair<Tesseract *, unsigned>> langs;
+  langs.emplace_back(most_recently_used_, sub);
+  if (most_recently_used_ != this) {
+    langs.emplace_back(this, sub_langs_.size());
+  }
+  for (unsigned i = 0; i < sub_langs_.size(); ++i) {
+    if (most_recently_used_ != sub_langs_[i]) {
+      langs.emplace_back(sub_langs_[i], i);
     }
-    for (unsigned i = 0; !WordsAcceptable(best_words) && i < sub_langs_.size(); ++i) {
-      if (most_recently_used_ != sub_langs_[i] &&
-          sub_langs_[i]->RetryWithLanguage(*word_data, recognizer, debug, &word_data->lang_words[i],
-                                           &best_words) > 0) {
-        best_lang_tess = sub_langs_[i];
-      }
+  }
+#ifndef DISABLED_LEGACY_ENGINE
+  // A language which has used up its classification budget is not tried.
+  langs.erase(std::remove_if(langs.begin(), langs.end(),
+                             [pass_n](const std::pair<Tesseract *, unsigned> &lang) {
+                               return LegacyBudgetExhausted(lang.first, pass_n);
+                             }),
+              langs.end());
+  if (langs.empty()) {
+    if (word_data->word->best_choice == nullptr) {
+      // No language has budget left to recognize the word, and there is no
+      // result from an earlier pass, so fake it as for a timeout. Later
+      // passes expect that the word knows its language.
+      word_data->word->SetupFake(unicharset);
+      word_data->word->tesseract = this;
+    }
+    return;
+  }
+#endif // ndef DISABLED_LEGACY_ENGINE
+  Tesseract *best_lang_tess = most_recently_used_;
+  for (unsigned i = 0; i < langs.size(); ++i) {
+    // The first language is always tried. The other languages are only tried
+    // to see if they are any better as long as the result is not acceptable.
+    if (i > 0 && WordsAcceptable(best_words)) {
+      break;
+    }
+    if (langs[i].first->RetryWithLanguage(*word_data, recognizer, debug,
+                                          &word_data->lang_words[langs[i].second],
+                                          &best_words) > 0) {
+      best_lang_tess = langs[i].first;
     }
   }
   most_recently_used_ = best_lang_tess;
@@ -1424,6 +1494,11 @@ void Tesseract::classify_word_pass1(const WordData &word_data, WERD_RES **in_wor
     }
 
 #ifndef DISABLED_LEGACY_ENGINE
+    if (ClassificationBudgetExhausted()) {
+      // No budget left for the fallback, so use a fake.
+      (*in_word)->SetupFake(lstm_recognizer_->GetUnicharset());
+      return;
+    }
     // Fall back to tesseract for failed words or odd words.
     (*in_word)->SetupForRecognition(unicharset, this, BestPix(), OEM_TESSERACT_ONLY, nullptr,
                                     classify_bln_numeric_mode, textord_use_cjk_fp_model,

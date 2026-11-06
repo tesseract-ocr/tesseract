@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -97,6 +98,60 @@ TEST_F(TesseractTest, BasicTesseractTest) {
     // eng.traineddata not found.
     GTEST_SKIP();
   }
+}
+
+// Tests the budget for the blob classifications of the legacy engine
+// (chop_max_classifications_pass).
+TEST_F(TesseractTest, ClassificationBudgetTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because the legacy engine is missing.
+  GTEST_SKIP();
+#else
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  // Returns the text of phototest which the legacy engine gets with the given
+  // languages. A budget which is not nullptr is set for the first language.
+  auto recognize = [](const char *languages, const char *budget) {
+    tesseract::TessBaseAPI api;
+    CHECK_EQ(0, api.Init(TessdataPath().c_str(), languages, tesseract::OEM_TESSERACT_ONLY));
+    if (budget != nullptr) {
+      CHECK(api.SetVariable("chop_max_classifications_pass", budget));
+    }
+    Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+    CHECK(src_pix);
+    std::string text = GetCleanedTextResult(&api, src_pix);
+    src_pix.destroy();
+    return text;
+  };
+  auto count_words = [](const std::string &text) {
+    std::istringstream stream(text);
+    std::string word;
+    int count = 0;
+    while (stream >> word) {
+      ++count;
+    }
+    return count;
+  };
+
+  // The default budget does not limit the recognition of a normal page.
+  const std::string full_text = recognize("eng", nullptr);
+  const int full_words = count_words(full_text);
+  EXPECT_GT(full_words, 50);
+  EXPECT_EQ(full_text, recognize("eng", "1000000"));
+
+  // Without budget, the legacy engine does not recognize anything.
+  EXPECT_EQ(0, count_words(recognize("eng", "0")));
+
+  // A small budget is used up after some words. These words keep their
+  // text, although the budget is no longer sufficient for the second pass.
+  const int limited_words = count_words(recognize("eng", "100"));
+  EXPECT_GT(limited_words, 0);
+  EXPECT_LT(limited_words, full_words);
+
+  // The budget is per language, so a second language without limit takes
+  // over when the budget of the first language is used up.
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "deu");
+  EXPECT_GE(count_words(recognize("eng+deu", "100")) * 10, full_words * 9);
+#endif
 }
 
 // Test that api.GetComponentImages() will return a set of images for
