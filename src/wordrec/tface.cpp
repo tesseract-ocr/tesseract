@@ -25,6 +25,7 @@
 #  include "featdefs.h"
 #  include "pageres.h"
 #  include "params_model.h"
+#  include "tesserrstream.h"  // for tesserr
 #endif
 
 namespace tesseract {
@@ -133,12 +134,46 @@ void Wordrec::cc_recog(WERD_RES *word) {
  * The blob may need rotating to the correct orientation for classification.
  */
 BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
+  // The per-pass blob-classification budget may already be exhausted. It is
+  // set at the start of the recognition pass (see
+  // Tesseract::recog_all_words()/Tesseract::ApplyBoxes(), which call
+  // ResetClassificationBudget() for the primary language and all sub-languages)
+  // and decremented below for every blob that actually reaches the adaptive
+  // classifier. Once exhausted, stop classifying and hand back a single junk
+  // (speckle) choice, which is exactly what the classifier returns for a blob
+  // it cannot match (AddLargeSpeckleTo() on an empty result list in
+  // AdaptiveClassifier()). This bounds the worst-case cost of the legacy
+  // classifier on degenerate inputs where pageseg produces a large number of
+  // blob-like pieces with no inter-word gaps (OSS-Fuzz issue 581720522).
+  if (classifications_pass_remaining_ < 0) {
+    // Lazy fallback for classification paths that are not covered by the pass
+    // entry points (e.g. the ambigs training path via
+    // recog_training_segmented()). This still gives them a bounded budget for
+    // the lifetime of the Tesseract object, but the "per pass" guarantee does
+    // not hold on those paths.
+    ResetClassificationBudget();
+  }
+  auto *ratings = new BLOB_CHOICE_LIST();
+  if (classifications_pass_remaining_ <= 0) {
+    // Budget exhausted: assign a single junk choice and skip the (expensive)
+    // class pruner + integer matcher.
+    if (!classifications_pass_warning_) {
+      tesserr << "WARNING: reached the blob classification budget "
+             << "(chop_max_classifications_pass = "
+             << (int)chop_max_classifications_pass
+             << ") for this recognition pass; assigning junk choices to the "
+             << "remaining blobs instead of classifying them.\n";
+      classifications_pass_warning_ = true;
+    }
+    AddLargeSpeckleTo(0, ratings);
+    return ratings;
+  }
+  --classifications_pass_remaining_;
   // Rotate the blob for classification if necessary.
   TBLOB *rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
   if (rotated_blob == nullptr) {
     rotated_blob = tessblob;
   }
-  auto *ratings = new BLOB_CHOICE_LIST(); // matcher result
   AdaptiveClassifier(rotated_blob, ratings);
   if (rotated_blob != tessblob) {
     delete rotated_blob;

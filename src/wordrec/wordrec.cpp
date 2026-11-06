@@ -16,6 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "tesserrstream.h"  // for tesserr
 #include "wordrec.h"
 
 #include <memory>
@@ -95,6 +96,11 @@ Wordrec::Wordrec()
                  "effect. A value changed with SetVariable() after Init() "
                  "applies to the primary language only. 0 disables chopping.",
                  params())
+    , INT_MEMBER(chop_max_classifications_pass, 5000,
+                 "Max number of blob classifications per recognition pass. "
+                 "Bounds the cost of the legacy classifier on degenerate "
+                 "inputs with many blobs.",
+                 params())
     , INT_MEMBER(chop_x_y_weight, 3, "X / Y  length weight", params())
     , BOOL_MEMBER(assume_fixed_pitch_char_segment, false,
                   "include fixed-pitch heuristics in char segmentation", params())
@@ -138,6 +144,23 @@ void Wordrec::ResetSeamEvalsBudget() {
         "is disabled for this recognition pass.\n");
   } else {
     seam_evals_pass_warning_ = false;
+  }
+}
+
+void Wordrec::ResetClassificationBudget() {
+  // Negative values would be indistinguishable from "not yet set"
+  // (classifications_pass_remaining_ == -1) and would make call_matcher()
+  // re-initialize the budget on every call, so clamp them to 0.
+  int budget = static_cast<int>(chop_max_classifications_pass);
+  if (budget < 0) {
+    budget = 0;
+  }
+  classifications_pass_remaining_ = budget;
+  if (budget == 0) {
+    tesserr << "WARNING: chop_max_classifications_pass is 0; the legacy "
+            << "classifier is disabled for this recognition pass.\n";
+  } else {
+    classifications_pass_warning_ = false;
   }
 }
 
