@@ -306,6 +306,15 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
   for (auto *sub_lang : sub_langs_) {
     sub_lang->ResetSeamEvalsBudget();
   }
+  // Start a fresh per-pass blob-classification budget for the recognition
+  // pass (see call_matcher() in tface.cpp, OSS-Fuzz issue 581720522). The
+  // sub-language Tesseract objects get a budget too: words are classified by
+  // whichever language recognizes them (RetryWithLanguage()), so a secondary
+  // language running with an unset budget would classify without a bound.
+  ResetClassificationBudget();
+  for (auto *sub_lang : sub_langs_) {
+    sub_lang->ResetClassificationBudget();
+  }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
   if (tessedit_minimal_rej_pass1) {

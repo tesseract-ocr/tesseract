@@ -123,6 +123,13 @@ PAGE_RES *Tesseract::ApplyBoxes(const char *filename, bool find_segmentation,
   for (auto *sub_lang : sub_langs_) {
     sub_lang->ResetSeamEvalsBudget();
   }
+  // Start a fresh per-pass blob-classification budget for the resegmentation
+  // (see call_matcher() in tface.cpp, OSS-Fuzz issue 581720522), mirroring
+  // the seam budget reset above.
+  ResetClassificationBudget();
+  for (auto *sub_lang : sub_langs_) {
+    sub_lang->ResetClassificationBudget();
+  }
 
   const int box_count = boxes.size();
   int box_failures = 0;

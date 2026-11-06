@@ -211,6 +211,7 @@ public:
   double_VAR_H(chop_good_split);
   INT_VAR_H(chop_max_seam_evals);
   INT_VAR_H(chop_max_seam_evals_pass);
+  INT_VAR_H(chop_max_classifications_pass);
   INT_VAR_H(chop_x_y_weight);
   BOOL_VAR_H(assume_fixed_pitch_char_segment);
   INT_VAR_H(wordrec_debug_level);
@@ -232,6 +233,12 @@ public:
   // seam_evals_pass_remaining_). Negative parameter values are clamped to 0
   // (chopping disabled); a non-positive budget produces a warning.
   void ResetSeamEvalsBudget();
+
+  // Sets a fresh per-pass blob-classification budget (see
+  // classifications_pass_remaining_). Negative parameter values are clamped
+  // to 0 (the legacy classifier is disabled); a non-positive budget produces
+  // a warning.
+  void ResetClassificationBudget();
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
@@ -429,6 +436,33 @@ public:
   // Set once per pass so the per-pass "budget exhausted" warning is printed
   // only once.
   bool seam_evals_pass_warning_ = true;
+
+  // Budget of legacy blob classifications (call_matcher() calls that reach the
+  // adaptive classifier) left for the whole recognition pass currently in
+  // progress (all words on one page, or all boxes of one ApplyBoxes call).
+  // -1 means "not yet set for this pass"; 0 means exhausted.
+  // ResetClassificationBudget() (called at the start of the pass in
+  // Tesseract::recog_all_words()/Tesseract::ApplyBoxes(), including for all
+  // sub-language Tesseract objects) sets a fresh budget, reading
+  // chop_max_classifications_pass at that point and clamping negative values
+  // to 0. call_matcher() calls ResetClassificationBudget() lazily on first
+  // use, so that classification paths not covered by the pass entry points
+  // (e.g. the ambigs training path) are still bounded rather than left
+  // without a budget. The budget is decremented in call_matcher() for every
+  // blob classified, and once exhausted the blob is assigned a single junk
+  // (speckle) choice instead of being run through the class pruner + integer
+  // matcher. Because a single word (or one pass) can legitimately classify
+  // many blobs, the per-word seam budget alone does not bound the total cost
+  // of the classifier; on degenerate inputs where pageseg produces a large
+  // number of blob-like pieces with no inter-word gaps (e.g. repeated vertical
+  // stripes) the chopper can end up classifying tens of thousands of blobs
+  // and run far past the time limit (OSS-Fuzz issue 581720522,
+  // fuzzer-api-512x256). This budget caps the total number of legacy blob
+  // classifications over the whole pass regardless of the number of words.
+  int classifications_pass_remaining_ = -1;
+  // Set once per pass so the per-pass "budget exhausted" warning is printed
+  // only once.
+  bool classifications_pass_warning_ = true;
 
 protected:
   inline bool SegSearchDone(int num_futile_classifications) {
