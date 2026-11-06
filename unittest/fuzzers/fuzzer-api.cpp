@@ -64,6 +64,12 @@ extern "C" int LLVMFuzzerInitialize(int * /*pArgc*/, char ***pArgv) {
   /* Silence output */
   api->SetVariable("debug_file", "/dev/null");
 
+  /* Bound the run time for images which give a huge number of blobs (OSS-Fuzz
+     issue 581720522). This is not the default, because it would also truncate
+     the text of normal pages. The parameter does not exist in builds without
+     the legacy engine, so the result is ignored. */
+  api->SetVariable("chop_max_classifications_pass", "5000");
+
   return 0;
 }
 
