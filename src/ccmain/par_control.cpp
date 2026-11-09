@@ -17,6 +17,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "tesseractclass.h"
+
+#include <algorithm> // for std::any_of
+#include <cstdint>   // for INT32_MAX
 #ifdef _OPENMP
 #  include <omp.h>
 #endif // _OPENMP
@@ -36,6 +39,18 @@ struct BlobData {
 };
 
 void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
+  // The prerecognition classifies the blobs of all words before the first
+  // word is recognized. That does not fit to a blob-classification budget,
+  // which is enforced between words (see
+  // Wordrec::ClassificationBudgetExhausted()): the budget could be used up
+  // before any word is recognized. So there is no prerecognition if the
+  // budget of any language is limited.
+  if (chop_max_classifications_pass < INT32_MAX ||
+      std::any_of(sub_langs_.begin(), sub_langs_.end(), [](const Tesseract *lang) {
+        return lang->chop_max_classifications_pass < INT32_MAX;
+      })) {
+    return;
+  }
   // Prepare all the blobs.
   std::vector<BlobData> blobs;
   for (const auto &w : words) {

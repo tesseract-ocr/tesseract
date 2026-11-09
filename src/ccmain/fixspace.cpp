@@ -695,6 +695,11 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   if (word_res->rebuild_word == nullptr) {
     return -1; // Can't handle cube words.
   }
+  if (word_res->tess_failed) {
+    // A word which was not recognized (for example because the classification
+    // budget was used up) has boxes, but no blobs to get noise scores from.
+    return -1;
+  }
 
   // Normalised.
   auto blob_count = word_res->box_word->length();

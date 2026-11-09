@@ -108,6 +108,15 @@ TEST_F(TesseractTest, ClassificationBudgetTest) {
   GTEST_SKIP();
 #else
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  // Returns true if the legacy engine can be used with the given languages.
+  auto has_legacy_model = [](const char *languages) {
+    tesseract::TessBaseAPI api;
+    return api.Init(TessdataPath().c_str(), languages, tesseract::OEM_TESSERACT_ONLY) == 0;
+  };
+  if (!has_legacy_model("eng")) {
+    // eng.traineddata without legacy model.
+    GTEST_SKIP();
+  }
   // Returns the text of phototest which the legacy engine gets with the given
   // languages. A budget which is not nullptr is set for the first language.
   auto recognize = [](const char *languages, const char *budget) {
@@ -150,6 +159,10 @@ TEST_F(TesseractTest, ClassificationBudgetTest) {
   // The budget is per language, so a second language without limit takes
   // over when the budget of the first language is used up.
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "deu");
+  if (!has_legacy_model("eng+deu")) {
+    // deu.traineddata without legacy model.
+    GTEST_SKIP();
+  }
   EXPECT_GE(count_words(recognize("eng+deu", "100")) * 10, full_words * 9);
 #endif
 }

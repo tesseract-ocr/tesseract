@@ -220,6 +220,12 @@ void Tesseract::ambigs_classify_and_output(const char *label, PAGE_RES_IT *pr_it
     return;
   }
 
+  if (werd_res->ratings == nullptr) {
+    // The word was not recognized (for example because the classification
+    // budget was used up), so there are no paths to output.
+    return;
+  }
+
   // Dump all paths through the ratings matrix (which is normally small).
   int dim = werd_res->ratings->dimension();
   const auto **blob_choices = new const BLOB_CHOICE *[dim];

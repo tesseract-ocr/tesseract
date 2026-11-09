@@ -433,8 +433,9 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
 
+    // This needs the classifier, so it is skipped without budget.
     if (!tessedit_test_adaption && tessedit_fix_fuzzy_spaces && !tessedit_word_for_word &&
-        !right_to_left()) {
+        !right_to_left() && !AllClassificationBudgetsExhausted()) {
       fix_fuzzy_spaces(monitor, stats_.word_count, page_res);
     }
 
