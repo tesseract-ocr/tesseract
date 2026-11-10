@@ -348,7 +348,9 @@ TEST_F(TesseractTest, DetectOrientationScriptNeedsLegacyModel) {
         ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY));
         break;
       case 1: // The primary language has no legacy model, a secondary one has.
-        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng+osd"));
+        // osd has no LSTM model, so it falls back to the legacy engine, while
+        // eng is loaded without its legacy model even if the file has one.
+        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng+osd", tesseract::OEM_LSTM_ONLY));
         break;
       case 2: // No language loaded.
         ASSERT_EQ(0, api.Init(TessdataPath().c_str(), nullptr));
