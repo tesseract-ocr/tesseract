@@ -801,9 +801,11 @@ static void WordGap(const PointerVector<WERD_RES> &words, unsigned index, int *r
 }
 
 // Factored helper computes the rating, certainty, badness and validity of
-// the permuter of the words in [first_index, end_index).
+// the permuter of the words in [first_index, end_index), and whether any of
+// them is a fake because the classification budget was used up.
 static void EvaluateWordSpan(const PointerVector<WERD_RES> &words, unsigned first_index, unsigned end_index,
-                             float *rating, float *certainty, bool *bad, bool *valid_permuter) {
+                             float *rating, float *certainty, bool *bad, bool *valid_permuter,
+                             bool *budget_skipped) {
   if (end_index <= first_index) {
     *bad = true;
     *valid_permuter = false;
@@ -819,13 +821,19 @@ static void EvaluateWordSpan(const PointerVector<WERD_RES> &words, unsigned firs
         *valid_permuter = false;
       }
     }
+    if (words[index]->budget_skipped) {
+      *budget_skipped = true;
+    }
   }
 }
 
 // Helper chooses the best combination of words, transferring good ones from
 // new_words to best_words. To win, a new word must have (better rating and
 // certainty) or (better permuter status and rating within rating ratio and
-// certainty within certainty margin) than current best.
+// certainty within certainty margin) than current best. A real result always
+// wins against a fake result of a language which has used up its
+// classification budget, so such a fake is only kept if no language could
+// recognize the word.
 // All the new_words are consumed (moved to best_words or deleted.)
 // The return value is the number of new_words used minus the number of
 // best_words that remain in the output.
@@ -867,16 +875,20 @@ static int SelectBestWords(double rating_ratio, double certainty_margin, bool de
     bool b_bad = false, n_bad = false;
     // True if all words have a valid permuter.
     bool b_valid_permuter = true, n_valid_permuter = true;
+    // True if any word is a fake because the classification budget was used up.
+    bool b_budget_skipped = false, n_budget_skipped = false;
     const int end_b = b < best_words->size() ? b + 1 : b;
     const int end_n = n < new_words->size() ? n + 1 : n;
     EvaluateWordSpan(*best_words, start_b, end_b, &b_rating, &b_certainty, &b_bad,
-                     &b_valid_permuter);
+                     &b_valid_permuter, &b_budget_skipped);
     EvaluateWordSpan(*new_words, start_n, end_n, &n_rating, &n_certainty, &n_bad,
-                     &n_valid_permuter);
+                     &n_valid_permuter, &n_budget_skipped);
     bool new_better = false;
-    if (!n_bad && (b_bad || (n_certainty > b_certainty && n_rating < b_rating) ||
-                   (!b_valid_permuter && n_valid_permuter && n_rating < b_rating * rating_ratio &&
-                    n_certainty > b_certainty - certainty_margin))) {
+    if (!n_bad && (b_bad || (b_budget_skipped && !n_budget_skipped) ||
+                   (b_budget_skipped == n_budget_skipped &&
+                    ((n_certainty > b_certainty && n_rating < b_rating) ||
+                     (!b_valid_permuter && n_valid_permuter && n_rating < b_rating * rating_ratio &&
+                      n_certainty > b_certainty - certainty_margin))))) {
       // New is better.
       for (int i = start_n; i < end_n; ++i) {
         out_words.push_back((*new_words)[i]);
@@ -1425,6 +1437,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT *pr_it, WordD
       // result from an earlier pass, so fake it as for a timeout. Later
       // passes expect that the word knows its language.
       word_data->word->SetupFake(unicharset);
+      word_data->word->budget_skipped = true;
       word_data->word->tesseract = this;
     }
     return;
@@ -1496,8 +1509,10 @@ void Tesseract::classify_word_pass1(const WordData &word_data, WERD_RES **in_wor
 
 #ifndef DISABLED_LEGACY_ENGINE
     if (ClassificationBudgetExhausted()) {
-      // No budget left for the fallback, so use a fake.
+      // No budget left for the fallback, so use a fake. The flag lets a real
+      // result of another language win against it in SelectBestWords().
       (*in_word)->SetupFake(lstm_recognizer_->GetUnicharset());
+      (*in_word)->budget_skipped = true;
       return;
     }
     // Fall back to tesseract for failed words or odd words.
