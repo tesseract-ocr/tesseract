@@ -541,6 +541,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
 
 /**
  * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+ * The rectangle is clipped to the image.
  * Each SetRectangle clears the recognition results so multiple rectangles
  * can be recognized with the same image.
  */
@@ -1997,6 +1998,12 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   ASSERT_HOST(pix != nullptr);
   if (*pix != nullptr) {
     pixDestroy(pix);
+  }
+  int left, top, width, height, image_width, image_height;
+  thresholder_->GetImageSizes(&left, &top, &width, &height, &image_width, &image_height);
+  if (width <= 0 || height <= 0) {
+    tprintf("Error: The rectangle to recognize is empty or outside of the image.\n");
+    return false;
   }
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int user_dpi = 0;

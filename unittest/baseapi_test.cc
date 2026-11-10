@@ -219,6 +219,51 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
 #endif
 }
 
+// A rectangle that extends beyond the image must be clipped to the image.
+// Thresholding reads rect_width_ x rect_height_ pixels from the source image
+// and used to read past its end.
+TEST_F(TesseractTest, SetRectangleIsClippedToImage) {
+  Image src_pix = pixCreate(100, 60, 8);
+  CHECK(src_pix);
+  pixSetAll(src_pix);
+  Box *box = boxCreate(10, 10, 30, 20);
+  pixClearInRect(src_pix, box);
+  boxDestroy(&box);
+  struct TestCase {
+    int left, top, width, height;
+    int expected_width, expected_height;
+  };
+  const TestCase cases[] = {
+      {10, 10, 20, 20, 20, 20},         // Inside the image: unchanged.
+      {80, 40, 50, 50, 20, 20},         // Beyond the right and bottom edges.
+      {-10, -10, 30, 30, 20, 20},       // Beyond the left and top edges.
+      {90, 0, 1000000000, 60, 10, 60},  // Huge width must not overflow.
+  };
+  for (const auto &test : cases) {
+    tesseract::TessBaseAPI api;
+    api.InitForAnalysePage();
+    api.SetImage(src_pix);
+    api.SetRectangle(test.left, test.top, test.width, test.height);
+    Pix *thresholded = api.GetThresholdedImage();
+    ASSERT_NE(nullptr, thresholded);
+    EXPECT_EQ(test.expected_width, pixGetWidth(thresholded));
+    EXPECT_EQ(test.expected_height, pixGetHeight(thresholded));
+    pixDestroy(&thresholded);
+  }
+  // An empty rectangle, or one that is entirely outside of the image, cannot
+  // be recognized: this must fail cleanly.
+  const int empty_rects[][4] = {
+      {0, 0, 0, 0}, {10, 10, 0, 20}, {200, 200, 10, 10}, {-50, 0, 20, 20}};
+  for (const auto &rect : empty_rects) {
+    tesseract::TessBaseAPI api;
+    api.InitForAnalysePage();
+    api.SetImage(src_pix);
+    api.SetRectangle(rect[0], rect[1], rect[2], rect[3]);
+    EXPECT_EQ(nullptr, api.GetThresholdedImage());
+  }
+  src_pix.destroy();
+}
+
 // Tests that LSTM gets exactly the right answer on phototest.
 TEST_F(TesseractTest, BasicLSTMTest) {
   tesseract::TessBaseAPI api;
