@@ -329,6 +329,47 @@ TEST_F(TesseractTest, OsdEngineUsesMinCharactersToTry) {
 #endif
 }
 
+// Orientation and script detection needs a model for the legacy engine of the
+// primary language. Without one it must fail instead of throwing an exception.
+TEST_F(TesseractTest, DetectOrientationScriptNeedsLegacyModel) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because TessBaseAPI::DetectOrientationScript is missing.
+  GTEST_SKIP();
+#else
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "osd");
+  Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+  CHECK(src_pix);
+  // Each case returns the result of Init for the given language, or skips Init.
+  for (int test_case = 0; test_case < 4; ++test_case) {
+    tesseract::TessBaseAPI api;
+    switch (test_case) {
+      case 0: // LSTM only model.
+        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY));
+        break;
+      case 1: // The primary language has no legacy model, a secondary one has.
+        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng+osd"));
+        break;
+      case 2: // No language loaded.
+        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), nullptr));
+        break;
+      default: // Layout analysis only.
+        api.InitForAnalysePage();
+        break;
+    }
+    api.SetImage(src_pix);
+    int orient_deg = -1;
+    float orient_conf = 0;
+    const char *script_name = nullptr;
+    float script_conf = 0;
+    EXPECT_FALSE(
+        api.DetectOrientationScript(&orient_deg, &orient_conf, &script_name, &script_conf))
+        << "case " << test_case;
+  }
+  src_pix.destroy();
+#endif
+}
+
 TEST_F(TesseractTest, InitConfigOnlyTest) {
   // Languages for testing initialization.
   const char *langs[] = {"eng", "chi_tra", "jpn", "vie"};
