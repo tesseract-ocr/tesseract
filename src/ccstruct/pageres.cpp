@@ -259,6 +259,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES &source) {
   unlv_crunch_mode = source.unlv_crunch_mode;
   small_caps = source.small_caps;
   odd_size = source.odd_size;
+  budget_skipped = source.budget_skipped;
   fontinfo = source.fontinfo;
   fontinfo2 = source.fontinfo2;
   fontinfo_id_count = source.fontinfo_id_count;
@@ -1142,6 +1143,7 @@ void WERD_RES::Clear() {
 
 void WERD_RES::ClearResults() {
   done = false;
+  budget_skipped = false;
   fontinfo = nullptr;
   fontinfo2 = nullptr;
   fontinfo_id_count = 0;
