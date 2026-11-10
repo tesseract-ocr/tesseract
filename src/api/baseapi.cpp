@@ -292,7 +292,8 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
 /**
  * The datapath must be the name of the data directory or
  * some other file in which the data directory resides (for instance argv[0].)
- * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
+ * The language is (usually) an ISO 639-3 string. If it is nullptr or empty,
+ * no language data is loaded and Recognize fails.
  * If numeric_mode is true, then only digits and Roman numerals will
  * be returned.
  * @return: 0 on success and -1 on initialization failure.
@@ -321,8 +322,8 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
   // If the datapath, OcrEngineMode or the language have changed - start again.
   // Note that the language_ field stores the last requested language that was
   // initialized successfully, while tesseract_->lang stores the language
-  // actually used. They differ only if the requested language was nullptr, in
-  // which case tesseract_->lang is set to the Tesseract default ("eng").
+  // actually used. If the requested language was nullptr or empty, no language
+  // is loaded and tesseract_->lang stays empty.
   if (tesseract_ != nullptr &&
       (datapath_.empty() || language_.empty() || datapath_ != datapath ||
        last_oem_requested_ != oem || (language_ != language && tesseract_->lang != language))) {
@@ -762,6 +763,13 @@ PageIterator *TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
  */
 int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   if (tesseract_ == nullptr) {
+    return -1;
+  }
+  if (tesseract_->unicharset.size() <= SPECIAL_UNICHAR_CODES_COUNT) {
+    // Only the special unichars are present, so no language data was loaded:
+    // Init was called without a language (which loads nothing), Init failed,
+    // or only InitForAnalysePage was used. Recognition needs a model.
+    tprintf("Error: Recognize called without a loaded language. Pass a language to Init.\n");
     return -1;
   }
   if (FindLines() != 0) {

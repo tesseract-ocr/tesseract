@@ -359,6 +359,37 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
   }
 }
 
+// Tests that recognition fails cleanly (instead of crashing) when no language
+// data is loaded. Init without a language loads nothing, and the result of a
+// failed Init is often not checked.
+TEST_F(TesseractTest, RecognizeWithoutLanguage) {
+  // A white page with a row of hollow black boxes, so that layout analysis
+  // finds a text line to recognize.
+  Image text_pix = pixCreate(600, 120, 8);
+  CHECK(text_pix);
+  pixSetAll(text_pix);
+  for (int x = 20; x < 560; x += 36) {
+    Box *box = boxCreate(x, 30, 22, 44);
+    pixRenderBox(text_pix, box, 4, L_CLEAR_PIXELS);
+    boxDestroy(&box);
+  }
+  {
+    tesseract::TessBaseAPI api;
+    EXPECT_EQ(0, api.Init(TessdataPath().c_str(), nullptr));
+    api.SetImage(text_pix);
+    EXPECT_EQ(-1, api.Recognize(nullptr));
+    EXPECT_EQ(nullptr, api.GetUTF8Text());
+  }
+  {
+    tesseract::TessBaseAPI api;
+    EXPECT_EQ(-1, api.Init(TessdataPath().c_str(), "no_such_language"));
+    api.SetImage(text_pix);
+    EXPECT_EQ(-1, api.Recognize(nullptr));
+    EXPECT_EQ(nullptr, api.GetUTF8Text());
+  }
+  text_pix.destroy();
+}
+
 // Tests if two instances of Tesseract/LSTM can co-exist in the same thread.
 // NOTE: This is not an exhaustive test and current support for multiple
 // instances in Tesseract is fragile. This test is intended largely as a means
