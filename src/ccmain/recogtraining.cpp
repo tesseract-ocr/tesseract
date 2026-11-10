@@ -220,9 +220,11 @@ void Tesseract::ambigs_classify_and_output(const char *label, PAGE_RES_IT *pr_it
     return;
   }
 
-  if (werd_res->ratings == nullptr) {
-    // The word was not recognized (for example because the classification
-    // budget was used up), so there are no paths to output.
+  if (werd_res->tess_failed || werd_res->ratings == nullptr) {
+    // The word was not really recognized. When the classification budget is
+    // used up, SetupFake() gives a word with blobs a non-null ratings matrix
+    // full of fake space choices; the tess_failed flag (set by SetupFake)
+    // catches that case, while a word without blobs keeps a null ratings.
     return;
   }
 

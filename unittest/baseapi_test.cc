@@ -159,7 +159,10 @@ TEST_F(TesseractTest, ClassificationBudgetTest) {
   // The budget is per language, so a second language without limit takes
   // over when the budget of the first language is used up.
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "deu");
-  if (!has_legacy_model("eng+deu")) {
+  // Probe deu on its own: Init("eng+deu") would succeed if eng loads even
+  // when deu (a secondary language) fails, so the multilingual test below
+  // would run against English alone and fail spuriously.
+  if (!has_legacy_model("deu")) {
     // deu.traineddata without legacy model.
     GTEST_SKIP();
   }
