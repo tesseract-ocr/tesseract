@@ -1182,6 +1182,13 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
                                             C_BLOB *blob,
                                             const std::vector<C_OUTLINE *> &outlines,
                                             int num_outlines, std::vector<bool> *ok_outlines) {
+  // The classification budget is enforced between words, so once it is used
+  // up, ClassifyBlobAsWord() returns the certainty of a fake result, which
+  // would beat the threshold. Give up before every probe when no language can
+  // classify any more, without touching the outlines.
+  if (AllClassificationBudgetsExhausted()) {
+    return false;
+  }
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
     std::string best_str;
@@ -1193,6 +1200,9 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
       blob->bounding_box().print();
     }
     target_cert -= (target_cert - certainty_threshold) * noise_cert_factor;
+    if (AllClassificationBudgetsExhausted()) {
+      return false;
+    }
   }
   std::vector<bool> test_outlines = *ok_outlines;
   // Start with all the outlines in.
@@ -1218,6 +1228,9 @@ bool Tesseract::SelectGoodDiacriticOutlines(int pass, float certainty_threshold,
     best_index = -1;
     for (unsigned i = 0; i < outlines.size(); ++i) {
       if (test_outlines[i]) {
+        if (AllClassificationBudgetsExhausted()) {
+          return false;
+        }
         test_outlines[i] = false;
         std::string str;
         float cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass, pr_it, blob, str);
