@@ -2,6 +2,7 @@
 #include <tesseract/baseapi.h>
 
 #include <libgen.h> // for dirname
+#include <cstdint>  // for uint8_t
 #include <cstdio>   // for printf
 #include <cstdlib>  // for std::getenv, std::setenv
 #include <string>   // for std::string
@@ -103,4 +104,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   delete[] outText;
 
   return 0;
+}
+
+// Release the API on exit (called by libFuzzer). Without this, the API's
+// legacy dictionary keeps references to the DAWGs of the static global DAWG
+// cache (Dict::GlobalDawgCache()), which still hold count > 0 when that cache
+// is destroyed during static teardown, printing spurious
+// "ObjectCache: WARNING! LEAK!" lines. Deleting the API runs the normal
+// ~Tesseract() -> Dict::End() path, which releases the references.
+extern "C" void LLVMFuzzerDone() {
+  delete api;
+  api = nullptr;
 }
