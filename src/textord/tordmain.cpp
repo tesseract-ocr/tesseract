@@ -515,7 +515,9 @@ bool Textord::clean_noise_from_row( // remove empties
       blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
       if (blob_size >= textord_noise_sizelimit * row->x_height() &&
           blob_size < row->x_height() * 2) {
-        trans_threshold = blob_size / textord_noise_sizefraction;
+        // Avoid an integer division by zero if the parameter is not positive.
+        trans_threshold = textord_noise_sizefraction > 0 ? blob_size / textord_noise_sizefraction
+                                                         : blob_size;
         trans_count = blob->count_transitions(trans_threshold);
         if (trans_count < textord_noise_translimit) {
           norm_count++;
@@ -612,7 +614,9 @@ void Textord::clean_noise_from_words( // remove empties
       blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
       if (blob_size >= textord_noise_sizelimit * row->x_height() &&
           blob_size < row->x_height() * 2) {
-        trans_threshold = blob_size / textord_noise_sizefraction;
+        // Avoid an integer division by zero if the parameter is not positive.
+        trans_threshold = textord_noise_sizefraction > 0 ? blob_size / textord_noise_sizefraction
+                                                         : blob_size;
         trans_count = blob->count_transitions(trans_threshold);
         if (trans_count < textord_noise_translimit) {
           norm_count++;
