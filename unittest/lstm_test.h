@@ -73,13 +73,15 @@ protected:
     ASSERT_TRUE(unicharset.load_from_file(unicharset_name.c_str(), false));
     std::string script_dir = file::JoinPath(LANGDATA_DIR, "");
     std::vector<std::string> words;
-    EXPECT_EQ(0, CombineLangModel(unicharset, script_dir, "", FLAGS_test_tmpdir, kLang, !recode,
-                                  words, words, words, false, nullptr, nullptr));
-    std::string model_path = file::JoinPath(FLAGS_test_tmpdir, model_name);
+    // Several test programs use this fixture and write files with the same
+    // names, so each of them needs its own directory.
+    std::string tmpdir = file::MakeTmpdirForTestProgram();
+    EXPECT_EQ(0, CombineLangModel(unicharset, script_dir, "", tmpdir, kLang, !recode, words, words,
+                                  words, false, nullptr, nullptr));
+    std::string model_path = file::JoinPath(tmpdir, model_name);
     std::string checkpoint_path = model_path + "_checkpoint";
     trainer_ = std::make_unique<LSTMTrainer>(model_path.c_str(), checkpoint_path.c_str(), 0, 0);
-    trainer_->InitCharSet(
-        file::JoinPath(FLAGS_test_tmpdir, kLang, kLang) + ".traineddata");
+    trainer_->InitCharSet(file::JoinPath(tmpdir, kLang, kLang) + ".traineddata");
     int net_mode = adam ? NF_ADAM : 0;
     // Adam needs a higher learning rate, due to not multiplying the effective
     // rate by 1/(1-momentum).
