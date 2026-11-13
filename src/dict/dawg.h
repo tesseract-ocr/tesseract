@@ -375,11 +375,24 @@ struct DawgPosition {
 
 class DawgPositionVector : public std::vector<DawgPosition> {
 public:
+  /// Hard upper bound on the number of positions kept for one word.
+  /// Real dictionaries only ever need a handful, but a crafted set of dawgs
+  /// (every node accepting every unichar, with pattern and end-of-word edges
+  /// everywhere) makes the number of distinct positions grow with the square
+  /// of the word length, and add_unique() is linear in it.
+  static constexpr size_t kMaxPositions = 256;
+
   /// Adds an entry for the given dawg_index with the given node to the vec.
-  /// Returns false if the same entry already exists in the vector,
-  /// true otherwise.
+  /// Returns false if the same entry already exists in the vector or if
+  /// kMaxPositions has been reached, true otherwise.
   inline bool add_unique(const DawgPosition &new_pos, bool debug,
                          const char *debug_msg) {
+    if (size() >= kMaxPositions) {
+      if (debug) {
+        tprintf("%sdropped, too many dawg positions\n", debug_msg);
+      }
+      return false;
+    }
     for (auto &&position : *this) {
       if (position == new_pos) {
         return false;
