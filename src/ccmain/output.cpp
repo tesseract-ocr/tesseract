@@ -151,9 +151,10 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
 
   if (unlv_tilde_crunching && stats_.last_char_was_tilde && (word->word->space() == 0) &&
       !(word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes) &&
-      (word->best_choice != nullptr && word->best_choice->unichar_id(0) == space)) {
+      (word->best_choice != nullptr && word->best_choice->length() > 1 &&
+       word->best_choice->unichar_id(0) == space)) {
     /* Prevent adjacent tilde across words - we know that adjacent tildes within
-   words have been removed */
+   words have been removed. A word without a second blob has nothing to merge. */
     word->MergeAdjacentBlobs(0);
   }
   if (newline_type || (word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes)) {
