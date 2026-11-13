@@ -73,7 +73,7 @@
 #include <iostream> // for std::cin
 #include <locale>   // for std::locale::classic
 #include <memory>   // for std::unique_ptr
-#include <set>      // for std::pair
+#include <set>      // for std::set
 #include <sstream>  // for std::stringstream
 #include <string_view>
 #include <vector>   // for std::vector
@@ -1010,6 +1010,8 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
   Pix *pix = nullptr;
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
+  // Offsets of the image file directories which were already read.
+  std::set<size_t> seen_offsets;
   for (;; ++page) {
     if (tessedit_page_number >= 0) {
       page = tessedit_page_number;
@@ -1036,6 +1038,12 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data, size_t size, co
       break;
     }
     if (!offset) {
+      break;
+    }
+    // The offset comes from the file: a repeated one would loop forever,
+    // so treat a cyclic chain of pages as the end of the document.
+    if (!seen_offsets.insert(offset).second) {
+      tprintf("Warning, TIFF file %s has a cyclic chain of pages\n", filename);
       break;
     }
   }

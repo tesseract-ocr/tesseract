@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <ctime>
+#include <set>
 #include "boxread.h"
 #include "classify.h"
 #include "errorcounter.h"
@@ -225,6 +226,8 @@ void MasterTrainer::AddSample(bool verification, const char *unichar,
 // is used as an offset for page numbers in the samples.
 void MasterTrainer::LoadPageImages(const char *filename) {
   size_t offset = 0;
+  // Offsets of the image file directories which were already read.
+  std::set<size_t> seen_offsets;
   int page;
   Image pix;
   for (page = 0;; page++) {
@@ -234,6 +237,12 @@ void MasterTrainer::LoadPageImages(const char *filename) {
     }
     page_images_.push_back(pix);
     if (!offset) {
+      break;
+    }
+    // The offset comes from the file: a repeated one would loop forever,
+    // so treat a cyclic chain of pages as the end of the document.
+    if (!seen_offsets.insert(offset).second) {
+      tprintf("Warning, TIFF file %s has a cyclic chain of pages\n", filename);
       break;
     }
   }
