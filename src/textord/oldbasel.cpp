@@ -26,6 +26,7 @@
 #include "ccstruct.h"
 #include "detlinefit.h"
 #include "drawtord.h"
+#include "helpers.h" // for ClipToRange
 #include "makerow.h"
 #include "quadlsq.h"
 #include "statistc.h"
@@ -1146,6 +1147,10 @@ bool split_stepped_spline( // make xstarts
   float leftcoord, rightcoord;
   int leftindex, rightindex;
   float step; // spline step
+  // The index arithmetic below keeps leftindex - 1 and rightindex - 1 inside
+  // startindex..endindex only if the window is at least 4, and the window
+  // has to be small enough to be multiplied by 3.
+  const int medianwin = ClipToRange<int>(textord_spline_medianwin, 4, INT16_MAX);
 
   doneany = false;
   startindex = 0;
@@ -1171,11 +1176,11 @@ bool split_stepped_spline( // make xstarts
         if (textord_debug_baselines) {
           tprintf("Too many segments to resegment spline!!\n");
         }
-      } else if (endindex - startindex >= textord_spline_medianwin * 3) {
-        while (centreindex - startindex < textord_spline_medianwin * 3 / 2) {
+      } else if (endindex - startindex >= medianwin * 3) {
+        while (centreindex - startindex < medianwin * 3 / 2) {
           centreindex++;
         }
-        while (endindex - centreindex < textord_spline_medianwin * 3 / 2) {
+        while (endindex - centreindex < medianwin * 3 / 2) {
           centreindex--;
         }
         leftindex = (startindex + startindex + centreindex) / 3;
@@ -1183,22 +1188,22 @@ bool split_stepped_spline( // make xstarts
         leftcoord = (xcoords[startindex] * 2 + xcoords[centreindex]) / 3.0;
         rightcoord = (xcoords[centreindex] + xcoords[endindex] * 2) / 3.0;
         while (xcoords[leftindex] > leftcoord &&
-               leftindex - startindex > textord_spline_medianwin) {
+               leftindex - startindex > medianwin) {
           leftindex--;
         }
         while (xcoords[leftindex] < leftcoord &&
-               centreindex - leftindex > textord_spline_medianwin / 2) {
+               centreindex - leftindex > medianwin / 2) {
           leftindex++;
         }
         if (xcoords[leftindex] - leftcoord > leftcoord - xcoords[leftindex - 1]) {
           leftindex--;
         }
         while (xcoords[rightindex] > rightcoord &&
-               rightindex - centreindex > textord_spline_medianwin / 2) {
+               rightindex - centreindex > medianwin / 2) {
           rightindex--;
         }
         while (xcoords[rightindex] < rightcoord &&
-               endindex - rightindex > textord_spline_medianwin) {
+               endindex - rightindex > medianwin) {
           rightindex++;
         }
         if (xcoords[rightindex] - rightcoord > rightcoord - xcoords[rightindex - 1]) {
@@ -1216,7 +1221,7 @@ bool split_stepped_spline( // make xstarts
         doneany = true;
       } else if (textord_debug_baselines) {
         tprintf("Resegmenting spline failed - insufficient pts (%d,%d,%d,%d)\n", startindex,
-                centreindex, endindex, static_cast<int32_t>(textord_spline_medianwin));
+                centreindex, endindex, medianwin);
       }
     }
     //              else tprintf("Spline step at %d is %g\n",
