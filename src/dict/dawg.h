@@ -289,8 +289,11 @@ protected:
                    UNICHAR_ID wildcard) const;
 
   // Recursively iterate over all words in a dawg (see public iterate_words).
+  // path holds the nodes on the way from the root to to_explore and is used
+  // to refuse cycles in a malformed dawg.
   void iterate_words_rec(
       const WERD_CHOICE &word_so_far, NODE_REF to_explore,
+      std::vector<NODE_REF> &path,
       const std::function<void(const WERD_CHOICE *)> &cb) const;
 
   // Member Variables.

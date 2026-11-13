@@ -26,6 +26,7 @@
 #include "helpers.h"
 #include "tprintf.h"
 
+#include <algorithm>
 #include <climits>
 #include <memory>
 
@@ -107,7 +108,8 @@ int Dawg::check_for_words(const char *filename, const UNICHARSET &unicharset,
 void Dawg::iterate_words(const UNICHARSET &unicharset,
                          std::function<void(const WERD_CHOICE *)> cb) const {
   WERD_CHOICE word(&unicharset);
-  iterate_words_rec(word, 0, cb);
+  std::vector<NODE_REF> path;
+  iterate_words_rec(word, 0, path, cb);
 }
 
 static void CallWithUTF8(const std::function<void(const char *)> &cb,
@@ -132,12 +134,23 @@ void Dawg::iterate_words(const UNICHARSET &unicharset,
   std::function<void(const WERD_CHOICE *)> shim(
       std::bind(CallWithUTF8, cb, _1));
   WERD_CHOICE word(&unicharset);
-  iterate_words_rec(word, 0, shim);
+  std::vector<NODE_REF> path;
+  iterate_words_rec(word, 0, path, shim);
 }
 
 void Dawg::iterate_words_rec(
     const WERD_CHOICE &word_so_far, NODE_REF to_explore,
+    std::vector<NODE_REF> &path,
     const std::function<void(const WERD_CHOICE *)> &cb) const {
+  // A dawg read from a file is only checked for in-bounds edges, not for
+  // being acyclic. Do not follow an edge back into a node that is already
+  // on the current path, or the recursion never ends.
+  if (std::find(path.begin(), path.end(), to_explore) != path.end()) {
+    tprintf("Dawg has a cycle through node " REFFORMAT ", not following it\n",
+            to_explore);
+    return;
+  }
+  path.push_back(to_explore);
   NodeChildVector children;
   this->unichar_ids_of(to_explore, &children, false);
   for (auto &i : children) {
@@ -148,9 +161,10 @@ void Dawg::iterate_words_rec(
     }
     NODE_REF next = next_node(i.edge_ref);
     if (next != 0) {
-      iterate_words_rec(next_word, next, cb);
+      iterate_words_rec(next_word, next, path, cb);
     }
   }
+  path.pop_back();
 }
 
 bool Dawg::match_words(WERD_CHOICE *word, uint32_t index, NODE_REF node,
