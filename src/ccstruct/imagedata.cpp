@@ -332,14 +332,20 @@ void ImageData::AddBoxes(const std::vector<TBOX> &boxes,
 // In case of missing PNG support in Leptonica use PNM format,
 // which requires more memory.
 void ImageData::SetPixInternal(Image pix, std::vector<char> *image_data) {
-  l_uint8 *data;
-  size_t size;
+  l_uint8 *data = nullptr;
+  size_t size = 0;
   l_int32 ret;
   ret = pixWriteMem(&data, &size, pix, IFF_PNG);
   if (ret) {
     ret = pixWriteMem(&data, &size, pix, IFF_PNM);
   }
   pix.destroy();
+  if (ret) {
+    // Leptonica could not encode the image (e.g. pix is null):
+    // leave image_data empty instead of copying garbage.
+    image_data->clear();
+    return;
+  }
   // TODO: optimize resize (no init).
   image_data->resize(size);
   memcpy(&(*image_data)[0], data, size);

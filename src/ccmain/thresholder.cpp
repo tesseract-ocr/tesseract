@@ -172,6 +172,10 @@ void ImageThresholder::SetImage(const Image pix) {
   // not just a clone of the input.
   if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
+  } else if (depth == 24) {
+    // Packed 24 bpp is not plain RGB: most Leptonica functions
+    // (e.g. pixRotateOrth) only accept RGB with 32 bpp.
+    pix_ = pixConvert24To32(src);
   } else {
     pix_ = src.copy();
   }
