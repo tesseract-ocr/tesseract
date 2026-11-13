@@ -20,6 +20,7 @@
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
 #include <mutex>
+#include <unordered_map>
 #include "matrix.h"
 #include "networkio.h"
 
@@ -233,23 +234,22 @@ public:
       if (stack_top_ == stack_.size()) {
         stack_.push_back(new T);
         flags_.push_back(false);
+        indices_[stack_.back()] = stack_top_;
       }
       flags_[stack_top_] = true;
       return stack_[stack_top_++];
     }
     // Takes back the given item, and marks it free. Item does not have to be
     // the most recently lent out, but free slots don't get re-used until the
-    // blocking item is returned. The assumption is that there will only be
-    // small, temporary variations from true stack use. (Determined by the order
-    // of destructors within a local scope.)
+    // blocking item is returned. Items may be returned in any order, eg a
+    // vector of items is destroyed in borrow order, so the slot is looked up
+    // rather than searched for: a linear search from the top would make
+    // returning n items cost O(n^2).
     void Return(T *item) {
       std::lock_guard<std::mutex> lock(mutex_);
-      // Linear search will do.
-      int index = stack_top_;
-      while (--index >= 0 && stack_[index] != item) {
-      }
-      if (index >= 0) {
-        flags_[index] = false;
+      auto it = indices_.find(item);
+      if (it != indices_.end() && it->second < stack_top_) {
+        flags_[it->second] = false;
       }
       while (stack_top_ > 0 && !flags_[stack_top_ - 1]) {
         --stack_top_;
@@ -259,6 +259,8 @@ public:
   private:
     std::vector<T *> stack_;
     std::vector<bool> flags_;
+    // Index in stack_ of each item. Items are never moved once created.
+    std::unordered_map<T *, unsigned> indices_;
     unsigned stack_top_ = 0;
     std::mutex mutex_;
   }; // class Stack.
