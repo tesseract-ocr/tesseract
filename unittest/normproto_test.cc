@@ -18,9 +18,12 @@
 #include "include_gunit.h"
 
 #include "classify.h"
+#include "clusttool.h" // for ReadParamDesc
 #include "serialis.h" // for TFile
 #include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
 
+#include <cfenv> // for std::feclearexcept, std::fetestexcept
+#include <cmath> // for std::isfinite
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -101,6 +104,23 @@ TEST_F(NormprotoTest, ReadsValidNormprotos) {
   ASSERT_NE(classifier_.NormProtos, nullptr);
   classifier_.FreeNormProtos();
   EXPECT_EQ(classifier_.NormProtos, nullptr);
+}
+
+// Parameter limits whose difference or sum does not fit in a float must not
+// raise a floating point overflow (the tesseract program traps it).
+TEST(ParamDescTest, ToleratesHugeLimits) {
+  for (const char *limits : {"-3e38 3e38", "3e38 3e38", "3e38 -3e38", "-3e38 -3e38"}) {
+    std::string line = std::string("linear essential ") + limits + "\n";
+    TFile fp;
+    ASSERT_TRUE(fp.Open(line.data(), line.size()));
+    std::feclearexcept(FE_OVERFLOW);
+    PARAM_DESC *desc = ReadParamDesc(&fp, 1);
+    EXPECT_FALSE(std::fetestexcept(FE_OVERFLOW)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->Range)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->HalfRange)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->MidRange)) << limits;
+    delete[] desc;
+  }
 }
 
 } // namespace

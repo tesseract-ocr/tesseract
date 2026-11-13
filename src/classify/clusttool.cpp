@@ -19,6 +19,8 @@
 
 #include "clusttool.h"
 
+#include <algorithm> // for std::clamp
+#include <cfloat>  // for FLT_MAX
 #include <cmath>   // for M_PI, std::isnan
 #include <locale>  // for std::locale::classic
 #include <sstream> // for std::stringstream
@@ -149,9 +151,14 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
     ASSERT_HOST(!stream.fail());
     ParamDesc[i].Circular = (linear_token[0] == 'c');
     ParamDesc[i].NonEssential = (essential_token[0] != 'e');
-    ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
+    // Min and Max come from the file and can be any float value, so compute
+    // in double and clip the range to avoid a floating point overflow
+    // (which the tesseract program traps with SIGFPE).
+    const double min = ParamDesc[i].Min;
+    const double max = ParamDesc[i].Max;
+    ParamDesc[i].Range = std::clamp<double>(max - min, -FLT_MAX, FLT_MAX);
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
-    ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
+    ParamDesc[i].MidRange = (max + min) / 2;
   }
   return (ParamDesc);
 }
