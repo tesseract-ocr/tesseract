@@ -955,11 +955,18 @@ void ColPartition::ComputeLimits() {
     STATS left_stats(bounding_box_.left(), bounding_box_.right());
     STATS right_stats(bounding_box_.left(), bounding_box_.right());
     STATS width_stats(0, bounding_box_.width());
+    // STATS keeps int32_t counts, but the areas of the (possibly overlapping)
+    // blob boxes can sum to more than that, so scale the weights down to fit.
+    int64_t total_area = 0;
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      total_area += it.data()->bounding_box().area();
+    }
+    int area_divisor = static_cast<int>(total_area / INT32_MAX) + 1;
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       bbox = it.data();
       if (non_leader_count == 0 || bbox->flow() != BTFT_LEADER) {
         const TBOX &box = bbox->bounding_box();
-        int area = box.area();
+        int area = box.area() / area_divisor;
         top_stats.add(box.top(), area);
         bottom_stats.add(box.bottom(), area);
         height_stats.add(box.height(), area);
