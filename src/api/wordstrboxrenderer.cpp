@@ -30,7 +30,8 @@ namespace tesseract {
  */
 
 char *TessBaseAPI::GetWordStrBoxText(int page_number = 0) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(nullptr) < 0)) {
     return nullptr;
   }
 
