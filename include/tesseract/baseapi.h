@@ -613,7 +613,11 @@ public:
    * orient_conf is the confidence (15.0 is reasonably confident)
    * script_name is an ASCII string, the name of the script, e.g. "Latin"
    * script_conf is confidence level in the script
-   * Returns true on success and writes values to each parameter as an output
+   * Returns true on success and writes values to each parameter as an output.
+   * Returns false if the primary (first) language was loaded without the
+   * legacy engine (for example the tessdata_fast or tessdata_best model of a
+   * language, or a combined model loaded with OEM_LSTM_ONLY): use the osd
+   * model, or put a model with a legacy engine first in the language list.
    */
   bool DetectOrientationScript(int *orient_deg, float *orient_conf,
                                const char **script_name, float *script_conf);
