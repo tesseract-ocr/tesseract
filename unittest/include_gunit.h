@@ -20,6 +20,7 @@
 
 #include <filesystem>
 #include <string>
+#include <system_error>
 
 static const char *FLAGS_test_tmpdir = "./tmp";
 
@@ -44,6 +45,24 @@ public:
 #else
     mkdir(FLAGS_test_tmpdir, S_IRWXU | S_IRWXG);
 #endif
+  }
+
+  // Creates a directory for temporary files which is only used by the test
+  // program of the current test, and returns its name.
+  // Test programs can run at the same time ("make -j check"), so those which
+  // write files with the same names must not write them directly to
+  // FLAGS_test_tmpdir. The directory is named after the source file of the
+  // current test.
+  static std::string MakeTmpdirForTestProgram() {
+    MakeTmpdir();
+    std::string dir = FLAGS_test_tmpdir;
+    const auto *test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+    if (test_info != nullptr && test_info->file() != nullptr) {
+      dir = JoinPath(dir, std::filesystem::path(test_info->file()).stem().string());
+      std::error_code ec;
+      std::filesystem::create_directory(dir, ec);
+    }
+    return dir;
   }
 
   // Create a file and write a string to it.
