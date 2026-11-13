@@ -37,11 +37,11 @@ namespace tesseract {
 
 void FPCUTPT::setup(      // constructor
     FPCUTPT *cutpts,      // predecessors
-    int16_t array_origin, // start coord
+    int32_t array_origin, // start coord
     STATS *projection,    // vertical occupation
     int16_t zero_count,   // official zero
     int16_t pitch,        // proposed pitch
-    int16_t x,            // position
+    int32_t x,            // position
     int16_t offset        // dist to gap
 ) {
   // half of pitch
@@ -96,8 +96,8 @@ void FPCUTPT::setup(      // constructor
 
 void FPCUTPT::assign(       // constructor
     FPCUTPT *cutpts,        // predecessors
-    int16_t array_origin,   // start coord
-    int16_t x,              // position
+    int32_t array_origin,   // start coord
+    int32_t x,              // position
     bool faking,            // faking this one
     bool mid_cut,           // cheap cut.
     int16_t offset,         // dist to gap
@@ -198,8 +198,8 @@ void FPCUTPT::assign(       // constructor
 
 void FPCUTPT::assign_cheap( // constructor
     FPCUTPT *cutpts,        // predecessors
-    int16_t array_origin,   // start coord
-    int16_t x,              // position
+    int32_t array_origin,   // start coord
+    int32_t x,              // position
     bool faking,            // faking this one
     bool mid_cut,           // cheap cut.
     int16_t offset,         // dist to gap
@@ -294,8 +294,8 @@ double check_pitch_sync2(    // find segmentation
     int16_t pitch,           // pitch estimate
     int16_t pitch_error,     // tolerance
     STATS *projection,       // vertical
-    int16_t projection_left, // edges //scale factor
-    int16_t projection_right, float projection_scale,
+    int32_t projection_left, // edges //scale factor
+    int32_t projection_right, float projection_scale,
     int16_t &occupation_count, // no of occupied cells
     FPSEGPT_LIST *seg_list,    // output list
     int16_t start,             // start of good range
@@ -303,15 +303,15 @@ double check_pitch_sync2(    // find segmentation
 ) {
   bool faking;                  // illegal cut pt
   bool mid_cut;                 // cheap cut pt.
-  int16_t x;                    // current coord
+  int32_t x;                    // current coord
   int16_t blob_index;           // blob number
-  int16_t left_edge;            // of word
-  int16_t right_edge;           // of word
-  int16_t array_origin;         // x coord of array
+  int32_t left_edge;            // of word
+  int32_t right_edge;           // of word
+  int32_t array_origin;         // x coord of array
   int16_t offset;               // dist to legal area
   int16_t zero_count;           // projection zero
-  int16_t best_left_x = 0;      // for equals
-  int16_t best_right_x = 0;     // right edge
+  int32_t best_left_x = 0;      // for equals
+  int32_t best_right_x = 0;     // right edge
   TBOX this_box;                // bounding box
   TBOX next_box;                // box of next blob
   FPSEGPT *segpt;               // segment point
@@ -479,8 +479,8 @@ double check_pitch_sync2(    // find segmentation
  **********************************************************************/
 
 double check_pitch_sync3(    // find segmentation
-    int16_t projection_left, // edges //to be considered 0
-    int16_t projection_right, int16_t zero_count,
+    int32_t projection_left, // edges //to be considered 0
+    int32_t projection_right, int16_t zero_count,
     int16_t pitch,             // pitch estimate
     int16_t pitch_error,       // tolerance
     STATS *projection,         // vertical
@@ -492,17 +492,17 @@ double check_pitch_sync3(    // find segmentation
 ) {
   bool faking;                  // illegal cut pt
   bool mid_cut;                 // cheap cut pt.
-  int16_t left_edge;            // of word
-  int16_t right_edge;           // of word
-  int16_t x;                    // current coord
-  int16_t array_origin;         // x coord of array
-  int16_t offset;               // dist to legal area
+  int32_t left_edge;            // of word
+  int32_t right_edge;           // of word
+  int32_t x;                    // current coord
+  int32_t array_origin;         // x coord of array
+  int32_t offset;               // dist to legal area
   int16_t projection_offset;    // from scaled projection
-  int16_t prev_zero;            // previous zero dist
-  int16_t next_zero;            // next zero dist
+  int32_t prev_zero;            // previous zero dist
+  int32_t next_zero;            // next zero dist
   int16_t zero_offset;          // scan window
-  int16_t best_left_x = 0;      // for equals
-  int16_t best_right_x = 0;     // right edge
+  int32_t best_left_x = 0;      // for equals
+  int32_t best_right_x = 0;     // right edge
   FPSEGPT *segpt;               // segment point
   int minindex;                 // next input position
   int test_index;               // index to mins

@@ -651,8 +651,8 @@ public:
   bool merged = false;
   bool all_caps;             // had no ascenders
   bool used_dm_model;        // in guessing pitch
-  int16_t projection_left;   // start of projection
-  int16_t projection_right;  // start of projection
+  int32_t projection_left;   // start of projection
+  int32_t projection_right;  // start of projection
   PITCH_TYPE pitch_decision; // how strong is decision
   float fixed_pitch;         // pitch or 0
   float fp_space;            // sp if fixed pitch

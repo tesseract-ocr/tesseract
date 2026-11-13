@@ -35,9 +35,9 @@ class FPSEGPT : public ELIST<FPSEGPT>::LINK {
 public:
   FPSEGPT() = default;
   FPSEGPT(                      // constructor
-      int16_t x);               // position
+      int32_t x);               // position
   FPSEGPT(                      // constructor
-      int16_t x,                // position
+      int32_t x,                // position
       bool faking,              // faking this one
       int16_t offset,           // extra cost dist
       int16_t region_index,     // segment number

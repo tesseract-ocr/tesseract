@@ -32,17 +32,17 @@ public:
   FPCUTPT() = default;
   void setup(               // start of cut
       FPCUTPT cutpts[],     // predecessors
-      int16_t array_origin, // start coord
+      int32_t array_origin, // start coord
       STATS *projection,    // occupation
       int16_t zero_count,   // official zero
       int16_t pitch,        // proposed pitch
-      int16_t x,            // position
+      int32_t x,            // position
       int16_t offset);      // dist to gap
 
   void assign(                // evaluate cut
       FPCUTPT cutpts[],       // predecessors
-      int16_t array_origin,   // start coord
-      int16_t x,              // position
+      int32_t array_origin,   // start coord
+      int32_t x,              // position
       bool faking,            // faking this one
       bool mid_cut,           // doing free cut
       int16_t offset,         // extra cost dist
@@ -54,8 +54,8 @@ public:
 
   void assign_cheap(          // evaluate cut
       FPCUTPT cutpts[],       // predecessors
-      int16_t array_origin,   // start coord
-      int16_t x,              // position
+      int32_t array_origin,   // start coord
+      int32_t x,              // position
       bool faking,            // faking this one
       bool mid_cut,           // doing free cut
       int16_t offset,         // extra cost dist
@@ -107,16 +107,16 @@ double check_pitch_sync2(    // find segmentation
     int16_t pitch,           // pitch estimate
     int16_t pitch_error,     // tolerance
     STATS *projection,       // vertical
-    int16_t projection_left, // edges //scale factor
-    int16_t projection_right, float projection_scale,
+    int32_t projection_left, // edges //scale factor
+    int32_t projection_right, float projection_scale,
     int16_t &occupation_count, // no of occupied cells
     FPSEGPT_LIST *seg_list,    // output list
     int16_t start,             // start of good range
     int16_t end                // end of good range
 );
 double check_pitch_sync3(    // find segmentation
-    int16_t projection_left, // edges //to be considered 0
-    int16_t projection_right, int16_t zero_count,
+    int32_t projection_left, // edges //to be considered 0
+    int32_t projection_right, int16_t zero_count,
     int16_t pitch,             // pitch estimate
     int16_t pitch_error,       // tolerance
     STATS *projection,         // vertical
