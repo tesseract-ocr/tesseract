@@ -63,7 +63,7 @@ int16_t Tesseract::word_outline_errs(WERD_RES *word) {
   int16_t err_count = 0;
 
   if (word->rebuild_word != nullptr) {
-    int16_t i = 0;
+    int i = 0;
     for (unsigned b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
       TBLOB *blob = word->rebuild_word->blobs[b];
       err_count += count_outline_errs(word->best_choice->unichar_string()[i], blob->NumOutlines());

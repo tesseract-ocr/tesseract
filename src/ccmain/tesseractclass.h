@@ -581,9 +581,9 @@ public:
   // make rej map for word
   void make_reject_map(WERD_RES *word, int16_t pass);
   bool one_ell_conflict(WERD_RES *word_res, bool update_map);
-  int16_t first_alphanum_index(const char *word, const char *word_lengths);
-  int16_t first_alphanum_offset(const char *word, const char *word_lengths);
-  int16_t alpha_count(const char *word, const char *word_lengths);
+  int first_alphanum_index(const char *word, const char *word_lengths);
+  int first_alphanum_offset(const char *word, const char *word_lengths);
+  int alpha_count(const char *word, const char *word_lengths);
   bool word_contains_non_1_digit(const char *word, const char *word_lengths);
   void dont_allow_1Il(WERD_RES *word);
   int16_t count_alphanums( // how many alphanums
