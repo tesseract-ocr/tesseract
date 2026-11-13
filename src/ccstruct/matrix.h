@@ -77,19 +77,22 @@ public:
   }
   GENERIC_2D_ARRAY(GENERIC_2D_ARRAY<T> &&src) noexcept
       : array_(src.array_), empty_(src.empty_), dim1_(src.dim1_), dim2_(src.dim2_),
-        size_allocated_(src.size_allocated_) {
+        size_allocated_(src.size_allocated_), pad_(src.pad_) {
     src.array_ = nullptr;
     src.empty_ = static_cast<T>(0);
     src.dim1_ = 0;
     src.dim2_ = 0;
     src.size_allocated_ = 0;
+    src.pad_ = 0;
   }
   virtual ~GENERIC_2D_ARRAY() {
     delete[] array_;
   }
 
   void operator=(const GENERIC_2D_ARRAY<T> &src) {
-    ResizeNoInit(src.dim1(), src.dim2());
+    // Keep the padding of src, as users of the copy may rely on it in the
+    // same way as users of src (eg the SIMD code reading an int8_t array).
+    ResizeNoInit(src.dim1(), src.dim2(), src.pad_);
     int size = num_elements();
     if (size > 0) {
       memcpy(array_, src.array_, size * sizeof(array_[0]));
@@ -103,11 +106,13 @@ public:
       dim1_ = src.dim1_;
       dim2_ = src.dim2_;
       size_allocated_ = src.size_allocated_;
+      pad_ = src.pad_;
       src.array_ = nullptr;
       src.empty_ = static_cast<T>(0);
       src.dim1_ = 0;
       src.dim2_ = 0;
       src.size_allocated_ = 0;
+      src.pad_ = 0;
     }
   }
 
@@ -144,6 +149,7 @@ public:
     }
     dim1_ = size1;
     dim2_ = size2;
+    pad_ = pad;
     // Fill the padding data so it isn't uninitialized.
     for (int i = new_size - pad; i < new_size; ++i) {
       array_[i] = empty_;
@@ -178,6 +184,7 @@ public:
       dim1_ = size1;
       dim2_ = size2;
       size_allocated_ = new_size;
+      pad_ = 0;
     }
   }
 
@@ -661,6 +668,9 @@ protected:
   // needed. If Resize is used, memory is retained so it can be re-expanded
   // without a further alloc, and this stores the allocated size.
   int size_allocated_;
+  // The number of extra elements that ResizeNoInit provided beyond the bounds
+  // of the array (dim1_ * dim2_). A copy of the array gets the same padding.
+  int pad_ = 0;
 };
 
 // A generic class to store a banded triangular matrix with entries of type T.

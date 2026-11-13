@@ -136,4 +136,31 @@ TEST_F(MatrixTest, RotatingTranspose_0_2) {
   EXPECT_EQ(6, m(15, 0));
 }
 
+// Tests that a copy of an array keeps the padding requested by ResizeNoInit,
+// as NetworkIO relies on it for the SIMD code reading an int8_t array.
+TEST_F(MatrixTest, CopyKeepsPadding) {
+  class PaddedArray : public GENERIC_2D_ARRAY<int8_t> {
+  public:
+    int size_allocated() const {
+      return size_allocated_;
+    }
+  };
+  const int kDim1 = 5, kDim2 = 3, kPad = 31;
+  PaddedArray src;
+  src.ResizeNoInit(kDim1, kDim2, kPad);
+  src.Clear();
+  PaddedArray assigned;
+  assigned = src;
+  EXPECT_EQ(kDim1, assigned.dim1());
+  EXPECT_EQ(kDim2, assigned.dim2());
+  EXPECT_EQ(kDim1 * kDim2 + kPad, assigned.size_allocated());
+  PaddedArray constructed(src);
+  EXPECT_EQ(kDim1 * kDim2 + kPad, constructed.size_allocated());
+  // The padding also survives a move followed by a copy.
+  PaddedArray moved(std::move(src));
+  assigned = PaddedArray();
+  assigned = moved;
+  EXPECT_EQ(kDim1 * kDim2 + kPad, assigned.size_allocated());
+}
+
 } // namespace tesseract
