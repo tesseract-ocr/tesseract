@@ -54,7 +54,10 @@ void Tesseract::PrerecAllWordsPar(const std::vector<WordData> &words) {
   // Prepare all the blobs.
   std::vector<BlobData> blobs;
   for (const auto &w : words) {
-    if (w.word->ratings != nullptr && w.word->ratings->get(0, 0) == nullptr) {
+    // In LSTM mode a word with no blobs is not faked, so its ratings matrix
+    // can be empty; there is nothing to pre-classify in that case.
+    if (w.word->ratings != nullptr && w.word->ratings->dimension() > 0 &&
+        w.word->ratings->get(0, 0) == nullptr) {
       for (size_t s = 0; s < w.lang_words.size(); ++s) {
         Tesseract *sub = s < sub_langs_.size() ? sub_langs_[s] : this;
         const WERD_RES &word = *w.lang_words[s];
