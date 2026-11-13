@@ -73,6 +73,8 @@ void block_edges(Image t_pix,   // thresholded image
   CRACKEDGE *free_cracks = nullptr;
 
   block->bounding_box(bleft, tright); // block box
+  ASSERT_HOST(bleft.x() >= 0);
+  ASSERT_HOST(bleft.y() >= 0);
   ASSERT_HOST(tright.x() <= width);
   ASSERT_HOST(tright.y() <= height);
   int block_width = tright.x() - bleft.x();

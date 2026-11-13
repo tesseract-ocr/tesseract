@@ -187,7 +187,7 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
   int height = pixGetHeight(tess->pix_binary());
 
   BLOCK_LIST blocks;
-  if (!read_unlv_file(name, height, &blocks)) {
+  if (!read_unlv_file(name, width, height, &blocks)) {
     FullPageBlock(width, height, &blocks);
   }
 
