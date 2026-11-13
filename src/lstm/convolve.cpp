@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        convolve.cpp
 // Description: Convolutional layer that stacks the inputs over its rectangle
-//              and pulls in random data to fill out-of-input inputs.
+//              and fills out-of-input inputs with noise during training or
+//              white background during recognition.
 //              Output is therefore same size as its input, but deeper.
 // Author:      Ray Smith
 //
@@ -88,14 +89,26 @@ void Convolve::Forward(bool debug, const NetworkIO &input,
       StrideMap::Index x_index(dest_index);
       if (!x_index.AddOffset(x, FD_WIDTH)) {
         // This x is outside the image.
-        output->Randomize(t, out_ix, y_scale * ni_, randomizer_);
+        if (IsTraining()) {
+          output->Randomize(t, out_ix, y_scale * ni_, randomizer_);
+        } else {
+          for (int i = 0; i < y_scale * ni_; ++i) {
+            output->SetPixel(t, out_ix + i, 255, 0.0f, 127.5f);
+          }
+        }
       } else {
         int out_iy = out_ix;
         for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
           StrideMap::Index y_index(x_index);
           if (!y_index.AddOffset(y, FD_HEIGHT)) {
             // This y is outside the image.
-            output->Randomize(t, out_iy, ni_, randomizer_);
+            if (IsTraining()) {
+              output->Randomize(t, out_iy, ni_, randomizer_);
+            } else {
+              for (int i = 0; i < ni_; ++i) {
+                output->SetPixel(t, out_iy + i, 255, 0.0f, 127.5f);
+              }
+            }
           } else {
             output->CopyTimeStepGeneral(t, out_iy, ni_, input, y_index.t(), 0);
           }
