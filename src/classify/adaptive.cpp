@@ -183,7 +183,7 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
     if (!IsEmptyAdaptedClass(AClass)) {
       fprintf(File, "%5u  %s %3d %3d %3d %3zd\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
               AClass->NumPermConfigs, IClass->NumProtos,
-              IClass->NumProtos - AClass->TempProtos->size());
+              IClass->NumProtos - count(AClass->TempProtos));
     }
   }
   fprintf(File, "\n");
@@ -387,7 +387,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
   fwrite(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
-  uint32_t NumTempProtos = Class->TempProtos->size();
+  uint32_t NumTempProtos = count(Class->TempProtos);
   fwrite(&NumTempProtos, sizeof(NumTempProtos), 1, File);
   auto TempProtos = Class->TempProtos;
   iterate(TempProtos) {
