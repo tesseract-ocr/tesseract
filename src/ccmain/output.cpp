@@ -249,7 +249,7 @@ char determine_newline_type( // test line ends
  * character which is repeated - as determined earlier by fix_rep_char()
  *************************************************************************/
 UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) { // what char is repeated?
-  int i;
+  unsigned i;
   for (i = 0; ((i < word->reject_map.length()) && (word->reject_map[i].rejected())); ++i) {
     ;
   }
@@ -338,7 +338,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
     return;
   }
 
-  if (!suspect_constrain_1Il || (word_res->reject_map.length() <= suspect_short_words)) {
+  if (!suspect_constrain_1Il || (len <= suspect_short_words)) {
     for (i = 0; i < len; i++) {
       if (word_res->reject_map[i].rejected()) {
         if ((word_res->reject_map[i].flag(R_1IL_CONFLICT) ||
@@ -356,7 +356,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   if (acceptable_word_string(*word_res->uch_set, word.unichar_string().c_str(),
                              word.unichar_lengths().c_str()) != AC_UNACCEPTABLE ||
       acceptable_number_string(word.unichar_string().c_str(), word.unichar_lengths().c_str())) {
-    if (word_res->reject_map.length() > suspect_short_words) {
+    if (len > suspect_short_words) {
       for (i = 0; i < len; i++) {
         if (word_res->reject_map[i].rejected() && (!word_res->reject_map[i].perm_rejected() ||
                                                    word_res->reject_map[i].flag(R_1IL_CONFLICT) ||

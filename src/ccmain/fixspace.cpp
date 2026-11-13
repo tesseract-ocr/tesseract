@@ -289,7 +289,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   Yes IF it didn't end in a 1 when the first char of this word is a digit
     AND it didn't end in a digit when the first char of this word is a 1
 */
-      auto word_len = word->reject_map.length();
+      int word_len = word->reject_map.length();
       bool current_word_ok_so_far = false;
       if (!((prev_char_1 && digit_or_numeric_punct(word, 0)) ||
             (prev_char_digit &&

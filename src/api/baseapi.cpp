@@ -2853,7 +2853,7 @@ int TessBaseAPI::TextLength(int *blob_count) const {
     if (choice != nullptr) {
       total_blobs += choice->length() + 2;
       total_length += choice->unichar_string().length() + 2;
-      for (int i = 0; i < word->reject_map.length(); ++i) {
+      for (unsigned i = 0; i < word->reject_map.length(); ++i) {
         if (word->reject_map[i].rejected()) {
           ++total_length;
         }
