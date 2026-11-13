@@ -440,6 +440,11 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
       // fontinfo not in table.
       continue;
     }
+    if (xht <= 0) {
+      tprintf("Ignoring invalid xheight %d for font %s in %s\n", xht, buffer,
+              filename);
+      continue;
+    }
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
     ++xheight_count;
@@ -469,6 +474,15 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
   if (fontinfo_id < 0) {
     tprintf("No font found matching fontinfo filename %s\n", filename);
+    fclose(fontinfo_file);
+    return false;
+  }
+  // The spacing is scaled by the xheight of the font, which is only known if
+  // an xheights file was loaded (see LoadXHeights) and has an entry for it.
+  if (static_cast<size_t>(fontinfo_id) >= xheights_.size() ||
+      xheights_[fontinfo_id] <= 0) {
+    tprintf("No xheight for font %d, ignoring spacing file %s\n", fontinfo_id,
+            filename);
     fclose(fontinfo_file);
     return false;
   }
