@@ -29,6 +29,7 @@
 
 #include "helpers.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -304,10 +305,13 @@ void STATS::smooth(int32_t factor) {
   }
   STATS result(rangemin_, rangemax_);
   int entrycount = 1 + rangemax_ - rangemin_;
+  // Offsets beyond the last bucket contribute nothing, so a factor larger
+  // than the histogram must not make the filter more expensive.
+  int maxoffset = std::min(factor, entrycount);
   for (int entry = 0; entry < entrycount; entry++) {
     // centre weight
     int count = buckets_[entry] * factor;
-    for (int offset = 1; offset < factor; offset++) {
+    for (int offset = 1; offset < maxoffset; offset++) {
       if (entry - offset >= 0) {
         count += buckets_[entry - offset] * (factor - offset);
       }

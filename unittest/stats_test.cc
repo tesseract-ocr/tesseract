@@ -14,6 +14,9 @@
 
 #include "include_gunit.h"
 
+#include <algorithm> // for std::max
+#include <cstdlib>   // for std::abs
+
 namespace tesseract {
 
 const int kTestData[] = {2, 0, 12, 1, 1, 2, 10, 1, 0, 0, 0, 2, 0, 4, 1, 1};
@@ -61,6 +64,29 @@ TEST_F(STATSTest, TopNModes) {
   // Mode 2 is 4 1 1 = 6 total count with a mean of 13.5.
   EXPECT_FLOAT_EQ(13.5f, modes[2].key());
   EXPECT_EQ(6, modes[2].data());
+}
+
+// Tests that smooth applies a triangular filter of the given height, also
+// when the factor is larger than the histogram.
+TEST_F(STATSTest, Smooth) {
+  const int kNumBuckets = countof(kTestData);
+  for (int factor : {2, 3, 7, kNumBuckets, 3 * kNumBuckets}) {
+    STATS stats(0, kNumBuckets - 1);
+    for (int i = 0; i < kNumBuckets; ++i) {
+      stats.add(i, kTestData[i]);
+    }
+    stats.smooth(factor);
+    int total = 0;
+    for (int i = 0; i < kNumBuckets; ++i) {
+      int expected = 0;
+      for (int k = 0; k < kNumBuckets; ++k) {
+        expected += kTestData[k] * std::max(factor - std::abs(i - k), 0);
+      }
+      EXPECT_EQ(expected, stats.pile_count(i)) << "factor " << factor << ", bucket " << i;
+      total += expected;
+    }
+    EXPECT_EQ(total, stats.get_total()) << "factor " << factor;
+  }
 }
 
 } // namespace tesseract
