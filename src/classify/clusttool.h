@@ -28,6 +28,7 @@ namespace tesseract {
 
 uint16_t ReadSampleSize(tesseract::TFile *fp);
 
+TESS_API
 PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uint16_t N);
 
 PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uint16_t N);
