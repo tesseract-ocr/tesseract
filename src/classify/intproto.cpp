@@ -832,9 +832,11 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     unsigned num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     // Class->NumProtoSets is used as a loop bound that writes into the
     // fixed-size ProtoSets[] array, so reject a corrupt or malicious file
-    // instead of writing out of bounds.
+    // instead of writing out of bounds. ProtoLengths and ProtoSets[] are
+    // sized from NumProtoSets but indexed by proto id up to NumProtos (see
+    // FindGoodProtos and AddIntProto), so the protos must fit in the sets.
     if (Class->NumProtos > MAX_NUM_PROTOS || Class->NumProtoSets > MAX_NUM_PROTO_SETS ||
-        num_configs > MaxNumConfigs) {
+        Class->NumProtos > MaxNumIntProtosIn(Class) || num_configs > MaxNumConfigs) {
       tprintf("Error: invalid counts for class %u in inttemp: NumProtos=%u, NumProtoSets=%u, "
               "NumConfigs=%u\n",
               i, Class->NumProtos, Class->NumProtoSets, Class->NumConfigs);

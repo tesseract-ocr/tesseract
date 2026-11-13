@@ -6,7 +6,8 @@
 //              NumProtoSets) are read from the untrusted file and used
 //              as loop bounds that write into fixed-size arrays in
 //              Classify::ReadIntTemplates, so they must be validated
-//              before use.
+//              before use. The same goes for the NumProtos of each class,
+//              which indexes arrays that are sized from NumProtoSets.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +20,9 @@
 
 #include <tesseract/baseapi.h>
 
+#include "classify.h"     // for Classify (ReadIntTemplates)
 #include "intproto.h"     // for MAX_NUM_CLASS_PRUNERS, MAX_NUM_CLASSES
+#include "serialis.h"     // for TFile
 #include "tessdatamanager.h"
 #include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
 
@@ -44,7 +47,7 @@ const char kMinUnicharset[] =
 //   uint8 NumConfigs.
 std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
                               uint32_t num_classes, uint32_t unicharset_size,
-                              uint8_t num_proto_sets = 0) {
+                              uint8_t num_proto_sets = 0, uint16_t num_protos = 0) {
   std::vector<char> data;
   auto append = [&data](const void *p, size_t n) {
     const char *b = static_cast<const char *>(p);
@@ -55,12 +58,23 @@ std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
   append(&num_class_pruners, sizeof(num_class_pruners));
   append(&num_classes, sizeof(num_classes));
   for (uint32_t c = 0; c < num_classes && c < MAX_NUM_CLASSES; ++c) {
-    uint16_t num_protos = 0;
     uint8_t num_configs = 0;
     append(&num_protos, sizeof(num_protos));
     append(&num_proto_sets, sizeof(num_proto_sets));
     append(&num_configs, sizeof(num_configs));
   }
+  return data;
+}
+
+// Builds a complete inttemp component in the version 3 on-disk layout (the
+// last one without font tables): no class pruner and one class with the given
+// NumProtos and NumProtoSets, followed by its MAX_NUM_CONFIGS config lengths,
+// its NumProtoSets * PROTOS_PER_PROTO_SET proto lengths and its proto sets,
+// all zero.
+std::vector<char> MakeInttempWithProtos(uint16_t num_protos, uint8_t num_proto_sets) {
+  std::vector<char> data = MakeInttemp(-3, 0, 1, 1, num_proto_sets, num_protos);
+  data.resize(data.size() + MAX_NUM_CONFIGS * sizeof(uint16_t) +
+              num_proto_sets * (PROTOS_PER_PROTO_SET + sizeof(PROTO_SET_STRUCT)));
   return data;
 }
 
@@ -117,6 +131,17 @@ bool WriteCorruptTraineddata(const std::string &dir, const std::vector<char> &in
   return mgr.SaveFile((dir + "/eng.traineddata").c_str(), nullptr);
 }
 
+// Returns whether Classify::ReadIntTemplates accepts the given component.
+bool ReadsInttemp(const std::vector<char> &inttemp) {
+  Classify classifier;
+  TFile fp;
+  fp.Open(inttemp.data(), inttemp.size());
+  INT_TEMPLATES_STRUCT *templates = classifier.ReadIntTemplates(&fp);
+  const bool accepted = templates != nullptr;
+  delete templates;
+  return accepted;
+}
+
 class IntprotoTest : public testing::Test {
 protected:
   void SetUp() override {
@@ -152,6 +177,24 @@ TEST_F(IntprotoTest, RejectsTooManyClasses) {
 // write past the end of INT_CLASS_STRUCT::ProtoSets[].
 TEST_F(IntprotoTest, RejectsTooManyProtoSets) {
   ExpectInitFails(MakeInttemp(-5, 0, 1, 1, MAX_NUM_PROTO_SETS + 1));
+}
+
+// A class with more protos than its proto sets hold: ProtoLengths and
+// ProtoSets[] are sized from NumProtoSets, but the adaption code
+// (IntegerMatcher::FindGoodProtos, AddIntProto) indexes them by proto id up
+// to NumProtos.
+TEST_F(IntprotoTest, RejectsMoreProtosThanProtoSetsHold) {
+  ExpectInitFails(MakeInttemp(-5, 0, 1, 1, 0, 1));
+  ExpectInitFails(MakeInttemp(-5, 0, 1, 1, 1, PROTOS_PER_PROTO_SET + 1));
+  ExpectInitFails(MakeInttemp(-5, 0, 1, 1, 1, MAX_NUM_PROTOS));
+  EXPECT_FALSE(ReadsInttemp(MakeInttempWithProtos(PROTOS_PER_PROTO_SET + 1, 1)));
+}
+
+// A class that uses every place of its proto sets must still be accepted.
+TEST_F(IntprotoTest, AcceptsFullProtoSets) {
+  EXPECT_TRUE(ReadsInttemp(MakeInttempWithProtos(0, 0)));
+  EXPECT_TRUE(ReadsInttemp(MakeInttempWithProtos(PROTOS_PER_PROTO_SET, 1)));
+  EXPECT_TRUE(ReadsInttemp(MakeInttempWithProtos(MAX_NUM_PROTOS, MAX_NUM_PROTO_SETS)));
 }
 
 // unicharset_size exceeds MAX_NUM_CLASSES: the version < 2 class-id-index

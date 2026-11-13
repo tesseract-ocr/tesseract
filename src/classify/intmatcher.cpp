@@ -580,7 +580,10 @@ int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR P
       Temp += tables->proto_evidence_[proto][i];
     }
 
-    Temp /= ClassTemplate->ProtoLengths[proto];
+    // ConvertProto never stores a length below 1, but a templates file can.
+    if (ClassTemplate->ProtoLengths[proto] > 0) {
+      Temp /= ClassTemplate->ProtoLengths[proto];
+    }
 
     /* Find Good Protos */
     if (Temp >= AdaptProtoThreshold) {
@@ -1005,7 +1008,9 @@ void IntegerMatcher::DisplayProtoDebugInfo(INT_CLASS_STRUCT *ClassTemplate, BIT_
         temp += tables.proto_evidence_[ActualProtoNum][i];
       }
 
-      temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
+      if (ClassTemplate->ProtoLengths[ActualProtoNum] > 0) {
+        temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
+      }
 
       if ((ProtoSet->Protos[ProtoNum]).Configs[0] & (*ConfigMask)) {
         DisplayIntProto(ClassTemplate, ActualProtoNum, temp / 255.0);
