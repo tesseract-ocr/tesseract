@@ -1908,20 +1908,21 @@ ACCEPTABLE_WERD_TYPE Tesseract::check_abbreviation(const UNICHARSET &char_set, c
                                                    ACCEPTABLE_WERD_TYPE word_type) {
   if (word_type == AC_UNACCEPTABLE) {
     /* Look for abbreviation string */
+    int i = 0;
     int offset = 0;
     if (s[0] != '\0' && char_set.get_isupper(s, lengths[0])) {
       word_type = AC_UC_ABBREV;
-      while (s[offset] != '\0' && char_set.get_isupper(s + offset, lengths[offset]) &&
-             lengths[offset + 1] == 1 && s[offset + lengths[offset]] == '.') {
-        offset += lengths[offset++];
-        offset += lengths[offset++];
+      while (s[offset] != '\0' && char_set.get_isupper(s + offset, lengths[i]) &&
+             lengths[i + 1] == 1 && s[offset + lengths[i]] == '.') {
+        offset += lengths[i++];
+        offset += lengths[i++];
       }
     } else if (s[0] != '\0' && char_set.get_islower(s, lengths[0])) {
       word_type = AC_LC_ABBREV;
-      while (s[offset] != '\0' && char_set.get_islower(s + offset, lengths[offset]) &&
-             lengths[offset + 1] == 1 && s[offset + lengths[offset]] == '.') {
-        offset += lengths[offset++];
-        offset += lengths[offset++];
+      while (s[offset] != '\0' && char_set.get_islower(s + offset, lengths[i]) &&
+             lengths[i + 1] == 1 && s[offset + lengths[i]] == '.') {
+        offset += lengths[i++];
+        offset += lengths[i++];
       }
     }
     if (s[offset] != '\0') {
