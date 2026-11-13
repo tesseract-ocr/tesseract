@@ -189,6 +189,13 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
   Image pix_binary = nullptr;
   Image pix_thresholds = nullptr;
 
+  // Layout analysis stores coordinates as TDimension (int16_t), so larger
+  // images must be refused here just like in ThresholdToPix.
+  if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
+    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    return std::make_tuple(false, nullptr, nullptr, nullptr);
+  }
+
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
