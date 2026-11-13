@@ -491,19 +491,20 @@ int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes)
   modes.clear();
   // Total count of the smallest peak found so far.
   int least_count = 1;
-  // Mode that is used as a seed for each peak
-  int max_count = 0;
-  do {
-    // Find an unused mode.
-    max_count = 0;
-    int max_index = 0;
-    for (int src_index = 0; src_index < src_count; src_index++) {
-      int pile_count = buckets_[src_index] - used.buckets_[src_index];
-      if (pile_count > max_count) {
-        max_count = pile_count;
-        max_index = src_index;
-      }
+  // The seed for each peak is the biggest unused pile (the first of equals).
+  // A pile is only ever used as a whole, so sorting the non-empty piles once
+  // gives all the seeds in order without a search of the histogram per peak.
+  std::vector<int> seeds;
+  for (int src_index = 0; src_index < src_count; src_index++) {
+    if (buckets_[src_index] > 0) {
+      seeds.push_back(src_index);
     }
+  }
+  std::stable_sort(seeds.begin(), seeds.end(),
+                   [this](int i1, int i2) { return buckets_[i1] > buckets_[i2]; });
+  for (int max_index : seeds) {
+    // Mode that is used as a seed for the peak, unless it is already used.
+    int max_count = buckets_[max_index] - used.buckets_[max_index];
     if (max_count > 0) {
       // Copy the bucket count to used so it doesn't get found again.
       used.buckets_[max_index] = max_count;
@@ -539,7 +540,7 @@ int STATS::top_n_modes(int max_modes, std::vector<KDPairInc<float, int>> &modes)
         least_count = modes.back().data();
       }
     }
-  } while (max_count > 0);
+  }
   return modes.size();
 }
 
