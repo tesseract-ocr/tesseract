@@ -144,11 +144,11 @@ GAPMAP::GAPMAP(     // Constructor
   }
   for (i = 0; i <= map_max; i++) {
     if (map[i] > total_rows / 2) {
-      if (gapmap_no_isolated_quanta &&
-          (((i == 0) && (map[i + 1] <= total_rows / 2)) ||
-           ((i == map_max) && (map[i - 1] <= total_rows / 2)) ||
-           ((i > 0) && (i < map_max) && (map[i - 1] <= total_rows / 2) &&
-            (map[i + 1] <= total_rows / 2)))) {
+      // Only look at neighbours which exist: the map may have a single quantum
+      // when the block is narrower than one bucket.
+      bool prev_is_gap = (i > 0) && (map[i - 1] > total_rows / 2);
+      bool next_is_gap = (i < map_max) && (map[i + 1] > total_rows / 2);
+      if (gapmap_no_isolated_quanta && !prev_is_gap && !next_is_gap) {
         map[i] = 0; // prevent isolated quantum
       } else {
         any_tabs = true;
