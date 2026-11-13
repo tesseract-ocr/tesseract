@@ -45,11 +45,14 @@ inline TFloat Tanh(TFloat x) {
   if (x < 0) {
     return -Tanh(-x);
   }
-  x *= kScaleFactor;
-  auto index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1)) {
+  // Clip before the conversion to unsigned: converting a value which does not
+  // fit is undefined (g++ raises FE_INVALID, which the CLI traps), and a large
+  // x can come from the weights and scales of an untrusted model.
+  if (x >= (kTableSize - 1) / kScaleFactor) {
     return 1;
   }
+  x *= kScaleFactor;
+  auto index = static_cast<unsigned>(x);
   TFloat tanh_i0 = TanhTable[index];
   TFloat tanh_i1 = TanhTable[index + 1];
   // Linear interpolation.
@@ -60,11 +63,12 @@ inline TFloat Logistic(TFloat x) {
   if (x < 0) {
     return 1 - Logistic(-x);
   }
-  x *= kScaleFactor;
-  auto index = static_cast<unsigned>(x);
-  if (index >= (kTableSize - 1)) {
+  // Clip before the conversion to unsigned, see Tanh() above.
+  if (x >= (kTableSize - 1) / kScaleFactor) {
     return 1;
   }
+  x *= kScaleFactor;
+  auto index = static_cast<unsigned>(x);
   TFloat l0 = LogisticTable[index];
   TFloat l1 = LogisticTable[index + 1];
   // Linear interpolation.
