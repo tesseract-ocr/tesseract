@@ -78,6 +78,17 @@ static int is_same(void *item1, void *item2) {
 }
 
 /**********************************************************************
+ *  c o u n t
+ *
+ *  Count the elements in a list (0 for NIL_LIST).  Return the count.
+ **********************************************************************/
+size_t count(LIST var_list) {
+  size_t n = 0;
+  iterate(var_list) n++;
+  return n;
+}
+
+/**********************************************************************
  *  d e l e t e    d
  *
  *  Delete all the elements out of the current list that match the key.
