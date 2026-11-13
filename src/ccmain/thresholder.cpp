@@ -28,7 +28,7 @@
 
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
-#include <algorithm> // for std::max, std::min
+#include <algorithm> // for std::clamp, std::max, std::min
 #include <cstdint>   // for uint32_t
 #include <cstring>
 #include <tuple>
@@ -130,11 +130,15 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
 
 // Store the coordinates of the rectangle to process for later use.
 // Doesn't actually do any thresholding.
+// The rectangle is clipped to the image, as the thresholding code reads
+// rect_width_ x rect_height_ pixels from the source image without checking.
 void ImageThresholder::SetRectangle(int left, int top, int width, int height) {
-  rect_left_ = left;
-  rect_top_ = top;
-  rect_width_ = width;
-  rect_height_ = height;
+  const int64_t right = std::min<int64_t>(static_cast<int64_t>(left) + width, image_width_);
+  const int64_t bottom = std::min<int64_t>(static_cast<int64_t>(top) + height, image_height_);
+  rect_left_ = std::clamp(left, 0, image_width_);
+  rect_top_ = std::clamp(top, 0, image_height_);
+  rect_width_ = static_cast<int>(std::max<int64_t>(right - rect_left_, 0));
+  rect_height_ = static_cast<int>(std::max<int64_t>(bottom - rect_top_, 0));
 }
 
 // Get enough parameters to be able to rebuild bounding boxes in the

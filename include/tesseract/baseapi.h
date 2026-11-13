@@ -325,6 +325,7 @@ public:
 
   /**
    * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+   * The rectangle is clipped to the image.
    * Each SetRectangle clears the recogntion results so multiple rectangles
    * can be recognized with the same image.
    */
