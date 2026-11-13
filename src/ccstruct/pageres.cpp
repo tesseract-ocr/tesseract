@@ -986,10 +986,6 @@ bool WERD_RES::ConditionalBlobMerge(
       best_choice->set_unichar_id(new_id, i);
       modified = true;
       MergeAdjacentBlobs(i);
-      const MATRIX_COORD &coord = best_choice->MatrixCoord(i);
-      if (!coord.Valid(*ratings)) {
-        ratings->IncreaseBandSize(coord.row + 1 - coord.col);
-      }
       BLOB_CHOICE_LIST *blob_choices = GetBlobChoices(i);
       if (FindMatchingChoice(new_id, blob_choices) == nullptr) {
         // Insert a fake result.
@@ -1010,11 +1006,21 @@ void WERD_RES::MergeAdjacentBlobs(unsigned index) {
     reject_map.remove_pos(index);
   }
   best_choice->remove_unichar_id(index + 1);
-  rebuild_word->MergeBlobs(index, index + 2);
+  if (rebuild_word != nullptr) {
+    // Words from the LSTM recognizer have no rebuild_word.
+    rebuild_word->MergeBlobs(index, index + 2);
+  }
   box_word->MergeBoxes(index, index + 2);
   if (index + 1 < best_state.size()) {
     best_state[index] += best_state[index + 1];
     best_state.erase(best_state.begin() + index + 1);
+  }
+  if (ratings != nullptr) {
+    // The merged blob may need a wider band in the ratings matrix.
+    const MATRIX_COORD &coord = best_choice->MatrixCoord(index);
+    if (!coord.Valid(*ratings)) {
+      ratings->IncreaseBandSize(coord.row + 1 - coord.col);
+    }
   }
 }
 
