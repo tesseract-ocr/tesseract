@@ -214,8 +214,9 @@ void Tesseract::doc_and_block_rejection( // reject big chunks
   int16_t char_quality = 0;
   int16_t accepted_char_quality;
 
-  if (page_res_it.page_res->rej_count * 100.0 / page_res_it.page_res->char_count >
-      tessedit_reject_doc_percent) {
+  if (page_res_it.page_res->char_count > 0 &&
+      page_res_it.page_res->rej_count * 100.0 / page_res_it.page_res->char_count >
+          tessedit_reject_doc_percent) {
     reject_whole_page(page_res_it);
     if (tessedit_debug_doc_rejection) {
       tprintf("REJECT ALL #chars: %d #Rejects: %d; \n", page_res_it.page_res->char_count,
