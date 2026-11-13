@@ -22,6 +22,8 @@
 #include "image.h"    // for Image
 #include "ocrblock.h"
 
+#include <cstdint> // for INT16_MAX
+
 namespace tesseract {
 
 ///////////////////////////////////////////////////////////////////////
@@ -39,14 +41,22 @@ GridBase::~GridBase() = default;
 // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
 // and bleft, tright are the bounding box of everything to go in it.
 void GridBase::Init(int gridsize, const ICOORD &bleft, const ICOORD &tright) {
-  gridsize_ = gridsize;
+  // Clip the cell size to the coordinate range: a cell larger than any box is
+  // pointless, and would overflow the rounding up below (as would a negative
+  // size), leaving a grid with no cells for ClipGridCoords() to clip to.
+  gridsize_ = ClipToRange<int>(gridsize, 1, INT16_MAX);
   bleft_ = bleft;
   tright_ = tright;
-  if (gridsize_ == 0) {
-    gridsize_ = 1;
-  }
   gridwidth_ = (tright.x() - bleft.x() + gridsize_ - 1) / gridsize_;
   gridheight_ = (tright.y() - bleft.y() + gridsize_ - 1) / gridsize_;
+  // ClipGridCoords() clips to [0, gridwidth_ - 1], so the grid must have at
+  // least one cell in each direction, even for an empty or inverted box.
+  if (gridwidth_ < 1) {
+    gridwidth_ = 1;
+  }
+  if (gridheight_ < 1) {
+    gridheight_ = 1;
+  }
   gridbuckets_ = gridwidth_ * gridheight_;
 }
 
