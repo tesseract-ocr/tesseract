@@ -131,7 +131,8 @@ char *TessBaseAPI::GetHOCRText(int page_number) {
  */
 char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   if (tesseract_ == nullptr ||
-      (page_res_ == nullptr && Recognize(monitor) < 0)) {
+      ((page_res_ == nullptr || !recognition_done_) &&
+       Recognize(monitor) < 0)) {
     return nullptr;
   }
 
