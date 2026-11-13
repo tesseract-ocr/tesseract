@@ -23,16 +23,19 @@
 
 #include "gmock/gmock-matchers.h"
 
+#include <filesystem>
 #include <memory>
 #include <regex>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace tesseract {
 
 using ::testing::ContainsRegex;
 using ::testing::HasSubstr;
+using ::testing::Not;
 
 static const char *langs[] = {"eng", "vie", "hin", "ara", nullptr};
 static const char *image_files[] = {"HelloGoogle.tif", "viet.tif", "raaj.tif", "arabic.tif",
@@ -738,6 +741,68 @@ TEST_F(TesseractTest, PAGEXMLRightToLeftPolygon) {
   // A line polygon should have been generated (this is the structure the
   // dangling pointer corrupted on the unfixed code).
   EXPECT_THAT(page_str, HasSubstr("<Coords points=\""));
+}
+
+// The hOCR lang attribute carries the name the model was loaded under, which
+// must be escaped like the other strings in the output (input name, font
+// name, text). Install a copy of the eng model under a name that contains a
+// markup character and check the attribute value.
+TEST_F(TesseractTest, HOCREscapesRecognitionLanguage) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  file::MakeTmpdir();
+  constexpr const char *kLang = "eng&test";
+  // The model is binary data, so it cannot be copied as a string with
+  // file::GetContents and file::SetContents.
+  const std::string model =
+      file::JoinPath(FLAGS_test_tmpdir, std::string(kLang) + ".traineddata");
+  std::error_code ec;
+  std::filesystem::copy_file(file::JoinPath(TessdataPath(), "eng.traineddata"), model,
+                             std::filesystem::copy_options::overwrite_existing, ec);
+  ASSERT_FALSE(ec) << ec.message();
+
+  tesseract::TessBaseAPI api;
+  ASSERT_EQ(0, api.Init(FLAGS_test_tmpdir, kLang, tesseract::OEM_LSTM_ONLY));
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  ASSERT_TRUE(src_pix);
+  api.SetImage(src_pix);
+
+  std::unique_ptr<const char[]> hocr(api.GetHOCRText(0));
+  ASSERT_TRUE(hocr != nullptr);
+  EXPECT_THAT(hocr.get(), HasSubstr("lang='eng&amp;test'"));
+  EXPECT_THAT(hocr.get(), Not(HasSubstr("lang='eng&test'")));
+
+  src_pix.destroy();
+  api.End();
+  std::filesystem::remove(model, ec);
+}
+
+// The document title (document_title parameter) goes into <title> and must be
+// escaped too.
+TEST_F(TesseractTest, HOCREscapesDocumentTitle) {
+  file::MakeTmpdir();
+  const std::string output_base = file::JoinPath(FLAGS_test_tmpdir, "hocr-escaped-title");
+  tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    GTEST_SKIP();
+  }
+
+  Image src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
+  ASSERT_TRUE(src_pix);
+  api.SetInputName("HelloGoogle.tif");
+  api.SetImage(src_pix);
+
+  {
+    tesseract::TessHOcrRenderer renderer(output_base.c_str());
+    ASSERT_TRUE(renderer.BeginDocument("<b>title</b> & co"));
+    ASSERT_TRUE(renderer.AddImage(&api));
+    ASSERT_TRUE(renderer.EndDocument());
+  }
+
+  std::string hocr;
+  CHECK_OK(file::GetContents(output_base + ".hocr", &hocr, file::Defaults()));
+  EXPECT_THAT(hocr, HasSubstr("<title>&lt;b&gt;title&lt;/b&gt; &amp; co</title>"));
+
+  src_pix.destroy();
 }
 
 } // namespace tesseract
