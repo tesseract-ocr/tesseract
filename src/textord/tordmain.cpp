@@ -58,6 +58,10 @@ namespace tesseract {
 
 #define MAX_NEAREST_DIST 600 // for block skew stats
 
+// Max area of the bounding box of a blob, per unit of outline perimeter,
+// for which SetBlobStrokeWidth computes the distance transform.
+const int kMaxBoxAreaPerPerimeter = 128;
+
 /**********************************************************************
  * SetBlobStrokeWidth
  *
@@ -69,6 +73,18 @@ void SetBlobStrokeWidth(Image pix, BLOBNBOX *blob) {
   const TBOX &box = blob->bounding_box();
   int width = box.width();
   int height = box.height();
+  // The distance transform and the scans below cost the area of the box,
+  // not the size of the blob. A thin blob whose box is out of proportion to
+  // its outline (eg a ring or a diagonal line across the page) can make that
+  // cost the whole page for a handful of pixels, so store zero widths
+  // instead, which makes the users fall back on the area/perimeter estimate.
+  if (blob->cblob() != nullptr &&
+      static_cast<int64_t>(width) * height >
+          static_cast<int64_t>(kMaxBoxAreaPerPerimeter) * blob->cblob()->perimeter()) {
+    blob->set_horz_stroke_width(0.0f);
+    blob->set_vert_stroke_width(0.0f);
+    return;
+  }
   Box *blob_pix_box = boxCreate(box.left(), pix_height - box.top(), width, height);
   Image pix_blob = pixClipRectangle(pix, blob_pix_box, nullptr);
   boxDestroy(&blob_pix_box);
