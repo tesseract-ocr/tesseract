@@ -303,6 +303,12 @@ bool ImageThresholder::ThresholdToPix(Image *pix) {
   Image src = pix_;
   if (pixGetColormap(src)) {
     src = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
+    if (src == nullptr) {
+      // A colormap with non-grey entries expands to 32 bpp, which can exceed
+      // the Leptonica image size limit even when the 8 bpp source fits.
+      tprintf("Failed to remove colormap: (%d, %d)\n", image_width_, image_height_);
+      return false;
+    }
   }
   OtsuThresholdRectToPix(src, pix);
   if (src != pix_) {
