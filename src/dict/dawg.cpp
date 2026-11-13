@@ -24,10 +24,10 @@
 
 #include "dict.h"
 #include "helpers.h"
+#include "matchdefs.h" // for MAX_NUM_CLASSES
 #include "tprintf.h"
 
 #include <algorithm>
-#include <climits>
 #include <memory>
 
 /*----------------------------------------------------------------------
@@ -371,8 +371,9 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   if (!file->DeSerialize(&unicharset_size)) {
     return false;
   }
-  // Dawg::init takes int; reject values that would overflow.
-  if (unicharset_size == 0 || unicharset_size > INT_MAX) {
+  // No unicharset is larger than MAX_NUM_CLASSES (see
+  // UNICHARSET::load_via_fgets), and the node length check below relies on it.
+  if (unicharset_size == 0 || unicharset_size > MAX_NUM_CLASSES) {
     tprintf("Bad dawg unicharset_size %u\n", unicharset_size);
     return false;
   }
@@ -402,6 +403,22 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
     edges_ = nullptr;
     num_edges_ = 0;
     return false;
+  }
+  // A node has at most one edge per unichar id (0..unicharset_size), and
+  // edge_char_of() searches it linearly from wherever next_node points up to
+  // the next marker flag, so limit the distance between two marker flags.
+  uint32_t run_length = 0;
+  for (uint32_t i = 0; i < num_edges_; ++i) {
+    if (++run_length > unicharset_size + 1) {
+      tprintf("Dawg node run at edge %u exceeds unicharset_size %u\n", i, unicharset_size);
+      delete[] edges_;
+      edges_ = nullptr;
+      num_edges_ = 0;
+      return false;
+    }
+    if (last_edge(i)) {
+      run_length = 0;
+    }
   }
   // Validate the loaded edge structure: check that next_node values are in
   // bounds and that forward edge runs are properly terminated.
