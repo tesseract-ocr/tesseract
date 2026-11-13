@@ -69,6 +69,7 @@
 #include <cstdint>   // for INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
 #include <cstring>   // for strstr, memset, strcmp
+#include <unordered_map> // for unordered_map
 
 namespace tesseract {
 
@@ -97,6 +98,11 @@ struct ADAPT_RESULTS {
   int best_match_index;
   float best_rating;
   std::vector<UnicharRating> match;
+  // Index in match of each unichar_id, maintained by AddNewResult while the
+  // results are gathered, so that a shape of thousands of unichars does not
+  // cost a linear search of match per unichar. Not updated by the filtering
+  // and sorting that follow (RemoveBadMatches etc), which do no more lookups.
+  std::unordered_map<UNICHAR_ID, unsigned> match_index;
   std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
@@ -149,10 +155,9 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
 static unsigned FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
-  for (unsigned i = 0; i < results.match.size(); i++) {
-    if (results.match[i].unichar_id == id) {
-      return i;
-    }
+  auto it = results.match_index.find(id);
+  if (it != results.match_index.end()) {
+    return it->second;
   }
   return results.match.size();
 }
@@ -1055,6 +1060,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
   if (old_match < results->match.size()) {
     results->match[old_match].rating = new_result.rating;
   } else {
+    results->match_index[new_result.unichar_id] = results->match.size();
     results->match.push_back(new_result);
   }
 
@@ -1181,6 +1187,9 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
       std::vector<UnicharRating> mapped_results;
+      // Index in mapped_results of each unichar_id, or -1 if it has none yet.
+      // A shape may have thousands of unichars, so don't search for each.
+      std::vector<int> mapped_index(unicharset.size(), -1);
       for (auto &f : int_result->fonts) {
         int shape_id = f.fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
@@ -1190,10 +1199,10 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
             continue;
           }
           // Find the mapped_result for unichar_id.
-          unsigned r = 0;
-          for (r = 0; r < mapped_results.size() && mapped_results[r].unichar_id != unichar_id;
-               ++r) {
+          if (mapped_index[unichar_id] < 0) {
+            mapped_index[unichar_id] = mapped_results.size();
           }
+          unsigned r = mapped_index[unichar_id];
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
@@ -1441,7 +1450,7 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
     const UnicharRating &result = it;
     bool adapted = result.adapted;
     bool current_is_frag = (unicharset.get_fragment(result.unichar_id) != nullptr);
-    if (temp_it.length() + 1 == max_matches && !contains_nonfrag && current_is_frag) {
+    if (choices_length + 1 == max_matches && !contains_nonfrag && current_is_frag) {
       continue; // look for a non-fragmented character to fill the
                 // last spot in Choices if only fragments are present
     }

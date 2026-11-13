@@ -111,22 +111,14 @@ struct list_rec {
   list_rec *list_rest() {
     return next;
   }
-
-  //********************************************************************
-  // Recursively count the elements in  a list.  Return the count.
-  //********************************************************************
-  size_t size() {
-    auto var_list = this;
-    size_t n = 0;
-    iterate(var_list) n++;
-    return n;
-  }
 };
 using LIST = list_rec *;
 
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
+
+size_t count(LIST var_list);
 
 LIST delete_d(LIST list, void *key, int_compare is_equal);
 
