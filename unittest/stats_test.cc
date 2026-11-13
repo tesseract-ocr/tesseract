@@ -89,4 +89,26 @@ TEST_F(STATSTest, Smooth) {
   }
 }
 
+// Tests that top_n_modes copes with a big histogram that has many peaks.
+TEST_F(STATSTest, TopNModesManyPeaks) {
+  const int kNumPeaks = 30000;
+  const int kPeakSpacing = 8;
+  STATS stats(0, kNumPeaks * kPeakSpacing);
+  for (int i = 0; i < kNumPeaks; ++i) {
+    stats.add(i * kPeakSpacing, 1);
+  }
+  // Widen one peak, so it has the biggest total, but not the biggest pile.
+  stats.add(100 * kPeakSpacing + 1, 1);
+  std::vector<tesseract::KDPairInc<float, int> > modes;
+  int num_modes = stats.top_n_modes(3, modes);
+  EXPECT_EQ(3, num_modes);
+  EXPECT_FLOAT_EQ(100 * kPeakSpacing + 0.5f, modes[0].key());
+  EXPECT_EQ(2, modes[0].data());
+  // Of the equal peaks, the first ones are kept.
+  EXPECT_FLOAT_EQ(0.0f, modes[1].key());
+  EXPECT_EQ(1, modes[1].data());
+  EXPECT_FLOAT_EQ(1.0f * kPeakSpacing, modes[2].key());
+  EXPECT_EQ(1, modes[2].data());
+}
+
 } // namespace tesseract
