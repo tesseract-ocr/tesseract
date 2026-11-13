@@ -46,7 +46,7 @@ GAPMAP::GAPMAP(     // Constructor
   STATS xht_stats(0, 127);
   int16_t min_quantum;
   int16_t max_quantum;
-  int16_t i;
+  int i; // wider than map_max, otherwise i <= map_max never fails at INT16_MAX
 
   /*
   Find left and right extremes and bucket size
@@ -63,7 +63,7 @@ GAPMAP::GAPMAP(     // Constructor
     row = row_it.data();
     if (!row->blob_list()->empty()) {
       total_rows++;
-      xht_stats.add(static_cast<int16_t>(floor(row->xheight + 0.5)), 1);
+      xht_stats.add(static_cast<int32_t>(floor(row->xheight + 0.5)), 1);
       blob_it.set_to_list(row->blob_list());
       start_of_row = blob_it.data()->bounding_box().left();
       end_of_row = blob_it.data_relative(-1)->bounding_box().right();
@@ -83,6 +83,9 @@ GAPMAP::GAPMAP(     // Constructor
     return;
   }
   bucket_size = static_cast<int16_t>(floor(xht_stats.median() + 0.5)) / 2;
+  if (bucket_size < 1) {
+    bucket_size = 1; // avoid a division by zero for a median x-height below 2
+  }
   map_max = (max_right - min_left) / bucket_size;
   map = new int16_t[map_max + 1];
   for (i = 0; i <= map_max; i++) {
@@ -169,7 +172,7 @@ bool GAPMAP::table_gap( // Is gap a table?
 ) {
   int16_t min_quantum;
   int16_t max_quantum;
-  int16_t i;
+  int i; // wider than map_max, otherwise i <= max_quantum never fails at INT16_MAX
   bool tab_found = false;
 
   if (!any_tabs) {
