@@ -1352,7 +1352,8 @@ static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::st
  * Returned string must be freed with the delete [] operator.
  */
 char *TessBaseAPI::GetTSVText(int page_number) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(nullptr) < 0)) {
     return nullptr;
   }
 

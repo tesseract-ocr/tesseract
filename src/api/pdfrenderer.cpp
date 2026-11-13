@@ -825,6 +825,12 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix, const char *filename, long int obj
 }
 
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI *api) {
+  // The text layer needs recognition results, but page_res_ may only hold
+  // layout analysis results here (ProcessPage skips recognition for
+  // PSM_AUTO_ONLY and PSM_OSD_ONLY), so run it like the Get*Text functions do.
+  if ((api->page_res_ == nullptr || !api->recognition_done_) && api->Recognize(nullptr) < 0) {
+    return false;
+  }
   Pix *pix = api->GetInputImage();
   const char *filename = api->GetInputName();
   int ppi = api->GetSourceYResolution();

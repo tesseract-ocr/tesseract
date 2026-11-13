@@ -53,6 +53,7 @@ class ImageThresholder;
 class LTRResultIterator;
 class ResultIterator;
 class MutableIterator;
+class TessPDFRenderer;
 class TessResultRenderer;
 class Tesseract;
 
@@ -74,6 +75,8 @@ using ProbabilityInContextFunc = double (Dict::*)(const char *, const char *,
  * include any other Tesseract headers.
  */
 class TESS_API TessBaseAPI {
+  friend class TessPDFRenderer;
+
 public:
   TessBaseAPI();
   virtual ~TessBaseAPI();
