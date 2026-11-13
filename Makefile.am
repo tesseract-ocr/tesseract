@@ -1707,32 +1707,32 @@ $(LANGDATA_DIR) $(TESSDATA_DIR) $(TESSDATA_BEST_DIR) $(TESSDATA_FAST_DIR):
 	@exit 1
 
 $(TESTING_DIR)/Arial_Bold_Italic.ttf:
-	curl -sSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
+	curl -fsSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
 	cabextract -F Arialbi.TTF -q Arial.exe
 	rm Arial.exe
 	mv Arialbi.TTF $@
 
 $(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
-	curl -sSL https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
+	curl -fsSL https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
 	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
 
 $(TESTING_DIR)/Lohit-Hindi.ttf:
-	curl -sSL https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf -o $@
+	curl -fsSL https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf -o $@
 
 $(TESTING_DIR)/Times_New_Roman.ttf:
-	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
+	curl -fsSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
 	cabextract -F Times.TTF -q Times.exe
 	rm Times.exe
 	mv Times.TTF $@
 
 $(TESTING_DIR)/UnBatang.ttf:
-	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
+	curl -fsSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
 
 $(TESTING_DIR)/Verdana.ttf:
-	curl -sSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
+	curl -fsSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
 	cabextract -F Verdana.TTF -q Verdana.exe
 	rm Verdana.exe
 	mv Verdana.TTF $@
 
 $(TESTING_DIR)/ae_Arab.ttf:
-	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/master/ae_Arab.ttf
+	curl -fsSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/debian/2.1-7/ae_Arab.ttf
