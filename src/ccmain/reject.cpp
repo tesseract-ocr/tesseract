@@ -99,6 +99,13 @@ void Tesseract::make_reject_map(WERD_RES *word, int16_t pass) {
   set_done(word, pass);     // Set acceptance
   word->reject_map.initialise(word->best_choice->unichar_lengths().length());
   reject_blanks(word);
+  if (tessedit_reject_mode != 0 && tessedit_reject_mode != 5) {
+    // The value may come from a config file or from the config embedded in
+    // the traineddata, so it must not be fatal. Fall back to the default.
+    tprintf("Warning: unsupported tessedit_reject_mode %d, using the default\n",
+            static_cast<int>(tessedit_reject_mode));
+    tessedit_reject_mode.ResetToDefault();
+  }
   /*
 0: Rays original heuristic - the baseline
 */
@@ -158,9 +165,6 @@ void Tesseract::make_reject_map(WERD_RES *word, int16_t pass) {
       }
       /* Ambig word rejection was here once !!*/
     }
-  } else {
-    tprintf("BAD tessedit_reject_mode\n");
-    ASSERT_HOST("Fatal error encountered!" == nullptr);
   }
 
   if (tessedit_image_border > -1) {
