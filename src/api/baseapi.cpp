@@ -1999,9 +1999,9 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   if (*pix != nullptr) {
     pixDestroy(pix);
   }
-  int left, top, width, height, image_width, image_height;
-  thresholder_->GetImageSizes(&left, &top, &width, &height, &image_width, &image_height);
-  if (width <= 0 || height <= 0) {
+  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
+                              &image_height_);
+  if (rect_width_ <= 0 || rect_height_ <= 0) {
     tprintf("Error: The rectangle to recognize is empty or outside of the image.\n");
     return false;
   }
@@ -2054,9 +2054,6 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     tesseract_->set_pix_thresholds(pix_thresholds);
     tesseract_->set_pix_grey(pix_grey);
   }
-
-  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
-                              &image_height_);
 
   // Set the internal resolution that is used for layout parameters from the
   // estimated resolution, rather than the image resolution, which may be
