@@ -437,7 +437,11 @@ static bool fixed_chop_coutline(     // chop the outline
     }
     pos += srcline->step(stepindex);
   }
-  if (left_edge >= chop_coord - pitch_error) {
+  // The walk below starts at the leftmost point and only terminates if that
+  // point is strictly left of the chop line, so refuse to chop an outline
+  // whose left edge is on it regardless of pitch_error (which comes from a
+  // parameter and may be negative).
+  if (left_edge >= chop_coord || left_edge >= chop_coord - pitch_error) {
     return false; // not worth it
   }
 
