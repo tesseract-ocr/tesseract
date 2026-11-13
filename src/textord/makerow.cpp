@@ -1571,20 +1571,33 @@ int compute_xheight_from_modes(STATS *heights, STATS *floating_heights, bool cap
 int32_t compute_row_descdrop(TO_ROW *row, float gradient, int xheight_blob_count,
                              STATS *asc_heights) {
   // Count how many potential ascenders are in this row.
+  // The ratio limits can only narrow the range of the histogram, so clip them
+  // to it before the conversion to int: the conversion is undefined for
+  // values out of range (e.g. a huge ratio from a config), and would
+  // otherwise leave the loop below running over billions of indices.
   int i_min = asc_heights->min_bucket();
-  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
-    i_min = static_cast<int>(floor(row->xheight * textord_ascx_ratio_min + 0.5));
-  }
   int i_max = asc_heights->max_bucket();
+  const double lowest = i_min - 1.0;
+  const double highest = i_max + 1.0;
+  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
+    i_min = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_min + 0.5), lowest, highest));
+  }
   if ((i_max / row->xheight) > textord_ascx_ratio_max) {
-    i_max = static_cast<int>(floor(row->xheight * textord_ascx_ratio_max));
+    i_max = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_max), lowest, highest));
   }
   int num_potential_asc = 0;
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  auto min_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  auto max_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
+  // Likewise clip the descender limits before the conversion. Blob heights
+  // are bounded by the page coordinates, so that is all the histogram needs.
+  const double max_coord = INT16_MAX;
+  auto min_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_min + 0.5), -max_coord, max_coord));
+  auto max_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_max), -max_coord, max_coord));
   float xcentre; // centre of blob
   float height;  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list();
