@@ -38,14 +38,17 @@
 #include <tesseract/ocrclass.h> // for ETEXT_DESC
 #include <tesseract/unichar.h>  // for UNICHAR_ID
 
-#include <cstdint> // for INT16_MAX, int16_t, int32_t
+#include <algorithm> // for std::min
+#include <cstdint>   // for INT16_MAX, int16_t, int32_t
 
 namespace tesseract {
 
 class BLOCK;
 class ROW;
 
-#define PERFECT_WERDS 999
+// Score of a word list in which all words are contextually confirmed.
+// It must be greater than any score which is a count of characters.
+#define PERFECT_WERDS INT16_MAX
 
 /**********************************************************************
  *  c_blob_comparator()
@@ -259,7 +262,7 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK *block
  */
 int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_res_it(&word_res_list);
-  int16_t total_score = 0;
+  int total_score = 0;
   int16_t word_count = 0;
   int16_t done_word_count = 0;
   int i;
@@ -358,7 +361,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   if (done_word_count == word_count) {
     return PERFECT_WERDS;
   } else {
-    return total_score;
+    return std::min(total_score, PERFECT_WERDS - 1);
   }
 }
 
