@@ -1169,7 +1169,7 @@ void compute_row_stats( // find lines
   float iqr;         // inter quartile range
   TO_ROW_IT row_it = block->get_rows();
   // number of rows
-  int16_t rowcount = row_it.length();
+  int32_t rowcount = row_it.length();
   // for choose nth
   std::vector<TO_ROW *> rows(rowcount);
   rowcount = 0;
@@ -2296,7 +2296,7 @@ void assign_blobs_to_rows( // find lines
   float ycoord;                 // current y
   float top, bottom;            // of blob
   float g_length = 1.0f;        // from gradient
-  int16_t row_count;            // no of rows
+  int32_t row_count;            // no of rows
   int16_t left_x;               // left edge
   int16_t last_x;               // previous edge
   float block_skew;             // y delta
