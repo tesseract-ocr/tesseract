@@ -66,7 +66,7 @@
 #include <algorithm> // for max, min
 #include <cassert>   // for assert
 #include <cmath>     // for fabs
-#include <cstdint>   // for INT32_MAX, UINT8_MAX
+#include <cstdint>   // for INT16_MAX, INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
 #include <cstring>   // for strstr, memset, strcmp
 #include <unordered_map> // for unordered_map
@@ -1003,7 +1003,9 @@ void Classify::DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class) {
   std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample *sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info, &bl_features);
-  if (sample == nullptr) {
+  // The integer matcher counts features in an int16_t.
+  if (sample == nullptr || bl_features.size() > INT16_MAX) {
+    delete sample;
     return;
   }
 
@@ -1100,7 +1102,8 @@ void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_featur
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
                                INT_TEMPLATES_STRUCT *templates,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
-  if (int_features.empty()) {
+  // The integer matcher counts features in an int16_t.
+  if (int_features.empty() || int_features.size() > INT16_MAX) {
     return;
   }
   auto *CharNormArray = new uint8_t[unicharset.size()];
@@ -1290,7 +1293,8 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
                                          const std::vector<INT_FEATURE_STRUCT> &int_features,
                                          const INT_FX_RESULT_STRUCT &fx_info,
                                          ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_RESULTS *Results) {
-  if (int_features.empty()) {
+  // The integer matcher counts features in an int16_t.
+  if (int_features.empty() || int_features.size() > INT16_MAX) {
     return nullptr;
   }
   auto *CharNormArray = new uint8_t[unicharset.size()];
@@ -1357,6 +1361,10 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
   adapt_results->Initialize();
   // Compute the bounding box of the features.
   uint32_t num_features = sample.num_features();
+  // The integer matcher counts features in an int16_t.
+  if (num_features > INT16_MAX) {
+    return num_features;
+  }
   // Only the top and bottom of the blob_box are used by MasterMatcher, so
   // fabricate right and left using top and bottom.
   TBOX blob_box(sample.geo_feature(GeoBottom), sample.geo_feature(GeoBottom),
