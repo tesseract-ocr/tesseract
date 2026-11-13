@@ -2223,8 +2223,8 @@ bool TessBaseAPI::DetectOS(OSResults *osr) {
   if (tesseract_->PreTrainedTemplates == nullptr) {
     // Orientation and script detection classifies with the legacy classifier
     // of the primary language. Without its templates (for example the
-    // tessdata_fast or tessdata_best model of a language other than osd, or no
-    // language at all) the detector gets no script information.
+    // tessdata_fast or tessdata_best model of a language other than osd, or
+    // layout analysis only) the detector gets no script information.
     tprintf("Error: OSD requires a model for the legacy engine, e.g. osd.traineddata\n");
     return false;
   }

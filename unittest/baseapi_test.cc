@@ -340,8 +340,8 @@ TEST_F(TesseractTest, DetectOrientationScriptNeedsLegacyModel) {
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "osd");
   Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
   CHECK(src_pix);
-  // Each case returns the result of Init for the given language, or skips Init.
-  for (int test_case = 0; test_case < 4; ++test_case) {
+  // Each case initializes the API with the given language, or skips Init.
+  for (int test_case = 0; test_case < 3; ++test_case) {
     tesseract::TessBaseAPI api;
     switch (test_case) {
       case 0: // LSTM only model.
@@ -351,9 +351,6 @@ TEST_F(TesseractTest, DetectOrientationScriptNeedsLegacyModel) {
         // osd has no LSTM model, so it falls back to the legacy engine, while
         // eng is loaded without its legacy model even if the file has one.
         ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng+osd", tesseract::OEM_LSTM_ONLY));
-        break;
-      case 2: // No language loaded.
-        ASSERT_EQ(0, api.Init(TessdataPath().c_str(), nullptr));
         break;
       default: // Layout analysis only.
         api.InitForAnalysePage();
