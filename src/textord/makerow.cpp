@@ -28,6 +28,7 @@
 #include "ccstruct.h"
 #include "detlinefit.h"
 #include "drawtord.h"
+#include "helpers.h" // for ClipToRange
 #include "oldbasel.h"
 #include "sortflts.h"
 #include "statistc.h"
@@ -1823,7 +1824,8 @@ void separate_underlines(TO_BLOCK *block,   // block to do
         ASSERT_HOST(blob->cblob() != nullptr);
         rotated_blob = crotate_cblob(blob->cblob(), blob_rotation);
         if (test_underline(testing_on && textord_show_final_rows, rotated_blob,
-                           static_cast<int16_t>(row->intercept()),
+                           static_cast<int16_t>(
+                               ClipToRange<float>(row->intercept(), -INT16_MAX, INT16_MAX)),
                            static_cast<int16_t>(block->line_size *
                                                 (tesseract::CCStruct::kXHeightFraction +
                                                  tesseract::CCStruct::kAscenderFraction / 2.0f)))) {

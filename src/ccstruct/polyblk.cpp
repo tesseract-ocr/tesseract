@@ -187,17 +187,11 @@ bool POLY_BLOCK::contains(POLY_BLOCK *other) {
  */
 
 void POLY_BLOCK::rotate(FCOORD rotation) {
-  FCOORD pos;                   // current pos;
-  ICOORDELT *pt;                // current point
   ICOORDELT_IT pts = &vertices; // iterator
 
   do {
-    pt = pts.data();
-    pos.set_x(pt->x());
-    pos.set_y(pt->y());
-    pos.rotate(rotation);
-    pt->set_x(static_cast<TDimension>(floor(pos.x() + 0.5)));
-    pt->set_y(static_cast<TDimension>(floor(pos.y() + 0.5)));
+    // ICOORD::rotate rounds and clips the result to the range of TDimension.
+    pts.data()->rotate(rotation);
     pts.forward();
   } while (!pts.at_first());
   compute_bb();
