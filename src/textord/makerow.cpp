@@ -2103,7 +2103,10 @@ bool segment_baseline( // split baseline
   if (textord_oldbl_debug) {
     tprintf("Segmenting baseline of %d blobs at (%d,%d)\n", blobcount, box.left(), box.bottom());
   }
-  if (blobcount <= textord_spline_medianwin || blobcount < textord_spline_minblobs) {
+  // A window size which is not positive cannot be used for the median below
+  // nor as a divisor in linear_spline_baseline.
+  if (textord_spline_medianwin < 1 || blobcount <= textord_spline_medianwin ||
+      blobcount < textord_spline_minblobs) {
     blob_it.move_to_last();
     box = blob_it.data()->bounding_box();
     xstarts[1] = box.right();
