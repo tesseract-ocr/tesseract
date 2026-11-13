@@ -29,6 +29,8 @@
 #include "tabvector.h"
 
 #include <algorithm>
+#include <cstdint> // for int64_t, INT32_MAX
+#include <cstdlib> // for std::abs
 
 namespace tesseract {
 
@@ -184,8 +186,15 @@ TabVector *TabVector::FitVector(TabAlignment alignment, ICOORD vertical, int ext
   if (!vector->IsRagged()) {
     vertical = vector->endpt_ - vector->startpt_;
     int weight = vector->BoxCount();
-    *vertical_x += vertical.x() * weight;
-    *vertical_y += vertical.y() * weight;
+    // The totals only encode a direction, but a page with many long lines
+    // made of many pieces can overflow them, so stop adding once they are
+    // full. Otherwise a wrapped total could be scaled to a zero vertical.
+    int64_t total_x = *vertical_x + static_cast<int64_t>(vertical.x()) * weight;
+    int64_t total_y = *vertical_y + static_cast<int64_t>(vertical.y()) * weight;
+    if (std::abs(total_x) <= INT32_MAX && std::abs(total_y) <= INT32_MAX) {
+      *vertical_x = static_cast<int>(total_x);
+      *vertical_y = static_cast<int>(total_y);
+    }
   }
   return vector;
 }
