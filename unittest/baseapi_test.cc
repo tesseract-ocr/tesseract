@@ -23,6 +23,8 @@
 
 #include "gmock/gmock-matchers.h"
 
+#include <cstdio>
+#include <filesystem>
 #include <memory>
 #include <regex>
 #include <string>
@@ -388,6 +390,33 @@ TEST_F(TesseractTest, RecognizeWithoutLanguage) {
     EXPECT_EQ(nullptr, api.GetUTF8Text());
   }
   text_pix.destroy();
+}
+
+// Tests that creating training data (the lstm.train config) still works: it
+// sets tessedit_init_config_only, so no unicharset is loaded, but needs no
+// model to turn the line boxes into an .lstmf file.
+TEST_F(TesseractTest, TrainLineRecognizerWithoutModel) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  const std::string image_file = TestDataNameToPath("trainingtimesline.tif");
+  const std::string output_base = file::JoinPath(FLAGS_test_tmpdir, "trainingtimesline");
+  const std::string lstmf_file = output_base + ".lstmf";
+  std::filesystem::create_directories(FLAGS_test_tmpdir);
+  std::remove(lstmf_file.c_str());
+  Image pix = pixRead(image_file.c_str());
+  ASSERT_TRUE(pix != nullptr);
+  std::vector<std::string> vars_vec = {"tessedit_init_config_only", "tessedit_train_line_recognizer"};
+  std::vector<std::string> vars_values = {"1", "1"};
+  tesseract::TessBaseAPI api;
+  ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_DEFAULT, nullptr, 0,
+                        &vars_vec, &vars_values, false));
+  api.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+  api.SetImage(pix);
+  api.SetInputName(image_file.c_str());
+  api.SetOutputName(output_base.c_str());
+  EXPECT_EQ(0, api.Recognize(nullptr));
+  EXPECT_TRUE(std::filesystem::exists(lstmf_file));
+  std::remove(lstmf_file.c_str());
+  pix.destroy();
 }
 
 // Tests if two instances of Tesseract/LSTM can co-exist in the same thread.

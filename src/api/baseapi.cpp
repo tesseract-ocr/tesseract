@@ -765,10 +765,16 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   if (tesseract_ == nullptr) {
     return -1;
   }
-  if (tesseract_->unicharset.size() <= SPECIAL_UNICHAR_CODES_COUNT) {
+  // Training line recognition (tessedit_train_line_recognizer, used by the
+  // lstm.train config together with tessedit_init_config_only) needs no model.
+  if (!tesseract_->tessedit_train_line_recognizer &&
+      tesseract_->unicharset.size() <= SPECIAL_UNICHAR_CODES_COUNT) {
     // Only the special unichars are present, so no language data was loaded:
-    // Init was called without a language (which loads nothing), Init failed,
-    // or only InitForAnalysePage was used. Recognition needs a model.
+    // Init was called without a language (which loads nothing), Init failed
+    // before the unicharset was loaded (for example because the traineddata
+    // file is missing), or only InitForAnalysePage was used. Recognition needs
+    // a model. An Init that fails after the unicharset was loaded is not
+    // detected here.
     tprintf("Error: Recognize called without a loaded language. Pass a language to Init.\n");
     return -1;
   }
