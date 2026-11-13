@@ -48,6 +48,12 @@ const char *Trie::get_reverse_policy_name(RTLReversePolicy reverse_policy) {
   return RTLReversePolicyNames[reverse_policy];
 }
 
+// Returns the key of a backward edge of the root node in root_back_index_.
+// A node has at most one forward edge per unichar id, so the pair is unique.
+static EDGE_REF root_back_key(NODE_REF next_node, UNICHAR_ID unichar_id) {
+  return (next_node << 32) | unichar_id;
+}
+
 // Reset the Trie to empty.
 void Trie::clear() {
   for (auto node : nodes_) {
@@ -55,6 +61,7 @@ void Trie::clear() {
   }
   nodes_.clear();
   root_back_freelist_.clear();
+  root_back_index_.clear();
   num_edges_ = 0;
   new_dawg_node(); // Need to allocate node 0.
 }
@@ -125,10 +132,17 @@ bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag, in
   }
   EDGE_RECORD edge_rec;
   link_edge(&edge_rec, node2, marker_flag, direction, word_end, unichar_id);
-  if (node1 == 0 && direction == BACKWARD_EDGE && !root_back_freelist_.empty()) {
-    EDGE_INDEX edge_index = root_back_freelist_.back();
-    root_back_freelist_.pop_back();
-    (*vec)[edge_index] = edge_rec;
+  if (node1 == 0 && direction == BACKWARD_EDGE) {
+    EDGE_INDEX edge_index;
+    if (!root_back_freelist_.empty()) {
+      edge_index = root_back_freelist_.back();
+      root_back_freelist_.pop_back();
+      (*vec)[edge_index] = edge_rec;
+    } else {
+      edge_index = vec->size();
+      vec->push_back(edge_rec);
+    }
+    root_back_index_[root_back_key(node2, unichar_id)] = edge_index;
   } else if (search_index < vec->size()) {
     vec->insert(vec->begin() + search_index, edge_rec);
   } else {
@@ -206,10 +220,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word, const std::vector<bool> *re
         // We hit the end of an existing word, but the new word is longer.
         // In this case we have to disconnect the existing word from the
         // backwards root node, mark the current position as end-of-word
-        // and add new nodes for the increased length. Disconnecting the
-        // existing word from the backwards root node requires a linear
-        // search, so it is much faster to add the longest words first,
-        // to avoid having to come here.
+        // and add new nodes for the increased length.
         word_end = true;
         still_finding_chars = false;
         remove_edge(last_node, 0, word_end, unichar_id);
@@ -477,7 +488,17 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction, bo
                                UNICHAR_ID unichar_id) {
   EDGE_RECORD *edge_ptr = nullptr;
   EDGE_INDEX edge_index = 0;
-  ASSERT_HOST(edge_char_of(node1, node2, direction, word_end, unichar_id, &edge_ptr, &edge_index));
+  if (node1 == 0 && direction == BACKWARD_EDGE) {
+    // The root backwards node is huge and unsorted, so look the edge up in
+    // root_back_index_ instead of searching it linearly.
+    auto it = root_back_index_.find(root_back_key(node2, unichar_id));
+    ASSERT_HOST(it != root_back_index_.end());
+    edge_index = it->second;
+    edge_ptr = &nodes_[node1]->backward_edges[edge_index];
+    root_back_index_.erase(it);
+  } else {
+    ASSERT_HOST(edge_char_of(node1, node2, direction, word_end, unichar_id, &edge_ptr, &edge_index));
+  }
   if (debug_level_ > 1) {
     tprintf("removed edge in nodes_[" REFFORMAT "]: ", node1);
     print_edge_rec(*edge_ptr);
@@ -504,11 +525,11 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction, bo
 //   (b) During reduction, just zero-out the unichars of deleted back
 //       links, skipping zero entries while searching.
 // 3 Avoid linear search of the tail root node. This has to be done when
-//   a suffix is added to an existing word. Adding words by decreasing
-//   length avoids this problem entirely. Words can still be added in
-//   any order, but it is faster to add the longest first.
+//   a suffix is added to an existing word, so root_back_index_ maps each
+//   live back link of the tail root node to its position.
 SquishedDawg *Trie::trie_to_dawg() {
   root_back_freelist_.clear(); // Will be invalided by trie_to_dawg.
+  root_back_index_.clear();
   if (debug_level_ > 2) {
     print_all("Before reduction:", MAX_NODE_EDGES_DISPLAY);
   }

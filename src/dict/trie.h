@@ -19,6 +19,8 @@
 #ifndef TRIE_H
 #define TRIE_H
 
+#include <unordered_map>
+
 #include "dawg.h"
 
 namespace tesseract {
@@ -402,6 +404,10 @@ protected:
   TRIE_NODES nodes_; // vector of nodes in the Trie
   // Freelist of edges in the root backwards node that were previously zeroed.
   std::vector<EDGE_INDEX> root_back_freelist_;
+  // Index of each live edge in the root backwards node, keyed by its next
+  // node and unichar id (see root_back_key), so that removing one when a
+  // word is extended does not require a linear search of that huge node.
+  std::unordered_map<EDGE_REF, EDGE_INDEX> root_back_index_;
   uint64_t num_edges_ = 0;             // sum of all edges (forward and backward)
   uint64_t deref_direction_mask_ = 0;  // mask for EDGE_REF to extract direction
   uint64_t deref_node_index_mask_ = 0; // mask for EDGE_REF to extract node index
