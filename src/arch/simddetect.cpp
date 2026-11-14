@@ -21,6 +21,7 @@
 #include <cstdlib> // for getenv
 #include <numeric> // for std::inner_product
 #include "dotproduct.h"
+#include "functions.h"     // for Tanh, Logistic
 #include "intsimdmatrix.h" // for IntSimdMatrix
 #include "params.h"        // for STRING_VAR
 #include "simddetect.h"
@@ -103,6 +104,13 @@ DotProductFunction DotProduct;
 // as different dot product functions do.
 RowDotProductsFunction RowDotProducts;
 CrossDotProductsFunction CrossDotProducts;
+
+// The functions for whole vectors give the same results with all
+// implementations, so the fastest one for the CPU is used unless the generic
+// dot product is selected.
+VectorFunction TanhVector;
+VectorFunction LogisticVector;
+FloatToInt8Function FloatToInt8Vector;
 
 static STRING_VAR(dotproduct, "auto", "Function used for calculation of dot product");
 
@@ -203,7 +211,40 @@ static void CrossDotProductsGeneric(const TFloat *u, int num_u, const TFloat *v,
   }
 }
 
+// Computes out[i] = Tanh(in[i]) for n values.
+static void TanhVectorGeneric(int n, const TFloat *in, TFloat *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = Tanh(in[i]);
+  }
+}
+
+// Computes out[i] = Logistic(in[i]) for n values.
+static void LogisticVectorGeneric(int n, const TFloat *in, TFloat *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = Logistic(in[i]);
+  }
+}
+
+// Converts n floats in the range [-1, 1] to int8_t.
+static void FloatToInt8VectorGeneric(int n, const TFloat *in, int8_t *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = IntCastRounded(
+        ClipToRange<TFloat>(in[i] * INT8_MAX, -INT8_MAX, INT8_MAX));
+  }
+}
+
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
+  TanhVector = TanhVectorGeneric;
+  LogisticVector = LogisticVectorGeneric;
+  FloatToInt8Vector = FloatToInt8VectorGeneric;
+#if defined(FAST_FLOAT) && defined(HAVE_AVX2)
+  // The integer matrix for AVX2 is only selected for a CPU with AVX2.
+  if (m == &IntSimdMatrix::intSimdMatrixAVX2) {
+    TanhVector = TanhVectorAVX2;
+    LogisticVector = LogisticVectorAVX2;
+    FloatToInt8Vector = FloatToInt8VectorAVX2;
+  }
+#endif
   RowDotProductsFunction rows = RowDotProductsGeneric;
   CrossDotProductsFunction cross = CrossDotProductsGeneric;
 #if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)

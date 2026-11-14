@@ -170,7 +170,10 @@ endif
 if HAVE_AVX2
 libtesseract_avx2_la_CXXFLAGS = -mavx2
 libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_avx2_la_SOURCES = src/arch/functionsavx2.cpp
+libtesseract_avx2_la_SOURCES += src/arch/intsimdmatrixavx2.cpp
 libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
 endif

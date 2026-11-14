@@ -15,8 +15,11 @@
 
 #include "functions.h"
 
+#include "helpers.h" // for TRand
+
 #include <cfenv>
 #include <cmath>
+#include <vector>
 
 namespace tesseract {
 
@@ -59,6 +62,67 @@ TEST(FunctionsTest, InterpolatesInRange) {
     EXPECT_NEAR(std::tanh(x), Tanh(x), 1e-3) << "x=" << x;
     EXPECT_NEAR(1 / (1 + std::exp(-x)), Logistic(x), 1e-3) << "x=" << x;
   }
+}
+
+// The functions for whole vectors (TanhVector, LogisticVector and
+// FloatToInt8Vector, which use SIMD code if the CPU supports it) must give
+// exactly the same results as the scalar functions for all lengths, also for
+// huge values and at the limits of the table.
+TEST(FunctionsTest, VectorFunctionsMatchScalar) {
+  std::vector<TFloat> values = {0.0f,   -0.0f,  1e-30f, -1e-30f, 0.5f / 256,
+                                1.0f,   -1.0f,  15.99f, -15.99f, 4095.0f / 256,
+                                -4095.0f / 256, 16.0f,  -16.0f,  1e30f,
+                                -1e30f, 3e38f,  -3e38f};
+  // Values around the entries of the table and the limits of int8_t.
+  for (int i = -4100; i <= 4100; i += 7) {
+    values.push_back(i / 256.0f);
+    values.push_back(std::nextafter(i / 256.0f, 100.0f));
+    values.push_back(std::nextafter(i / 256.0f, -100.0f));
+  }
+  for (int i = -260; i <= 260; ++i) {
+    values.push_back(i / 254.0f);
+    values.push_back(std::nextafter(i / 254.0f, 100.0f));
+    values.push_back(std::nextafter(i / 254.0f, -100.0f));
+  }
+  TRand random;
+  random.set_seed(1);
+  for (int i = 0; i < 4000; ++i) {
+    values.push_back(static_cast<TFloat>(random.SignedRand(20.0)));
+  }
+  std::feclearexcept(FE_ALL_EXCEPT);
+  const size_t kLengths[] = {values.size(), 1, 2, 7, 8, 9, 15, 16, 17, 31, 48};
+  for (size_t n : kLengths) {
+    // The results are written to the middle of a larger vector to detect
+    // writes outside of the n values.
+    const TFloat kGuard = 12345;
+    std::vector<TFloat> tanh_result(n + 2, kGuard);
+    std::vector<TFloat> logistic_result(n + 2, kGuard);
+    std::vector<int8_t> int_result(n + 2, 99);
+    TanhVector(n, values.data(), tanh_result.data() + 1);
+    LogisticVector(n, values.data(), logistic_result.data() + 1);
+    FloatToInt8Vector(n, values.data(), int_result.data() + 1);
+    for (size_t i = 0; i < n; ++i) {
+      TFloat x = values[i];
+      EXPECT_EQ(Tanh(x), tanh_result[i + 1]) << "x=" << x << ", n=" << n;
+      EXPECT_EQ(Logistic(x), logistic_result[i + 1]) << "x=" << x << ", n=" << n;
+      int expected =
+          IntCastRounded(ClipToRange<TFloat>(x * INT8_MAX, -INT8_MAX, INT8_MAX));
+      EXPECT_EQ(expected, int_result[i + 1]) << "x=" << x << ", n=" << n;
+    }
+    EXPECT_EQ(kGuard, tanh_result[0]);
+    EXPECT_EQ(kGuard, tanh_result[n + 1]);
+    EXPECT_EQ(kGuard, logistic_result[0]);
+    EXPECT_EQ(kGuard, logistic_result[n + 1]);
+    EXPECT_EQ(99, int_result[0]);
+    EXPECT_EQ(99, int_result[n + 1]);
+    // The functions can also be used in place.
+    std::vector<TFloat> inout(values.begin(), values.begin() + n);
+    TanhVector(n, inout.data(), inout.data());
+    for (size_t i = 0; i < n; ++i) {
+      EXPECT_EQ(tanh_result[i + 1], inout[i]) << "in place, i=" << i;
+    }
+  }
+  EXPECT_EQ(0, std::fetestexcept(FE_INVALID));
 }
 
 } // namespace tesseract

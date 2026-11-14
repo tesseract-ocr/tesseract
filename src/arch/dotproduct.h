@@ -17,6 +17,7 @@
 #ifndef TESSERACT_ARCH_DOTPRODUCT_H_
 #define TESSERACT_ARCH_DOTPRODUCT_H_
 
+#include <cstdint> // for int8_t
 #include "tesstypes.h"
 
 namespace tesseract {
@@ -61,6 +62,13 @@ void RowDotProductsAVX512F(const float *w, int w_stride, int num_rows,
                            const float *u, int n, float *v);
 void CrossDotProductsAVX512F(const float *u, int num_u, const float *v,
                              int num_v, int n, float *out, int out_stride);
+
+// Non-linearity functions and conversion to int8_t for n values with AVX2
+// (src/arch/functionsavx2.cpp), see TanhVector, LogisticVector and
+// FloatToInt8Vector in simddetect.h.
+void TanhVectorAVX2(int n, const float *in, float *out);
+void LogisticVectorAVX2(int n, const float *in, float *out);
+void FloatToInt8VectorAVX2(int n, const float *in, int8_t *out);
 #endif
 
 } // namespace tesseract.
