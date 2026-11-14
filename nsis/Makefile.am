@@ -8,15 +8,19 @@ gitrev="$(shell git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdi
 
 .PHONY: winsetup
 
+# Compiler for winpath.exe, can be overridden for other architectures.
+WINPATH_CXX = x86_64-w64-mingw32-g++
+WINPATH_STRIP = x86_64-w64-mingw32-strip
+
 Plugins/x86-unicode/INetC.dll:
 	curl -OsS https://nsis.sourceforge.io/mediawiki/images/c/c9/Inetc.zip
 	unzip Inetc.zip $@
 
 winpath.exe: winpath.cpp
-	x86_64-w64-mingw32-g++ -Os -o $@ $<
-	x86_64-w64-mingw32-strip --strip-unneeded $@
+	$(WINPATH_CXX) -Os -o $@ $<
+	$(WINPATH_STRIP) --strip-unneeded $@
 
 winsetup: Plugins/x86-unicode/INetC.dll winpath.exe
-	makensis -DCROSSBUILD -DSHARED -DSIGNCODE=$(SIGNCODE) -DSRCDIR=$(top_srcdir) -DVERSION=${gitrev} $(shell test "$(host_cpu)" = x86_64 && echo "-DW64") -NOCD $(top_srcdir)/nsis/tesseract.nsi
+	makensis -DCROSSBUILD -DSHARED -DSIGNCODE=$(SIGNCODE) -DSRCDIR=$(top_srcdir) -DVERSION=${gitrev} $(shell test "$(host_cpu)" = x86_64 && echo "-DW64") $(shell test "$(host_cpu)" = aarch64 && echo "-DARM64") -NOCD $(top_srcdir)/nsis/tesseract.nsi
 
 endif

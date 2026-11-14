@@ -108,7 +108,7 @@ static void PrintVersionInfo() {
   printf("  %s\n", versionStrP);
   lept_free(versionStrP);
 
-#if defined(HAVE_NEON) || defined(__aarch64__)
+#if defined(HAVE_NEON) || defined(__aarch64__) || defined(_M_ARM64)
   if (tesseract::SIMDDetect::IsNEONAvailable())
     printf(" Found NEON\n");
 #elif defined(HAVE_RVV)

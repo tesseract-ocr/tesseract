@@ -14,7 +14,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__ARM_NEON)
+#if defined(__ARM_NEON) || defined(_M_ARM64)
 
 #include <arm_neon.h>
 #include "dotproduct.h"
@@ -24,7 +24,7 @@ namespace tesseract {
 // Documentation:
 // https://developer.arm.com/architectures/instruction-sets/intrinsics/
 
-#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+#if defined(FAST_FLOAT) && (defined(__ARM_ARCH_ISA_A64) || defined(_M_ARM64))
 
 float DotProductNEON(const float *u, const float *v, int n) {
   float32x4_t result0123 = vdupq_n_f32(0.0f);
@@ -68,4 +68,4 @@ TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n) {
 
 } // namespace tesseract
 
-#endif /* __ARM_NEON */
+#endif /* __ARM_NEON || _M_ARM64 */
