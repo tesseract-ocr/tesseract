@@ -112,6 +112,9 @@ void Reconfig::Forward(bool /*debug*/, const NetworkIO &input,
 bool Reconfig::Backward(bool /*debug*/, const NetworkIO &fwd_deltas, NetworkScratch * /*scratch*/,
                         NetworkIO *back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
+  // Input rows and columns that do not fill a whole x_scale_ by y_scale_ tile
+  // had no part in the output, so nothing is copied to them below.
+  back_deltas->Zero();
   StrideMap::Index src_index(fwd_deltas.stride_map());
   do {
     int in_t = src_index.t();
