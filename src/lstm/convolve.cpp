@@ -86,14 +86,14 @@ void Convolve::Forward(bool debug, const NetworkIO &input,
     int out_ix = 0;
     for (int x = -half_x_; x <= half_x_; ++x, out_ix += y_scale * ni_) {
       StrideMap::Index x_index(dest_index);
-      if (!x_index.AddOffset(x, FD_WIDTH)) {
+      if (!x_index.AddOffsetFromValid<FD_WIDTH>(x)) {
         // This x is outside the image.
         output->Randomize(t, out_ix, y_scale * ni_, randomizer_);
       } else {
         int out_iy = out_ix;
         for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
           StrideMap::Index y_index(x_index);
-          if (!y_index.AddOffset(y, FD_HEIGHT)) {
+          if (!y_index.AddOffsetFromValid<FD_HEIGHT>(y)) {
             // This y is outside the image.
             output->Randomize(t, out_iy, ni_, randomizer_);
           } else {
@@ -126,11 +126,11 @@ bool Convolve::Backward(bool /*debug*/, const NetworkIO &fwd_deltas, NetworkScra
     int out_ix = 0;
     for (int x = -half_x_; x <= half_x_; ++x, out_ix += y_scale * ni_) {
       StrideMap::Index x_index(src_index);
-      if (x_index.AddOffset(x, FD_WIDTH)) {
+      if (x_index.AddOffsetFromValid<FD_WIDTH>(x)) {
         int out_iy = out_ix;
         for (int y = -half_y_; y <= half_y_; ++y, out_iy += ni_) {
           StrideMap::Index y_index(x_index);
-          if (y_index.AddOffset(y, FD_HEIGHT)) {
+          if (y_index.AddOffsetFromValid<FD_HEIGHT>(y)) {
             fwd_deltas.AddTimeStepPart(t, out_iy, ni_, delta_sum->f(y_index.t()));
           }
         }
