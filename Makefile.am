@@ -209,8 +209,11 @@ if OPENMP_SIMD
 libtesseract_neon_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
 endif
 libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_neon_la_SOURCES += src/arch/dotproductneon.cpp
+libtesseract_neon_la_SOURCES += src/arch/functionsneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
 endif
