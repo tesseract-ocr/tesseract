@@ -212,6 +212,18 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
     cross = CrossDotProductsNEON;
   }
 #endif
+#if defined(FAST_FLOAT) && defined(HAVE_FMA)
+  if (f == DotProductFMA) {
+    rows = RowDotProductsFMA;
+    cross = CrossDotProductsFMA;
+  }
+#endif
+#if defined(FAST_FLOAT) && defined(HAVE_AVX512F)
+  if (f == DotProductAVX512F) {
+    rows = RowDotProductsAVX512F;
+    cross = CrossDotProductsAVX512F;
+  }
+#endif
   DotProduct = f;
   RowDotProducts = rows;
   CrossDotProducts = cross;
@@ -348,6 +360,11 @@ SIMDDetect::SIMDDetect() {
     SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
 #endif
 #if defined(HAVE_AVX2)
+#  if defined(HAVE_FMA)
+  } else if (avx2_available_ && fma_available_) {
+    // AVX2 and FMA detected (all known CPUs with AVX2 also support FMA).
+    SetDotProduct(DotProductFMA, &IntSimdMatrix::intSimdMatrixAVX2);
+#  endif
   } else if (avx2_available_) {
     // AVX2 detected.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);

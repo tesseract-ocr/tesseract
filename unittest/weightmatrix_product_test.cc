@@ -16,6 +16,8 @@
 #include "include_gunit.h"
 
 #include "helpers.h"      // for TRand
+#include "params.h"       // for ParamUtils, GlobalParams
+#include "simddetect.h"   // for SIMDDetect
 #include "weightmatrix.h" // for WeightMatrix, TransposedArray
 
 #include <cmath>
@@ -143,33 +145,80 @@ protected:
     }
   }
 
-  TRand randomizer_;
-};
-
-// Sizes around the block sizes of the SIMD code (4 rows, 4 or 8 elements)
-// and some sizes of real networks.
-const int kSizes[] = {1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 16, 17, 31, 48, 111};
-
-TEST_F(WeightMatrixProductTest, VectorProducts) {
-  for (int no : kSizes) {
-    for (int ni : kSizes) {
-      TestVectorProducts(no, ni);
+  // Tests the products with vectors for many sizes.
+  void TestAllVectorProducts() {
+    // Sizes around the block sizes of the SIMD code (2 or 4 rows, 4, 8 or 16
+    // elements, which are used once or twice per pass) and some sizes of
+    // real networks.
+    const int kSizes[] = {1,  2,  3,  4,  5,  7,  8,  9,  11, 12, 13,
+                          16, 17, 31, 32, 33, 47, 48, 49, 63, 111};
+    for (int no : kSizes) {
+      for (int ni : kSizes) {
+        TestVectorProducts(no, ni);
+      }
     }
+    TestVectorProducts(192, 288);
   }
-  TestVectorProducts(192, 288);
-}
 
-TEST_F(WeightMatrixProductTest, SumOuterTransposed) {
-  const int kOutputs[] = {1, 2, 3, 4, 5, 7, 8, 9, 13, 48};
-  const int kInputs[] = {1, 2, 3, 4, 5, 7, 8, 9, 13, 64};
-  const int kSamples[] = {1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17, 100};
-  for (int no : kOutputs) {
-    for (int ni : kInputs) {
-      for (int num_samples : kSamples) {
-        TestSumOuter(no, ni, num_samples);
+  // Tests the sum of the outer products for many sizes.
+  void TestAllSumOuter() {
+    const int kOutputs[] = {1, 2, 3, 4, 5, 7, 8, 9, 13, 48};
+    const int kInputs[] = {1, 2, 3, 4, 5, 7, 8, 9, 13, 64};
+    const int kSamples[] = {1, 2,  3,  4,  5,  7,  8,  9,
+                            15, 16, 17, 31, 32, 33, 47, 100};
+    for (int no : kOutputs) {
+      for (int ni : kInputs) {
+        for (int num_samples : kSamples) {
+          TestSumOuter(no, ni, num_samples);
+        }
       }
     }
   }
+
+  // Selects the functions for the dot products like the parameter dotproduct
+  // or the environment variable DOTPRODUCT do.
+  static void SelectDotProduct(const char *name) {
+    ASSERT_TRUE(ParamUtils::SetParam("dotproduct", name,
+                                     SET_PARAM_CONSTRAINT_NONE, GlobalParams()));
+    SIMDDetect::Update();
+  }
+
+  TRand randomizer_;
+};
+
+// The first tests use the functions which were selected for the CPU.
+TEST_F(WeightMatrixProductTest, VectorProducts) {
+  TestAllVectorProducts();
+}
+
+TEST_F(WeightMatrixProductTest, SumOuterTransposed) {
+  TestAllSumOuter();
+}
+
+// The functions for FMA are also tested on a CPU for which other functions
+// were selected (AVX512F). This changes the selection for the tests which
+// follow.
+TEST_F(WeightMatrixProductTest, FMA) {
+#if defined(HAVE_FMA)
+  if (!SIMDDetect::IsFMAAvailable()) {
+    GTEST_LOG_(INFO) << "No FMA found! Not tested!";
+    GTEST_SKIP();
+  }
+  SelectDotProduct("fma");
+  TestAllVectorProducts();
+  TestAllSumOuter();
+#else
+  // The code was built without the functions for FMA.
+  GTEST_LOG_(INFO) << "FMA unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
+// The generic functions calculate single dot products.
+TEST_F(WeightMatrixProductTest, Generic) {
+  SelectDotProduct("generic");
+  TestAllVectorProducts();
+  TestAllSumOuter();
 }
 
 } // namespace
