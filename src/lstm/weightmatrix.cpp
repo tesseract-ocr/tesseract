@@ -18,6 +18,8 @@
 #include "weightmatrix.h"
 
 #include <cassert> // for assert
+#include <cfloat>  // for FLT_MAX
+#include <cstring> // for std::memcpy
 #include "intsimdmatrix.h"
 #include "simddetect.h" // for DotProduct
 #include "statistc.h"
@@ -38,7 +40,25 @@ const TFloat kAdamEpsilon = 1e-8;
 
 // Utility functions convert between double and float arrays.
 #ifdef FAST_FLOAT
-static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
+// Returns true if a double read from a model file can be narrowed to float,
+// i.e. it is finite and its magnitude does not exceed FLT_MAX. Narrowing any
+// other value raises FE_OVERFLOW or FE_INVALID, which the tesseract program
+// traps (SIGFPE), so a corrupt model must be rejected before the conversion.
+// The test works on the bit pattern, because even a floating-point comparison
+// with a signaling NaN raises FE_INVALID. With the sign bit cleared, the bit
+// patterns of doubles order like their magnitudes, and infinities and NaNs
+// sort above every finite value.
+static bool FitsFloat(double value) {
+  uint64_t bits;
+  std::memcpy(&bits, &value, sizeof(bits));
+  const double max_float = FLT_MAX;
+  uint64_t max_bits;
+  std::memcpy(&max_bits, &max_float, sizeof(max_bits));
+  return (bits & ~(UINT64_C(1) << 63)) <= max_bits;
+}
+
+// Returns false if src has an element that does not fit a float.
+static bool DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
   const auto dim1 = src.dim1();
   const auto dim2 = src.dim2();
   dst.ResizeNoInit(dim1, dim2);
@@ -46,9 +66,13 @@ static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<
     const auto *src_i = src[i];
     auto *dst_i = dst[i];
     for (int j = 0; j < dim2; ++j) {
+      if (!FitsFloat(src_i[j])) {
+        return false;
+      }
       dst_i[j] = static_cast<float>(src_i[j]);
     }
   }
+  return true;
 }
 #endif
 
@@ -71,8 +95,7 @@ static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
   if (!double_array.DeSerialize(fp)) {
     return false;
   }
-  DoubleToFloat(double_array, tfloat_array);
-  return true;
+  return DoubleToFloat(double_array, tfloat_array);
 #else
   return tfloat_array.DeSerialize(fp);
 #endif
@@ -332,7 +355,8 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     scales_.reserve(size);
     for (auto n = size; n > 0; n--) {
       double val;
-      if (!fp->DeSerialize(&val)) {
+      // The scales are narrowed to float like the weights of a float matrix.
+      if (!fp->DeSerialize(&val) || !FitsFloat(val)) {
         return false;
       }
       scales_.push_back(val / INT8_MAX);

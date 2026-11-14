@@ -1167,6 +1167,7 @@ check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
 check_PROGRAMS += fullyconnected_test
+check_PROGRAMS += functions_test
 check_PROGRAMS += genericvector_test
 check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
@@ -1255,6 +1256,7 @@ check_PROGRAMS += validator_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += weightmatrix_deserialize_test
 check_PROGRAMS += weightmatrix_intdim_test
+check_PROGRAMS += weightmatrix_range_test
 check_PROGRAMS += weightmatrix_scales_test
 
 check_PROGRAMS: libtesseract.la libtesseract_training.la
@@ -1337,6 +1339,10 @@ fileio_test_LDADD = $(TRAINING_LIBS)
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fullyconnected_test_LDADD = $(TESS_LIBS)
+
+functions_test_SOURCES = unittest/functions_test.cc
+functions_test_CPPFLAGS = $(unittest_CPPFLAGS)
+functions_test_LDADD = $(TESS_LIBS)
 
 genericvector_test_SOURCES = unittest/genericvector_test.cc
 genericvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1637,6 +1643,10 @@ weightmatrix_deserialize_test_LDADD = $(TESS_LIBS)
 weightmatrix_intdim_test_SOURCES = unittest/weightmatrix_intdim_test.cc
 weightmatrix_intdim_test_CPPFLAGS = $(unittest_CPPFLAGS)
 weightmatrix_intdim_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_range_test_SOURCES = unittest/weightmatrix_range_test.cc
+weightmatrix_range_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_range_test_LDADD = $(TESS_LIBS)
 
 weightmatrix_scales_test_SOURCES = unittest/weightmatrix_scales_test.cc
 weightmatrix_scales_test_CPPFLAGS = $(unittest_CPPFLAGS)
