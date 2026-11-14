@@ -169,8 +169,10 @@ public:
    * listed above here in the class definition.
    *
    * The datapath must be the name of the tessdata directory.
-   * The language is (usually) an ISO 639-3 string or nullptr will default to
-   * eng. It is entirely safe (and eventually will be efficient too) to call
+   * The language is (usually) an ISO 639-3 string. If it is nullptr or empty,
+   * no language data is loaded: this is enough for page layout analysis, but
+   * Recognize fails (returns -1) until Init is called with a language.
+   * It is entirely safe (and eventually will be efficient too) to call
    * Init multiple times on the same instance to change language, or just
    * to reset the classifier.
    * The language may be a string of the form [~]<lang>[+[~]<lang>]* indicating
