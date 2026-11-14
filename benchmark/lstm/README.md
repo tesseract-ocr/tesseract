@@ -286,3 +286,80 @@ samples with everything a function calls):
 | Page layout analysis (`SegmentPage`)       |     21 % |      28 % |
 
 The shares in the last column refer to a total which is 1.35 times smaller.
+
+## Results for x86_64 on AMD EPYC 9554
+
+Measured in November 2026 on a virtual machine with an AMD EPYC 9554
+(Zen 4, AVX512), Debian 13, g++ 14, FAST_FLOAT, built with autotools
+(`configure --disable-shared --disable-openmp`, which uses `-g -O2`),
+pinned to one core. "Before", "products" and "functions" are the same
+commits as for the Intel CPU above.
+
+### Training time on AMD EPYC 9554 (1000 training lines)
+
+| Settings                       | Before | Products | Functions |
+| ------------------------------ | -----: | -------: | --------: |
+| Default (AVX512F on this CPU)  | 22.2 s |   16.9 s |    16.0 s |
+| `DOTPRODUCT=fma`               | 23.2 s |   16.8 s |    16.0 s |
+| `DOTPRODUCT=avx2`              | 23.5 s |   23.6 s |    22.8 s |
+
+- The training is 1.4 times faster.
+
+### Recognition time on AMD EPYC 9554
+
+| Models                     | Before | Products | Functions |
+| -------------------------- | -----: | -------: | --------: |
+| `tessdata_fast` (36 pages) | 24.0 s |   24.0 s |    17.1 s |
+| `tessdata_best` (12 pages) | 18.0 s |   15.2 s |    12.9 s |
+
+- Recognition is 1.4 times faster with the integer models and with the
+  float models. The text results are identical, and those for
+  `tessdata_fast` are also identical to the results on ARM64.
+- With the new code, `tessdata_fast` needs 17.1 s with `DOTPRODUCT=fma` or
+  `DOTPRODUCT=avx2`, 30.5 s with `DOTPRODUCT=sse` and 70.4 s with
+  `DOTPRODUCT=generic`, always with the same text results.
+
+### Profiling with perf
+
+If `/proc/sys/kernel/perf_event_paranoid` is 2, a user can only profile the
+user space code of own processes. That needs these options (`cpu-clock`
+also works in a virtual machine without hardware counters):
+
+    perf record -e cpu-clock:u --user-callchains --call-graph dwarf,16384 \
+      -F 499 build/tesseract pages.txt out --tessdata-dir ../tessdata_fast \
+      -l eng
+    perf report --children --stdio --sort symbol -g none | head -80
+
+Profile of the recognition with `tessdata_fast` (12 pages) with the new
+code, share of the samples with everything a function calls:
+
+| Function                                               | Share |
+| ------------------------------------------------------ | ----: |
+| Page layout analysis (`SegmentPage`)                   |  24 % |
+| `Series::Forward` (the whole network)                  |  55 % |
+| `Convolve::Forward`                                    |  22 % |
+| `LSTM::Forward`                                        |  22 % |
+| Integer `matrixDotVector`                              |  15 % |
+| `StrideMap::Index::AddOffset` and `IsValid`            |  15 % |
+| Tanh and logistic function (`TanhVectorAVX2`, ...)     | 6.6 % |
+| `RecodeBeamSearch::Decode`                             | 5.8 % |
+| PNG compression of the line images (`ImageData::SetPix`) | 4.8 % |
+| Conversion to `int8_t` (`FloatToInt8VectorAVX2`)       | 1.5 % |
+
+Profile of the training with the new code:
+
+| Function                                               | Share |
+| ------------------------------------------------------ | ----: |
+| `RowDotProductsAVX512F` (forward and backward)         |  32 % |
+| `Plumbing::Update` (weight update)                     |  15 % |
+| `LSTM::Backward` without the functions which it calls  |  11 % |
+| `Convolve::Forward`                                    | 8.7 % |
+| `CrossDotProductsAVX512F` (gradients)                  | 7.9 % |
+| `StrideMap::Index::AddOffset` and `IsValid`            | 5.8 % |
+| `CTC::ComputeCTCTargets`                               | 2.5 % |
+
+- The weight update takes a much larger share than on ARM64 with clang
+  (4.9 %). Most of it is `GENERIC_2D_ARRAY::AdamUpdate` (9.5 %).
+- The index calculations of `StrideMap::Index` take a large share of the
+  recognition with the integer models. Most calls of `AddOffset` come from
+  `Convolve::Forward`.
