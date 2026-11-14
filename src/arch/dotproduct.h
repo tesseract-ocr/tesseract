@@ -51,6 +51,18 @@ void CrossDotProductsNEON(const float *u, int num_u, const float *v, int num_v,
                           int n, float *out, int out_stride);
 #endif
 
+#if defined(FAST_FLOAT)
+// The same functions for x86 with FMA (and AVX) and with AVX512F.
+void RowDotProductsFMA(const float *w, int w_stride, int num_rows,
+                       const float *u, int n, float *v);
+void CrossDotProductsFMA(const float *u, int num_u, const float *v, int num_v,
+                         int n, float *out, int out_stride);
+void RowDotProductsAVX512F(const float *w, int w_stride, int num_rows,
+                           const float *u, int n, float *v);
+void CrossDotProductsAVX512F(const float *u, int num_u, const float *v,
+                             int num_v, int n, float *out, int out_stride);
+#endif
+
 } // namespace tesseract.
 
 #endif // TESSERACT_ARCH_DOTPRODUCT_H_
