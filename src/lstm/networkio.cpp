@@ -665,12 +665,9 @@ void NetworkIO::WriteTimeStep(int t, const TFloat *input) {
 void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input) {
   ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
-    int8_t *line = i_[t] + offset;
-    for (int i = 0; i < num_features; ++i) {
-      // Clip before the conversion to int: the output of a linear layer of an
-      // untrusted model is not bounded to [-1, 1].
-      line[i] = IntCastRounded(ClipToRange<TFloat>(input[i] * INT8_MAX, -INT8_MAX, INT8_MAX));
-    }
+    // The values are clipped before the conversion to int: the output of a
+    // linear layer of an untrusted model is not bounded to [-1, 1].
+    FloatToInt8Vector(num_features, input, i_[t] + offset);
   } else {
     float *line = f_[t] + offset;
     for (int i = 0; i < num_features; ++i) {

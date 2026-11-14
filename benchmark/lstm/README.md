@@ -10,13 +10,17 @@ measured with them.
 - `sample-summary.py` summarizes a profile which was made with the macOS tool
   `sample`.
 - `neon-kernel-variants.cpp` is a microbenchmark for the float matrix products
-  (variants of `RowDotProductsNEON` and `CrossDotProductsNEON`).
+  on ARM64 (variants of `RowDotProductsNEON` and `CrossDotProductsNEON`).
 - `neon-int-kernel-variants.cpp` is a microbenchmark for the `int8_t` matrix
   product which is used for the recognition with integer (fast) models
   (variants of `PartialMatrixDotVector8`).
 
-The two microbenchmarks are standalone programs for ARM64. How to build
-them is described at the beginning of each file.
+- `x86-kernel-variants.cpp` is the same microbenchmark for the float matrix
+  products on x86_64 (variants of `RowDotProductsFMA`, `CrossDotProductsFMA`,
+  `RowDotProductsAVX512F` and `CrossDotProductsAVX512F`).
+
+The microbenchmarks are standalone programs for ARM64 or x86_64. How to
+build them is described at the beginning of each file.
 
 ## Timing the training
 
@@ -167,3 +171,118 @@ and after the new NEON functions for the integer matrix product:
 - Recognition with the integer models is about 1.27 times faster on M1 and
   X925 and 1.55 times faster on A725. The text results are identical.
 - The float models do not use the integer matrix product.
+
+## Results for x86_64
+
+Measured in November 2026 on an Intel Core i3-1115G4 (Tiger Lake, AVX512),
+Debian 13, g++ 14, FAST_FLOAT, a Release build with CMake without OpenMP.
+"Before" is the commit "arch: speed up the integer matrix product with
+NEON". "Products" adds the functions for several dot products at once for
+FMA and AVX512F, "functions" also adds the functions for tanh, the logistic
+function and the conversion to `int8_t` for whole vectors with AVX2
+(`src/arch/functionsavx2.cpp`).
+
+### Training time on x86_64 (1000 training lines)
+
+| Settings                       | Before | Products | Functions |
+| ------------------------------ | -----: | -------: | --------: |
+| Default (AVX512F on this CPU)  | 24.3 s |   16.0 s |    15.3 s |
+| `DOTPRODUCT=fma`               | 24.3 s |   15.7 s |    15.0 s |
+| `DOTPRODUCT=avx2`              | 28.1 s |   27.2 s |           |
+
+- The training is 1.6 times faster.
+- A CPU with AVX2 and FMA, but without AVX512F, now uses the functions for
+  FMA by default. Before it used `DotProductAVX` (the time for
+  `DOTPRODUCT=avx2`), so the gain is larger there.
+- `DOTPRODUCT=avx2` still calculates single dot products with the same
+  results as before.
+- The functions for whole vectors give exactly the same results as the
+  scalar functions, so they do not change the results of the training.
+
+### Recognition time on x86_64
+
+Time for the 36 pages which are described above (`tessdata_fast`) and for
+the first 12 of them (`tessdata_best`):
+
+| Models                     | Before | Products | Functions |
+| -------------------------- | -----: | -------: | --------: |
+| `tessdata_fast` (36 pages) | 23.0 s |   23.0 s |    17.0 s |
+| `tessdata_best` (12 pages) | 22.7 s |   18.6 s |    16.4 s |
+
+- Recognition is 1.35 times faster with the integer models and 1.4 times
+  faster with the float models. The text results are identical.
+
+### Float matrix products (`x86-kernel-variants.cpp`)
+
+Time for the largest layer (Lfx192), single dot products compared with the
+implemented variants (g++ 14):
+
+| Product                                 | FMA single | FMA new | AVX512F single | AVX512F new |
+| --------------------------------------- | ---------: | ------: | -------------: | ----------: |
+| Forward, 4 gates, per timestep (4x2)    |    12.1 us |  9.1 us |        17.6 us |      9.5 us |
+| Backward, 4 gates, per timestep (4x2)   |    12.6 us |  9.0 us |        18.2 us |      9.7 us |
+| Gradients, 1 gate, 300 timesteps        |    1.24 ms | 0.37 ms |        1.17 ms |     0.35 ms |
+
+- The gradients use blocks of 4 x 2 dot products for FMA (16 registers;
+  4 x 4 is 1.3 times slower) and of 4 x 4 for AVX512F (32 registers).
+- The smaller layers gain more for the products with a vector (2 to 3
+  times).
+- The rest of a row (less than 8 or 16 elements) is loaded with a mask
+  instead of a scalar loop.
+- Registers with 512 bits are not faster than those with 256 bits on this
+  CPU.
+- The four sums of a pass are reduced together (`Sum4`). A profile showed
+  that single calls of `_mm512_reduce_add_ps` took 12 % of the training
+  time.
+
+### Tanh, logistic function and conversion to `int8_t`
+
+A profile of the recognition with `tessdata_fast` (see below) showed that
+the scalar table lookups for tanh and the logistic function took 17 % of
+the time and the conversion of the results to `int8_t` 10 %, more than the
+integer matrix product (12 %).
+
+Time for tanh of 192 random values:
+
+| Variant                                              |   Time |
+| ---------------------------------------------------- | -----: |
+| Scalar (`Tanh`, with branches)                       | 707 ns |
+| Scalar without branches                              | 434 ns |
+| AVX2 with the gather instruction                     | 442 ns |
+| AVX2, table entries loaded one by one (implemented)  | 158 ns |
+
+- The gather instruction is slow on this CPU because of the microcode
+  mitigation for "gather data sampling".
+- All variants give the same results.
+
+### Integer matrix product
+
+A variant with the dot product instruction of AVX512VNNI (`VPDPBUSD`, 256
+bits) was only 1.1 times faster than the code for AVX2 for the integer
+matrix product on this CPU, which is not measurable for the whole
+recognition. Therefore it was not added.
+
+### Profiling on Linux without perf
+
+The CPU profiler of gperftools works with an unchanged binary (build with
+`-g` to get source lines):
+
+    LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libprofiler.so.0 \
+      CPUPROFILE=/tmp/tess.prof CPUPROFILE_FREQUENCY=1000 \
+      build/bin/tesseract pages.txt out --tessdata-dir ../tessdata_fast -l eng
+    google-pprof --text build/bin/tesseract /tmp/tess.prof | head -30
+    google-pprof --lines --text build/bin/tesseract /tmp/tess.prof | head -40
+
+Profile of the recognition with `tessdata_fast` (12 pages, share of the
+samples with everything a function calls):
+
+| Function                                   | Products | Functions |
+| ------------------------------------------ | -------: | --------: |
+| `LSTM::Forward`                            |     37 % |      22 % |
+| Tanh and logistic function                 |     17 % |      10 % |
+| Integer `matrixDotVector`                  |     12 % |      14 % |
+| Conversion to `int8_t`                     |     10 % |     2.4 % |
+| `Convolve::Forward`                        |     12 % |      17 % |
+| Page layout analysis (`SegmentPage`)       |     21 % |      28 % |
+
+The shares in the last column refer to a total which is 1.35 times smaller.

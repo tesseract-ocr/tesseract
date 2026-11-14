@@ -44,6 +44,21 @@ using CrossDotProductsFunction = void (*)(const TFloat *u, int num_u,
                                           TFloat *out, int out_stride);
 extern CrossDotProductsFunction CrossDotProducts;
 
+// Function pointers for the non-linearity functions for whole vectors:
+// out[i] = Tanh(in[i]) or out[i] = Logistic(in[i]) (see functions.h) for n
+// values. in and out can be the same. All implementations give exactly the
+// same results.
+using VectorFunction = void (*)(int n, const TFloat *in, TFloat *out);
+extern TESS_API VectorFunction TanhVector;
+extern TESS_API VectorFunction LogisticVector;
+
+// Function pointer for the conversion of n floats in the range [-1, 1] to
+// int8_t: out[i] = IntCastRounded(ClipToRange(in[i] * INT8_MAX, -INT8_MAX,
+// INT8_MAX)). All implementations give the same results (unless a value
+// is NaN, which gives an undefined result).
+using FloatToInt8Function = void (*)(int n, const TFloat *in, int8_t *out);
+extern TESS_API FloatToInt8Function FloatToInt8Vector;
+
 // Architecture detector. Add code here to detect any other architectures for
 // SIMD-based faster dot product functions. Intended to be a single static
 // object, but it does no real harm to have more than one.
