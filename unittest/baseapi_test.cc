@@ -400,11 +400,12 @@ TEST_F(TesseractTest, TrainLineRecognizerWithoutModel) {
   const std::string image_file = TestDataNameToPath("trainingtimesline.tif");
   const std::string output_base = file::JoinPath(FLAGS_test_tmpdir, "trainingtimesline");
   const std::string lstmf_file = output_base + ".lstmf";
-  std::filesystem::create_directories(FLAGS_test_tmpdir);
+  file::MakeTmpdir();
   std::remove(lstmf_file.c_str());
   Image pix = pixRead(image_file.c_str());
   ASSERT_TRUE(pix != nullptr);
-  std::vector<std::string> vars_vec = {"tessedit_init_config_only", "tessedit_train_line_recognizer"};
+  std::vector<std::string> vars_vec = {"tessedit_init_config_only",
+                                       "tessedit_train_line_recognizer"};
   std::vector<std::string> vars_values = {"1", "1"};
   tesseract::TessBaseAPI api;
   ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_DEFAULT, nullptr, 0,
