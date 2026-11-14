@@ -363,6 +363,13 @@ commits as for the Intel CPU above.
 - With the new code, `tessdata_fast` needs 17.1 s with `DOTPRODUCT=fma` or
   `DOTPRODUCT=avx2`, 30.5 s with `DOTPRODUCT=sse` and 70.4 s with
   `DOTPRODUCT=generic`, always with the same text results.
+- The same measurements with clang-22 (Debian clang 22.1.8, the same
+  build options and test runs as for g++ 14) give 16.0 s for the training
+  (1000 lines), 16.2 s for `tessdata_fast` (36 pages) and 13.3 s for
+  `tessdata_best` (12 pages), in two runs for each. Clang is about 5 %
+  faster than g++ with the integer models and about 3 % slower with the
+  float models; the text results are identical, and the training ends at
+  the same values (999/1000/1000, mean rms=5.173 %).
 
 ### Profiling with perf
 
@@ -408,3 +415,74 @@ Profile of the training with the new code:
 - The index calculations of `StrideMap::Index` take a large share of the
   recognition with the integer models. Most calls of `AddOffset` come from
   `Convolve::Forward`.
+
+## Summary over all platforms
+
+Single-threaded. "Before" is the parent of the commit "lstm: calculate
+several dot products at once with NEON", so the code without any of the new
+functions, "after" is the current code with all the new functions for ARM64
+and x86_64. Both were built and measured in the same session on each
+platform. The times are the median of three runs, the speedups were
+calculated before the times were rounded. The recognition runs use the
+36 pages described above.
+
+On each platform the text results are identical before and after. The
+training results differ slightly between different functions for the dot
+products (the order of the additions is different), but they are
+deterministic.
+
+Training, 1000 lines, FAST_FLOAT:
+
+| Platform                    | Build          | Before |  After | Speedup |
+| --------------------------- | -------------- | -----: | -----: | ------: |
+| Apple M1 Pro                | Apple clang 21 | 22.1 s | 15.2 s |    1.45 |
+| DGX Spark, Cortex-X925      | g++ 13         | 14.3 s | 10.0 s |    1.44 |
+| DGX Spark, Cortex-A725      | g++ 13         | 31.1 s | 23.9 s |    1.30 |
+| Intel i3-1115G4 (AVX512)    | g++ 14         | 23.6 s | 15.2 s |    1.55 |
+| AMD EPYC 9554 (AVX512)      | g++ 14         | 23.3 s | 15.9 s |    1.46 |
+| AMD EPYC 9554 (AVX512)      | clang-22       |      - | 15.9 s |       - |
+
+Recognition with the integer model `tessdata_fast` (36 pages):
+
+| Platform                    | Build          | Before |  After | Speedup |
+| --------------------------- | -------------- | -----: | -----: | ------: |
+| Apple M1 Pro                | Apple clang 21 | 22.2 s | 13.9 s |    1.59 |
+| DGX Spark, Cortex-X925      | g++ 13         | 18.7 s | 11.7 s |    1.61 |
+| DGX Spark, Cortex-A725      | g++ 13         | 43.2 s | 23.5 s |    1.84 |
+| Intel i3-1115G4 (AVX512)    | g++ 14         | 22.9 s | 17.0 s |    1.35 |
+| AMD EPYC 9554 (AVX512)      | g++ 14         | 24.0 s | 17.1 s |    1.41 |
+| AMD EPYC 9554 (AVX512)      | clang-22       |      - | 16.1 s |       - |
+
+Recognition with the float model `tessdata_best` (36 pages):
+
+| Platform                    | Build          | Before |  After | Speedup |
+| --------------------------- | -------------- | -----: | -----: | ------: |
+| Apple M1 Pro                | Apple clang 21 | 63.0 s | 43.4 s |    1.45 |
+| DGX Spark, Cortex-X925      | g++ 13         | 39.3 s | 34.9 s |    1.12 |
+| DGX Spark, Cortex-A725      | g++ 13         | 79.1 s | 66.8 s |    1.18 |
+| Intel i3-1115G4 (AVX512)    | g++ 14         | 64.5 s | 51.9 s |    1.24 |
+| AMD EPYC 9554 (AVX512)      | g++ 14         | 55.5 s | 38.8 s |    1.43 |
+| AMD EPYC 9554 (AVX512)      | clang-22       |      - | 39.7 s |       - |
+
+- The training is 1.3 to 1.55 times faster on all platforms.
+- Recognition with the integer models is 1.35 to 1.84 times faster. The
+  Cortex-A725 gains most.
+- Recognition with the float models is 1.12 to 1.45 times faster. The
+  Apple M1 Pro and the AMD EPYC 9554 gain most, the DGX Spark least.
+- A second DGX Spark with the same build gives the same times within 1 %
+  for the training and for the integer model, and within 4 % for the float
+  model. Its speedups are 1.44, 1.62 and 1.10 on the Cortex-X925 and 1.31,
+  1.85 and 1.17 on the Cortex-A725 (training, integer model, float model).
+- Most times vary by less than 0.5 s between the three runs. The times for
+  the float models vary by 2 to 3 s on the DGX Spark (Cortex-X925 after:
+  33.2 s to 35.0 s, Cortex-A725 before: 79.1 s to 82.2 s) and on the Intel
+  i3-1115G4, and the training before on the Apple M1 Pro by 1 s.
+- The times for the Intel i3-1115G4 for the training and for the integer
+  model are single runs.
+- g++ 14 and clang-22 give the same times for the training and are within
+  a few percent of each other for the recognition: clang is about 5 %
+  faster with the integer models and about 2 % slower with the float
+  models.
+- The absolute times mix build setups (Release builds with CMake for the
+  Apple M1 Pro, the DGX Spark and the Intel i3-1115G4, autotools with
+  `-g -O2` for the AMD EPYC 9554), so only the speedups are comparable.
