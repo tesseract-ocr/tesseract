@@ -733,7 +733,6 @@ static int main1(int argc, char **argv) {
 
   if (print_parameters) {
     FILE *fout = stdout;
-    fprintf(stdout, "Tesseract parameters:\n");
     api.PrintVariables(fout);
     api.End();
     return EXIT_SUCCESS;
