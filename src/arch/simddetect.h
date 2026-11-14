@@ -81,6 +81,11 @@ public:
   static inline bool IsNEONAvailable() {
     return GetDetector().neon_available_;
   }
+  // Returns true if the NEON dot product instructions (an optional feature
+  // of ARMv8.2) are available on this system.
+  static inline bool IsNEONDotProdAvailable() {
+    return GetDetector().neon_dotprod_available_;
+  }
   // Returns true if RVV is available on this system.
   static inline bool IsRVVAvailable() {
     return GetDetector().rvv_available_;
@@ -111,6 +116,8 @@ private:
   static TESS_API bool sse_available_;
   // If true, then NEON has been detected.
   static TESS_API bool neon_available_;
+  // If true, then the NEON dot product instructions have been detected.
+  static TESS_API bool neon_dotprod_available_;
   // If true, then RVV has been detected.
   static TESS_API bool rvv_available_;
 };

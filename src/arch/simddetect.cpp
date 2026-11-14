@@ -66,6 +66,15 @@
 #  endif
 #endif
 
+#if defined(__aarch64__) && defined(__linux__) && \
+    !defined(__ARM_FEATURE_DOTPROD)
+// Needed for the detection of the NEON dot product instructions at runtime.
+#  include <sys/auxv.h>
+#  if !defined(HWCAP_ASIMDDP)
+#    define HWCAP_ASIMDDP (1 << 20)
+#  endif
+#endif
+
 #if defined(HAVE_RVV)
 #  if defined(HAVE_GETAUXVAL) || defined(HAVE_ELF_AUX_INFO)
 #    include <sys/auxv.h>
@@ -124,9 +133,13 @@ static const SIMDDetect &detector_init = SIMDDetect::GetDetector();
 #if defined(__aarch64__)
 // ARMv8 always has NEON.
 bool SIMDDetect::neon_available_ = true;
+// If true, then the NEON dot product instructions have been detected.
+bool SIMDDetect::neon_dotprod_available_;
 #elif defined(HAVE_NEON)
 // If true, then Neon has been detected.
 bool SIMDDetect::neon_available_;
+// The NEON dot product instructions are only used for ARMv8.
+bool SIMDDetect::neon_dotprod_available_;
 #elif defined(HAVE_RVV)
 bool SIMDDetect::rvv_available_;
 #else
@@ -304,6 +317,15 @@ SIMDDetect::SIMDDetect() {
 #  endif
 #endif
 
+#if defined(__aarch64__)
+#  if defined(__ARM_FEATURE_DOTPROD)
+  // The code was built for a CPU with the NEON dot product instructions.
+  neon_dotprod_available_ = true;
+#  elif defined(__linux__)
+  neon_dotprod_available_ = (getauxval(AT_HWCAP) & HWCAP_ASIMDDP) != 0;
+#  endif
+#endif
+
 #if defined(HAVE_RVV)
 #  if defined(HAVE_GETAUXVAL)
   const unsigned long hwcap = getauxval(AT_HWCAP);
@@ -343,7 +365,9 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (neon_available_) {
     // NEON detected.
-    SetDotProduct(DotProductNEON, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNEON, neon_dotprod_available_
+                                      ? &IntSimdMatrix::intSimdMatrixNEONDotProd
+                                      : &IntSimdMatrix::intSimdMatrixNEON);
 #endif
 #if defined(HAVE_RVV)
   } else if (rvv_available_) {
@@ -400,7 +424,9 @@ void SIMDDetect::Update() {
 #if defined(HAVE_NEON) || defined(__aarch64__)
   } else if (dotproduct == "neon" && neon_available_) {
     // NEON selected by config variable.
-    SetDotProduct(DotProductNEON, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNEON, neon_dotprod_available_
+                                      ? &IntSimdMatrix::intSimdMatrixNEONDotProd
+                                      : &IntSimdMatrix::intSimdMatrixNEON);
     dotproduct_method = "neon";
 #endif
   } else if (dotproduct == "std::inner_product") {

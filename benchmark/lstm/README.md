@@ -12,7 +12,8 @@ measured with them.
 - `neon-kernel-variants.cpp` is a microbenchmark for the float matrix products
   (variants of `RowDotProductsNEON` and `CrossDotProductsNEON`).
 - `neon-int-kernel-variants.cpp` is a microbenchmark for the `int8_t` matrix
-  product which is used for the recognition with integer (fast) models.
+  product which is used for the recognition with integer (fast) models
+  (variants of `PartialMatrixDotVector8`).
 
 The two microbenchmarks are standalone programs for ARM64. How to build
 them is described at the beginning of each file.
@@ -126,19 +127,43 @@ gates), single dot products compared with the implemented variants:
 
 ### Integer matrix product (`neon-int-kernel-variants.cpp`)
 
-Recognition of three test images with `tessdata_fast/eng` on M1 spends 73 %
+Recognition of three test images with `tessdata_fast/eng` on M1 spent 73 %
 of the time in `LSTMRecognizer::RecognizeLine` and 30 % in the integer
-`matrixDotVector` of `src/arch/intsimdmatrixneon.cpp`. The variants are not
-implemented in the library yet. Time for the four gates of a layer per
-timestep:
+`matrixDotVector` of `src/arch/intsimdmatrixneon.cpp` with the old code.
 
-| Layer  | M1 now | M1 padal | M1 sdot | X925 now | X925 padal | X925 sdot |
-| ------ | -----: | -------: | ------: | -------: | ---------: | --------: |
-| Lfys48 | 0.70 us |  0.23 us | 0.15 us |  0.45 us |    0.19 us |   0.09 us |
-| Lfx96  | 2.47 us |  0.89 us | 0.53 us |  2.00 us |    0.81 us |   0.35 us |
-| Lrx96  | 3.32 us |  1.17 us | 0.69 us |  2.68 us |    1.08 us |   0.50 us |
-| Lfx192 | 9.89 us |  3.45 us | 3.11 us |  8.00 us |    3.21 us |   1.75 us |
-| Lfx512 | 55.8 us |  19.6 us | 18.0 us |  45.2 us |    17.9 us |   10.5 us |
+Time for the four gates of a layer per timestep in microseconds. "old" is
+the old code, "mul8" the new code for any ARM CPU with NEON
+(`intSimdMatrixNEON`) and "dot8" the new code for CPUs with the dot product
+instructions of ARMv8.2 (`intSimdMatrixNEONDotProd`). A725 is a Cortex-A725
+core of the same NVIDIA DGX Spark.
 
-"padal" works on any ARM64 CPU, "sdot" needs the dot product instructions of
-ARMv8.2. All variants give identical results.
+| Layer  | M1 old | M1 mul8 | M1 dot8 | X925 old | X925 mul8 | X925 dot8 | A725 old | A725 mul8 | A725 dot8 |
+| ------ | -----: | ------: | ------: | -------: | --------: | --------: | -------: | --------: | --------: |
+| Lfys48 |   0.60 |    0.32 |    0.14 |     0.46 |      0.29 |      0.12 |     1.67 |      0.77 |      0.34 |
+| Lfx96  |   2.48 |    1.25 |    0.53 |     2.02 |      1.12 |      0.46 |     7.44 |      2.94 |      1.05 |
+| Lrx96  |   3.33 |    1.61 |    0.66 |     2.69 |      1.43 |      0.55 |     9.92 |      3.77 |      1.41 |
+| Lfx192 |   9.93 |    4.75 |    2.85 |     8.04 |      4.12 |      1.78 |     29.7 |      10.8 |      3.88 |
+| Lfx512 |   56.0 |    25.9 |    15.7 |     45.4 |      22.5 |      10.3 |      167 |      58.1 |      21.6 |
+
+- All variants give identical results, also for the extreme values of
+  weights and inputs.
+- 8 rows per pass are a bit faster than 4 rows.
+- A variant of "mul" which adds two products with 16 bits before they are
+  widened was about 1.5 times faster, but it overflows if weights and inputs
+  are -128, so it is not used.
+
+### Recognition time
+
+Time for 36 pages (12 times `phototest.tif`, `eurotext.tif` and
+`8087_054.3B.tif` from `test/testing`, listed in a text file) with
+`tesseract pages.txt out --tessdata-dir ../MODELS -l eng --oem 1`, before
+and after the new NEON functions for the integer matrix product:
+
+| Models          | M1 before | M1 after | X925 before | X925 after | A725 before | A725 after |
+| --------------- | --------: | -------: | ----------: | ---------: | ----------: | ---------: |
+| `tessdata_fast` |    22.2 s |   17.4 s |      18.7 s |     14.8 s |      43.1 s |     27.8 s |
+| `tessdata_best` |    48.7 s |   48.6 s |      36.3 s |     36.2 s |             |            |
+
+- Recognition with the integer models is about 1.27 times faster on M1 and
+  X925 and 1.55 times faster on A725. The text results are identical.
+- The float models do not use the integer matrix product.
