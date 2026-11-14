@@ -50,6 +50,13 @@ void RowDotProductsNEON(const float *w, int w_stride, int num_rows,
 // the num_v rows of v, which all have n elements and are stored without gaps.
 void CrossDotProductsNEON(const float *u, int num_u, const float *v, int num_v,
                           int n, float *out, int out_stride);
+
+// Non-linearity functions and conversion to int8_t for n values with NEON
+// (src/arch/functionsneon.cpp), see TanhVector, LogisticVector and
+// FloatToInt8Vector in simddetect.h.
+void TanhVectorNEON(int n, const float *in, float *out);
+void LogisticVectorNEON(int n, const float *in, float *out);
+void FloatToInt8VectorNEON(int n, const float *in, int8_t *out);
 #endif
 
 #if defined(FAST_FLOAT)

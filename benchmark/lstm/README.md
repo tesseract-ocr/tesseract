@@ -172,6 +172,51 @@ and after the new NEON functions for the integer matrix product:
   X925 and 1.55 times faster on A725. The text results are identical.
 - The float models do not use the integer matrix product.
 
+### Whole-vector functions
+
+"Before" is the commit "lstm: calculate several dot products at once with
+NEON", "after" the commit which adds the NEON implementations of the
+functions for tanh, the logistic function and the conversion to `int8_t`
+for whole vectors (`src/arch/functionsneon.cpp`).
+
+Time for 36 pages (see above, `tessdata_fast`) and for the first 12 of them
+(`tessdata_best`) on M1 and on the Cortex-X925 cores of the DGX Spark:
+
+| Models                     | M1 before | M1 after | X925 before | X925 after |
+| -------------------------- | --------: | -------: | ----------: | ---------: |
+| `tessdata_fast` (36 pages) |    17.1 s |   13.8 s |     14.7 s  |    11.6 s  |
+| `tessdata_best` (12 pages) |    16.1 s |   14.4 s |     12.1 s  |    11.1 s  |
+
+- Recognition is 1.23 times faster with the integer models on M1 and 1.27
+  times on the X925, and 1.11 times faster with the float models on M1 and
+  1.09 times on the X925. The text results are identical.
+
+Training time (1000 training lines) on M1 and the X925:
+
+| Settings   | M1 before | M1 after | X925 before | X925 after |
+| ---------- | --------: | -------: | ----------: | ---------: |
+| Default    |   15.83 s |  15.38 s |     10.4 s  |    10.1 s  |
+
+- The training is 1.03 times faster on both machines. The before and the
+  after runs give exactly the same results (`mean rms=5.173%`,
+  `delta=35.870%` on M1 and `delta=35.879%` on the X925), so the NEON
+  functions give exactly the same results as the scalar functions, also
+  with g++ 13.
+
+Time for the whole-vector functions with 192 values (best of several runs,
+`-O3`, Apple clang 21) compared to the generic implementations, which use
+the scalar functions:
+
+| Function            | Generic | NEON  |
+| ------------------- | ------: | ----: |
+| Tanh                |  175 ns | 98 ns |
+| Logistic            |  162 ns | 138 ns |
+| Conversion to `int8_t` | 41 ns | 37 ns |
+
+- Tanh is about 1.8 times faster (the other layer widths give 1.7 to
+  1.8 times), the conversion to `int8_t` about 1.1 times faster and the
+  logistic function a bit faster.
+
 ## Results for x86_64
 
 Measured in November 2026 on an Intel Core i3-1115G4 (Tiger Lake, AVX512),

@@ -245,6 +245,15 @@ static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr
     FloatToInt8Vector = FloatToInt8VectorAVX2;
   }
 #endif
+#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+  // The integer matrices for NEON are only selected for a CPU with NEON.
+  if (m == &IntSimdMatrix::intSimdMatrixNEON ||
+      m == &IntSimdMatrix::intSimdMatrixNEONDotProd) {
+    TanhVector = TanhVectorNEON;
+    LogisticVector = LogisticVectorNEON;
+    FloatToInt8Vector = FloatToInt8VectorNEON;
+  }
+#endif
   RowDotProductsFunction rows = RowDotProductsGeneric;
   CrossDotProductsFunction cross = CrossDotProductsGeneric;
 #if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)

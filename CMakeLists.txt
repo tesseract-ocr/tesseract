@@ -685,10 +685,11 @@ if(HAVE_SSE4_1)
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
   list(APPEND arch_files_opt src/arch/dotproductneon.cpp
-       src/arch/intsimdmatrixneon.cpp)
+       src/arch/functionsneon.cpp src/arch/intsimdmatrixneon.cpp)
   if(NEON_COMPILE_FLAGS)
     set_source_files_properties(
-      src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp
+      src/arch/dotproductneon.cpp src/arch/functionsneon.cpp
+      src/arch/intsimdmatrixneon.cpp
       PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
   endif()
 endif(HAVE_NEON)
@@ -766,6 +767,7 @@ if(ENABLE_PRECOMPILED_HEADERS)
     src/arch/dotproductsse.cpp
     src/arch/dotproductneon.cpp
     src/arch/functionsavx2.cpp
+    src/arch/functionsneon.cpp
     src/arch/intsimdmatrixavx2.cpp
     src/arch/intsimdmatrixsse.cpp
     src/arch/intsimdmatrixneon.cpp
