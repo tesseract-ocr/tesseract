@@ -39,6 +39,18 @@ TFloat DotProductSSE(const TFloat *u, const TFloat *v, int n);
 // Use NEON intrinsics.
 TFloat DotProductNEON(const TFloat *u, const TFloat *v, int n);
 
+#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+// Computes v[i] = w[i] . u for num_rows rows of w with n used elements each.
+// Row i of w starts at w + i * w_stride.
+void RowDotProductsNEON(const float *w, int w_stride, int num_rows,
+                        const float *u, int n, float *v);
+
+// Computes out[i * out_stride + j] = u[i] . v[j] for the num_u rows of u and
+// the num_v rows of v, which all have n elements and are stored without gaps.
+void CrossDotProductsNEON(const float *u, int num_u, const float *v, int num_v,
+                          int n, float *out, int out_stride);
+#endif
+
 } // namespace tesseract.
 
 #endif // TESSERACT_ARCH_DOTPRODUCT_H_

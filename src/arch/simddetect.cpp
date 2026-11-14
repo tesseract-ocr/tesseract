@@ -87,6 +87,14 @@ namespace tesseract {
 // in AVX registers.
 DotProductFunction DotProduct;
 
+// The functions for several dot products at once always match DotProduct.
+// The generic implementations use DotProduct for each of the results, so they
+// give exactly the same results as separate calls of DotProduct. Optimized
+// implementations can give slightly different results for the same reason
+// as different dot product functions do.
+RowDotProductsFunction RowDotProducts;
+CrossDotProductsFunction CrossDotProducts;
+
 static STRING_VAR(dotproduct, "auto", "Function used for calculation of dot product");
 
 const SIMDDetect &SIMDDetect::GetDetector() {
@@ -161,8 +169,39 @@ static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n)
   return std::inner_product(u, u + n, v, static_cast<TFloat>(0));
 }
 
+// Computes v[i] = w[i] . u for num_rows rows of w using DotProduct.
+static void RowDotProductsGeneric(const TFloat *w, int w_stride, int num_rows,
+                                  const TFloat *u, int n, TFloat *v) {
+  for (int i = 0; i < num_rows; ++i) {
+    v[i] = DotProduct(w + static_cast<size_t>(i) * w_stride, u, n);
+  }
+}
+
+// Computes out[i * out_stride + j] = u[i] . v[j] using DotProduct.
+static void CrossDotProductsGeneric(const TFloat *u, int num_u, const TFloat *v,
+                                    int num_v, int n, TFloat *out,
+                                    int out_stride) {
+  for (int i = 0; i < num_u; ++i) {
+    const TFloat *ui = u + static_cast<size_t>(i) * n;
+    TFloat *out_i = out + static_cast<size_t>(i) * out_stride;
+    for (int j = 0; j < num_v; ++j) {
+      out_i[j] = DotProduct(ui, v + static_cast<size_t>(j) * n, n);
+    }
+  }
+}
+
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
+  RowDotProductsFunction rows = RowDotProductsGeneric;
+  CrossDotProductsFunction cross = CrossDotProductsGeneric;
+#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+  if (f == DotProductNEON) {
+    rows = RowDotProductsNEON;
+    cross = CrossDotProductsNEON;
+  }
+#endif
   DotProduct = f;
+  RowDotProducts = rows;
+  CrossDotProducts = cross;
   IntSimdMatrix::intSimdMatrix = m;
 }
 

@@ -26,6 +26,24 @@ namespace tesseract {
 using DotProductFunction = TFloat (*)(const TFloat *, const TFloat *, int);
 extern DotProductFunction DotProduct;
 
+// Function pointer for best calculation of the dot products of the rows of a
+// matrix with a vector: v[i] = w[i] . u for the num_rows rows of w, where row
+// i starts at w + i * w_stride and u and the used part of each row have n
+// elements.
+using RowDotProductsFunction = void (*)(const TFloat *w, int w_stride,
+                                        int num_rows, const TFloat *u, int n,
+                                        TFloat *v);
+extern RowDotProductsFunction RowDotProducts;
+
+// Function pointer for best calculation of the dot products of all rows of
+// one matrix with all rows of another one: out[i * out_stride + j] =
+// u[i] . v[j] for the num_u rows of u and the num_v rows of v. All rows have
+// n elements and are stored without gaps.
+using CrossDotProductsFunction = void (*)(const TFloat *u, int num_u,
+                                          const TFloat *v, int num_v, int n,
+                                          TFloat *out, int out_stride);
+extern CrossDotProductsFunction CrossDotProducts;
+
 // Architecture detector. Add code here to detect any other architectures for
 // SIMD-based faster dot product functions. Intended to be a single static
 // object, but it does no real harm to have more than one.
