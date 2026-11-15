@@ -26,9 +26,10 @@
 #include "simddetect.h"
 #include "tprintf.h" // for tprintf
 
-#if !defined(__clang__) && defined(__GNUC__) && (__GNUC__ < 12)
-// The GNU compiler g++ fails to compile with the Accelerate framework
-// (tested with versions 10 and 11), so unconditionally disable it.
+#if !defined(__clang__) && defined(__GNUC__)
+// The GNU compiler g++ fails to compile the headers of the Accelerate
+// framework (tested with versions 10, 11 and 15), so unconditionally
+// disable it.
 #undef HAVE_FRAMEWORK_ACCELERATE
 #endif
 
