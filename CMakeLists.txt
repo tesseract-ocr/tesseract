@@ -396,11 +396,15 @@ if(ENABLE_CCACHE)
   find_program(CCACHE_PROGRAM ccache)
   if(CCACHE_PROGRAM)
     message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    # Configure ccache for better performance
-    set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
-    set(ENV{CCACHE_CPP2} "true")
+    # The compiler launcher runs in the build tool's environment, so the ccache
+    # settings have to be part of the launch command. set(ENV{...}) would only
+    # reach the configure process and be gone before any compilation starts.
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_COMMAND}" "-E" "env"
+        "CCACHE_SLOPPINESS=pch_defines,time_macros" "CCACHE_CPP2=true"
+        "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CMAKE_COMMAND}" "-E" "env"
+        "CCACHE_SLOPPINESS=pch_defines,time_macros" "CCACHE_CPP2=true"
+        "${CCACHE_PROGRAM}")
   else()
     message(STATUS "ccache not found, disabling ccache support")
     set(ENABLE_CCACHE OFF)
@@ -455,12 +459,19 @@ else()
 endif(NOT Leptonica_FOUND)
 include_directories(${Leptonica_INCLUDE_DIRS})
 
-check_leptonica_tiff_support()
-if ((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
-  message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
-  set(DISABLE_TIFF ON)
-elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
-  message(STATUS "Leptonica was build with TIFF support.")
+if(CMAKE_CROSSCOMPILING)
+  # The probe is a try_run: it has to execute the test binary, which cannot be
+  # done while cross-compiling, so the inconclusive result is not trusted and
+  # TIFF support is assumed to be present.
+  message(STATUS "Cross-compiling: skipping the Leptonica TIFF support probe.")
+else()
+  check_leptonica_tiff_support()
+  if((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
+    message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
+    set(DISABLE_TIFF ON)
+  elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
+    message(STATUS "Leptonica was build with TIFF support.")
+  endif()
 endif()
 
 # Check for optional libraries.

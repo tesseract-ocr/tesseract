@@ -1155,6 +1155,8 @@ check_PROGRAMS += bitvector_test
 endif # !DISABLED_LEGACY_ENGINE
 endif # ENABLE_TRAINING
 check_PROGRAMS += blobs_test
+check_PROGRAMS += capiexample_c_test
+check_PROGRAMS += capiexample_test
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
@@ -1305,6 +1307,20 @@ endif # !DISABLED_LEGACY_ENGINE
 blobs_test_SOURCES = unittest/blobs_test.cc
 blobs_test_CPPFLAGS = $(unittest_CPPFLAGS)
 blobs_test_LDADD = $(TESS_LIBS)
+
+# Compiled as C and linked with the C++ compiler: libtesseract is a C++
+# library, but the point of this test is that a plain C translation unit can
+# include capi.h and link against it.
+capiexample_c_test_SOURCES = unittest/capiexample_c_test.c
+capiexample_c_test_CPPFLAGS = $(unittest_CPPFLAGS)
+capiexample_c_test_LINK = $(CXXLINK)
+# Not $(TESS_LIBS): that also links libgtest_main, which would provide a second
+# definition of main() next to the one in the test itself.
+capiexample_c_test_LDADD = libtesseract.la $(libarchive_LIBS) $(LEPTONICA_LIBS)
+
+capiexample_test_SOURCES = unittest/capiexample_test.cc
+capiexample_test_CPPFLAGS = $(unittest_CPPFLAGS)
+capiexample_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 cleanapi_test_SOURCES = unittest/cleanapi_test.cc
 cleanapi_test_CPPFLAGS = $(unittest_CPPFLAGS)

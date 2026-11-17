@@ -120,5 +120,16 @@ foreach(test_source IN LISTS TEST_SOURCES)
   add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
+# C API smoke test: this target is compiled as C to prove that a C translation
+# unit can include capi.h and link against libtesseract. The `*.cc` glob above
+# deliberately skips it, so it is declared explicitly.
+add_executable(capiexample_c_test capiexample_c_test.c)
+target_include_directories(capiexample_c_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+target_link_libraries(capiexample_c_test PRIVATE libtesseract)
+# libtesseract is C++, so the C sources still have to be linked by the C++
+# driver to pull in the C++ runtime.
+set_target_properties(capiexample_c_test PROPERTIES LINKER_LANGUAGE CXX)
+add_test(NAME capiexample_c_test COMMAND capiexample_c_test)
+
 # Discover tests gtest_discover_tests(apiexample_test baseapi_test
 # baseapi_thread_test) add_test(baseapi_gtests baseapi_test.cc)
