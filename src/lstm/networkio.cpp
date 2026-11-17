@@ -406,6 +406,7 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
                                     const NetworkIO &src, int src_t, int src_offset) {
   ASSERT_HOST(int_mode_ == src.int_mode_);
   ASSERT_HOST(dest_offset + num_features <= NumFeatures());
+  ASSERT_HOST(src_offset + num_features <= src.NumFeatures());
   if (int_mode_) {
     memcpy(i_[dest_t] + dest_offset, src.i_[src_t] + src_offset, num_features * sizeof(i_[0][0]));
   } else {

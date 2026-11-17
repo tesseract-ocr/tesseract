@@ -49,7 +49,8 @@ bool ParamUtils::ReadParamsFile(const char *file, SetParamConstraint constraint,
 }
 
 bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
-                                  ParamsVectors *member_params) {
+                                  ParamsVectors *member_params,
+                                  bool (*skip_name)(const char *name)) {
   char line[MAX_PATH]; // input line
   bool anyerr = false; // true if any error
   bool foundit;        // found parameter
@@ -66,6 +67,9 @@ bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
         do {
           valptr++; // find end of blanks
         } while (*valptr == ' ' || *valptr == '\t');
+      }
+      if (skip_name != nullptr && skip_name(line)) {
+        continue;
       }
       foundit = SetParam(line, valptr, constraint, member_params);
 
