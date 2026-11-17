@@ -56,7 +56,8 @@ jobs:
           # ── Helper: does the name look like a real person? ─────────────────────
           # Returns 0 (suspicious) when ANY of these hold:
           #   • name contains a digit
-          #   • name is a single hyphenated word (username-style, e.g. "markbus-ai")
+          #   • name is a single hyphenated word with a lowercase part
+          #     (username-style, e.g. "markbus-ai"); "Jean-Luc" passes
           #   • name is a single word AND starts with a lowercase letter
           #     (single capitalized words like "Voltaire" or "Cher" are accepted)
           # The email is deliberately not inspected: GitHub's noreply addresses
@@ -71,10 +72,16 @@ jobs:
               return 0
             fi
 
-            # Single hyphenated word (username pattern). Hyphenated real names
-            # carry a space between given name and surname, so they pass.
+            # Single hyphenated word (username pattern). A real hyphenated name
+            # capitalizes every part, so only a lowercase part marks a handle.
             if [[ "$name" != *" "* && "$name" == *"-"* ]]; then
-              return 0
+              local part
+              local IFS='-'
+              for part in $name; do
+                if [[ ! "$part" =~ ^[A-Z] ]]; then
+                  return 0
+                fi
+              done
             fi
 
             # Single word starting with lowercase → username-style handle

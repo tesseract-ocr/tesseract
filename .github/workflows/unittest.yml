@@ -9,6 +9,8 @@ on:
       - '**.h'
       - '**Makefile.am'
       - 'configure.ac'
+      - 'autogen.sh'
+      - 'm4/**'
       - 'unittest/**.c'
       - 'unittest/**.cc'
       - '.github/workflows/unittest.yml'
