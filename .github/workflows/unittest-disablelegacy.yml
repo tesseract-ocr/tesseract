@@ -11,6 +11,9 @@ on:
       - 'configure.ac'
       - 'autogen.sh'
       - 'm4/**'
+      # Configure inputs: version.h.in and tesseract.pc.in are templates that
+      # only autotools consumes, and they end in .in rather than .h or .pc.
+      - '**.in'
       - 'test'
       - 'unittest/third_party/googletest'
       - 'unittest/**.c'

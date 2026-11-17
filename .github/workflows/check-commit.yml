@@ -66,18 +66,23 @@ jobs:
           # whether the author is a person.
           looks_like_username() {
             local name="$1"
+            # The rules below describe ASCII handles, so compare byte-wise and do
+            # not let the caller's locale decide what [a-z] means.
+            local LC_ALL=C
 
             # Name contains a digit
             if [[ "$name" =~ [0-9] ]]; then
               return 0
             fi
 
-            # Single hyphenated word (username pattern). Handles are written
-            # all-lowercase, while a name written by hand carries at least one
-            # capital letter, so "Jean-baptiste" and "Émile-Pierre" pass and
-            # "markbus-ai" does not. A name that is genuinely all-lowercase
-            # falls back to the author-verified label.
-            if [[ "$name" != *" "* && "$name" == *"-"* && "$name" != *[A-Z]* ]]; then
+            # Single hyphenated word written entirely in ASCII lowercase: that is
+            # the shape of a handle ("markbus-ai", "john-smith"). A name typed by
+            # hand carries a capital somewhere. The test asks whether the whole
+            # name is handle-shaped rather than whether an ASCII capital is
+            # missing, so a name that starts with an accented capital
+            # ("Éloïse-marie") is not mistaken for a handle. A handle that is not
+            # all-lowercase-ASCII falls back to the author-verified label.
+            if [[ "$name" != *" "* && "$name" == *"-"* && "$name" =~ ^[a-z0-9._-]+$ ]]; then
               return 0
             fi
 
