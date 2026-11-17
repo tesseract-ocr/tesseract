@@ -2,7 +2,9 @@ name: Check Commit Authors
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    # `labeled`/`unlabeled` are needed so that adding the `author-verified`
+    # label re-runs the check and lets a maintainer clear a failed author check.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   check-authors:
@@ -20,6 +22,9 @@ jobs:
           fetch-depth: 0
 
       - name: Check commit authors
+        # A later step cannot clear a failed earlier step, so the maintainer
+        # override is a skip condition here rather than a failure handler below.
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'author-verified') }}
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -30,7 +35,6 @@ jobs:
           WHITELISTED_NAMES=(
             "dependabot"
             "github-actions"
-            "copilot"
             "renovate"
             "pre-commit-ci"
             "allcontributors"
@@ -52,27 +56,24 @@ jobs:
           # ── Helper: does the name look like a real person? ─────────────────────
           # Returns 0 (suspicious) when ANY of these hold:
           #   • name contains a digit
-          #   • name contains a hyphen (username-style, e.g. "markbus-ai")
+          #   • name is a single hyphenated word (username-style, e.g. "markbus-ai")
           #   • name is a single word AND starts with a lowercase letter
           #     (single capitalized words like "Voltaire" or "Cher" are accepted)
-          #   • email local-part matches GitHub numeric noreply pattern
-          #     <ID+handle@users.noreply.github.com>
+          # The email is deliberately not inspected: GitHub's noreply addresses
+          # (including the numeric <ID+handle@users.noreply.github.com> form that
+          # every account with email privacy enabled gets) say nothing about
+          # whether the author is a person.
           looks_like_username() {
             local name="$1"
-            local email="$2"
-
-            # Numeric ID noreply email: 12345+handle@users.noreply.github.com
-            if [[ "$email" =~ ^[0-9]+\+.*@users\.noreply\.github\.com$ ]]; then
-              return 0   # suspicious
-            fi
 
             # Name contains a digit
             if [[ "$name" =~ [0-9] ]]; then
               return 0
             fi
 
-            # Name contains a hyphen (username pattern)
-            if [[ "$name" == *"-"* ]]; then
+            # Single hyphenated word (username pattern). Hyphenated real names
+            # carry a space between given name and surname, so they pass.
+            if [[ "$name" != *" "* && "$name" == *"-"* ]]; then
               return 0
             fi
 
@@ -114,7 +115,7 @@ jobs:
 
             if is_whitelisted "$name"; then
               echo "  ✅ [bot]        $name <$email>"
-            elif looks_like_username "$name" "$email"; then
+            elif looks_like_username "$name"; then
               echo "  ⚠️  [suspicious] $name <$email>"
               suspicious+=("$name <$email>")
             else
@@ -144,14 +145,8 @@ jobs:
           exit 1
 
       # ── Label-based maintainer override ──────────────────────────────────────
-      - name: Check for maintainer override label
-        if: failure()
-        env:
-          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+      - name: Maintainer override applied
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'author-verified') }}
         run: |
-          if echo "$LABELS" | grep -qi "author-verified"; then
-            echo "Label 'author-verified' found – maintainer has approved the authors. ✅"
-            exit 0
-          fi
-          echo "No override label found. Check failed as reported above."
-          exit 1
+          echo "Label 'author-verified' found – maintainer has approved the authors. ✅"
+          echo "The commit author check was skipped for this run."

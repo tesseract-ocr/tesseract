@@ -2,8 +2,10 @@ name: autotools-openmp
 # autotools on Ubuntu - run benchmark test. '--enable-openmp' no training tools
 on:
   #push:
-  #schedule:
-  #  - cron: 0 20 * * *
+  # The only configuration that builds with --enable-openmp is this one, so it
+  # has to run on a schedule rather than never.
+  schedule:
+    - cron: 0 20 * * *
   workflow_dispatch:
 jobs:
 

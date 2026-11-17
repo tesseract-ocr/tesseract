@@ -8,9 +8,10 @@ on:
       - '**.cpp'
       - '**.h'
       - '**Makefile.am'
-      - '/configure.ac'
+      - 'configure.ac'
       - 'unittest/**.c'
       - 'unittest/**.cc'
+      - '.github/workflows/unittest.yml'
   schedule:
     - cron: 0 0 * * *
   workflow_dispatch:
@@ -23,8 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
-          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++' }
+          - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined -fno-sanitize-recover=undefined' }
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -fno-sanitize-recover=undefined -stdlib=libc++' }
     steps:
     - uses: actions/checkout@v7
       with:
@@ -82,6 +83,10 @@ jobs:
            tesseract test/testing/devatest.png - -l hin+eng  --tessdata-dir ../tessdata
 
     - name: Make and run Unit Tests
+      env:
+        # -fno-sanitize-recover stops on the first undefined behaviour, so the
+        # stack trace is what makes the failure diagnosable.
+        UBSAN_OPTIONS: print_stacktrace=1
       run: |
            make check
 

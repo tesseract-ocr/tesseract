@@ -5,11 +5,19 @@ on:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - '.github/workflows/cmake-win64.yml'
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - '.github/workflows/cmake-win64.yml'
   schedule:
     - cron: 0 5 * * *
   workflow_dispatch:

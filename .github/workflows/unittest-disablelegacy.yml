@@ -3,8 +3,19 @@ name: unittest-disablelegacy
 
 on:
   #push:
+  pull_request:
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**Makefile.am'
+      - 'configure.ac'
+      - 'm4/**'
+      - 'unittest/**.c'
+      - 'unittest/**.cc'
+      - '.github/workflows/unittest-disablelegacy.yml'
   schedule:
     - cron: 0 10 * * *
+  workflow_dispatch:
 
 jobs:
   linux:

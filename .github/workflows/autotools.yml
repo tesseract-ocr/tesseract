@@ -3,6 +3,16 @@ name: autotools
 # run command line tests, basicapitest and unittests. '--disable-openmp'
 on:
   #push:
+  pull_request:
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '**Makefile.am'
+      - 'configure.ac'
+      - 'm4/**'
+      - 'unittest/**.c'
+      - 'unittest/**.cc'
+      - '.github/workflows/autotools.yml'
   schedule:
     - cron: 0 20 * * *
   workflow_dispatch:
