@@ -72,19 +72,13 @@ jobs:
               return 0
             fi
 
-            # Single hyphenated word (username pattern). A real hyphenated name
-            # capitalizes every part, but the check must not depend on the
-            # locale's idea of an uppercase letter: only a part that starts
-            # with an ASCII lowercase letter or a digit, or that is empty,
-            # marks a handle. Émile-Pierre passes, markbus-ai does not.
-            if [[ "$name" != *" "* && "$name" == *"-"* ]]; then
-              local part
-              local IFS='-'
-              for part in $name; do
-                if [[ -z "$part" || "$part" =~ ^[a-z] || "$part" =~ [0-9] ]]; then
-                  return 0
-                fi
-              done
+            # Single hyphenated word (username pattern). Handles are written
+            # all-lowercase, while a name written by hand carries at least one
+            # capital letter, so "Jean-baptiste" and "Émile-Pierre" pass and
+            # "markbus-ai" does not. A name that is genuinely all-lowercase
+            # falls back to the author-verified label.
+            if [[ "$name" != *" "* && "$name" == *"-"* && "$name" != *[A-Z]* ]]; then
+              return 0
             fi
 
             # Single word starting with lowercase → username-style handle
