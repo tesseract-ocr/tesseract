@@ -477,11 +477,17 @@ if(CMAKE_CROSSCOMPILING)
                  "Pass -DDISABLE_TIFF=ON if it was built without.")
 else()
   check_leptonica_tiff_support()
-  if((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
-    message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
+  if(NOT LEPT_TIFF_COMPILE_SUCCESS)
+    # The probe could not be compiled, or it was skipped because this CMake is
+    # older than 3.25. Nothing is known about the Leptonica build, so report the
+    # check as inconclusive instead of claiming support.
+    message(STATUS "Could not determine TIFF support in Leptonica; "
+                   "assuming it is available.")
+  elseif(LEPT_TIFF_RESULT EQUAL 0)
+    message(STATUS "Leptonica was built with TIFF support.")
+  else()
+    message(NOTICE "Leptonica was built without TIFF support! Disabling TIFF support...")
     set(DISABLE_TIFF ON)
-  elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
-    message(STATUS "Leptonica was build with TIFF support.")
   endif()
 endif()
 

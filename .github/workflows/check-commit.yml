@@ -96,16 +96,19 @@ jobs:
           }
 
           # ── Walk commits in this PR ────────────────────────────────────────────
-          # Collect unique author name+email combinations (de-duplicated). The
-          # log is newest first, so the sha kept for an author is their newest
-          # commit, which is the one a maintainer approval has to cover.
-          declare -A seen
-          declare -a all_authors   # "name|email" for first occurrence
-          while IFS=$'\t' read -r sha name email; do
+          # Collect unique author name+email combinations (de-duplicated), each
+          # with every commit that author made. One commit per author is not
+          # enough: an author can have siblings on a merged branch, and picking
+          # one of them by log order can miss a commit the approval never saw.
+          declare -A seen          # "name|email" -> space-separated commit shas
+          declare -a all_authors   # "name|email" in first-seen order
+          while IFS=$'\t' read -r sha name email || [ -n "$sha" ]; do
             key="$name|$email"
             if [[ -z "${seen[$key]+_}" ]]; then
               seen[$key]="$sha"
               all_authors+=("$key")
+            else
+              seen[$key]="${seen[$key]} $sha"
             fi
           done < <(git log "${BASE_SHA}..${HEAD_SHA}" \
                      --pretty=format:"%H%x09%an%x09%ae")
@@ -121,7 +124,6 @@ jobs:
           for key in "${all_authors[@]}"; do
             name="${key%%|*}"
             email="${key##*|}"
-            sha="${seen[$key]}"
 
             if is_whitelisted "$name"; then
               echo "  ✅ [bot]        $name <$email>"
@@ -142,9 +144,9 @@ jobs:
 
           # ── Maintainer approval ────────────────────────────────────────────────
           # An approval covers the commits that existed when it was given: an
-          # author is cleared only when their newest commit is an ancestor of an
-          # approving review's commit. A later push therefore needs a fresh
-          # approval instead of inheriting an old one.
+          # author is cleared only when every commit they made in this PR is an
+          # ancestor of an approving review's commit. A later push therefore
+          # needs a fresh approval instead of inheriting an old one.
           mapfile -t approvals < <(
             gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/reviews" \
               --jq '.[] | select(.state == "APPROVED")
@@ -156,10 +158,17 @@ jobs:
 
           unapproved=()
           for key in "${suspicious[@]}"; do
-            covered=0
-            for approved in "${approvals[@]}"; do
-              if git merge-base --is-ancestor "${seen[$key]}" "$approved" 2>/dev/null; then
-                covered=1
+            covered=1
+            for commit in ${seen[$key]}; do
+              commit_covered=0
+              for approved in "${approvals[@]}"; do
+                if git merge-base --is-ancestor "$commit" "$approved" 2>/dev/null; then
+                  commit_covered=1
+                  break
+                fi
+              done
+              if [ "$commit_covered" -eq 0 ]; then
+                covered=0
                 break
               fi
             done
@@ -175,7 +184,8 @@ jobs:
 
           echo "──────────────────────────────────────────────────────────────────"
           echo "The following author(s) do not appear to use a real person name,"
-          echo "and their newest commit is not covered by a maintainer approval:"
+          echo "and at least one of their commits is not covered by a maintainer"
+          echo "approval:"
           echo ""
           for key in "${unapproved[@]}"; do
             echo "  • ${key%%|*} <${key##*|}>"
