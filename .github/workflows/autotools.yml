@@ -11,6 +11,10 @@ on:
       - 'configure.ac'
       - 'autogen.sh'
       - 'm4/**'
+      # Submodule gitlinks: a bump of the test assets or of googletest changes
+      # these single paths, not anything inside them.
+      - 'test'
+      - 'unittest/third_party/googletest'
       - 'unittest/**.c'
       - 'unittest/**.cc'
       - '.github/workflows/autotools.yml'

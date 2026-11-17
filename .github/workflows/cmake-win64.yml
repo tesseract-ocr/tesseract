@@ -8,6 +8,8 @@ on:
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
       - '.github/workflows/cmake-win64.yml'
   pull_request:
     types: [opened, reopened, synchronize]
@@ -17,6 +19,8 @@ on:
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
       - '.github/workflows/cmake-win64.yml'
   schedule:
     - cron: 0 5 * * *

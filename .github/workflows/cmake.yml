@@ -9,6 +9,8 @@ on:
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
       - '.github/workflows/cmake.yml'
   pull_request:
     paths:
@@ -17,6 +19,8 @@ on:
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
       - '.github/workflows/cmake.yml'
   schedule:
     - cron: 0 21 * * *

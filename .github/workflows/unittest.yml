@@ -11,6 +11,8 @@ on:
       - 'configure.ac'
       - 'autogen.sh'
       - 'm4/**'
+      - 'test'
+      - 'unittest/third_party/googletest'
       - 'unittest/**.c'
       - 'unittest/**.cc'
       - '.github/workflows/unittest.yml'
