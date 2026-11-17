@@ -9,7 +9,7 @@ Tesseract is an open-source **OCR (Optical Character Recognition) engine** that 
 - **Training tools**: For creating custom language models
 
 **Key Facts:**
-- Primary language: **C++17** (requires C++17-compliant compiler)
+- Primary language: **C++17** (C++20 is selected automatically when the compiler supports it; do not rely on either standard being unavailable)
 - Size: Large (~100MB+ with submodules)
 - License: Apache 2.0
 - Maintained by: Stefan Weil (lead), Zdenko Podobny (maintainer)
@@ -64,7 +64,7 @@ sudo make install               # Install to system
 
 ### Core Required Dependencies
 
-- **Leptonica 1.74.2+** (REQUIRED) - Image I/O library
+- **Leptonica 1.80+** (REQUIRED) - Image I/O library
   - Without this, build will fail
   - Usually installed via package manager: `libleptonica-dev` (Ubuntu) or `leptonica` (Homebrew)
 
@@ -83,7 +83,7 @@ Only needed if building training tools (`make training` or `-DBUILD_TRAINING_TOO
 ### Optional Dependencies
 
 - **libarchive-dev**, **libcurl4-openssl-dev** - For advanced features
-- **OpenMP** - For parallel processing (enabled by default if available)
+- **OpenMP** - For parallel processing (`-DOPENMP_BUILD=ON` for CMake, where it is off by default; enabled by default by `configure` when available)
 - **cabextract** - For testing with CAB archives
 
 ### Traineddata Files
@@ -156,7 +156,7 @@ Test files available in `test/testing/` (requires test submodule):
 
 ```
 src/
-├── api/               # Public C/C++ API (baseapi.h, capi.h)
+├── api/               # Renderers and C API implementation (headers live in include/tesseract/)
 ├── ccmain/            # Main OCR control logic
 ├── lstm/              # LSTM neural network engine (Tesseract 4+)
 ├── ccutil/, cutil/    # Core utilities, data structures
@@ -176,15 +176,15 @@ doc/                   # Documentation
 
 ### Key Files
 
-- **src/api/baseapi.h** - Main C++ API class (`TessBaseAPI`)
-- **src/api/capi.h** - C wrapper API
+- **include/tesseract/baseapi.h** - Main C++ API class (`TessBaseAPI`)
+- **include/tesseract/capi.h** - C wrapper API
 - **src/tesseract.cpp** - Command-line tool
 - **CMakeLists.txt**, **configure.ac**, **Makefile.am** - Build configuration
 - **VERSION** - Current version string
 
 ### Configuration Files
 
-- **.clang-format** - Code formatting rules (LLVM style)
+- **.clang-format** - Code formatting rules (Google style)
 - **tesseract.pc.in** - pkg-config template
 - **.github/workflows/** - CI/CD definitions
 
@@ -200,11 +200,17 @@ doc/                   # Documentation
 
 ### Validation Requirements
 
-All PRs trigger:
-- **Build tests** on multiple platforms (Ubuntu 22.04, 24.04, macOS 14, 15)
-- **Compiler tests** (GCC 11-14, Clang 15)
-- **Unit tests** with sanitizers
+PRs touching source, headers, tests or build files trigger:
+- **CMake builds** on Ubuntu 22.04/24.04 and macOS (GCC 12/14, Clang 15)
+- **Autotools builds** on Ubuntu (GCC 11/12/14, Clang 15)
+- **Windows CMake build** (cmake-win64.yml)
+- **Unit tests** with sanitizers (ASAN, UBSAN)
 - **CodeQL** security scan
+- **Commit author check**
+
+msys2, vcpkg and the `sw` build run nightly (`schedule`) instead of on every
+pull request, so a change to those configurations is not gated by PR CI. The
+`--disable-legacy` configuration does run on pull requests.
 
 **Expect ~10-30 minutes** for full CI validation.
 
@@ -304,7 +310,7 @@ When making code changes, follow these steps:
 
 ## Code Style & Conventions
 
-- **Formatting:** Use clang-format with `.clang-format` config (LLVM style)
+- **Formatting:** Use clang-format with `.clang-format` config (Google style)
 - **Naming:** 
   - Classes: `CamelCase` (e.g., `TessBaseAPI`)
   - Functions: `CamelCase` (e.g., `ProcessPage`)

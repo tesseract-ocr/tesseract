@@ -72,6 +72,22 @@ your question has been asked (and has been answered) many times before...
 
 You should always make sure your changes build and run successfully.
 
+A change is ready when all of the following hold:
+
+- The library, the CLI and (if touched) the training tools build without new
+  warnings.
+- `make check` passes, and a bug fix comes with a test that fails before the
+  fix and passes after it.
+- New or changed behaviour is documented where it is user visible.
+- Each commit does one thing: unrelated reformatting, refactoring or cleanup
+  belongs in its own commit.
+- CI is green and the generated reports (Coverity, CodeQL) show no new
+  findings.
+
+Note that a separate `Check Commit Authors` workflow reviews the author names
+of the commits in a PR. It can ask a maintainer to confirm the authors with an
+`author-verified` label; use a real name in your git configuration.
+
 For that, your clone needs to have all submodules (`googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure.
 
 Have a look at [the README](./README.md) and [testing README](https://github.com/tesseract-ocr/test/blob/main/README.md) and the [documentation](https://tesseract-ocr.github.io/tessdoc/Compiling-%E2%80%93-GitInstallation.html#unit-test-builds) on installation.
