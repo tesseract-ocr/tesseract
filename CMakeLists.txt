@@ -394,7 +394,14 @@ add_definitions("-DCMAKE_BUILD")
 # Setup ccache if available and enabled
 if(ENABLE_CCACHE)
   find_program(CCACHE_PROGRAM ccache)
-  if(CCACHE_PROGRAM)
+  if(CCACHE_PROGRAM AND (CMAKE_CXX_COMPILER_LAUNCHER OR CMAKE_C_COMPILER_LAUNCHER))
+    # A toolchain file, a preset or the command line already supplied a
+    # launcher (distcc, a wrapper script, ...). Replacing it here would
+    # silently drop it, so ccache is left off in that case.
+    message(STATUS "ccache found, but a compiler launcher is already set: "
+                   "CMAKE_CXX_COMPILER_LAUNCHER=${CMAKE_CXX_COMPILER_LAUNCHER} "
+                   "CMAKE_C_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}")
+  elseif(CCACHE_PROGRAM)
     message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
     # The compiler launcher runs in the build tool's environment, so the ccache
     # settings have to be part of the launch command. set(ENV{...}) would only
