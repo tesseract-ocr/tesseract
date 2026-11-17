@@ -73,12 +73,15 @@ jobs:
             fi
 
             # Single hyphenated word (username pattern). A real hyphenated name
-            # capitalizes every part, so only a lowercase part marks a handle.
+            # capitalizes every part, but the check must not depend on the
+            # locale's idea of an uppercase letter: only a part that starts
+            # with an ASCII lowercase letter or a digit, or that is empty,
+            # marks a handle. Émile-Pierre passes, markbus-ai does not.
             if [[ "$name" != *" "* && "$name" == *"-"* ]]; then
               local part
               local IFS='-'
               for part in $name; do
-                if [[ ! "$part" =~ ^[A-Z] ]]; then
+                if [[ -z "$part" || "$part" =~ ^[a-z] || "$part" =~ [0-9] ]]; then
                   return 0
                 fi
               done
