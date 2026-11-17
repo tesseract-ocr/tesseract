@@ -85,8 +85,10 @@ A change is ready when all of the following hold:
   findings.
 
 Note that a separate `Check Commit Authors` workflow reviews the author names
-of the commits in a PR. It can ask a maintainer to confirm the authors with an
-`author-verified` label; use a real name in your git configuration.
+of the commits in a PR. If it asks for confirmation, a maintainer can approve
+the pull request after the latest push; the approval covers the commits that
+existed when it was given, so a later push needs a fresh approval. Use a real
+name in your git configuration.
 
 For that, your clone needs to have all submodules (`googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure.
 

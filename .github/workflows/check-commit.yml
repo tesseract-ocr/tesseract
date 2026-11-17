@@ -2,9 +2,11 @@ name: Check Commit Authors
 
 on:
   pull_request:
-    # `labeled`/`unlabeled` are needed so that adding the `author-verified`
-    # label re-runs the check and lets a maintainer clear a failed author check.
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened]
+  # A maintainer approval is what clears the check, so the workflow has to run
+  # when one is submitted or withdrawn.
+  pull_request_review:
+    types: [submitted, dismissed]
 
 jobs:
   check-authors:
@@ -22,10 +24,10 @@ jobs:
           fetch-depth: 0
 
       - name: Check commit authors
-        # A later step cannot clear a failed earlier step, so the maintainer
-        # override is a skip condition here rather than a failure handler below.
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'author-verified') }}
         env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
@@ -56,8 +58,8 @@ jobs:
           # ── Helper: does the name look like a real person? ─────────────────────
           # Returns 0 (suspicious) when ANY of these hold:
           #   • name contains a digit
-          #   • name is a single hyphenated word with a lowercase part
-          #     (username-style, e.g. "markbus-ai"); "Jean-Luc" passes
+          #   • name is a single hyphenated word written entirely in ASCII
+          #     lowercase, the shape of a handle (e.g. "markbus-ai")
           #   • name is a single word AND starts with a lowercase letter
           #     (single capitalized words like "Voltaire" or "Cher" are accepted)
           # The email is deliberately not inspected: GitHub's noreply addresses
@@ -80,8 +82,7 @@ jobs:
             # hand carries a capital somewhere. The test asks whether the whole
             # name is handle-shaped rather than whether an ASCII capital is
             # missing, so a name that starts with an accented capital
-            # ("Éloïse-marie") is not mistaken for a handle. A handle that is not
-            # all-lowercase-ASCII falls back to the author-verified label.
+            # ("Éloïse-marie") is not mistaken for a handle.
             if [[ "$name" != *" "* && "$name" == *"-"* && "$name" =~ ^[a-z0-9._-]+$ ]]; then
               return 0
             fi
@@ -95,11 +96,11 @@ jobs:
           }
 
           # ── Walk commits in this PR ────────────────────────────────────────────
-          # Collect unique author name+email combinations (de-duplicated).
+          # Collect unique author name+email combinations (de-duplicated). The
+          # log is newest first, so the sha kept for an author is their newest
+          # commit, which is the one a maintainer approval has to cover.
           declare -A seen
-          declare -a all_authors   # "sha|name|email" for first occurrence
-          declare -a commit_shas   # parallel: sha for each unique author
-
+          declare -a all_authors   # "name|email" for first occurrence
           while IFS=$'\t' read -r sha name email; do
             key="$name|$email"
             if [[ -z "${seen[$key]+_}" ]]; then
@@ -118,15 +119,15 @@ jobs:
           suspicious=()
 
           for key in "${all_authors[@]}"; do
-            sha="${seen[$key]}"
             name="${key%%|*}"
             email="${key##*|}"
+            sha="${seen[$key]}"
 
             if is_whitelisted "$name"; then
               echo "  ✅ [bot]        $name <$email>"
             elif looks_like_username "$name"; then
               echo "  ⚠️  [suspicious] $name <$email>"
-              suspicious+=("$name <$email>")
+              suspicious+=("$key")
             else
               echo "  ✅ [ok]         $name <$email>"
             fi
@@ -134,28 +135,54 @@ jobs:
 
           echo ""
 
-          # ── Summary ───────────────────────────────────────────────────────────
           if [ ${#suspicious[@]} -eq 0 ]; then
             echo "All commit authors appear to be real persons. ✅"
             exit 0
           fi
 
+          # ── Maintainer approval ────────────────────────────────────────────────
+          # An approval covers the commits that existed when it was given: an
+          # author is cleared only when their newest commit is an ancestor of an
+          # approving review's commit. A later push therefore needs a fresh
+          # approval instead of inheriting an old one.
+          mapfile -t approvals < <(
+            gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+              --jq '.[] | select(.state == "APPROVED")
+                        | select(.author_association == "MEMBER"
+                                 or .author_association == "OWNER"
+                                 or .author_association == "COLLABORATOR")
+                        | .commit_id'
+          )
+
+          unapproved=()
+          for key in "${suspicious[@]}"; do
+            covered=0
+            for approved in "${approvals[@]}"; do
+              if git merge-base --is-ancestor "${seen[$key]}" "$approved" 2>/dev/null; then
+                covered=1
+                break
+              fi
+            done
+            if [ "$covered" -eq 0 ]; then
+              unapproved+=("$key")
+            fi
+          done
+
+          if [ ${#unapproved[@]} -eq 0 ]; then
+            echo "Every suspicious author is covered by a maintainer approval. ✅"
+            exit 0
+          fi
+
           echo "──────────────────────────────────────────────────────────────────"
-          echo "The following author(s) do not appear to use a real person name."
-          echo "Please review manually before merging:"
+          echo "The following author(s) do not appear to use a real person name,"
+          echo "and their newest commit is not covered by a maintainer approval:"
           echo ""
-          for entry in "${suspicious[@]}"; do
-            echo "  • $entry"
+          for key in "${unapproved[@]}"; do
+            echo "  • ${key%%|*} <${key##*|}>"
           done
           echo ""
           echo "If an author is a real person using an unusual name, a maintainer"
-          echo "can add the label 'author-verified' to bypass this check."
+          echo "can approve the pull request after the latest push. The approval"
+          echo "records the commits it covers, so a later push needs a fresh one."
           echo "──────────────────────────────────────────────────────────────────"
           exit 1
-
-      # ── Label-based maintainer override ──────────────────────────────────────
-      - name: Maintainer override applied
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'author-verified') }}
-        run: |
-          echo "Label 'author-verified' found – maintainer has approved the authors. ✅"
-          echo "The commit author check was skipped for this run."
