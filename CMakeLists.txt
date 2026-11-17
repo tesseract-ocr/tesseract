@@ -461,9 +461,13 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 
 if(CMAKE_CROSSCOMPILING)
   # The probe is a try_run: it has to execute the test binary, which cannot be
-  # done while cross-compiling, so the inconclusive result is not trusted and
-  # TIFF support is assumed to be present.
-  message(STATUS "Cross-compiling: skipping the Leptonica TIFF support probe.")
+  # done while cross-compiling, so its inconclusive result is not trusted and
+  # TIFF support is assumed to be present. Set -DDISABLE_TIFF=ON when the
+  # target's Leptonica was itself built without TIFF: that cannot be detected
+  # here, and with TIFF enabled tesseract would link libtiff while leptonica's
+  # pixReadTiff cannot decode anything.
+  message(STATUS "Cross-compiling: assuming Leptonica has TIFF support. "
+                 "Pass -DDISABLE_TIFF=ON if it was built without.")
 else()
   check_leptonica_tiff_support()
   if((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
