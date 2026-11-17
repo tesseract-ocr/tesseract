@@ -14,6 +14,8 @@ on:
       # Configure inputs: version.h.in and tesseract.pc.in are templates that
       # only autotools consumes, and they end in .in rather than .h or .pc.
       - '**.in'
+      # configure.ac falls back to VERSION when git describe yields nothing.
+      - VERSION
       - 'test'
       - 'unittest/third_party/googletest'
       - 'unittest/**.c'

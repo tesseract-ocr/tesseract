@@ -5,6 +5,10 @@ on:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
@@ -16,6 +20,10 @@ on:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
       - 'src/**'
       - 'include/**'
       - 'unittest/**'
