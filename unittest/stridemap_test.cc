@@ -60,6 +60,34 @@ protected:
 #endif
 };
 
+TEST_F(StridemapTest, OffsetFromValidMatchesGeneralOffset) {
+  StrideMap stride_map;
+  stride_map.SetStride({{2, 5}, {4, 3}, {3, 4}});
+  const int heights[] = {2, 4, 3};
+  const int widths[] = {5, 3, 4};
+  for (int batch = 0; batch < 3; ++batch) {
+    for (int y = 0; y < heights[batch]; ++y) {
+      for (int x = 0; x < widths[batch]; ++x) {
+        for (FlexDimensions dimension : {FD_HEIGHT, FD_WIDTH}) {
+          for (int offset : {-6, -1, 0, 1, 6}) {
+            StrideMap::Index general(stride_map, batch, y, x);
+            StrideMap::Index specialized(general);
+            EXPECT_TRUE(specialized.IsValid());
+            const bool specialized_valid = dimension == FD_HEIGHT
+                ? specialized.AddOffsetFromValid<FD_HEIGHT>(offset)
+                : specialized.AddOffsetFromValid<FD_WIDTH>(offset);
+            EXPECT_EQ(specialized_valid, general.AddOffset(offset, dimension));
+            EXPECT_EQ(specialized.t(), general.t());
+            for (FlexDimensions d : {FD_BATCH, FD_HEIGHT, FD_WIDTH}) {
+              EXPECT_EQ(specialized.index(d), general.index(d));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 TEST_F(StridemapTest, Indexing) {
   // This test verifies that with a batch of arrays of different sizes, the
   // iteration index each of them in turn, without going out of bounds.
