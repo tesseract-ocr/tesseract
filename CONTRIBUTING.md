@@ -74,14 +74,14 @@ You should always make sure your changes build and run successfully.
 
 A change is ready when all of the following hold:
 
-- The library, the CLI and (if touched) the training tools build without new
+* The library, the CLI and (if touched) the training tools build without new
   warnings.
-- `make check` passes, and a bug fix comes with a test that fails before the
+* `make check` passes, and a bug fix comes with a test that fails before the
   fix and passes after it.
-- New or changed behaviour is documented where it is user visible.
-- Each commit does one thing: unrelated reformatting, refactoring or cleanup
+* New or changed behaviour is documented where it is user visible.
+* Each commit does one thing: unrelated reformatting, refactoring or cleanup
   belongs in its own commit.
-- CI is green and the generated reports (Coverity, CodeQL) show no new
+* CI is green and the generated reports (Coverity, CodeQL) show no new
   findings.
 
 Note that a separate `Check Commit Authors` workflow reviews the author names
