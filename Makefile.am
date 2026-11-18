@@ -1658,15 +1658,13 @@ weightmatrix_intdim_test_SOURCES = unittest/weightmatrix_intdim_test.cc
 weightmatrix_intdim_test_CPPFLAGS = $(unittest_CPPFLAGS)
 weightmatrix_intdim_test_LDADD = $(TESS_LIBS)
 
-<<<<<<< HEAD
-weightmatrix_range_test_SOURCES = unittest/weightmatrix_range_test.cc
-weightmatrix_range_test_CPPFLAGS = $(unittest_CPPFLAGS)
-weightmatrix_range_test_LDADD = $(TESS_LIBS)
-=======
 weightmatrix_product_test_SOURCES = unittest/weightmatrix_product_test.cc
 weightmatrix_product_test_CPPFLAGS = $(unittest_CPPFLAGS)
 weightmatrix_product_test_LDADD = $(TESS_LIBS)
->>>>>>> 48aa9b075 (lstm: calculate several dot products at once with NEON)
+
+weightmatrix_range_test_SOURCES = unittest/weightmatrix_range_test.cc
+weightmatrix_range_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_range_test_LDADD = $(TESS_LIBS)
 
 weightmatrix_scales_test_SOURCES = unittest/weightmatrix_scales_test.cc
 weightmatrix_scales_test_CPPFLAGS = $(unittest_CPPFLAGS)
