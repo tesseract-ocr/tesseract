@@ -154,4 +154,26 @@ TEST(UnicharsetTest, OldStyle) {
   EXPECT_EQ(u.size(), 111);
 }
 
+TEST(UnicharsetTest, SpaceDelimited) {
+  // The id of a script which is missing in the unicharset is the id of the
+  // null script, so characters with the null script (like the space) must
+  // not be reported as not space delimited.
+  UNICHARSET u;
+  u.unichar_insert(" ");
+  u.unichar_insert("a");
+  EXPECT_EQ(u.unichar_to_id(" "), UNICHAR_SPACE);
+  u.set_script(u.unichar_to_id("a"), "Latin");
+  u.post_load_setup();
+  EXPECT_TRUE(u.IsSpaceDelimited(UNICHAR_SPACE));
+  EXPECT_TRUE(u.IsSpaceDelimited(u.unichar_to_id("a")));
+  EXPECT_TRUE(u.IsSpaceDelimited(INVALID_UNICHAR_ID));
+  // With a script which is not space delimited.
+  u.unichar_insert("\u4e2d");
+  u.set_script(u.unichar_to_id("\u4e2d"), "Han");
+  u.post_load_setup();
+  EXPECT_TRUE(u.IsSpaceDelimited(UNICHAR_SPACE));
+  EXPECT_TRUE(u.IsSpaceDelimited(u.unichar_to_id("a")));
+  EXPECT_FALSE(u.IsSpaceDelimited(u.unichar_to_id("\u4e2d")));
+}
+
 } // namespace tesseract
