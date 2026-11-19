@@ -170,7 +170,10 @@ endif
 if HAVE_AVX2
 libtesseract_avx2_la_CXXFLAGS = -mavx2
 libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_avx2_la_SOURCES = src/arch/functionsavx2.cpp
+libtesseract_avx2_la_SOURCES += src/arch/intsimdmatrixavx2.cpp
 libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
 endif
@@ -206,8 +209,11 @@ if OPENMP_SIMD
 libtesseract_neon_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
 endif
 libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_neon_la_SOURCES += src/arch/dotproductneon.cpp
+libtesseract_neon_la_SOURCES += src/arch/functionsneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
 endif
@@ -505,6 +511,7 @@ endif
 # Rules for src/lstm.
 
 noinst_HEADERS += src/lstm/convolve.h
+noinst_HEADERS += src/lstm/dropout.h
 noinst_HEADERS += src/lstm/fullyconnected.h
 noinst_HEADERS += src/lstm/functions.h
 noinst_HEADERS += src/lstm/input.h
@@ -525,6 +532,7 @@ noinst_HEADERS += src/lstm/stridemap.h
 noinst_HEADERS += src/lstm/weightmatrix.h
 
 libtesseract_la_SOURCES += src/lstm/convolve.cpp
+libtesseract_la_SOURCES += src/lstm/dropout.cpp
 libtesseract_la_SOURCES += src/lstm/fullyconnected.cpp
 libtesseract_la_SOURCES += src/lstm/functions.cpp
 libtesseract_la_SOURCES += src/lstm/input.cpp
@@ -1162,6 +1170,7 @@ check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
+check_PROGRAMS += dropout_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
@@ -1258,6 +1267,7 @@ check_PROGRAMS += validator_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += weightmatrix_deserialize_test
 check_PROGRAMS += weightmatrix_intdim_test
+check_PROGRAMS += weightmatrix_product_test
 check_PROGRAMS += weightmatrix_range_test
 check_PROGRAMS += weightmatrix_scales_test
 
@@ -1337,6 +1347,10 @@ commandlineflags_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 dawg_test_SOURCES = unittest/dawg_test.cc
 dawg_test_CPPFLAGS = $(unittest_CPPFLAGS)
 dawg_test_LDADD = $(TRAINING_LIBS)
+
+dropout_test_SOURCES = unittest/dropout_test.cc
+dropout_test_CPPFLAGS = $(unittest_CPPFLAGS)
+dropout_test_LDADD = $(TRAINING_LIBS)
 
 denorm_test_SOURCES = unittest/denorm_test.cc
 denorm_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1659,6 +1673,10 @@ weightmatrix_deserialize_test_LDADD = $(TESS_LIBS)
 weightmatrix_intdim_test_SOURCES = unittest/weightmatrix_intdim_test.cc
 weightmatrix_intdim_test_CPPFLAGS = $(unittest_CPPFLAGS)
 weightmatrix_intdim_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_product_test_SOURCES = unittest/weightmatrix_product_test.cc
+weightmatrix_product_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_product_test_LDADD = $(TESS_LIBS)
 
 weightmatrix_range_test_SOURCES = unittest/weightmatrix_range_test.cc
 weightmatrix_range_test_CPPFLAGS = $(unittest_CPPFLAGS)

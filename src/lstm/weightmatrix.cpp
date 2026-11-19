@@ -17,11 +17,12 @@
 
 #include "weightmatrix.h"
 
-#include <cassert> // for assert
-#include <cfloat>  // for FLT_MAX
-#include <cstring> // for std::memcpy
+#include <algorithm> // for std::min
+#include <cassert>   // for assert
+#include <cfloat>    // for FLT_MAX
+#include <cstring>   // for std::memcpy
 #include "intsimdmatrix.h"
-#include "simddetect.h" // for DotProduct
+#include "simddetect.h" // for RowDotProducts, CrossDotProducts
 #include "statistc.h"
 #include "tprintf.h"    // forTFloat
 
@@ -123,13 +124,14 @@ static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<TFloat> &w, bo
                                            bool skip_bias_back, const TFloat *u, TFloat *v) {
   int num_results = w.dim1() - skip_bias_back;
   int extent = w.dim2() - add_bias_fwd;
-  for (int i = 0; i < num_results; ++i) {
-    const TFloat *wi = w[i];
-    TFloat total = DotProduct(wi, u, extent);
-    if (add_bias_fwd) {
-      total += wi[extent]; // The bias value.
+  if (num_results <= 0) {
+    return;
+  }
+  RowDotProducts(w[0], w.dim2(), num_results, u, extent, v);
+  if (add_bias_fwd) {
+    for (int i = 0; i < num_results; ++i) {
+      v[i] += w[i][extent]; // The bias value.
     }
-    v[i] = total;
   }
 }
 
@@ -520,21 +522,26 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray &u, const Transposed
   int num_samples = u.dim2();
   // v is missing the last element in dim1.
   assert(v.dim1() == num_inputs);
+  // The rows of u are handled in blocks, so that an optimized function can
+  // calculate the dot products for several rows of u at the same time.
+  const int kBlockSize = 4;
+  const TFloat *v0 = num_inputs > 0 ? v[0] : nullptr;
 #ifdef _OPENMP
 #  pragma omp parallel for num_threads(4) if (in_parallel)
 #endif
-  for (int i = 0; i < num_outputs; ++i) {
-    TFloat *dwi = dw_[i];
-    const TFloat *ui = u[i];
-    for (int j = 0; j < num_inputs; ++j) {
-      dwi[j] = DotProduct(ui, v[j], num_samples);
+  for (int block = 0; block < num_outputs; block += kBlockSize) {
+    int block_end = std::min(block + kBlockSize, num_outputs);
+    CrossDotProducts(u[block], block_end - block, v0, num_inputs, num_samples,
+                     dw_[block], dw_.dim2());
+    for (int i = block; i < block_end; ++i) {
+      // The last element of v is missing, presumed 1.0f.
+      const TFloat *ui = u[i];
+      TFloat total = 0;
+      for (int k = 0; k < num_samples; ++k) {
+        total += ui[k];
+      }
+      dw_[i][num_inputs] = total;
     }
-    // The last element of v is missing, presumed 1.0f.
-    TFloat total = 0;
-    for (int k = 0; k < num_samples; ++k) {
-      total += ui[k];
-    }
-    dwi[num_inputs] = total;
   }
 }
 

@@ -187,6 +187,18 @@ int main(int argc, char **argv) {
       trainer.set_perfect_delay(FLAGS_perfect_sample_delay);
     }
   }
+  // Models with a dropout layer can be used for recognition, but this version
+  // cannot train with dropout. Don't continue a training which was started
+  // with dropout by another version: it would silently train without it.
+  for (const auto &id : trainer.EnumerateLayers()) {
+    const tesseract::Network *layer = trainer.GetLayer(id);
+    if (layer != nullptr && layer->type() == tesseract::NT_DROPOUT) {
+      tprintf("Error: the network contains a dropout layer (%s), but this version of "
+              "Tesseract cannot train with dropout.\n",
+              id.c_str());
+      return EXIT_FAILURE;
+    }
+  }
   if (!trainer.LoadAllTrainingData(
           filenames,
           FLAGS_sequential_training ? tesseract::CS_SEQUENTIAL : tesseract::CS_ROUND_ROBIN,

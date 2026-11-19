@@ -221,6 +221,13 @@ public:
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(const TessdataManager *mgr, TFile *fp);
 
+  // Switches the network to inference mode for an evaluation.
+  // A trainer keeps all layers in training mode, but layers like dropout
+  // must not modify their input while a model is evaluated.
+  void DisableTrainingForEval() {
+    network_->SetEnableTraining(TS_TEMP_DISABLE);
+  }
+
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to
   // NF_LAYER_SPECIFIC_LR).

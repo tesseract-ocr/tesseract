@@ -17,6 +17,8 @@
 #include "intsimdmatrix.h"
 #include <gtest/gtest.h>
 #include <gtest/internal/gtest-port.h>
+#include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <vector>
 #include "include_gunit.h"
@@ -97,6 +99,53 @@ protected:
 #endif
   }
 
+  // Tests the extreme values of weights and inputs for some sizes and
+  // compares the results against the generic version. The products of these
+  // values are the largest possible ones, so this detects implementations
+  // which overflow in intermediate results.
+  void ExpectEqualResultsForExtremeValues(const IntSimdMatrix &matrix) {
+    const int8_t kExtremes[] = {INT8_MIN, INT8_MAX};
+    for (int8_t weight : kExtremes) {
+      for (int8_t input : kExtremes) {
+        for (int num_out : {1, 7, 8, 9, 33}) {
+          for (int num_in : {1, 15, 16, 17, 100}) {
+            GENERIC_2D_ARRAY<int8_t> w(num_out, num_in + 1, weight);
+            std::vector<int8_t> u(matrix.RoundInputs(num_in), 0);
+            std::fill(u.begin(), u.begin() + num_in, input);
+            std::vector<TFloat> scales(num_out, 1);
+            int ro = num_out;
+            if (IntSimdMatrix::intSimdMatrix) {
+              ro = IntSimdMatrix::intSimdMatrix->RoundOutputs(ro);
+            }
+            std::vector<TFloat> base_result(num_out);
+            IntSimdMatrix::MatrixDotVector(w, scales, u.data(),
+                                           base_result.data());
+            std::vector<TFloat> test_result(ro);
+            std::vector<int8_t> shaped_wi;
+            int32_t rounded_num_out;
+            matrix.Init(w, shaped_wi, rounded_num_out);
+            scales.resize(rounded_num_out);
+            if (matrix.matrixDotVectorFunction) {
+              matrix.matrixDotVectorFunction(w.dim1(), w.dim2(), &shaped_wi[0],
+                                             &scales[0], &u[0],
+                                             &test_result[0]);
+            } else {
+              IntSimdMatrix::MatrixDotVector(w, scales, u.data(),
+                                             test_result.data());
+            }
+            for (int i = 0; i < num_out; ++i) {
+              EXPECT_EQ(base_result[i], test_result[i])
+                  << "weight=" << static_cast<int>(weight)
+                  << ", input=" << static_cast<int>(input)
+                  << ", num_out=" << num_out << ", num_in=" << num_in
+                  << ", i=" << i;
+            }
+          }
+        }
+      }
+    }
+  }
+
   TRand random_;
 };
 
@@ -130,6 +179,53 @@ TEST_F(IntSimdMatrixTest, AVX2) {
   ExpectEqualResults(IntSimdMatrix::intSimdMatrixAVX2);
 #else
   GTEST_LOG_(INFO) << "AVX2 unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
+// Tests that the NEON implementation gets the same result as the vanilla.
+TEST_F(IntSimdMatrixTest, NEON) {
+#if defined(__aarch64__)
+  ExpectEqualResults(IntSimdMatrix::intSimdMatrixNEON);
+#else
+  GTEST_LOG_(INFO) << "NEON unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
+TEST_F(IntSimdMatrixTest, NEONExtremeValues) {
+#if defined(__aarch64__)
+  ExpectEqualResultsForExtremeValues(IntSimdMatrix::intSimdMatrixNEON);
+#else
+  GTEST_LOG_(INFO) << "NEON unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
+// Tests that the NEON implementation with the dot product instructions gets
+// the same result as the vanilla.
+TEST_F(IntSimdMatrixTest, NEONDotProd) {
+#if defined(__aarch64__)
+  if (!SIMDDetect::IsNEONDotProdAvailable()) {
+    GTEST_LOG_(INFO) << "No NEON dot product instructions found! Not tested!";
+    GTEST_SKIP();
+  }
+  ExpectEqualResults(IntSimdMatrix::intSimdMatrixNEONDotProd);
+#else
+  GTEST_LOG_(INFO) << "NEON unsupported! Not tested!";
+  GTEST_SKIP();
+#endif
+}
+
+TEST_F(IntSimdMatrixTest, NEONDotProdExtremeValues) {
+#if defined(__aarch64__)
+  if (!SIMDDetect::IsNEONDotProdAvailable()) {
+    GTEST_LOG_(INFO) << "No NEON dot product instructions found! Not tested!";
+    GTEST_SKIP();
+  }
+  ExpectEqualResultsForExtremeValues(IntSimdMatrix::intSimdMatrixNEONDotProd);
+#else
+  GTEST_LOG_(INFO) << "NEON unsupported! Not tested!";
   GTEST_SKIP();
 #endif
 }

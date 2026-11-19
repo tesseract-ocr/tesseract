@@ -19,6 +19,7 @@
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
 #include "helpers.h"
+#include "simddetect.h" // for TanhVector, LogisticVector
 #include "tesstypes.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
@@ -171,6 +172,20 @@ inline void FuncInplace(int n, TFloat *inout) {
     inout[i] = f(inout[i]);
   }
 }
+// The functions with table lookups use the fastest implementation for whole
+// vectors (see simddetect.h), which gives the same results.
+template <>
+inline void FuncInplace<FFunc>(int n, TFloat *inout) {
+  LogisticVector(n, inout, inout);
+}
+template <>
+inline void FuncInplace<GFunc>(int n, TFloat *inout) {
+  TanhVector(n, inout, inout);
+}
+template <>
+inline void FuncInplace<HFunc>(int n, TFloat *inout) {
+  TanhVector(n, inout, inout);
+}
 // Applies Func to u and multiplies the result by v component-wise,
 // putting the product in out, all of size n.
 template <class Func>
@@ -178,6 +193,20 @@ inline void FuncMultiply(const TFloat *u, const TFloat *v, int n, TFloat *out) {
   Func f;
   for (int i = 0; i < n; ++i) {
     out[i] = f(u[i]) * v[i];
+  }
+}
+template <>
+inline void FuncMultiply<HFunc>(const TFloat *u, const TFloat *v, int n, TFloat *out) {
+  if (out == v) {
+    // The factors would be overwritten by the function values.
+    for (int i = 0; i < n; ++i) {
+      out[i] = Tanh(u[i]) * v[i];
+    }
+    return;
+  }
+  TanhVector(n, u, out);
+  for (int i = 0; i < n; ++i) {
+    out[i] *= v[i];
   }
 }
 // Applies the Softmax function in-place to inout, of size n.

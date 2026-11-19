@@ -86,6 +86,10 @@ std::string LSTMTester::RunEvalSync(int iteration,
   if (!model_mgr.GetComponent(TESSDATA_LSTM, &fp) || !trainer.DeSerialize(&model_mgr, &fp)) {
     return "Deserialize failed";
   }
+  // The evaluation must use the network like a recognizer does. Otherwise
+  // dropout layers would still drop activations and report errors which are
+  // too high.
+  trainer.DisableTrainingForEval();
   int eval_iteration = 0;
   double char_error = 0.0;
   double word_error = 0.0;
