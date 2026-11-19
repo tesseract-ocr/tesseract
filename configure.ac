@@ -302,7 +302,7 @@ m4_define([MY_CHECK_FRAMEWORK],
             [my_cv_framework_$1=no])
      LIBS="$save_LIBS"
     ])
-   if test "$my_cv_framework_$1"="yes"; then
+   if test "$my_cv_framework_$1" = "yes"; then
      AC_DEFINE(AS_TR_CPP([HAVE_FRAMEWORK_$1]), 1,
             [Define if you have the $1 framework])
      AS_TR_CPP([FRAMEWORK_$1])="-framework $1"
