@@ -103,7 +103,9 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   const UNICHARSET &uchset = *word->uch_set;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
-  if ((word->unlv_crunch_mode != CR_NONE || (word->best_choice != nullptr && word->best_choice->empty())) &&
+  // A word without recognition results is handled like an empty word.
+  if ((word->unlv_crunch_mode != CR_NONE || word->best_choice == nullptr ||
+       word->best_choice->empty()) &&
       !tessedit_zero_kelvin_rejection && !tessedit_word_for_word) {
     bool need_reject = false;
     if ((word->unlv_crunch_mode != CR_DELETE) &&

@@ -27,6 +27,23 @@ class TestLTRResultIterator : public LTRResultIterator {
   }
 };
 
+// Unlike TestLTRResultIterator, this keeps the concrete ResultIterator,
+// so the tests run the code of ResultIterator and not that of its base class.
+class TestResultIterator : public ResultIterator {
+ public:
+  explicit TestResultIterator(const ResultIterator &src) : ResultIterator(src) {}
+
+  WERD_RES *CurrentWord() const { return it_->word(); }
+};
+
+// Returns the text of the given iterator at the given level and frees the
+// buffer. A missing text gives an empty string.
+template <class Iterator>
+static std::string TextOf(const Iterator &it, PageIteratorLevel level) {
+  std::unique_ptr<char[]> text(it.GetUTF8Text(level));
+  return text ? std::string(text.get()) : std::string();
+}
+
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
 
@@ -690,6 +707,116 @@ TEST_F(ResultIteratorTest, NullBestChoiceRegressionTest) {
   delete[] para_text;
   EXPECT_NE(para.find(words[2].first), std::string::npos)
       << "A null best_choice should not stop paragraph traversal";
+}
+
+// A word without best_choice in the middle of a text line must be skipped
+// by ResultIterator, too: no text, no additional space, no confidence.
+TEST_F(ResultIteratorTest, NullBestChoiceInTextlineTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  // Get the first three words of the first text line.
+  const TestResultIterator line(*r_it);
+  TestResultIterator second(line);
+  ASSERT_TRUE(second.Next(RIL_WORD));
+  TestResultIterator third(second);
+  ASSERT_TRUE(third.Next(RIL_WORD));
+  ASSERT_FALSE(third.IsAtBeginningOf(RIL_TEXTLINE));
+  const std::string prefix =
+      TextOf(line, RIL_WORD) + " " + TextOf(second, RIL_WORD) + " " + TextOf(third, RIL_WORD);
+  const std::string without_second = TextOf(line, RIL_WORD) + " " + TextOf(third, RIL_WORD);
+
+  // The text line without its second word, for both kinds of iterators.
+  const TestLTRResultIterator ltr_line(line);
+  const std::string text_line = TextOf(line, RIL_TEXTLINE);
+  const std::string ltr_text_line = TextOf(ltr_line, RIL_TEXTLINE);
+  ASSERT_EQ(0, text_line.compare(0, prefix.size(), prefix)) << text_line;
+  ASSERT_EQ(0, ltr_text_line.compare(0, prefix.size(), prefix)) << ltr_text_line;
+  const std::string expected = without_second + text_line.substr(prefix.size());
+  const std::string ltr_expected = without_second + ltr_text_line.substr(prefix.size());
+
+  WERD_RES *word = second.CurrentWord();
+  ASSERT_NE(word, nullptr);
+  WERD_CHOICE *best_choice = word->best_choice;
+  ASSERT_NE(best_choice, nullptr);
+  EXPECT_GT(second.Confidence(RIL_WORD), 0.0f);
+
+  // A best_choice without any character has no symbol.
+  WERD_CHOICE empty_choice(word->uch_set);
+  word->best_choice = &empty_choice;
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_SYMBOL));
+
+  word->best_choice = nullptr;
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_WORD));
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_SYMBOL));
+  EXPECT_EQ(0.0f, second.Confidence(RIL_WORD));
+  EXPECT_EQ(0.0f, second.Confidence(RIL_SYMBOL));
+  EXPECT_GT(line.Confidence(RIL_TEXTLINE), 0.0f);
+  EXPECT_EQ(expected, TextOf(line, RIL_TEXTLINE));
+  EXPECT_EQ(ltr_expected, TextOf(ltr_line, RIL_TEXTLINE));
+
+  word->best_choice = best_choice;
+  EXPECT_EQ(text_line, TextOf(line, RIL_TEXTLINE));
+}
+
+// A text line without any best_choice gives an empty line. It must neither
+// add spaces nor remove the line separator of the previous text line.
+TEST_F(ResultIteratorTest, NullBestChoiceTextlineTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  // The second text line must be neither the first nor the last one
+  // of its paragraph.
+  const TestResultIterator first_line(*r_it);
+  TestResultIterator second_line(first_line);
+  ASSERT_TRUE(second_line.Next(RIL_TEXTLINE));
+  ASSERT_FALSE(second_line.IsAtBeginningOf(RIL_PARA));
+  TestResultIterator third_line(second_line);
+  ASSERT_TRUE(third_line.Next(RIL_TEXTLINE));
+  ASSERT_FALSE(third_line.IsAtBeginningOf(RIL_PARA));
+
+  // The paragraph with an empty second text line, for both kinds of iterators.
+  const TestLTRResultIterator ltr_first_line(first_line);
+  const TestLTRResultIterator ltr_second_line(second_line);
+  const std::string lines = TextOf(first_line, RIL_TEXTLINE) + TextOf(second_line, RIL_TEXTLINE);
+  const std::string ltr_lines =
+      TextOf(ltr_first_line, RIL_TEXTLINE) + TextOf(ltr_second_line, RIL_TEXTLINE);
+  const std::string para = TextOf(first_line, RIL_PARA);
+  const std::string ltr_para = TextOf(ltr_first_line, RIL_PARA);
+  ASSERT_EQ(0, para.compare(0, lines.size(), lines)) << para;
+  ASSERT_EQ(0, ltr_para.compare(0, ltr_lines.size(), ltr_lines)) << ltr_para;
+  const std::string expected =
+      TextOf(first_line, RIL_TEXTLINE) + "\n" + para.substr(lines.size());
+  const std::string ltr_expected =
+      TextOf(ltr_first_line, RIL_TEXTLINE) + "\n" + ltr_para.substr(ltr_lines.size());
+
+  // Remove the best_choice of all words of the second text line.
+  std::vector<std::pair<WERD_RES *, WERD_CHOICE *>> saved;
+  TestResultIterator it(second_line);
+  do {
+    WERD_RES *word = it.CurrentWord();
+    ASSERT_NE(word, nullptr);
+    saved.emplace_back(word, word->best_choice);
+  } while (it.Next(RIL_WORD) && !it.IsAtBeginningOf(RIL_TEXTLINE));
+  ASSERT_GE(saved.size(), 2u);
+  for (auto &entry : saved) {
+    entry.first->best_choice = nullptr;
+  }
+
+  EXPECT_EQ("\n", TextOf(second_line, RIL_TEXTLINE));
+  EXPECT_EQ("\n", TextOf(ltr_second_line, RIL_TEXTLINE));
+  EXPECT_EQ(0.0f, second_line.Confidence(RIL_TEXTLINE));
+  EXPECT_EQ(expected, TextOf(first_line, RIL_PARA));
+  EXPECT_EQ(ltr_expected, TextOf(ltr_first_line, RIL_PARA));
+
+  for (auto &entry : saved) {
+    entry.first->best_choice = entry.second;
+  }
+  EXPECT_EQ(para, TextOf(first_line, RIL_PARA));
 }
 
 // TODO: Missing image

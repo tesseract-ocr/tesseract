@@ -760,7 +760,12 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(std::string *text) {
 
   int words_appended = 0;
   do {
-    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() : (words_appended > 0);
+    const WERD_RES *word = it_->word();
+    if (word == nullptr || word->best_choice == nullptr) {
+      // Skip a word without recognition results. It gets neither text nor spaces.
+      continue;
+    }
+    int numSpaces = preserve_interword_spaces_ ? word->word->space() : (words_appended > 0);
     for (int i = 0; i < numSpaces; ++i) {
       *text += " ";
     }

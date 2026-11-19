@@ -63,6 +63,7 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
     bool eop = false; // end of paragraph?
     do {              // for each paragraph in a block
       do {            // for each text line in a paragraph
+        const auto line_start = text.length();
         do {          // for each word in a text line
           best_choice = res_it.word()->best_choice;
           if (best_choice == nullptr) {
@@ -75,7 +76,8 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
           res_it.forward();
           eol = res_it.row() != res_it.prev_row();
         } while (!eol);
-        if (!text.empty()) {
+        if (text.length() > line_start) {
+          // Remove the space after the last word of the text line.
           text.resize(text.length() - 1);
         }
         text += line_separator_;
