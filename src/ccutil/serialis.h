@@ -203,14 +203,14 @@ public:
       // Serialize pointers.
       for (auto &item : data) {
         uint8_t non_null = (item != nullptr);
-	if (!Serialize(&non_null)) {
+        if (!Serialize(&non_null)) {
           return false;
-	}
+        }
         if (non_null) {
           if (!item->Serialize(this)) {
             return false;
-	  }
-	}
+          }
+        }
       }
     } else if (size > 0) {
       // Serialize a non-class.

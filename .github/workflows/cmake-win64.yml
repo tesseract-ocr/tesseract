@@ -5,11 +5,31 @@ on:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
+      - '.github/workflows/cmake-win64.yml'
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
+      - '.github/workflows/cmake-win64.yml'
   schedule:
     - cron: 0 5 * * *
   workflow_dispatch:

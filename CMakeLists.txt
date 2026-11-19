@@ -394,13 +394,24 @@ add_definitions("-DCMAKE_BUILD")
 # Setup ccache if available and enabled
 if(ENABLE_CCACHE)
   find_program(CCACHE_PROGRAM ccache)
-  if(CCACHE_PROGRAM)
+  if(CCACHE_PROGRAM AND (CMAKE_CXX_COMPILER_LAUNCHER OR CMAKE_C_COMPILER_LAUNCHER))
+    # A toolchain file, a preset or the command line already supplied a
+    # launcher (distcc, a wrapper script, ...). Replacing it here would
+    # silently drop it, so ccache is left off in that case.
+    message(STATUS "ccache found, but a compiler launcher is already set: "
+                   "CMAKE_CXX_COMPILER_LAUNCHER=${CMAKE_CXX_COMPILER_LAUNCHER} "
+                   "CMAKE_C_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER}")
+  elseif(CCACHE_PROGRAM)
     message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    # Configure ccache for better performance
-    set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
-    set(ENV{CCACHE_CPP2} "true")
+    # The compiler launcher runs in the build tool's environment, so the ccache
+    # settings have to be part of the launch command. set(ENV{...}) would only
+    # reach the configure process and be gone before any compilation starts.
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_COMMAND}" "-E" "env"
+        "CCACHE_SLOPPINESS=pch_defines,time_macros" "CCACHE_CPP2=true"
+        "${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CMAKE_COMMAND}" "-E" "env"
+        "CCACHE_SLOPPINESS=pch_defines,time_macros" "CCACHE_CPP2=true"
+        "${CCACHE_PROGRAM}")
   else()
     message(STATUS "ccache not found, disabling ccache support")
     set(ENABLE_CCACHE OFF)
@@ -455,12 +466,29 @@ else()
 endif(NOT Leptonica_FOUND)
 include_directories(${Leptonica_INCLUDE_DIRS})
 
-check_leptonica_tiff_support()
-if ((NOT LEPT_TIFF_RESULT EQUAL 0) AND LEPT_TIFF_COMPILE_SUCCESS)
-  message(NOTICE "Leptonica was build without TIFF support! Disabling TIFF support...")
-  set(DISABLE_TIFF ON)
-elseif(NOT ${CMAKE_VERSION} VERSION_LESS "3.25")
-  message(STATUS "Leptonica was build with TIFF support.")
+if(CMAKE_CROSSCOMPILING)
+  # The probe is a try_run: it has to execute the test binary, which cannot be
+  # done while cross-compiling, so its inconclusive result is not trusted and
+  # TIFF support is assumed to be present. Set -DDISABLE_TIFF=ON when the
+  # target's Leptonica was itself built without TIFF: that cannot be detected
+  # here, and with TIFF enabled tesseract would link libtiff while leptonica's
+  # pixReadTiff cannot decode anything.
+  message(STATUS "Cross-compiling: assuming Leptonica has TIFF support. "
+                 "Pass -DDISABLE_TIFF=ON if it was built without.")
+else()
+  check_leptonica_tiff_support()
+  if(NOT LEPT_TIFF_COMPILE_SUCCESS)
+    # The probe could not be compiled, or it was skipped because this CMake is
+    # older than 3.25. Nothing is known about the Leptonica build, so report the
+    # check as inconclusive instead of claiming support.
+    message(STATUS "Could not determine TIFF support in Leptonica; "
+                   "assuming it is available.")
+  elseif(LEPT_TIFF_RESULT EQUAL 0)
+    message(STATUS "Leptonica was built with TIFF support.")
+  else()
+    message(NOTICE "Leptonica was built without TIFF support! Disabling TIFF support...")
+    set(DISABLE_TIFF ON)
+  endif()
 endif()
 
 # Check for optional libraries.

@@ -565,10 +565,18 @@ bool PageIterator::Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2,
 
 void PageIterator::RowAttributes(float *row_height, float *descenders,
                                  float *ascenders) const {
-  *row_height = it_->row()->row->x_height() + it_->row()->row->ascenders() -
-                it_->row()->row->descenders();
-  *descenders = it_->row()->row->descenders();
-  *ascenders = it_->row()->row->ascenders();
+  auto *row_res = it_->row();
+  if (row_res == nullptr || row_res->row == nullptr) {
+    // Nothing can be done, so return default values.
+    *row_height = 0.0f;
+    *descenders = 0.0f;
+    *ascenders = 0.0f;
+    return;
+  }
+  ROW *row = row_res->row;
+  *row_height = row->x_height() + row->ascenders() - row->descenders();
+  *descenders = row->descenders();
+  *ascenders = row->ascenders();
 }
 
 void PageIterator::Orientation(tesseract::Orientation *orientation,

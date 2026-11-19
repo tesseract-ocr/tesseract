@@ -261,7 +261,8 @@ public:
   bool Baseline(PageIteratorLevel level, int *x1, int *y1, int *x2,
                 int *y2) const;
 
-  // Returns the attributes of the current row.
+  // Returns the attributes of the current row. If the iterator is not on a
+  // row, all three values are set to 0.
   void RowAttributes(float *row_height, float *descenders,
                      float *ascenders) const;
 
