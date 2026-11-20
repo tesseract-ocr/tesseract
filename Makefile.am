@@ -234,6 +234,7 @@ libtesseract_la_SOURCES += src/arch/simddetect.cpp
 # Rules for src/ccmain.
 
 noinst_HEADERS += src/ccmain/control.h
+noinst_HEADERS += src/ccmain/fontstyle.h
 noinst_HEADERS += src/ccmain/mutableiterator.h
 noinst_HEADERS += src/ccmain/output.h
 noinst_HEADERS += src/ccmain/paragraphs.h
@@ -253,6 +254,7 @@ endif
 
 libtesseract_la_SOURCES += src/ccmain/applybox.cpp
 libtesseract_la_SOURCES += src/ccmain/control.cpp
+libtesseract_la_SOURCES += src/ccmain/fontstyle.cpp
 libtesseract_la_SOURCES += src/ccmain/linerec.cpp
 libtesseract_la_SOURCES += src/ccmain/ltrresultiterator.cpp
 libtesseract_la_SOURCES += src/ccmain/mutableiterator.cpp
@@ -300,6 +302,7 @@ noinst_HEADERS += src/ccstruct/crakedge.h
 noinst_HEADERS += src/ccstruct/debugpixa.h
 noinst_HEADERS += src/ccstruct/detlinefit.h
 noinst_HEADERS += src/ccstruct/dppoint.h
+noinst_HEADERS += src/ccstruct/fontinfo.h
 noinst_HEADERS += src/ccstruct/image.h
 noinst_HEADERS += src/ccstruct/imagedata.h
 noinst_HEADERS += src/ccstruct/linlsq.h
@@ -326,7 +329,6 @@ noinst_HEADERS += src/ccstruct/statistc.h
 noinst_HEADERS += src/ccstruct/stepblob.h
 noinst_HEADERS += src/ccstruct/werd.h
 if !DISABLED_LEGACY_ENGINE
-noinst_HEADERS += src/ccstruct/fontinfo.h
 noinst_HEADERS += src/ccstruct/params_training_featdef.h
 endif
 
@@ -1176,6 +1178,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
+check_PROGRAMS += fontstyle_test
 check_PROGRAMS += fullyconnected_test
 check_PROGRAMS += functions_test
 check_PROGRAMS += genericvector_test
@@ -1350,6 +1353,10 @@ endif # !DISABLED_LEGACY_ENGINE
 fileio_test_SOURCES = unittest/fileio_test.cc
 fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fileio_test_LDADD = $(TRAINING_LIBS)
+
+fontstyle_test_SOURCES = unittest/fontstyle_test.cc
+fontstyle_test_CPPFLAGS = $(unittest_CPPFLAGS)
+fontstyle_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)
