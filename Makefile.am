@@ -1176,6 +1176,7 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
+check_PROGRAMS += fontattributes_test
 check_PROGRAMS += fullyconnected_test
 check_PROGRAMS += functions_test
 check_PROGRAMS += genericvector_test
@@ -1350,6 +1351,10 @@ endif # !DISABLED_LEGACY_ENGINE
 fileio_test_SOURCES = unittest/fileio_test.cc
 fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fileio_test_LDADD = $(TRAINING_LIBS)
+
+fontattributes_test_SOURCES = unittest/fontattributes_test.cc
+fontattributes_test_CPPFLAGS = $(unittest_CPPFLAGS)
+fontattributes_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)
