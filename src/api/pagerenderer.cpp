@@ -963,8 +963,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
         word_top_pts = TransposePolygonline(word_top_pts);
       }
       AddPointsToPAGE(word_top_pts, word_str);
-      word_str << "\t\t\t\t\t";
-      AddBaselinePtsToPAGE(word_baseline_pts, word_str);
+      // The PAGE schema allows a baseline for a text line, but not for a word.
       word_str << "\t\t\t\t\t<TextEquiv index=\"1\" conf=\""
                << std::setprecision(4) << word_conf << "\">\n"
                << "\t\t\t\t\t\t<Unicode>" << word_content.str()
