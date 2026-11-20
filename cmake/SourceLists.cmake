@@ -56,6 +56,7 @@ set(TESSERACT_SRC_CCMAIN
     src/ccmain/applybox.cpp
     src/ccmain/control.cpp
     src/ccmain/docqual.cpp
+    src/ccmain/fontstyle.cpp
     src/ccmain/equationdetect.cpp
     src/ccmain/fixspace.cpp
     src/ccmain/fixxht.cpp
@@ -375,6 +376,7 @@ set(TESSERACT_HDR_INTERNAL
     src/ccmain/docqual.h
     src/ccmain/equationdetect.h
     src/ccmain/fixspace.h
+    src/ccmain/fontstyle.h
     src/ccmain/mutableiterator.h
     src/ccmain/output.h
     src/ccmain/paragraphs.h

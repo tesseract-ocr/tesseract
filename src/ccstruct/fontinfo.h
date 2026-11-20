@@ -66,6 +66,10 @@ struct FontInfo {
   ~FontInfo() = default;
 
   bool operator==(const FontInfo &rhs) const {
+    // Fonts without a name are only equal to themselves.
+    if (name == nullptr || rhs.name == nullptr) {
+      return this == &rhs;
+    }
     return strcmp(name, rhs.name) == 0;
   }
 

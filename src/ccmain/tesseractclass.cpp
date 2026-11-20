@@ -439,6 +439,9 @@ Tesseract::Tesseract()
                  "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
                  "value greater than 0 to produce results.",
                  this->params())
+    , BOOL_MEMBER(lstm_font_attributes, false,
+                  "Estimate bold and italic for the words recognized by LSTM.",
+                  this->params())
     , double_MEMBER(lstm_rating_coefficient, 5,
                     "Sets the rating coefficient for the lstm choices. The smaller the "
                     "coefficient, the better are the ratings for each choice and less "
