@@ -33,6 +33,7 @@
 
 #include <tesseract/baseapi.h>
 #include "dict.h"
+#include "image.h"
 #include <tesseract/renderer.h>
 #include "simddetect.h"
 #include "tesseractclass.h" // for AnyTessLang
@@ -777,6 +778,9 @@ static int main1(int argc, char **argv) {
       // TODO: Implement output of page segmentation, see documentation
       // ("Automatic page segmentation, but no OSD, or OCR").
       it->Orientation(&orientation, &direction, &order, &deskew_angle);
+      Pix *pix_binary = api.GetThresholdedImage();
+      deskew_angle = tesseract::PageDeskewRadians(pix_binary);
+      pixDestroy(&pix_binary);
       tprintf(
           "Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n"
           "Deskew angle: %.4f\n",

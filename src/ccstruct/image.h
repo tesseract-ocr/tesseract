@@ -30,6 +30,9 @@
 
 namespace tesseract {
 
+// Returns the anti-clockwise turn that levels the page, in radians.
+TESS_API float PageDeskewRadians(Pix *pix);
+
 class TESS_API Image {
 public:
   Pix *pix_ = nullptr;

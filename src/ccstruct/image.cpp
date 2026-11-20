@@ -17,7 +17,37 @@
 
 #include "image.h"
 
+#include <cmath>
+
 namespace tesseract {
+
+float PageDeskewRadians(Pix *pix) {
+  if (!pix) {
+    return 0;
+  }
+  Pix *binary = nullptr;
+  if (pixGetDepth(pix) != 1) {
+    Pix *gray = pixConvertTo8(pix, 0);
+    if (!gray) {
+      return 0;
+    }
+    int error = pixOtsuAdaptiveThreshold(gray, pixGetWidth(gray), pixGetHeight(gray),
+                                         0, 0, 0.1f, nullptr, &binary);
+    pixDestroy(&gray);
+    if (error || !binary) {
+      pixDestroy(&binary);
+      return 0;
+    }
+  }
+  float angle, confidence;
+  int error = pixFindSkew(binary ? binary : pix, &angle, &confidence);
+  pixDestroy(&binary);
+  if (error || confidence < 3 || std::abs(angle) > 45) {
+    return 0;
+  }
+  return -angle * (std::acos(-1.0f) / 180);
+}
+
 
 Image Image::clone() const {
   return pix_ ? pixClone(pix_) : nullptr;
