@@ -148,7 +148,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
     }
     WERD *next_word = word_it.data_relative(1);
     if (merge_similar_words) {
-      if (add_next_word && !next_word->flag(W_REP_CHAR)) {
+      if (add_next_word) {
         // Next word will be added on if all of the following are true:
         // Not a rep char.
         // Box height small enough.
@@ -157,7 +157,8 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
         TBOX next_box = next_word->bounding_box();
         int prev_right = union_box.right();
         union_box += next_box;
-        if (next_box.height() > line_height * kMaxWordSizeRatio ||
+        if (next_word->flag(W_REP_CHAR) ||
+            next_box.height() > line_height * kMaxWordSizeRatio ||
             union_box.height() > line_height * kMaxLineSizeRatio ||
             next_box.left() > prev_right + line_height * kMaxWordGapRatio) {
           add_next_word = false;
