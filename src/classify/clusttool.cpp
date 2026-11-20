@@ -151,14 +151,18 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
     ASSERT_HOST(!stream.fail());
     ParamDesc[i].Circular = (linear_token[0] == 'c');
     ParamDesc[i].NonEssential = (essential_token[0] != 'e');
-    // Min and Max come from the file and can be any float value, so compute
-    // in double and clip the range to avoid a floating point overflow
-    // (which the tesseract program traps with SIGFPE).
-    const double min = ParamDesc[i].Min;
-    const double max = ParamDesc[i].Max;
-    ParamDesc[i].Range = std::clamp<double>(max - min, -FLT_MAX, FLT_MAX);
+    // Min and Max come from the file and can be any float value. Limit them
+    // to half of the float range, so neither their difference nor their sum
+    // can overflow (the tesseract program traps a floating point overflow
+    // with SIGFPE). Clipping the calculated range is not sufficient, as a
+    // compiler may convert the unclipped value to float before it selects
+    // the limit (clang for arm64), which sets the overflow flag.
+    const float kMaxLimit = FLT_MAX / 2;
+    ParamDesc[i].Min = std::clamp(ParamDesc[i].Min, -kMaxLimit, kMaxLimit);
+    ParamDesc[i].Max = std::clamp(ParamDesc[i].Max, -kMaxLimit, kMaxLimit);
+    ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
-    ParamDesc[i].MidRange = (max + min) / 2;
+    ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
   }
   return (ParamDesc);
 }
