@@ -19,6 +19,7 @@
 
 #include <tesseract/ltrresultiterator.h>
 
+#include "fontinfo.h" // for FontInfo
 #include "helpers.h"  // for copy_string
 #include "pageres.h"
 #include "tesseractclass.h"
@@ -172,12 +173,17 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
 // to an internal table and SHOULD NOT BE DELETED. Lifespan is the same as
 // the iterator itself, ie rendered invalid by various members of
 // TessBaseAPI, including Init, SetImage, End or deleting the TessBaseAPI.
+// The return value is nullptr if the font name is not known. The attributes
+// can be set nevertheless: with the parameter lstm_font_attributes, bold
+// and italic are estimated for words recognized by LSTM, which have no font
+// name and the font_id -1.
 // Pointsize is returned in printers points (1/72 inch.)
 const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic,
                                                   bool *is_underlined, bool *is_monospace,
                                                   bool *is_serif, bool *is_smallcaps,
                                                   int *pointsize, int *font_id) const {
   const char *result = nullptr;
+  const FontInfo *font_info = nullptr;
 
   if (it_->word() == nullptr) {
     // Already at the end!
@@ -189,10 +195,10 @@ const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic
     *pointsize =
         scaled_yres_ > 0 ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5) : 0;
 
-#ifndef DISABLED_LEGACY_ENGINE
-    const FontInfo *font_info = it_->word()->fontinfo;
+    font_info = it_->word()->fontinfo;
     if (font_info) {
-      // Font information available.
+      // Font information available. The font has no name if the attributes
+      // come from an estimation instead of from a font classifier.
       *font_id = font_info->universal_id;
       *is_bold = font_info->is_bold();
       *is_italic = font_info->is_italic();
@@ -201,12 +207,11 @@ const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic
       *is_serif = font_info->is_serif();
       result = font_info->name;
     }
-#endif // ndef DISABLED_LEGACY_ENGINE
 
     *is_smallcaps = it_->word()->small_caps;
   }
 
-  if (!result) {
+  if (!font_info) {
     *is_bold = false;
     *is_italic = false;
     *is_underlined = false;
