@@ -463,6 +463,8 @@ public:
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES *page_res);
+  // Estimates bold and italic from the image for the words without a font.
+  void font_style_pass(PAGE_RES *page_res);
   void dictionary_correction_pass(PAGE_RES *page_res);
   bool check_debug_pt(WERD_RES *word, int location);
 
@@ -968,6 +970,7 @@ public:
   STRING_VAR_H(page_separator);
   INT_VAR_H(lstm_choice_mode);
   INT_VAR_H(lstm_choice_iterations);
+  BOOL_VAR_H(lstm_font_attributes);
   double_VAR_H(lstm_rating_coefficient);
   BOOL_VAR_H(pageseg_apply_music_mask);
 

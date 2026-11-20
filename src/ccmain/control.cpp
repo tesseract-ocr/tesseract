@@ -461,6 +461,12 @@ bool Tesseract::recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor,
 
 #endif // ndef DISABLED_LEGACY_ENGINE
 
+  // The words which LSTM recognized have no font. Estimate bold and italic
+  // for them from the image.
+  if (lstm_font_attributes && AnyLSTMLang()) {
+    font_style_pass(page_res);
+  }
+
   // Write results pass.
   // This is now redundant, but retained commented so show how to obtain
   // bounding boxes and style information.
