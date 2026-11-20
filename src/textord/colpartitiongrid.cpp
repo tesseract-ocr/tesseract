@@ -701,7 +701,8 @@ void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST *blocks,
     // The partition has to be at least vaguely like text.
     BlobRegionType blob_type = part->blob_type();
     if (BLOBNBOX::IsTextType(blob_type) ||
-        (blob_type == BRT_UNKNOWN && part->boxes_count() > 1)) {
+        (blob_type == BRT_UNKNOWN && part->flow() != BTFT_NONTEXT &&
+         part->boxes_count() > 1)) {
       PolyBlockType type =
           blob_type == BRT_VERT_TEXT ? PT_VERTICAL_TEXT : PT_FLOWING_TEXT;
       // Get metrics from the row that will be used for the block.
