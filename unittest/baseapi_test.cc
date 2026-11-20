@@ -888,6 +888,100 @@ TEST_F(TesseractTest, PAGEXMLRightToLeftPolygon) {
   EXPECT_THAT(page_str, HasSubstr("<Coords points=\""));
 }
 
+// The PAGE schema allows the element Baseline for a text line, but not for a
+// word. Word level output had one in each word, so the files were not valid.
+TEST_F(TesseractTest, PAGEXMLWordHasNoBaseline) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  tesseract::TessBaseAPI api;
+  ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng"));
+  Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+  ASSERT_TRUE(src_pix) << "Could not read phototest.tif";
+  api.SetImage(src_pix);
+  src_pix.destroy();
+  for (const char *polygon : {"0", "1"}) {
+    api.SetVariable("page_xml_polygon", polygon);
+    api.SetVariable("page_xml_level", "1");
+    std::unique_ptr<const char[]> page(api.GetPAGEText(0));
+    ASSERT_TRUE(page != nullptr);
+    const std::string page_str(page.get());
+    auto count = [&page_str](const std::string &text) {
+      size_t num = 0;
+      for (size_t pos = page_str.find(text); pos != std::string::npos;
+           pos = page_str.find(text, pos + 1)) {
+        ++num;
+      }
+      return num;
+    };
+    EXPECT_GT(count("<Word "), 40u);
+    EXPECT_GT(count("<TextLine "), 5u);
+    // Each text line has a baseline, and there are no other baselines.
+    EXPECT_EQ(count("<Baseline "), count("<TextLine "));
+    // No baseline is inside a word.
+    size_t num_words = 0;
+    for (size_t pos = page_str.find("<Word "); pos != std::string::npos;
+         pos = page_str.find("<Word ", pos + 1)) {
+      const size_t end = page_str.find("</Word>", pos);
+      ASSERT_NE(end, std::string::npos);
+      EXPECT_EQ(page_str.substr(pos, end - pos).find("<Baseline"), std::string::npos)
+          << page_str.substr(pos, end - pos);
+      ++num_words;
+    }
+    EXPECT_EQ(num_words, count("<Word "));
+    // Line level output is unchanged: no words, one baseline for each line.
+    api.SetVariable("page_xml_level", "0");
+    std::unique_ptr<const char[]> lines(api.GetPAGEText(0));
+    ASSERT_TRUE(lines != nullptr);
+    const std::string lines_str(lines.get());
+    EXPECT_EQ(lines_str.find("<Word "), std::string::npos);
+    EXPECT_NE(lines_str.find("<Baseline "), std::string::npos);
+  }
+}
+
+// The PAGE schema does not allow a reading order without regions. A page
+// without text had an empty one, so the file was not valid.
+TEST_F(TesseractTest, PAGEXMLNoReadingOrderWithoutText) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  tesseract::TessBaseAPI api;
+  ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng"));
+  auto count = [](const std::string &text, const std::string &part) {
+    size_t num = 0;
+    for (size_t pos = text.find(part); pos != std::string::npos; pos = text.find(part, pos + 1)) {
+      ++num;
+    }
+    return num;
+  };
+
+  // An image without text: 1 bit per pixel, all pixels white.
+  Image blank_pix = pixCreate(400, 200, 1);
+  ASSERT_TRUE(blank_pix);
+  api.SetImage(blank_pix);
+  blank_pix.destroy();
+  std::unique_ptr<const char[]> blank(api.GetPAGEText(0));
+  ASSERT_TRUE(blank != nullptr);
+  const std::string blank_str(blank.get());
+  EXPECT_EQ(count(blank_str, "<Page "), 1u);
+  EXPECT_EQ(count(blank_str, "</Page>"), 1u);
+  EXPECT_EQ(count(blank_str, "<TextRegion "), 0u);
+  EXPECT_EQ(count(blank_str, "ReadingOrder"), 0u);
+  EXPECT_EQ(count(blank_str, "OrderedGroup"), 0u);
+
+  // An image with text still has a reading order with all text regions.
+  Image src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+  ASSERT_TRUE(src_pix) << "Could not read phototest.tif";
+  api.SetImage(src_pix);
+  src_pix.destroy();
+  std::unique_ptr<const char[]> page(api.GetPAGEText(0));
+  ASSERT_TRUE(page != nullptr);
+  const std::string page_str(page.get());
+  EXPECT_EQ(count(page_str, "<ReadingOrder>"), 1u);
+  EXPECT_EQ(count(page_str, "</ReadingOrder>"), 1u);
+  EXPECT_EQ(count(page_str, "<OrderedGroup "), 1u);
+  EXPECT_GE(count(page_str, "<TextRegion "), 1u);
+  EXPECT_EQ(count(page_str, "<RegionRefIndexed "), count(page_str, "<TextRegion "));
+  // The reading order comes before the regions.
+  EXPECT_LT(page_str.find("</ReadingOrder>"), page_str.find("<TextRegion "));
+}
+
 // The hOCR lang attribute carries the name the model was loaded under, which
 // must be escaped like the other strings in the output (input name, font
 // name, text). Install a copy of the eng model under a name that contains a
