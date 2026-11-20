@@ -26,8 +26,8 @@
 namespace tesseract {
 
 // Makes each time-step deeper by stacking inputs over its rectangle. Does not
-// affect the size of its input. Achieves this by bringing in random values in
-// out-of-input areas.
+// affect the size of its input. Out-of-input areas are filled with random values
+// during training and white background during recognition.
 class Convolve : public Network {
 public:
   // The area of convolution is 2*half_x + 1 by 2*half_y + 1, forcing it to

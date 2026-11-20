@@ -1171,6 +1171,7 @@ check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
 check_PROGRAMS += dropout_test
 endif # ENABLE_TRAINING
+check_PROGRAMS += convolve_test
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
@@ -1324,6 +1325,10 @@ cleanapi_test_LDADD = $(TESS_LIBS)
 colpartition_test_SOURCES = unittest/colpartition_test.cc
 colpartition_test_CPPFLAGS = $(unittest_CPPFLAGS)
 colpartition_test_LDADD = $(TESS_LIBS)
+
+convolve_test_SOURCES = unittest/convolve_test.cc
+convolve_test_CPPFLAGS = $(unittest_CPPFLAGS)
+convolve_test_LDADD = $(TESS_LIBS)
 
 commandlineflags_test_SOURCES = unittest/commandlineflags_test.cc
 commandlineflags_test_CPPFLAGS = $(unittest_CPPFLAGS)
