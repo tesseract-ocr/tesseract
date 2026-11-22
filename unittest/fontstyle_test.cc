@@ -115,6 +115,46 @@ TEST(FontStyleTest, StrokeWidthBetweenPixels) {
   }
 }
 
+// Specks of noise are no strokes, even if there are more of them than rows
+// of the strokes.
+TEST(FontStyleTest, IgnoresSpecks) {
+  for (float slant : {0.0f, 0.2f}) {
+    Image pix = MakeBars(5, slant);
+    const int width = pixGetWidth(pix);
+    const int height = pixGetHeight(pix);
+    int num_specks = 0;
+    for (int y = 0; y < height; y += 2) {
+      // Single pixels left and right of the bars, which touch no other text.
+      for (int x = y % 4; x < width; x += 4) {
+        if (x < 35 || x >= 160) {
+          pixSetPixel(pix, x, y, 1);
+          ++num_specks;
+        }
+      }
+    }
+    // The bars have four runs of pixels in each row.
+    ASSERT_GT(num_specks, 4 * height);
+    TextShape shape;
+    ASSERT_TRUE(MeasureTextShape(pix, &shape));
+    EXPECT_FLOAT_EQ(shape.stroke_width, 5.0f) << "slant " << slant;
+    EXPECT_TRUE(shape.has_slant) << "slant " << slant;
+    EXPECT_NEAR(shape.slant, slant, 0.015f) << "slant " << slant;
+    pix.destroy();
+  }
+}
+
+// Text which is not higher than a pixel still has a stroke width.
+TEST(FontStyleTest, MeasuresSingleRow) {
+  Image pix = pixCreate(50, 1, 1);
+  for (int x = 10; x < 16; ++x) {
+    pixSetPixel(pix, x, 0, 1);
+  }
+  TextShape shape;
+  ASSERT_TRUE(MeasureTextShape(pix, &shape));
+  EXPECT_FLOAT_EQ(shape.stroke_width, 6.0f);
+  pix.destroy();
+}
+
 TEST(FontStyleTest, RejectsUnusableImages) {
   TextShape shape;
   shape.slant = 7.0f;

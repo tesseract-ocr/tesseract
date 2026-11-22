@@ -78,29 +78,44 @@ bool MeasureTextShape(Image pix, TextShape *shape) {
     return false;
   }
 
-  // Collect the runs of text pixels and count them by their length.
+  // Collect the runs of text pixels and count them by their length. A run
+  // which touches no text in the row above or below it is a speck of noise.
+  // Many of those would hide the strokes of the text, so they are left out.
   std::vector<PixelRun> runs;
-  std::vector<int> num_runs(width + 1);
+  std::vector<PixelRun> specks;
   const l_uint32 *data = pixGetData(pix);
   const int wpl = pixGetWpl(pix);
   for (int y = 0; y < height; ++y) {
     const l_uint32 *line = data + static_cast<size_t>(y) * wpl;
+    const l_uint32 *above = y > 0 ? line - wpl : nullptr;
+    const l_uint32 *below = y + 1 < height ? line + wpl : nullptr;
     int start = -1;
+    bool connected = false;
     for (int x = 0; x <= width; ++x) {
       const bool text = x < width && GET_DATA_BIT(line, x) != 0;
       if (text) {
         if (start < 0) {
           start = x;
+          connected = false;
         }
+        connected = connected || (above != nullptr && GET_DATA_BIT(above, x) != 0) ||
+                    (below != nullptr && GET_DATA_BIT(below, x) != 0);
       } else if (start >= 0) {
-        runs.push_back({y, start, x});
-        ++num_runs[x - start];
+        (connected ? runs : specks).push_back({y, start, x});
         start = -1;
       }
     }
   }
   if (runs.empty()) {
+    // The text has no stroke which is higher than a pixel.
+    runs.swap(specks);
+  }
+  if (runs.empty()) {
     return false;
+  }
+  std::vector<int> num_runs(width + 1);
+  for (const auto &run : runs) {
+    ++num_runs[run.end - run.start];
   }
 
   // Most runs cross a single stroke, so the median of their lengths is the
