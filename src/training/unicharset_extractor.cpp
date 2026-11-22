@@ -30,22 +30,34 @@
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 
+#include <set>
+#include <string>
+
 using namespace tesseract;
 
 static STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
 static INT_PARAM_FLAG(norm_mode, 1,
                       "Normalization mode: 1=Combine graphemes, "
                       "2=Split graphemes, 3=Pure unicode");
+static BOOL_PARAM_FLAG(decompose, false,
+                       "Decompose characters (NFD) instead of composing them (NFC). "
+                       "Use with norm_mode 2 or 3 and with decomposed training text: "
+                       "base characters and combining marks become separate unichars");
+static BOOL_PARAM_FLAG(sort, false,
+                       "Sort the unichars by code point instead of adding them "
+                       "in the order of their first occurrence in the input");
 
 namespace tesseract {
 
 // Helper normalizes and segments the given strings according to norm_mode, and
 // adds the segmented parts to unicharset.
 static void AddStringsToUnicharset(const std::vector<std::string> &strings, int norm_mode,
+                                   bool decompose, std::set<std::string> *sorted,
                                    UNICHARSET *unicharset) {
   for (const auto &string : strings) {
     std::vector<std::string> normalized;
-    if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
+    if (NormalizeCleanAndSegmentUTF8(decompose ? UnicodeNormMode::kNFD : UnicodeNormMode::kNFC,
+                                     OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
                                      /*report_errors*/ true, string.c_str(), &normalized)) {
       for (const std::string &normed : normalized) {
@@ -53,7 +65,11 @@ static void AddStringsToUnicharset(const std::vector<std::string> &strings, int 
         if (normed.empty() || IsUTF8Whitespace(normed.c_str())) {
           continue;
         }
-        unicharset->unichar_insert(normed.c_str());
+        if (sorted != nullptr) {
+          sorted->insert(normed);
+        } else {
+          unicharset->unichar_insert(normed.c_str());
+        }
       }
     } else {
       tprintf("Normalization failed for string '%s'\n", string.c_str());
@@ -63,6 +79,8 @@ static void AddStringsToUnicharset(const std::vector<std::string> &strings, int 
 
 static int Main(int argc, char **argv) {
   UNICHARSET unicharset;
+  // Unichars of all input files, ordered by code point (UTF-8 byte order).
+  std::set<std::string> sorted;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
     std::filesystem::path filePath = argv[arg];
@@ -85,7 +103,11 @@ static int Main(int argc, char **argv) {
       texts.clear();
       texts = split(file_data, '\n');
     }
-    AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);
+    AddStringsToUnicharset(texts, FLAGS_norm_mode, FLAGS_decompose,
+                           FLAGS_sort ? &sorted : nullptr, &unicharset);
+  }
+  for (const std::string &unichar : sorted) {
+    unicharset.unichar_insert(unichar.c_str());
   }
   SetupBasicProperties(/*report_errors*/ true, /*decompose*/ false, &unicharset);
   // Write unicharset file.
@@ -107,7 +129,7 @@ int main(int argc, char **argv) {
   }
   if (argc < 2) {
     tprintf(
-        "Usage: %s [--output_unicharset filename] [--norm_mode mode]"
+        "Usage: %s [--output_unicharset filename] [--norm_mode mode] [--decompose] [--sort]"
         " box_or_text_file [...]\n",
         argv[0]);
     tprintf("Where mode means:\n");
