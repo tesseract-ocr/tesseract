@@ -207,6 +207,14 @@ void LSTMTrainer::InitIterations() {
     error_rates_[i] = 100.0;
   }
   error_rate_of_last_saved_best_ = kMinStartedErrorRate;
+  // The models which a checkpoint keeps for the evaluation and for the
+  // sub-trainer belong to the old counters. They must not be used any more:
+  // after a change of the character set (--old_traineddata) they even have
+  // another number of outputs than the new recoder, and evaluating them made
+  // ComputeCharError write beyond its array of label counts.
+  best_model_data_.clear();
+  worst_model_data_.clear();
+  best_trainer_.clear();
 }
 
 // If the training sample is usable, grid searches for the optimal
