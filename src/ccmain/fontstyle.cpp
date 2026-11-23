@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring> // for strchr
+#include <utility> // for std::pair
 #include <vector>
 
 namespace tesseract {
@@ -49,8 +50,28 @@ const int kSubPixels = 4;
 // A word is italic if its slant is at least this value.
 const float kItalicSlant = 0.07f;
 // A word is bold if its strokes are at least this much wider than those of
-// the typical word of the page, relative to the x-height.
+// the typical word of the page, relative to the size of the text.
 const float kBoldFactor = 1.25f;
+// The stroke width of the regular words of a text line is the median of its
+// thin words. Those are the words up to this factor above the stroke width at
+// this quantile of the words, so some bold words do not change it.
+const float kThinWordsQuantile = 0.15f;
+const float kThinWordsRange = 1.15f;
+// Text lines have the same font and size if their regular stroke widths and
+// the heights of their tall words differ by less than these shares. The
+// height of the tall words is the one at this quantile of the words.
+const float kSameStrokeTolerance = 0.08f;
+const float kSameHeightTolerance = 0.2f;
+const float kTallWordsQuantile = 0.75f;
+// The x-height of a text line is too large if a word with lowercase letters
+// is lower than this share of it. A word cannot be lower than half of it.
+const float kMaxLowWord = 0.85f;
+const float kMinLowWord = 0.5f;
+// Typical x-height of a font relative to the height of its capital letters.
+const float kXHeightOfCapitals = 0.7f;
+// The italic words of a page have a reference of their own for bold if there
+// are at least this many of them.
+const size_t kMinItalicWords = 5;
 // A word needs this number of letters and digits for a decision of its own.
 const int kMinStyleLetters = 3;
 // Letters and symbols with diagonal strokes which can have the slant of the
@@ -220,7 +241,7 @@ struct WordStyle {
   const ROW *row = nullptr;
   // Slant of the text relative to the perpendicular of the baseline.
   float slant = 0.0f;
-  // Stroke width relative to the x-height of the row.
+  // Stroke width relative to the size of the text.
   float weight = 0.0f;
   // The word has enough text for a decision of its own on bold.
   bool bold_reliable = false;
@@ -230,7 +251,162 @@ struct WordStyle {
   bool italic = false;
 };
 
+// Text size and stroke width of the words of one text line, which are the
+// elements from begin to end - 1 of the words.
+struct RowStyle {
+  size_t begin = 0;
+  size_t end = 0;
+  // The x-height from the layout analysis, corrected with the recognized
+  // words.
+  float x_height = 0.0f;
+  // Stroke width of the regular words in pixels.
+  float stroke = 0.0f;
+  // Number of words which were used for the stroke width.
+  int num_words = 0;
+  // Height of the tall words above the baseline in pixels.
+  float height = 0.0f;
+};
+
 } // namespace
+
+// Returns the median of the values, or the upper one of the two medians.
+// Changes the order of the values, which must not be empty.
+static float Median(std::vector<float> *values) {
+  auto median = values->begin() + values->size() / 2;
+  std::nth_element(values->begin(), median, values->end());
+  return *median;
+}
+
+// Returns the text size and the regular stroke width of the text line with
+// the given words. The strokes are the stroke widths of all words.
+//
+// The x-height of the layout analysis is sometimes the height of the capital
+// letters, mainly in lines with capital letters which have accents. The
+// recognized text shows that: a word with lowercase letters is at least as
+// high as the x-height, and a word of capital letters is higher. If words are
+// too low for the x-height of the line, their height replaces it.
+static RowStyle MeasureRow(const std::vector<WordStrokes> &words,
+                           const std::vector<float> &strokes, size_t begin, size_t end) {
+  RowStyle row;
+  row.begin = begin;
+  row.end = end;
+  row.x_height = words[begin].x_height;
+  std::vector<float> x_heights;
+  std::vector<float> row_strokes;
+  // Heights of the words with letters of a known height, of the words with
+  // enough text, and of all words.
+  std::vector<float> letter_heights;
+  std::vector<float> reliable_heights;
+  std::vector<float> heights;
+  for (size_t i = begin; i < end; ++i) {
+    const WordStrokes &word = words[i];
+    heights.push_back(word.height);
+    if (!word.reliable) {
+      continue;
+    }
+    reliable_heights.push_back(word.height);
+    if (word.has_lower || word.capitals_only) {
+      letter_heights.push_back(word.height);
+    }
+    row_strokes.push_back(strokes[i]);
+    float x_height = 0.0f;
+    if (word.has_lower) {
+      x_height = word.height;
+    } else if (word.capitals_only) {
+      x_height = kXHeightOfCapitals * word.height;
+    }
+    if (x_height >= kMinLowWord * row.x_height && x_height <= kMaxLowWord * row.x_height) {
+      x_heights.push_back(x_height);
+    }
+  }
+  if (!x_heights.empty()) {
+    row.x_height = Median(&x_heights);
+  }
+  if (row_strokes.empty()) {
+    row_strokes.assign(strokes.begin() + begin, strokes.begin() + end);
+  }
+  std::sort(row_strokes.begin(), row_strokes.end());
+  const float thin = row_strokes[static_cast<size_t>(kThinWordsQuantile * row_strokes.size())];
+  const size_t num_thin =
+      std::upper_bound(row_strokes.begin(), row_strokes.end(), kThinWordsRange * thin) -
+      row_strokes.begin();
+  row.stroke = row_strokes[num_thin / 2];
+  row.num_words = static_cast<int>(row_strokes.size());
+  // Capital letters with accents are higher than other tall letters, so
+  // prefer the words which cannot have them.
+  std::vector<float> &tall = !letter_heights.empty()
+                                 ? letter_heights
+                                 : !reliable_heights.empty() ? reliable_heights : heights;
+  auto quantile = tall.begin() + std::min(tall.size() - 1, static_cast<size_t>(
+                                                             kTallWordsQuantile * tall.size()));
+  std::nth_element(tall.begin(), quantile, tall.end());
+  row.height = *quantile;
+  return row;
+}
+
+void SetWordWeights(std::vector<WordStrokes> *words) {
+  // The italic of some fonts has thinner strokes than the upright font, so
+  // its bold is not much heavier than regular upright text. Compare italic
+  // words with the typical italic word then, by scaling their strokes.
+  std::vector<float> upright;
+  std::vector<float> italic;
+  for (const auto &word : *words) {
+    if (word.reliable && word.x_height > 0.0f) {
+      (word.italic ? italic : upright).push_back(word.stroke / word.x_height);
+    }
+  }
+  float italic_stroke = 1.0f;
+  if (!upright.empty() && italic.size() >= kMinItalicWords) {
+    italic_stroke = std::min(1.0f, Median(&italic) / Median(&upright));
+  }
+  std::vector<float> strokes;
+  for (const auto &word : *words) {
+    strokes.push_back(word.italic && italic_stroke > 0.0f ? word.stroke / italic_stroke
+                                                           : word.stroke);
+  }
+
+  std::vector<RowStyle> rows;
+  for (size_t begin = 0; begin < words->size();) {
+    size_t end = begin + 1;
+    while (end < words->size() && (*words)[end].row == (*words)[begin].row) {
+      ++end;
+    }
+    rows.push_back(MeasureRow(*words, strokes, begin, end));
+    begin = end;
+  }
+  // The x-height of a single text line is not exact enough, even after its
+  // correction. Lines with the same regular stroke width and the same height
+  // of their words have the same font and size, so they share the median of
+  // their x-heights. That leaves lines which are bold throughout as they are,
+  // because their strokes differ from those of the other lines. Larger text
+  // can have the strokes of smaller bold text, but its words are higher.
+  std::vector<std::pair<float, int>> x_heights;
+  for (const auto &row : rows) {
+    x_heights.clear();
+    int num_words = 0;
+    for (const auto &other : rows) {
+      if (row.stroke > 0.0f && row.height > 0.0f &&
+          std::fabs(other.stroke / row.stroke - 1.0f) <= kSameStrokeTolerance &&
+          std::fabs(other.height / row.height - 1.0f) <= kSameHeightTolerance) {
+        x_heights.emplace_back(other.x_height, other.num_words);
+        num_words += other.num_words;
+      }
+    }
+    std::sort(x_heights.begin(), x_heights.end());
+    float x_height = row.x_height;
+    int num_smaller = 0;
+    for (const auto &entry : x_heights) {
+      num_smaller += entry.second;
+      if (num_smaller > num_words / 2) {
+        x_height = entry.first;
+        break;
+      }
+    }
+    for (size_t i = row.begin; i < row.end; ++i) {
+      (*words)[i].weight = x_height > 0.0f ? strokes[i] / x_height : 0.0f;
+    }
+  }
+}
 
 // Returns the value which a word with too little text gets for a style
 // attribute: the value of its reliable neighbours in the same row if they
@@ -321,6 +497,8 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
   }
   const TBOX image_box(0, 0, pixGetWidth(pix), pixGetHeight(pix));
   std::vector<WordStyle> styles;
+  // The measurements for bold of the same words.
+  std::vector<WordStrokes> strokes;
   PAGE_RES_IT page_res_it(page_res);
   for (page_res_it.restart_page(); page_res_it.word() != nullptr; page_res_it.forward()) {
     WERD_RES *word = page_res_it.word();
@@ -418,24 +596,45 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
                                      box.width()
                                : 0.0f;
     style.slant = shape.slant + gradient;
-    style.weight = shape.stroke_width / row->x_height();
+    WordStrokes word_strokes;
+    word_strokes.x_height = row->x_height();
+    word_strokes.stroke = shape.stroke_width;
+    word_strokes.height = box.top() - row->base_line(0.5f * (box.left() + box.right()));
     int num_letters = 0;
+    bool has_upper = false;
+    bool ascii = true;
     for (unsigned i = 0; i < choice.length(); ++i) {
-      if (word->uch_set->get_isalpha(choice.unichar_id(i)) ||
-          word->uch_set->get_isdigit(choice.unichar_id(i))) {
+      const UNICHAR_ID id = choice.unichar_id(i);
+      if (word->uch_set->get_isalpha(id) || word->uch_set->get_isdigit(id)) {
         ++num_letters;
       }
+      word_strokes.has_lower = word_strokes.has_lower || word->uch_set->get_islower(id);
+      has_upper = has_upper || word->uch_set->get_isupper(id);
+      for (const char *byte = word->uch_set->id_to_unichar(id); *byte != '\0'; ++byte) {
+        ascii = ascii && static_cast<unsigned char>(*byte) < 0x80;
+      }
     }
+    // Such a word has no accents, so it is as high as a capital letter.
+    word_strokes.capitals_only = has_upper && !word_strokes.has_lower && ascii;
     style.bold_reliable = num_letters >= kMinStyleLetters;
     style.italic_reliable = style.bold_reliable && shape.has_slant;
     style.italic = shape.has_slant && style.slant >= kItalicSlant;
+    word_strokes.reliable = style.bold_reliable;
+    word_strokes.italic = style.italic;
+    // The words of a text line follow each other.
+    word_strokes.row = styles.empty() ? 0 : strokes.back().row + (styles.back().row != row);
     styles.push_back(style);
+    strokes.push_back(word_strokes);
   }
   if (styles.empty()) {
     return;
   }
 
   // The weight of the typical word of the page is the reference for bold.
+  SetWordWeights(&strokes);
+  for (size_t i = 0; i < styles.size(); ++i) {
+    styles[i].weight = strokes[i].weight;
+  }
   std::vector<float> weights;
   for (const auto &style : styles) {
     if (style.bold_reliable) {

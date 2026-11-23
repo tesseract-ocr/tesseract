@@ -169,6 +169,128 @@ TEST(FontStyleTest, RejectsUnusableImages) {
   EXPECT_EQ(shape.slant, 7.0f);
 }
 
+// Adds words of one text line with the given x-height of the line, stroke
+// width and height above the baseline. The words have lowercase letters.
+static void AddWords(int num_words, int row, float x_height, float stroke, float height,
+                     std::vector<WordStrokes> *words) {
+  for (int i = 0; i < num_words; ++i) {
+    WordStrokes word;
+    word.row = row;
+    word.x_height = x_height;
+    word.stroke = stroke;
+    word.height = height;
+    word.has_lower = true;
+    word.reliable = true;
+    words->push_back(word);
+  }
+}
+
+// Text lines with the same strokes have the same font and size, so small
+// differences of their x-heights must not change the weight of their words.
+TEST(FontStyleTest, SameStrokesShareTextSize) {
+  std::vector<WordStrokes> words;
+  const float x_heights[] = {12.0f, 13.0f, 12.0f, 13.0f, 12.0f};
+  for (int row = 0; row < 5; ++row) {
+    // The words have ascenders, so they do not contradict the x-height.
+    AddWords(8, row, x_heights[row], 3.0f, 17.0f, &words);
+  }
+  // Bold words in a line do not change the stroke width of the line.
+  words[9].stroke = words[10].stroke = words[11].stroke = 4.5f;
+  SetWordWeights(&words);
+  for (size_t i = 0; i < words.size(); ++i) {
+    EXPECT_FLOAT_EQ(words[i].weight, (i >= 9 && i <= 11 ? 4.5f : 3.0f) / 12.0f) << "word " << i;
+  }
+}
+
+// A line which is bold throughout has other strokes than the rest of the
+// page, and a line with larger text has higher words, even if its strokes
+// are those of the bold line. Both keep their own x-height.
+TEST(FontStyleTest, OtherStrokesKeepTextSize) {
+  std::vector<WordStrokes> words;
+  for (int row = 0; row < 4; ++row) {
+    AddWords(8, row, 20.0f, 4.0f, 28.0f, &words);
+  }
+  AddWords(5, 4, 20.0f, 6.0f, 28.0f, &words);
+  AddWords(5, 5, 28.0f, 5.6f, 39.0f, &words);
+  SetWordWeights(&words);
+  for (size_t i = 0; i < words.size(); ++i) {
+    EXPECT_FLOAT_EQ(words[i].weight, words[i].row == 4 ? 0.3f : 0.2f) << "word " << i;
+  }
+}
+
+// The x-height of a line is wrong if words with lowercase letters are much
+// lower, or if words of capital letters are not higher.
+TEST(FontStyleTest, CorrectsXHeight) {
+  std::vector<WordStrokes> words;
+  for (int row = 0; row < 4; ++row) {
+    AddWords(8, row, 20.0f, 4.0f, 28.0f, &words);
+  }
+  // A bold line with the height of the capital letters as x-height: one word
+  // without ascenders shows the real x-height.
+  AddWords(5, 4, 28.0f, 6.0f, 28.0f, &words);
+  words.back().height = 20.0f;
+  // The same for a line of capital letters.
+  AddWords(5, 5, 28.0f, 8.0f, 28.0f, &words);
+  for (size_t i = words.size() - 5; i < words.size(); ++i) {
+    words[i].has_lower = false;
+    words[i].capitals_only = true;
+  }
+  // A line of a script without lowercase letters keeps its x-height.
+  AddWords(5, 6, 28.0f, 10.0f, 28.0f, &words);
+  for (size_t i = words.size() - 5; i < words.size(); ++i) {
+    words[i].has_lower = false;
+  }
+  SetWordWeights(&words);
+  for (size_t i = 0; i < words.size(); ++i) {
+    const float expected[] = {0.2f, 0.2f, 0.2f, 0.2f, 6.0f / 20.0f, 8.0f / (0.7f * 28.0f),
+                              10.0f / 28.0f};
+    EXPECT_FLOAT_EQ(words[i].weight, expected[words[i].row]) << "word " << i;
+  }
+}
+
+// A wrong x-height which the words of the line do not show is outvoted by
+// the lines with the same strokes and the same height of the words.
+TEST(FontStyleTest, SameHeightsShareTextSize) {
+  std::vector<WordStrokes> words;
+  const float x_heights[] = {20.0f, 28.0f, 20.0f, 20.0f, 28.0f};
+  for (int row = 0; row < 5; ++row) {
+    AddWords(8, row, x_heights[row], 4.0f, 28.0f, &words);
+  }
+  for (auto &word : words) {
+    // Capital letters with accents say nothing about the x-height.
+    word.has_lower = false;
+  }
+  SetWordWeights(&words);
+  for (size_t i = 0; i < words.size(); ++i) {
+    EXPECT_FLOAT_EQ(words[i].weight, 0.2f) << "word " << i;
+  }
+}
+
+// The italic of some fonts is lighter than the upright font. Italic words
+// are compared with the other italic words then.
+TEST(FontStyleTest, ItalicWordsHaveOwnReference) {
+  for (int num_italic : {3, 6}) {
+    std::vector<WordStrokes> words;
+    for (int row = 0; row < 3; ++row) {
+      AddWords(10, row, 20.0f, 4.0f, 28.0f, &words);
+    }
+    for (int i = 0; i < num_italic; ++i) {
+      words[3 * i].italic = true;
+      words[3 * i].stroke = 3.0f;
+    }
+    // A bold italic word.
+    words[25].italic = true;
+    words[25].stroke = 4.6f;
+    SetWordWeights(&words);
+    // Seven italic words are enough for a reference, four are not.
+    const float scale = num_italic == 6 ? 0.75f : 1.0f;
+    for (size_t i = 0; i < words.size(); ++i) {
+      const float stroke = words[i].italic ? words[i].stroke / scale : words[i].stroke;
+      EXPECT_FLOAT_EQ(words[i].weight, stroke / 20.0f) << "word " << i;
+    }
+  }
+}
+
 TEST(FontStyleTest, NamelessFonts) {
   for (bool bold : {false, true}) {
     for (bool italic : {false, true}) {
@@ -407,6 +529,37 @@ TEST_F(FontStyleApiTest, FindsStylesInRotatedPage) {
     num_bold += rotated[i].bold;
   }
   EXPECT_GE(num_italic, 6);
+  EXPECT_GE(num_bold, 6);
+}
+
+// Larger text has wider strokes, but it is not bold.
+TEST_F(FontStyleApiTest, LargerTextIsNotBold) {
+  const int kBoldLine = 5;
+  ASSERT_TRUE(api_.SetVariable("lstm_font_attributes", "1"));
+  // Add a larger copy of the page below the page.
+  Image large = pixScale(pix_, 1.4f, 1.4f);
+  ASSERT_TRUE(large != nullptr);
+  const int height = pixGetHeight(pix_);
+  Image page = pixCreate(pixGetWidth(large), height + pixGetHeight(large), pixGetDepth(pix_));
+  ASSERT_TRUE(page != nullptr);
+  pixSetBlackOrWhite(page, L_SET_WHITE);
+  pixRasterop(page, 0, 0, pixGetWidth(pix_), height, PIX_SRC, pix_, 0, 0);
+  pixRasterop(page, 0, height, pixGetWidth(large), pixGetHeight(large), PIX_SRC, large, 0, 0);
+  large.destroy();
+  pix_.destroy();
+  pix_ = page;
+  std::vector<StyledWord> words = Recognize();
+  ASSERT_EQ(line_boxes_.size(), 16u);
+  for (const auto &word : words) {
+    EXPECT_FALSE(word.bold) << word.text << " in line " << word.line;
+  }
+  ChangeLine(kBoldLine, [](Image line) { return Image(pixDilateBrick(nullptr, line, 3, 3)); });
+  words = Recognize();
+  int num_bold = 0;
+  for (const auto &word : words) {
+    EXPECT_EQ(word.bold, word.line == kBoldLine) << word.text << " in line " << word.line;
+    num_bold += word.bold;
+  }
   EXPECT_GE(num_bold, 6);
 }
 

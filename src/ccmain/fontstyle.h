@@ -21,6 +21,8 @@
 
 #include <tesseract/export.h> // for TESS_API
 
+#include <vector>
+
 namespace tesseract {
 
 struct FontInfo;
@@ -46,6 +48,42 @@ struct TextShape {
 // untouched if the image is not usable or contains no text.
 TESS_API
 bool MeasureTextShape(Image pix, TextShape *shape);
+
+// Measurements of a word for the estimation of bold. A word is bold if its
+// weight is clearly above the weight of the typical word of the page.
+struct WordStrokes {
+  // Number of the text line of the word. The words of a line follow each
+  // other.
+  int row = 0;
+  // x-height of the text line from the layout analysis in pixels.
+  float x_height = 0.0f;
+  // Typical width of the strokes of the word in pixels.
+  float stroke = 0.0f;
+  // Height of the word above the baseline in pixels.
+  float height = 0.0f;
+  // The word has lowercase letters.
+  bool has_lower = false;
+  // The word has capital letters, no lowercase letters and no accents.
+  bool capitals_only = false;
+  // The word has enough text for a decision of its own.
+  bool reliable = false;
+  bool italic = false;
+  // Result: width of the strokes relative to the size of the text.
+  float weight = 0.0f;
+};
+
+// Sets the weight of the given words, which are those of one page.
+//
+// The size of the text is the x-height of the text line with two corrections.
+// Words which are too low for the x-height of their line replace it, because
+// the layout analysis sometimes takes the height of the capital letters for
+// the x-height. And text lines whose regular words have the same stroke width
+// and whose tall words have the same height share the median of their
+// x-heights, because they have the same font and size. The strokes of italic
+// words count as wider if the italic words of the page have thinner strokes
+// than the upright ones.
+TESS_API
+void SetWordWeights(std::vector<WordStrokes> *words);
 
 // Returns the entry of a table of fonts without a name for the given style.
 // The entries have the font id -1 and stay valid until the program ends.
