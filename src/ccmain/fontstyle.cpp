@@ -260,6 +260,54 @@ static bool StyleFromNeighbours(const std::vector<WordStyle> &styles, size_t ind
   return style.*attribute;
 }
 
+// Returns the number of clockwise quarter turns of an image which the given
+// rotation of a block stands for. Blocks are only rotated by quarter turns,
+// and the vector (0, 1) turns anticlockwise.
+static int QuarterTurns(const FCOORD &rotation) {
+  if (rotation.y() < 0.0f) {
+    return 1;
+  }
+  if (rotation.y() > 0.0f) {
+    return 3;
+  }
+  return rotation.x() < 0.0f ? 2 : 0;
+}
+
+// Returns true if the word has more characters of the scripts which keep
+// their characters upright in vertical text lines (Chinese, Japanese, Korean)
+// than of other scripts. Characters which many scripts share do not count.
+static bool HasUprightScript(const WERD_RES &word) {
+  const UNICHARSET &unicharset = *word.uch_set;
+  const WERD_CHOICE &choice = *word.best_choice;
+  int num_upright = 0;
+  int num_others = 0;
+  for (unsigned i = 0; i < choice.length(); ++i) {
+    const int script = unicharset.get_script(choice.unichar_id(i));
+    if (script == unicharset.null_sid() || script == unicharset.common_sid()) {
+      continue;
+    }
+    if (script == unicharset.han_sid() || script == unicharset.hiragana_sid() ||
+        script == unicharset.katakana_sid() || script == unicharset.hangul_sid()) {
+      ++num_upright;
+    } else {
+      ++num_others;
+    }
+  }
+  return num_upright > num_others;
+}
+
+// Measures the shape of the text in an image which needs the given number of
+// clockwise quarter turns to get upright characters.
+static bool MeasureTurnedText(Image pix, int turns, TextShape *shape) {
+  if (turns == 0) {
+    return MeasureTextShape(pix, shape);
+  }
+  Image upright = pixRotateOrth(pix, turns);
+  const bool measured = MeasureTextShape(upright, shape);
+  upright.destroy();
+  return measured;
+}
+
 /**
  * font_style_pass
  *
@@ -284,11 +332,20 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
     if (block == nullptr || row == nullptr || row->x_height() <= 0.0f) {
       continue;
     }
-    if (block->re_rotation().x() <= 0.0f || block->re_rotation().y() != 0.0f) {
-      // The block is rotated, so its boxes do not refer to the image.
-      continue;
-    }
-    const TBOX box = word->word->bounding_box().intersection(image_box);
+    // The boxes refer to the block, which is rotated against the image if the
+    // page is not upright or if the text lines are vertical. Get the image of
+    // the word as it is in the block, with a horizontal text line.
+    const FCOORD re_rotation = block->re_rotation();
+    const int block_turns = (4 - QuarterTurns(re_rotation)) % 4;
+    // Vertical lines of a rotated page have upright characters in the block.
+    // Those of Chinese, Japanese and Korean text are turned in the block, and
+    // the rotation for the classifier makes them upright. The block is the
+    // same for both, so the script of the word decides.
+    const int upright_turns =
+        HasUprightScript(*word) ? QuarterTurns(block->classify_rotation()) : 0;
+    TBOX box = word->word->bounding_box();
+    box.rotate(re_rotation);
+    box = box.intersection(image_box);
     if (box.null_box()) {
       continue;
     }
@@ -296,9 +353,17 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
         boxCreate(box.left(), image_box.top() - box.top(), box.width(), box.height());
     Image word_pix = pixClipRectangle(pix, clip_box, nullptr);
     boxDestroy(&clip_box);
+    if (word_pix != nullptr && block_turns != 0) {
+      Image turned = pixRotateOrth(word_pix, block_turns);
+      word_pix.destroy();
+      word_pix = turned;
+    }
     if (word_pix == nullptr) {
       continue;
     }
+    // From here on the box is the part of the word in the image, in the
+    // coordinates of the block.
+    box.rotate(FCOORD(re_rotation.x(), -re_rotation.y()));
     // Invert white text on black. Such text has more set pixels than others,
     // but so can heavy bold text. The upper and lower edge of the box are
     // above and below the text, so they must show the background, too.
@@ -313,7 +378,7 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
       pixInvert(word_pix, word_pix);
     }
     TextShape shape;
-    if (!MeasureTextShape(word_pix, &shape)) {
+    if (!MeasureTurnedText(word_pix, upright_turns, &shape)) {
       word_pix.destroy();
       continue;
     }
@@ -338,7 +403,8 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
       }
       if (erased) {
         TextShape stem_shape;
-        shape.has_slant = MeasureTextShape(word_pix, &stem_shape) && stem_shape.has_slant;
+        shape.has_slant =
+            MeasureTurnedText(word_pix, upright_turns, &stem_shape) && stem_shape.has_slant;
         shape.slant = stem_shape.slant;
       }
     }

@@ -375,6 +375,41 @@ TEST_F(FontStyleApiTest, FindsItalicAndBoldLines) {
   EXPECT_EQ(count("<strong>"), num_bold_line_words);
 }
 
+// The words of a page which lies on its side must get the same attributes as
+// those of the upright page.
+TEST_F(FontStyleApiTest, FindsStylesInRotatedPage) {
+  const int kItalicLine = 3;
+  const int kBoldLine = 5;
+  ASSERT_TRUE(api_.SetVariable("lstm_font_attributes", "1"));
+  std::vector<StyledWord> upright = Recognize();
+  ASSERT_EQ(line_boxes_.size(), 8u);
+  ChangeLine(kItalicLine, [](Image line) {
+    return Image(pixHShear(nullptr, line, pixGetHeight(line) / 2, std::atan(0.25f),
+                           L_BRING_IN_WHITE));
+  });
+  ChangeLine(kBoldLine, [](Image line) { return Image(pixDilateBrick(nullptr, line, 3, 3)); });
+  upright = Recognize();
+  // The layout analysis finds the vertical text lines of a page which is
+  // turned clockwise by a quarter without a detection of the orientation.
+  Image turned = pixRotateOrth(pix_, 1);
+  ASSERT_TRUE(turned != nullptr);
+  pix_.destroy();
+  pix_ = turned;
+  const std::vector<StyledWord> rotated = Recognize();
+  ASSERT_EQ(rotated.size(), upright.size());
+  int num_italic = 0;
+  int num_bold = 0;
+  for (size_t i = 0; i < rotated.size(); ++i) {
+    EXPECT_EQ(rotated[i].text, upright[i].text);
+    EXPECT_EQ(rotated[i].italic, upright[i].italic) << rotated[i].text;
+    EXPECT_EQ(rotated[i].bold, upright[i].bold) << rotated[i].text;
+    num_italic += rotated[i].italic;
+    num_bold += rotated[i].bold;
+  }
+  EXPECT_GE(num_italic, 6);
+  EXPECT_GE(num_bold, 6);
+}
+
 // White text on black must give the same attributes as black text on white.
 TEST_F(FontStyleApiTest, FindsItalicInInverseText) {
   const int kItalicLine = 3;
