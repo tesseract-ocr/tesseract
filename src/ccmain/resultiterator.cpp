@@ -85,7 +85,9 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
   //     it is LTR.
   // (3) If neither of the above is true, take the majority count for the
   //     paragraph -- if there are more rtl words, it is RTL.  If there
-  //     are more LTR words, it's LTR.
+  //     are more LTR words, it's LTR.  A tie is broken by the direction
+  //     of the primary language, so a short line of an RTL language that
+  //     contains as many Latin words as RTL ones stays RTL.
   bool leftmost_rtl = it.WordDirection() == DIR_RIGHT_TO_LEFT;
   bool rightmost_ltr = it.WordDirection() == DIR_LEFT_TO_RIGHT;
   int num_ltr, num_rtl;
@@ -112,7 +114,13 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
       num_ltr += (dir == DIR_LEFT_TO_RIGHT) ? 1 : 0;
     } while (it.Next(RIL_WORD) && !it.IsAtBeginningOf(RIL_PARA));
   }
-  return num_ltr >= num_rtl;
+  if (num_ltr != num_rtl) {
+    return num_ltr > num_rtl;
+  }
+  // A tie has no majority to follow.  Follow the direction of the primary
+  // language instead of assuming LTR, so that a line of an RTL language that
+  // happens to hold as many Latin words as RTL ones is still read RTL.
+  return !tesseract_->right_to_left();
 }
 
 const int ResultIterator::kMinorRunStart = -1;

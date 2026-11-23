@@ -508,6 +508,43 @@ TEST_F(ResultIteratorTest, RightToLeftIteratorStartsTest) {
   delete it;
 }
 
+// Tests that a short line of an RTL language is read right to left when it
+// holds as many Latin words as RTL ones.  Such a line has no majority
+// direction, and neither of the two first-line heuristics applies: the
+// leftmost word is Latin and the rightmost word is not.  The direction used to
+// fall back to LTR, which moved the Latin words to the front of the line.  The
+// crop is a line of hebrew.png, cut out so that it forms a paragraph of its
+// own.
+TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  SetImage("hebrew.png", "heb+eng", tesseract::OEM_DEFAULT);
+  api_.SetPageSegMode(tesseract::PSM_SINGLE_LINE);
+  Box *line_box = boxCreate(100, 0, 100, 24);
+  Image line = pixClipRectangle(src_pix_, line_box, nullptr);
+  boxDestroy(&line_box);
+  ASSERT_NE(nullptr, line);
+  api_.SetImage(line);
+  line.destroy();
+
+  // One Hebrew word, one Latin word and one neutral word make the paragraph
+  // ambiguous.
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> it(api_.GetIterator());
+  ASSERT_NE(it, nullptr);
+  ASSERT_FALSE(it->ParagraphIsLtr());
+
+  // Hebrew is written right to left, so the first word in reading order is
+  // the rightmost one on the line, and it is Hebrew.  Reading the line as LTR
+  // puts the Latin word first instead.
+  std::unique_ptr<char[]> first_word(it->GetUTF8Text(RIL_WORD));
+  ASSERT_NE(nullptr, first_word);
+  ASSERT_NE('\0', first_word[0]);
+  const auto *first_char = reinterpret_cast<const unsigned char *>(first_word.get());
+  // Hebrew letters are all two bytes long and start with 0xD7.
+  EXPECT_EQ(0xD7, first_char[0]) << "first word is not Hebrew: " << first_word.get();
+}
+
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
 #ifdef DISABLED_LEGACY_ENGINE
