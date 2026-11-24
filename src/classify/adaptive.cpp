@@ -18,6 +18,7 @@
 #include "adaptive.h"
 
 #include "classify.h"
+#include "tesserrstream.h" // for tesserr
 
 #include <cassert>
 #include <cstdio>
@@ -38,19 +39,30 @@ namespace tesseract {
  *
  * @note Globals: none
  */
-void AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId) {
+bool AddAdaptedClass(ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_CLASS_STRUCT *Class, CLASS_ID ClassId) {
   assert(Templates != nullptr);
   assert(Class != nullptr);
-  assert(LegalClassId(ClassId));
-  assert(UnusedClassIdIn(Templates->Templates, ClassId));
   assert(Class->NumPermConfigs == 0);
 
+  // ClassId indexes the fixed-size Templates->Class[] array, so reject an
+  // out-of-range id instead of writing out of bounds below.
+  if (!LegalClassId(ClassId)) {
+    tesserr << "Error: illegal class id " << ClassId << " in AddAdaptedClass\n";
+    delete Class;
+    return false;
+  }
+
   auto IntClass = new INT_CLASS_STRUCT(1);
-  AddIntClass(Templates->Templates, ClassId, IntClass);
+  if (!AddIntClass(Templates->Templates, ClassId, IntClass)) {
+    delete IntClass;
+    delete Class;
+    return false;
+  }
 
   assert(Templates->Class[ClassId] == nullptr);
   Templates->Class[ClassId] = Class;
 
+  return true;
 } /* AddAdaptedClass */
 
 /*---------------------------------------------------------------------------*/
@@ -88,12 +100,26 @@ ADAPT_CLASS_STRUCT::~ADAPT_CLASS_STRUCT() {
 
 /// Constructor for adapted templates.
 /// Add an empty class for each char in unicharset to the newly created templates.
+/// The unicharset must not have more than MAX_NUM_CLASSES entries, as a unichar
+/// id indexes the fixed-size class arrays. If it does, the construction fails:
+/// the object is left unusable and valid() returns false, so callers have to
+/// check it.
 ADAPT_TEMPLATES_STRUCT::ADAPT_TEMPLATES_STRUCT(UNICHARSET &unicharset) :
   Templates(new INT_TEMPLATES_STRUCT), NumNonEmptyClasses(0), NumPermClasses(0) {
   // Insert an empty class for each unichar id in unicharset.
   // Class is value-initialized to nullptr in-class.
   for (unsigned i = 0; i < unicharset.size(); i++) {
-    AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i);
+    if (!AddAdaptedClass(this, new ADAPT_CLASS_STRUCT, i)) {
+      // A rejected ClassId i means the classes 0..NumClasses-1 were stored
+      // successfully. The destructor skips the Class[] cleanup once Templates
+      // is set to nullptr below, so free them here.
+      for (unsigned j = 0; j < Templates->NumClasses; j++) {
+        delete Class[j];
+      }
+      delete Templates;
+      Templates = nullptr;
+      return;
+    }
   }
 }
 
@@ -157,7 +183,7 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES_STRUCT *Templat
     if (!IsEmptyAdaptedClass(AClass)) {
       fprintf(File, "%5u  %s %3d %3d %3d %3zd\n", i, unicharset.id_to_unichar(i), IClass->NumConfigs,
               AClass->NumPermConfigs, IClass->NumProtos,
-              IClass->NumProtos - AClass->TempProtos->size());
+              IClass->NumProtos - count(AClass->TempProtos));
     }
   }
   fprintf(File, "\n");
@@ -182,26 +208,44 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
 
   // first read high level adapted class structure
   Class = new ADAPT_CLASS_STRUCT;
+  // The FRead below overwrites the whole struct, including the PermProtos and
+  // PermConfigs pointers the constructor just allocated; release those
+  // allocations first or the clobbering leaks them.
+  FreeBitVector(Class->PermProtos);
+  FreeBitVector(Class->PermConfigs);
   fp->FRead(Class, sizeof(ADAPT_CLASS_STRUCT), 1);
+  // The read above overwrote every member with file bytes, including the
+  // pointer-bearing ones (the TempProtos list and the Config[] union
+  // pointers). The destructor unconditionally destroys all MAX_NUM_CONFIGS
+  // Config entries and walks TempProtos, so neutralise the file-sourced
+  // pointers before any exit path can reach it; the members are then filled
+  // with real allocations below.
+  Class->TempProtos = NIL_LIST;
+  for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+    Class->Config[i].Temp = nullptr;
+  }
 
   // then read in the definitions of the permanent protos and configs
   Class->PermProtos = NewBitVector(MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector(MAX_NUM_CONFIGS);
   fp->FRead(Class->PermProtos, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_PROTOS));
   fp->FRead(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS));
+  // The loop above activated the Temp member of every Config[] union slot.
+  // For slots the file marks permanent, activate the (aliased) Perm member so
+  // the destructor reads the active union member rather than an inactive one.
+  for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+    if (test_bit(Class->PermConfigs, i)) {
+      Class->Config[i].Perm = nullptr;
+    }
+  }
 
   // then read in the list of temporary protos
   fp->FRead(&NumTempProtos, sizeof(int), 1);
   if (NumTempProtos < 0 || NumTempProtos > MAX_NUM_PROTOS) {
     tprintf("Bad read of adapted class!\n");
-    // Reset file-sourced pointers so the destructor does not delete them.
-    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
-      Class->Config[i].Temp = nullptr;
-    }
     delete Class;
     return nullptr;
   }
-  Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     auto TempProto = new TEMP_PROTO_STRUCT;
     fp->FRead(TempProto, sizeof(TEMP_PROTO_STRUCT), 1);
@@ -215,10 +259,6 @@ ADAPT_CLASS_STRUCT *ReadAdaptedClass(TFile *fp) {
   // writing out of bounds.
   if (NumConfigs < 0 || NumConfigs > MAX_NUM_CONFIGS) {
     tprintf("Bad read of adapted class!\n");
-    // Reset file-sourced pointers so the destructor does not delete them.
-    for (i = 0; i < MAX_NUM_CONFIGS; i++) {
-      Class->Config[i].Temp = nullptr;
-    }
     delete Class;
     return nullptr;
   }
@@ -248,15 +288,20 @@ ADAPT_TEMPLATES_STRUCT *Classify::ReadAdaptedTemplates(TFile *fp) {
   auto Templates = new ADAPT_TEMPLATES_STRUCT;
 
   // first read in the high level adaptive template struct
-  if (fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1) != 1) {
+  const size_t ReadCount = fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
+  // The read above overwrote every member with file bytes, including the
+  // Templates pointer and the Class[] array. ~ADAPT_TEMPLATES_STRUCT reads
+  // Templates->NumClasses through Templates and deletes each Class[] entry,
+  // so neutralise the file-sourced pointers before the reject path below can
+  // reach the destructor; they are then filled with real allocations.
+  Templates->Templates = nullptr;
+  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
+    Templates->Class[i] = nullptr;
+  }
+  if (ReadCount != 1) {
     tprintf("Bad read of adapted templates!\n");
     delete Templates;
     return nullptr;
-  }
-  // The Class[] array was just filled with pointers read from the file;
-  // those are not valid allocations, so reset it before storing real ones.
-  for (unsigned i = 0; i < MAX_NUM_CLASSES; i++) {
-    Templates->Class[i] = nullptr;
   }
 
   // then read in the basic integer templates
@@ -342,7 +387,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS_STRUCT *Class, int NumConfigs) {
   fwrite(Class->PermConfigs, sizeof(uint32_t), WordsInVectorOfSize(MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
-  uint32_t NumTempProtos = Class->TempProtos->size();
+  uint32_t NumTempProtos = count(Class->TempProtos);
   fwrite(&NumTempProtos, sizeof(NumTempProtos), 1, File);
   auto TempProtos = Class->TempProtos;
   iterate(TempProtos) {

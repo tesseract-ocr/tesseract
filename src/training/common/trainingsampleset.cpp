@@ -539,10 +539,12 @@ void TrainingSampleSet::KillSample(TrainingSample *sample) {
 // Deletes all samples with zero features marked by KillSample.
 void TrainingSampleSet::DeleteDeadSamples() {
   using namespace std::placeholders; // for _1
-  for (auto &&it = samples_.begin(); it < samples_.end();) {
+  for (auto it = samples_.begin(); it != samples_.end();) {
     if (*it == nullptr || (*it)->class_id() < 0) {
-      samples_.erase(it);
+      // Delete before erasing: erase shifts the following samples down, so
+      // *it would otherwise refer to the next (live) sample.
       delete *it;
+      it = samples_.erase(it);
     } else {
       ++it;
     }

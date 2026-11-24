@@ -133,6 +133,16 @@ void Wordrec::cc_recog(WERD_RES *word) {
  * The blob may need rotating to the correct orientation for classification.
  */
 BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
+  // Count the classification against the per-page budget (see
+  // classifications_pass_remaining_ in wordrec.h). The budget is not enforced
+  // here, but between words (ClassificationBudgetExhausted()), so every blob
+  // of a word which was started gets a real classification.
+  // This function can be called from several threads (PrerecAllWordsPar()).
+  // The check and the decrement are not one atomic operation, so the counter
+  // can get slightly negative, which is still "exhausted".
+  if (classifications_pass_remaining_.load(std::memory_order_relaxed) > 0) {
+    classifications_pass_remaining_.fetch_sub(1, std::memory_order_relaxed);
+  }
   // Rotate the blob for classification if necessary.
   TBLOB *rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
   if (rotated_blob == nullptr) {

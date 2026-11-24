@@ -66,6 +66,7 @@ TEST_P(OSDTest, MatchOrientationDegrees) {
   // Skip test because TessBaseAPI::DetectOrientationScript is missing.
   GTEST_SKIP();
 #else
+  REQUIRE_TRAINEDDATA(std::get<2>(GetParam()), "osd");
   OSDTester(std::get<0>(GetParam()), std::get<1>(GetParam()), std::get<2>(GetParam()));
 #endif
 }

@@ -1,4 +1,3 @@
-# find_package(GTest REQUIRED)
 include(GoogleTest) # Todo install GoogleTests?
 
 # Set common include directories
@@ -9,8 +8,7 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/viewer
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/unicharset
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/googlemock/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/training/common)
 
 if (MSVC)
     set(TESSBIN_DIR ${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>)
@@ -21,7 +19,10 @@ endif()
 # Set common compile definitions
 set(COMMON_COMPILE_DEFINITIONS
     "-DTESTING_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testing\""
-    "-DTESSDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../tessdata\""
+    # Trained data models are downloaded to a sibling 'tessdata' directory (see
+    # the CI workflows), matching the autotools TESSDATA_DIR; the in-tree
+    # tessdata/ holds only config files.
+    "-DTESSDATA_DIR=\"${CMAKE_SOURCE_DIR}/../tessdata\""
     "-DTESSBIN_DIR=\"${TESSBIN_DIR}\""
     "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testdata\""
     "-DLANGDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../langdata_lstm\"")
@@ -34,9 +35,19 @@ file(
 set(COMMON_LINK_LIBS libtesseract GTest::gtest_main common_training
                      unicharset_training)
 
+set(GMOCK_TESTS
+    baseapi_test
+    lang_model_test
+    pango_font_info_test
+    progress_test
+    unichar_test
+    unicharset_test
+    validator_test)
+
 set(TRAINING_TESTS
     commandlineflags_test.cc
     dawg_test.cc
+    dropout_test.cc
     lstm_recode_test.cc
     lstm_squashed_test.cc
     lstm_test.cc
@@ -53,11 +64,14 @@ set(TRAINING_TESTS
 set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc stringrenderer_test.cc)
 
 set(LEGACY_TESTS
+    adaptive_templates_test.cc
+    adaptive_test.cc
     applybox_test.cc
     bitvector_test.cc
     equationdetect_test.cc
     indexmapbidi_test.cc
     intfeaturemap_test.cc
+    intproto_addclass_test.cc
     intproto_test.cc
     mastertrainer_test.cc
     normproto_test.cc
@@ -98,7 +112,7 @@ foreach(test_source IN LISTS TEST_SOURCES)
          ${CMAKE_CURRENT_SOURCE_DIR}/util/utf8)
   endif()
   add_executable(${test_name} ${test_source})
-  if(${test_name} MATCHES "progress_test")
+  if(test_name IN_LIST GMOCK_TESTS)
     target_link_libraries(${test_name} PRIVATE GTest::gmock)
   endif()
   target_compile_definitions(${test_name} PRIVATE ${COMMON_COMPILE_DEFINITIONS})

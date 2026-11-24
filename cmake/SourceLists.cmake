@@ -46,6 +46,7 @@ set(TESSERACT_SRC_ARCH_SSE41
 
 set(TESSERACT_SRC_ARCH_NEON
     src/arch/dotproductneon.cpp
+    src/arch/functionsneon.cpp
     src/arch/intsimdmatrixneon.cpp
 )
 
@@ -191,6 +192,7 @@ set(TESSERACT_SRC_DICT
 # LSTM module sources
 set(TESSERACT_SRC_LSTM
     src/lstm/convolve.cpp
+    src/lstm/dropout.cpp
     src/lstm/fullyconnected.cpp
     src/lstm/functions.cpp
     src/lstm/input.cpp

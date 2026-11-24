@@ -219,15 +219,22 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
  *
  * Globals: none
  */
-void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class) {
+bool AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_STRUCT *Class) {
   int Pruner;
 
-  assert(LegalClassId(ClassId));
+  // ClassId indexes Class[] and (divided by CLASSES_PER_CP) ClassPruners[],
+  // so reject an out-of-range id instead of writing out of bounds. The
+  // previous check was a debug-only assertion that release builds skip.
+  if (!LegalClassId(ClassId)) {
+    tesserr << "Error: illegal class id " << ClassId << " in AddIntClass\n";
+    return false;
+  }
   if (static_cast<unsigned>(ClassId) != Templates->NumClasses) {
-    fprintf(stderr,
-            "Please make sure that classes are added to templates"
-            " in increasing order of ClassIds\n");
-    exit(1);
+    // Use tesserr (stderr) rather than tprintf (stdout): this is an error
+    // message and stdout is the data channel of the training tools.
+    tesserr << "Error: Please make sure that classes are added to templates"
+            << " in increasing order of ClassIds\n";
+    return false;
   }
   ClassForClassId(Templates, ClassId) = Class;
   Templates->NumClasses++;
@@ -237,6 +244,7 @@ void AddIntClass(INT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, INT_CLASS_ST
     Templates->ClassPruners[Pruner] = new CLASS_PRUNER_STRUCT;
     memset(Templates->ClassPruners[Pruner], 0, sizeof(CLASS_PRUNER_STRUCT));
   }
+  return true;
 } /* AddIntClass */
 
 /**
@@ -495,6 +503,15 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
   int ProtoId;
   int ConfigId;
 
+  // A unichar id indexes the fixed-size Class[] array (MAX_NUM_CLASSES
+  // entries), so a set larger than that would write out of bounds in
+  // AddIntClass below. Reject it up front rather than part-way through.
+  if (target_unicharset.size() > MAX_NUM_CLASSES) {
+    tesserr << "Error: unicharset has " << target_unicharset.size()
+            << " characters, more than MAX_NUM_CLASSES " << MAX_NUM_CLASSES << "\n";
+    return nullptr;
+  }
+
   auto IntTemplates = new INT_TEMPLATES_STRUCT;
 
   for (unsigned ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
@@ -513,7 +530,14 @@ INT_TEMPLATES_STRUCT *Classify::CreateIntTemplates(CLASSES FloatProtos,
       fs.push_back(FClass->font_set[i]);
     }
     IClass->font_set_id = this->fontset_table_.push_back(std::move(fs));
-    AddIntClass(IntTemplates, ClassId, IClass);
+    if (!AddIntClass(IntTemplates, ClassId, IClass)) {
+      // AddIntClass leaves the class with the caller on failure, and the
+      // template set only holds the classes added so far, so clean up both
+      // and report the failure instead of writing an incomplete set.
+      delete IClass;
+      delete IntTemplates;
+      return nullptr;
+    }
 
     for (ProtoId = 0; ProtoId < FClass->NumProtos; ProtoId++) {
       AddIntProto(IClass);
@@ -691,6 +715,17 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
         Templates->NumClasses) {
       tprintf("Bad read of inttemp!\n");
     }
+    // Each class id indexes Class[] and (divided by CLASSES_PER_CP)
+    // ClassPruners[]. A negative id does not raise max_class_id and therefore
+    // evades the upper-bound check below. Validate every id, including oversized
+    // positive values, before any class pruner is allocated or the id is used.
+    for (unsigned i = 0; i < Templates->NumClasses; i++) {
+      if (!LegalClassId(ClassIdFor[i])) {
+        tprintf("Error: illegal class id %d in inttemp\n", ClassIdFor[i]);
+        delete Templates;
+        return nullptr;
+      }
+    }
   }
 
   /* then read in the class pruners */
@@ -797,9 +832,11 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     unsigned num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     // Class->NumProtoSets is used as a loop bound that writes into the
     // fixed-size ProtoSets[] array, so reject a corrupt or malicious file
-    // instead of writing out of bounds.
+    // instead of writing out of bounds. ProtoLengths and ProtoSets[] are
+    // sized from NumProtoSets but indexed by proto id up to NumProtos (see
+    // FindGoodProtos and AddIntProto), so the protos must fit in the sets.
     if (Class->NumProtos > MAX_NUM_PROTOS || Class->NumProtoSets > MAX_NUM_PROTO_SETS ||
-        num_configs > MaxNumConfigs) {
+        Class->NumProtos > MaxNumIntProtosIn(Class) || num_configs > MaxNumConfigs) {
       tprintf("Error: invalid counts for class %u in inttemp: NumProtos=%u, NumProtoSets=%u, "
               "NumConfigs=%u\n",
               i, Class->NumProtos, Class->NumProtoSets, Class->NumConfigs);

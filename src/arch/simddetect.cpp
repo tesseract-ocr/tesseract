@@ -21,14 +21,16 @@
 #include <cstdlib> // for getenv
 #include <numeric> // for std::inner_product
 #include "dotproduct.h"
+#include "functions.h"     // for Tanh, Logistic
 #include "intsimdmatrix.h" // for IntSimdMatrix
 #include "params.h"        // for STRING_VAR
 #include "simddetect.h"
 #include "tprintf.h" // for tprintf
 
-#if !defined(__clang__) && defined(__GNUC__) && (__GNUC__ < 12)
-// The GNU compiler g++ fails to compile with the Accelerate framework
-// (tested with versions 10 and 11), so unconditionally disable it.
+#if !defined(__clang__) && defined(__GNUC__)
+// The GNU compiler g++ fails to compile the headers of the Accelerate
+// framework (tested with versions 10, 11 and 15), so unconditionally
+// disable it.
 #undef HAVE_FRAMEWORK_ACCELERATE
 #endif
 
@@ -65,6 +67,15 @@
 #  endif
 #endif
 
+#if defined(__aarch64__) && defined(__linux__) && \
+    !defined(__ARM_FEATURE_DOTPROD)
+// Needed for the detection of the NEON dot product instructions at runtime.
+#  include <sys/auxv.h>
+#  if !defined(HWCAP_ASIMDDP)
+#    define HWCAP_ASIMDDP (1 << 20)
+#  endif
+#endif
+
 #if defined(HAVE_RVV)
 #  if defined(HAVE_GETAUXVAL) || defined(HAVE_ELF_AUX_INFO)
 #    include <sys/auxv.h>
@@ -85,6 +96,21 @@ namespace tesseract {
 // bandwidth constrained and could benefit from holding the reused vector
 // in AVX registers.
 DotProductFunction DotProduct;
+
+// The functions for several dot products at once always match DotProduct.
+// The generic implementations use DotProduct for each of the results, so they
+// give exactly the same results as separate calls of DotProduct. Optimized
+// implementations can give slightly different results for the same reason
+// as different dot product functions do.
+RowDotProductsFunction RowDotProducts;
+CrossDotProductsFunction CrossDotProducts;
+
+// The functions for whole vectors give the same results with all
+// implementations, so the fastest one for the CPU is used unless the generic
+// dot product is selected.
+VectorFunction TanhVector;
+VectorFunction LogisticVector;
+FloatToInt8Function FloatToInt8Vector;
 
 static STRING_VAR(dotproduct, "auto", "Function used for calculation of dot product");
 
@@ -115,9 +141,13 @@ static const SIMDDetect &detector_init = SIMDDetect::GetDetector();
 #if defined(__aarch64__) || defined(_M_ARM64)
 // ARMv8 always has NEON.
 bool SIMDDetect::neon_available_ = true;
+// If true, then the NEON dot product instructions have been detected.
+bool SIMDDetect::neon_dotprod_available_;
 #elif defined(HAVE_NEON)
 // If true, then Neon has been detected.
 bool SIMDDetect::neon_available_;
+// The NEON dot product instructions are only used for ARMv8.
+bool SIMDDetect::neon_dotprod_available_;
 #elif defined(HAVE_RVV)
 bool SIMDDetect::rvv_available_;
 #else
@@ -160,8 +190,93 @@ static TFloat DotProductStdInnerProduct(const TFloat *u, const TFloat *v, int n)
   return std::inner_product(u, u + n, v, static_cast<TFloat>(0));
 }
 
+// Computes v[i] = w[i] . u for num_rows rows of w using DotProduct.
+static void RowDotProductsGeneric(const TFloat *w, int w_stride, int num_rows,
+                                  const TFloat *u, int n, TFloat *v) {
+  for (int i = 0; i < num_rows; ++i) {
+    v[i] = DotProduct(w + static_cast<size_t>(i) * w_stride, u, n);
+  }
+}
+
+// Computes out[i * out_stride + j] = u[i] . v[j] using DotProduct.
+static void CrossDotProductsGeneric(const TFloat *u, int num_u, const TFloat *v,
+                                    int num_v, int n, TFloat *out,
+                                    int out_stride) {
+  for (int i = 0; i < num_u; ++i) {
+    const TFloat *ui = u + static_cast<size_t>(i) * n;
+    TFloat *out_i = out + static_cast<size_t>(i) * out_stride;
+    for (int j = 0; j < num_v; ++j) {
+      out_i[j] = DotProduct(ui, v + static_cast<size_t>(j) * n, n);
+    }
+  }
+}
+
+// Computes out[i] = Tanh(in[i]) for n values.
+static void TanhVectorGeneric(int n, const TFloat *in, TFloat *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = Tanh(in[i]);
+  }
+}
+
+// Computes out[i] = Logistic(in[i]) for n values.
+static void LogisticVectorGeneric(int n, const TFloat *in, TFloat *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = Logistic(in[i]);
+  }
+}
+
+// Converts n floats in the range [-1, 1] to int8_t.
+static void FloatToInt8VectorGeneric(int n, const TFloat *in, int8_t *out) {
+  for (int i = 0; i < n; ++i) {
+    out[i] = IntCastRounded(
+        ClipToRange<TFloat>(in[i] * INT8_MAX, -INT8_MAX, INT8_MAX));
+  }
+}
+
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix *m = nullptr) {
+  TanhVector = TanhVectorGeneric;
+  LogisticVector = LogisticVectorGeneric;
+  FloatToInt8Vector = FloatToInt8VectorGeneric;
+#if defined(FAST_FLOAT) && defined(HAVE_AVX2)
+  // The integer matrix for AVX2 is only selected for a CPU with AVX2.
+  if (m == &IntSimdMatrix::intSimdMatrixAVX2) {
+    TanhVector = TanhVectorAVX2;
+    LogisticVector = LogisticVectorAVX2;
+    FloatToInt8Vector = FloatToInt8VectorAVX2;
+  }
+#endif
+#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+  // The integer matrices for NEON are only selected for a CPU with NEON.
+  if (m == &IntSimdMatrix::intSimdMatrixNEON ||
+      m == &IntSimdMatrix::intSimdMatrixNEONDotProd) {
+    TanhVector = TanhVectorNEON;
+    LogisticVector = LogisticVectorNEON;
+    FloatToInt8Vector = FloatToInt8VectorNEON;
+  }
+#endif
+  RowDotProductsFunction rows = RowDotProductsGeneric;
+  CrossDotProductsFunction cross = CrossDotProductsGeneric;
+#if defined(FAST_FLOAT) && defined(__ARM_ARCH_ISA_A64)
+  if (f == DotProductNEON) {
+    rows = RowDotProductsNEON;
+    cross = CrossDotProductsNEON;
+  }
+#endif
+#if defined(FAST_FLOAT) && defined(HAVE_FMA)
+  if (f == DotProductFMA) {
+    rows = RowDotProductsFMA;
+    cross = CrossDotProductsFMA;
+  }
+#endif
+#if defined(FAST_FLOAT) && defined(HAVE_AVX512F)
+  if (f == DotProductAVX512F) {
+    rows = RowDotProductsAVX512F;
+    cross = CrossDotProductsAVX512F;
+  }
+#endif
   DotProduct = f;
+  RowDotProducts = rows;
+  CrossDotProducts = cross;
   IntSimdMatrix::intSimdMatrix = m;
 }
 
@@ -256,9 +371,20 @@ SIMDDetect::SIMDDetect() {
 #  elif defined(HAVE_GETAUXVAL)
   neon_available_ = getauxval(AT_HWCAP) & HWCAP_NEON;
 #  elif defined(HAVE_ELF_AUX_INFO)
-  unsigned long hwcap = 0;
-  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  unsigned long hwcap;
+  if (elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap) != 0) {
+    hwcap = 0;
+  }
   neon_available_ = hwcap & HWCAP_NEON;
+#  endif
+#endif
+
+#if defined(__aarch64__)
+#  if defined(__ARM_FEATURE_DOTPROD)
+  // The code was built for a CPU with the NEON dot product instructions.
+  neon_dotprod_available_ = true;
+#  elif defined(__linux__)
+  neon_dotprod_available_ = (getauxval(AT_HWCAP) & HWCAP_ASIMDDP) != 0;
 #  endif
 #endif
 
@@ -267,8 +393,10 @@ SIMDDetect::SIMDDetect() {
   const unsigned long hwcap = getauxval(AT_HWCAP);
   rvv_available_ = hwcap & HWCAP_RV('V');
 #  elif defined(HAVE_ELF_AUX_INFO)
-  unsigned long hwcap = 0;
-  elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap);
+  unsigned long hwcap;
+  if (elf_aux_info(AT_HWCAP, &hwcap, sizeof hwcap) != 0) {
+    hwcap = 0;
+  }
   rvv_available_ = hwcap & HWCAP_RV('V');
 #  endif
 #endif
@@ -282,6 +410,11 @@ SIMDDetect::SIMDDetect() {
     SetDotProduct(DotProductAVX512F, &IntSimdMatrix::intSimdMatrixAVX2);
 #endif
 #if defined(HAVE_AVX2)
+#  if defined(HAVE_FMA)
+  } else if (avx2_available_ && fma_available_) {
+    // AVX2 and FMA detected (all known CPUs with AVX2 also support FMA).
+    SetDotProduct(DotProductFMA, &IntSimdMatrix::intSimdMatrixAVX2);
+#  endif
   } else if (avx2_available_) {
     // AVX2 detected.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
@@ -299,7 +432,9 @@ SIMDDetect::SIMDDetect() {
 #if defined(HAVE_NEON) || defined(__aarch64__) || defined(_M_ARM64)
   } else if (neon_available_) {
     // NEON detected.
-    SetDotProduct(DotProductNEON, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNEON, neon_dotprod_available_
+                                      ? &IntSimdMatrix::intSimdMatrixNEONDotProd
+                                      : &IntSimdMatrix::intSimdMatrixNEON);
 #endif
 #if defined(HAVE_RVV)
   } else if (rvv_available_) {
@@ -356,7 +491,9 @@ void SIMDDetect::Update() {
 #if defined(HAVE_NEON) || defined(__aarch64__) || defined(_M_ARM64)
   } else if (dotproduct == "neon" && neon_available_) {
     // NEON selected by config variable.
-    SetDotProduct(DotProductNEON, &IntSimdMatrix::intSimdMatrixNEON);
+    SetDotProduct(DotProductNEON, neon_dotprod_available_
+                                      ? &IntSimdMatrix::intSimdMatrixNEONDotProd
+                                      : &IntSimdMatrix::intSimdMatrixNEON);
     dotproduct_method = "neon";
 #endif
   } else if (dotproduct == "std::inner_product") {

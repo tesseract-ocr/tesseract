@@ -81,6 +81,28 @@ bool LSTMRecognizer::Load(const ParamsVectors *params, const std::string &lang,
   if (!DeSerialize(mgr, &fp)) {
     return false;
   }
+  // Recoded codes are used as indices into the network softmax output
+  // (top_n_flags_/outputs), sized to the network output count. The recoder is
+  // loaded independently of the network, so tie it to that count: a corrupt
+  // model with a code range wider than the softmax would index out of bounds
+  // during beam search. This covers both the recoding and the pass-through
+  // recoder.
+  //
+  // The check belongs in Load, not in the recoder-loading routines: the
+  // recognition path (LSTMRecognizer::Load) always has the final network and
+  // recoder, whereas the training path (LSTMTrainer::TryLoadingCheckpoint)
+  // deserializes an old network together with a target-traineddata recoder
+  // that may legitimately have a wider code range; that path reconciles the
+  // two with RemapOutputs, which must be allowed to run.
+  //
+  // It applies only when the network actually has a softmax to index into;
+  // a zero-output network has no softmax array, so the recoder's code range
+  // cannot point out of bounds and the check is skipped.
+  if (network_->NumOutputs() > 0 && recoder_.code_range() > network_->NumOutputs()) {
+    tprintf("Error: recoder code range %d exceeds network output count %d\n",
+            recoder_.code_range(), network_->NumOutputs());
+    return false;
+  }
   if (lang.empty()) {
     return true;
   }
@@ -154,6 +176,15 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
     return false;
   }
   if (!fp->DeSerialize(&null_char_)) {
+    return false;
+  }
+  // null_char_ is used as an index into the network softmax output
+  // (top_n_flags_/outputs), so it must lie within the output range. A
+  // corrupt or malicious model may store a negative or oversized value,
+  // which would index out of bounds during recognition, so reject it here.
+  if (null_char_ < 0 || null_char_ >= network_->NumOutputs()) {
+    tprintf("Error: null_char %d out of range for network with %d outputs\n",
+            null_char_, network_->NumOutputs());
     return false;
   }
   if (!fp->DeSerialize(&adam_beta_)) {

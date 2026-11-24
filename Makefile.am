@@ -18,6 +18,9 @@ if !GRAPHICS_DISABLED
 EXTRA_DIST += java
 endif
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION
+# Header shared by the unit tests, not listed in any _SOURCES.
+EXTRA_DIST += unittest/util/tempdir.h
+EXTRA_DIST += unittest/weightmatrix_test_helper.h
 
 DIST_SUBDIRS = $(SUBDIRS)
 
@@ -118,6 +121,7 @@ lib_LTLIBRARIES = libtesseract.la
 libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS)
 libtesseract_la_LDFLAGS += $(libarchive_LIBS)
 libtesseract_la_LDFLAGS += $(libcurl_LIBS)
+libtesseract_la_LDFLAGS += $(FRAMEWORK_ACCELERATE)
 if T_WIN
 libtesseract_la_LDFLAGS += -no-undefined -lws2_32
 else
@@ -167,7 +171,10 @@ endif
 if HAVE_AVX2
 libtesseract_avx2_la_CXXFLAGS = -mavx2
 libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
-libtesseract_avx2_la_SOURCES = src/arch/intsimdmatrixavx2.cpp
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_avx2_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
+libtesseract_avx2_la_SOURCES = src/arch/functionsavx2.cpp
+libtesseract_avx2_la_SOURCES += src/arch/intsimdmatrixavx2.cpp
 libtesseract_la_LIBADD += libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_avx2.la
 endif
@@ -203,8 +210,11 @@ if OPENMP_SIMD
 libtesseract_neon_la_CXXFLAGS += -fopenmp-simd -DOPENMP_SIMD
 endif
 libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/ccutil
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/arch
+libtesseract_neon_la_CXXFLAGS += -I$(top_srcdir)/src/lstm
 libtesseract_neon_la_SOURCES = src/arch/intsimdmatrixneon.cpp
 libtesseract_neon_la_SOURCES += src/arch/dotproductneon.cpp
+libtesseract_neon_la_SOURCES += src/arch/functionsneon.cpp
 libtesseract_la_LIBADD += libtesseract_neon.la
 noinst_LTLIBRARIES += libtesseract_neon.la
 endif
@@ -502,6 +512,7 @@ endif
 # Rules for src/lstm.
 
 noinst_HEADERS += src/lstm/convolve.h
+noinst_HEADERS += src/lstm/dropout.h
 noinst_HEADERS += src/lstm/fullyconnected.h
 noinst_HEADERS += src/lstm/functions.h
 noinst_HEADERS += src/lstm/input.h
@@ -522,6 +533,7 @@ noinst_HEADERS += src/lstm/stridemap.h
 noinst_HEADERS += src/lstm/weightmatrix.h
 
 libtesseract_la_SOURCES += src/lstm/convolve.cpp
+libtesseract_la_SOURCES += src/lstm/dropout.cpp
 libtesseract_la_SOURCES += src/lstm/fullyconnected.cpp
 libtesseract_la_SOURCES += src/lstm/functions.cpp
 libtesseract_la_SOURCES += src/lstm/input.cpp
@@ -1137,6 +1149,10 @@ unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/goog
 unittest_CPPFLAGS += -isystem $(top_srcdir)/unittest/third_party/googletest/googlemock/include
 
 check_PROGRAMS = apiexample_test
+if !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += adaptive_templates_test
+check_PROGRAMS += adaptive_test
+endif # !DISABLED_LEGACY_ENGINE
 if ENABLE_TRAINING
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += applybox_test
@@ -1147,24 +1163,29 @@ if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += bitvector_test
 endif # !DISABLED_LEGACY_ENGINE
 endif # ENABLE_TRAINING
+check_PROGRAMS += blobs_test
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
+check_PROGRAMS += dropout_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += equationdetect_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
+check_PROGRAMS += fontattributes_test
 check_PROGRAMS += fullyconnected_test
+check_PROGRAMS += functions_test
 check_PROGRAMS += genericvector_test
 check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += indexmapbidi_test
 check_PROGRAMS += intfeaturemap_test
+check_PROGRAMS += intproto_addclass_test
 check_PROGRAMS += intproto_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += intsimdmatrix_test
@@ -1174,6 +1195,8 @@ check_PROGRAMS += ligature_table_test
 check_PROGRAMS += linlsq_test
 check_PROGRAMS += list_test
 check_PROGRAMS += lstm_layer_test
+check_PROGRAMS += lstm_nullchar_test
+check_PROGRAMS += lstm_recoder_test
 if ENABLE_TRAINING
 check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
@@ -1184,6 +1207,7 @@ check_PROGRAMS += loadlang_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += matrix_deserializesize_test
 check_PROGRAMS += matrix_test
 check_PROGRAMS += networkio_test
 if !DISABLED_LEGACY_ENGINE
@@ -1196,11 +1220,13 @@ check_PROGRAMS += nthitem_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += osd_test
 endif # !DISABLED_LEGACY_ENGINE
+check_PROGRAMS += pageres_test
 check_PROGRAMS += pagesegmode_test
 if ENABLE_TRAINING
 check_PROGRAMS += pango_font_info_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += paragraphs_test
+check_PROGRAMS += plumbing_dimensions_test
 check_PROGRAMS += plumbing_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += params_model_test
@@ -1208,6 +1234,7 @@ endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += progress_test
 check_PROGRAMS += qrsequence_test
 check_PROGRAMS += ratngs_test
+check_PROGRAMS += points_test
 check_PROGRAMS += recodebeam_test
 check_PROGRAMS += recoder_test
 check_PROGRAMS += rect_test
@@ -1238,6 +1265,11 @@ check_PROGRAMS += validate_khmer_test
 check_PROGRAMS += validate_myanmar_test
 check_PROGRAMS += validator_test
 endif # ENABLE_TRAINING
+check_PROGRAMS += weightmatrix_deserialize_test
+check_PROGRAMS += weightmatrix_intdim_test
+check_PROGRAMS += weightmatrix_product_test
+check_PROGRAMS += weightmatrix_range_test
+check_PROGRAMS += weightmatrix_scales_test
 
 check_PROGRAMS: libtesseract.la libtesseract_training.la
 
@@ -1249,6 +1281,18 @@ apiexample_test_SOURCES = unittest/apiexample_test.cc
 apiexample_test_CPPFLAGS = $(unittest_CPPFLAGS)
 apiexample_test_LDFLAGS = $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+adaptive_templates_test_SOURCES = unittest/adaptive_templates_test.cc
+adaptive_templates_test_CPPFLAGS = $(unittest_CPPFLAGS)
+adaptive_templates_test_LDADD = $(TESS_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+if !DISABLED_LEGACY_ENGINE
+adaptive_test_SOURCES = unittest/adaptive_test.cc
+adaptive_test_CPPFLAGS = $(unittest_CPPFLAGS)
+adaptive_test_LDADD = $(TESS_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
 
 if !DISABLED_LEGACY_ENGINE
 applybox_test_SOURCES = unittest/applybox_test.cc
@@ -1270,6 +1314,10 @@ bitvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
 bitvector_test_LDADD = $(TRAINING_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
+blobs_test_SOURCES = unittest/blobs_test.cc
+blobs_test_CPPFLAGS = $(unittest_CPPFLAGS)
+blobs_test_LDADD = $(TESS_LIBS)
+
 cleanapi_test_SOURCES = unittest/cleanapi_test.cc
 cleanapi_test_CPPFLAGS = $(unittest_CPPFLAGS)
 cleanapi_test_LDADD = $(TESS_LIBS)
@@ -1286,6 +1334,10 @@ dawg_test_SOURCES = unittest/dawg_test.cc
 dawg_test_CPPFLAGS = $(unittest_CPPFLAGS)
 dawg_test_LDADD = $(TRAINING_LIBS)
 
+dropout_test_SOURCES = unittest/dropout_test.cc
+dropout_test_CPPFLAGS = $(unittest_CPPFLAGS)
+dropout_test_LDADD = $(TRAINING_LIBS)
+
 denorm_test_SOURCES = unittest/denorm_test.cc
 denorm_test_CPPFLAGS = $(unittest_CPPFLAGS)
 denorm_test_LDADD = $(TESS_LIBS)
@@ -1300,9 +1352,17 @@ fileio_test_SOURCES = unittest/fileio_test.cc
 fileio_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fileio_test_LDADD = $(TRAINING_LIBS)
 
+fontattributes_test_SOURCES = unittest/fontattributes_test.cc
+fontattributes_test_CPPFLAGS = $(unittest_CPPFLAGS)
+fontattributes_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
 fullyconnected_test_SOURCES = unittest/fullyconnected_test.cc
 fullyconnected_test_CPPFLAGS = $(unittest_CPPFLAGS)
 fullyconnected_test_LDADD = $(TESS_LIBS)
+
+functions_test_SOURCES = unittest/functions_test.cc
+functions_test_CPPFLAGS = $(unittest_CPPFLAGS)
+functions_test_LDADD = $(TESS_LIBS)
 
 genericvector_test_SOURCES = unittest/genericvector_test.cc
 genericvector_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1326,6 +1386,12 @@ if !DISABLED_LEGACY_ENGINE
 intfeaturemap_test_SOURCES = unittest/intfeaturemap_test.cc
 intfeaturemap_test_CPPFLAGS = $(unittest_CPPFLAGS)
 intfeaturemap_test_LDADD = $(TRAINING_LIBS)
+endif # !DISABLED_LEGACY_ENGINE
+
+if !DISABLED_LEGACY_ENGINE
+intproto_addclass_test_SOURCES = unittest/intproto_addclass_test.cc
+intproto_addclass_test_CPPFLAGS = $(unittest_CPPFLAGS)
+intproto_addclass_test_LDADD = $(TESS_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
 if !DISABLED_LEGACY_ENGINE
@@ -1375,6 +1441,14 @@ lstm_layer_test_SOURCES = unittest/lstm_layer_test.cc
 lstm_layer_test_CPPFLAGS = $(unittest_CPPFLAGS)
 lstm_layer_test_LDADD = $(TESS_LIBS)
 
+lstm_nullchar_test_SOURCES = unittest/lstm_nullchar_test.cc
+lstm_nullchar_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_nullchar_test_LDADD = $(TESS_LIBS)
+
+lstm_recoder_test_SOURCES = unittest/lstm_recoder_test.cc
+lstm_recoder_test_CPPFLAGS = $(unittest_CPPFLAGS)
+lstm_recoder_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
+
 lstm_recode_test_SOURCES = unittest/lstm_recode_test.cc
 lstm_recode_test_CPPFLAGS = $(unittest_CPPFLAGS)
 lstm_recode_test_LDADD = $(TRAINING_LIBS)
@@ -1396,6 +1470,10 @@ mastertrainer_test_SOURCES = unittest/mastertrainer_test.cc
 mastertrainer_test_CPPFLAGS = $(unittest_CPPFLAGS)
 mastertrainer_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
+
+matrix_deserializesize_test_SOURCES = unittest/matrix_deserializesize_test.cc
+matrix_deserializesize_test_CPPFLAGS = $(unittest_CPPFLAGS)
+matrix_deserializesize_test_LDADD = $(TRAINING_LIBS)
 
 matrix_test_SOURCES = unittest/matrix_test.cc
 matrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1423,6 +1501,10 @@ osd_test_CPPFLAGS = $(unittest_CPPFLAGS)
 osd_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 endif # !DISABLED_LEGACY_ENGINE
 
+pageres_test_SOURCES = unittest/pageres_test.cc
+pageres_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pageres_test_LDADD = $(TESS_LIBS)
+
 pagesegmode_test_SOURCES = unittest/pagesegmode_test.cc
 pagesegmode_test_CPPFLAGS = $(unittest_CPPFLAGS)
 pagesegmode_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
@@ -1438,6 +1520,10 @@ paragraphs_test_SOURCES = unittest/paragraphs_test.cc
 paragraphs_test_CPPFLAGS = $(unittest_CPPFLAGS)
 paragraphs_test_LDADD = $(TESS_LIBS)
 
+plumbing_dimensions_test_SOURCES = unittest/plumbing_dimensions_test.cc
+plumbing_dimensions_test_CPPFLAGS = $(unittest_CPPFLAGS)
+plumbing_dimensions_test_LDADD = $(TESS_LIBS)
+
 plumbing_test_SOURCES = unittest/plumbing_test.cc
 plumbing_test_CPPFLAGS = $(unittest_CPPFLAGS)
 plumbing_test_LDADD = $(TESS_LIBS)
@@ -1452,6 +1538,10 @@ progress_test_SOURCES = unittest/progress_test.cc
 progress_test_CPPFLAGS = $(unittest_CPPFLAGS)
 progress_test_LDFLAGS = $(LEPTONICA_LIBS)
 progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+points_test_SOURCES = unittest/points_test.cc
+points_test_CPPFLAGS = $(unittest_CPPFLAGS)
+points_test_LDADD = $(TESS_LIBS)
 
 qrsequence_test_SOURCES = unittest/qrsequence_test.cc
 qrsequence_test_CPPFLAGS = $(unittest_CPPFLAGS)
@@ -1566,6 +1656,26 @@ validator_test_SOURCES = unittest/validator_test.cc
 validator_test_CPPFLAGS = $(unittest_CPPFLAGS)
 validator_test_LDADD = $(TRAINING_LIBS) $(ICU_UC_LIBS)
 
+weightmatrix_deserialize_test_SOURCES = unittest/weightmatrix_deserialize_test.cc
+weightmatrix_deserialize_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_deserialize_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_intdim_test_SOURCES = unittest/weightmatrix_intdim_test.cc
+weightmatrix_intdim_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_intdim_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_product_test_SOURCES = unittest/weightmatrix_product_test.cc
+weightmatrix_product_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_product_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_range_test_SOURCES = unittest/weightmatrix_range_test.cc
+weightmatrix_range_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_range_test_LDADD = $(TESS_LIBS)
+
+weightmatrix_scales_test_SOURCES = unittest/weightmatrix_scales_test.cc
+weightmatrix_scales_test_CPPFLAGS = $(unittest_CPPFLAGS)
+weightmatrix_scales_test_LDADD = $(TESS_LIBS)
+
 # for windows
 if T_WIN
 apiexample_test_LDADD += -lws2_32
@@ -1631,33 +1741,32 @@ $(LANGDATA_DIR) $(TESSDATA_DIR) $(TESSDATA_BEST_DIR) $(TESSDATA_FAST_DIR):
 	@exit 1
 
 $(TESTING_DIR)/Arial_Bold_Italic.ttf:
-	curl -sSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
+	curl -fsSL -o Arial.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/arial32.exe/download
 	cabextract -F Arialbi.TTF -q Arial.exe
 	rm Arial.exe
 	mv Arialbi.TTF $@
 
 $(TESTING_DIR)/DejaVuSans-ExtraLight.ttf:
-	curl -sSL https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
+	curl -fsSL https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2 | \
 	tar -xjO dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf >$@
 
 $(TESTING_DIR)/Lohit-Hindi.ttf:
-	curl -sSL https://releases.pagure.org/lohit/lohit-hindi-ttf-2.4.3.tar.gz | \
-	tar -xzO lohit-hindi-ttf-2.4.3/Lohit-Hindi.ttf >$@
+	curl -fsSL https://raw.githubusercontent.com/pratul/packageofpractices/master/assets/fonts/Lohit-Hindi.ttf -o $@
 
 $(TESTING_DIR)/Times_New_Roman.ttf:
-	curl -sSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
+	curl -fsSL -o Times.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/times32.exe/download
 	cabextract -F Times.TTF -q Times.exe
 	rm Times.exe
 	mv Times.TTF $@
 
 $(TESTING_DIR)/UnBatang.ttf:
-	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
+	curl -fsSL -o $@ https://salsa.debian.org/fonts-team/fonts-unfonts-core/-/raw/master/UnBatang.ttf
 
 $(TESTING_DIR)/Verdana.ttf:
-	curl -sSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
+	curl -fsSL -o Verdana.exe https://sourceforge.net/projects/corefonts/files/the%20fonts/final/verdan32.exe/download
 	cabextract -F Verdana.TTF -q Verdana.exe
 	rm Verdana.exe
 	mv Verdana.TTF $@
 
 $(TESTING_DIR)/ae_Arab.ttf:
-	curl -sSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/master/ae_Arab.ttf
+	curl -fsSL -o $@ https://salsa.debian.org/fonts-team/fonts-arabeyes/-/raw/debian/2.1-7/ae_Arab.ttf

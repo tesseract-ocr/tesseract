@@ -73,6 +73,9 @@ enum NetworkType {
   NT_LSTM_SOFTMAX_ENCODED, // 1-d LSTM with built-in binary encoded softmax.
   // A TensorFlow graph encapsulated as a Tesseract network.
   NT_TENSORFLOW,
+  // A dropout layer (see dropout.h). New types must be added here at the end
+  // because old model files store the type as a number.
+  NT_DROPOUT,
 
   NT_COUNT // Array size.
 };

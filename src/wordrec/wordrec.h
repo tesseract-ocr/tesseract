@@ -64,6 +64,7 @@ public:
 
 #else // DISABLED_LEGACY_ENGINE not defined
 
+#  include <atomic>
 #  include <memory>
 #  include "associate.h"
 #  include "chop.h"     // for PointHeap, MAX_NUM_POINTS
@@ -209,6 +210,9 @@ public:
   double_VAR_H(chop_width_change_knob);
   double_VAR_H(chop_ok_split);
   double_VAR_H(chop_good_split);
+  INT_VAR_H(chop_max_seam_evals);
+  INT_VAR_H(chop_max_seam_evals_pass);
+  INT_VAR_H(chop_max_classifications_pass);
   INT_VAR_H(chop_x_y_weight);
   BOOL_VAR_H(assume_fixed_pitch_char_segment);
   INT_VAR_H(wordrec_debug_level);
@@ -225,6 +229,22 @@ public:
   // methods from wordrec/*.cpp ***********************************************
   Wordrec();
   ~Wordrec() override = default;
+
+  // Sets a fresh per-pass seam-evaluation budget (see
+  // seam_evals_pass_remaining_). Negative parameter values are clamped to 0
+  // (chopping disabled); a non-positive budget produces a warning.
+  void ResetSeamEvalsBudget();
+
+  // Sets a fresh per-page blob-classification budget (see
+  // classifications_pass_remaining_). Negative parameter values are clamped
+  // to 0 (no word is recognized by the legacy engine).
+  void ResetClassificationBudget();
+
+  // Returns true if the per-page blob-classification budget (see
+  // classifications_pass_remaining_) is used up, so that no further word
+  // should be given to the legacy engine. Prints a warning the first time
+  // that it returns true after the budget was set.
+  bool ClassificationBudgetExhausted();
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
@@ -389,6 +409,67 @@ public:
   // Function used to fill char choice lattices.
   void (Wordrec::*fill_lattice_)(const MATRIX &ratings, const WERD_CHOICE_LIST &best_choices,
                                  const UNICHARSET &unicharset, BlamerBundle *blamer_bundle);
+
+  // Budget of seam evaluations (choose_best_seam queue-loop iterations) left
+  // for the word currently being chopped. Reset at the start of
+  // chop_word_main()/chop_one_blob() and decremented in choose_best_seam().
+  // Bounds the worst-case cost of the seam search for a single word on
+  // degenerate inputs where the search never finds a good enough seam
+  // (OSS-Fuzz issue 483188622).
+  int seam_evals_remaining_ = 0;
+  // Set once per word so the per-word "budget exhausted" warning is printed
+  // only once.
+  bool seam_evals_warning_ = true;
+
+  // Budget of seam evaluations left for the whole recognition pass currently
+  // in progress (all words on one page, or all boxes of one ApplyBoxes call).
+  // -1 means "not yet set for this pass"; 0 means exhausted.
+  // ResetSeamEvalsBudget() (called at the start of the pass in
+  // Tesseract::recog_all_words()/Tesseract::ApplyBoxes(), including for all
+  // sub-language Tesseract objects) sets a fresh budget, reading
+  // chop_max_seam_evals_pass at that point and clamping negative values to 0.
+  // choose_best_seam() calls ResetSeamEvalsBudget() lazily on first use, so
+  // that chopping paths not covered by the pass entry points (e.g. the
+  // ambigs training path) are still bounded rather than left without a
+  // budget. The budget is decremented in choose_best_seam() alongside the
+  // per-word budget. Because the per-word budget is refreshed for every word,
+  // a page with many degenerate words can otherwise do
+  // word_count * chop_max_seam_evals evaluations in total and still time out
+  // (OSS-Fuzz issue 4775901406232576, fuzzer-api-512x256). This budget caps
+  // the total cost of the seam search over the whole pass regardless of the
+  // number of words.
+  int seam_evals_pass_remaining_ = -1;
+  // Set once per pass so the per-pass "budget exhausted" warning is printed
+  // only once.
+  bool seam_evals_pass_warning_ = true;
+
+  // Budget of legacy blob classifications (call_matcher() calls) left for
+  // the page currently being recognized (all passes of one
+  // Tesseract::recog_all_words() call). It is set from
+  // chop_max_classifications_pass by ResetClassificationBudget(), which
+  // Tesseract::ResetPassBudgets() calls at the start of the page for the
+  // primary language and all sub-languages, and counted down in
+  // call_matcher(). The budget is only enforced between words: when
+  // ClassificationBudgetExhausted() returns true, Tesseract does not give
+  // any further word to the legacy engine (see classify_word_and_language()
+  // and classify_word_pass1() in control.cpp), so a word which was started
+  // is always finished with real classifications, and the results of
+  // earlier words and passes are kept.
+  // Because a single word (or one page) can legitimately classify many
+  // blobs, the seam budgets alone do not bound the total cost of the
+  // classifier; on degenerate inputs where pageseg produces a large number
+  // of blob-like pieces with no inter-word gaps (e.g. repeated vertical
+  // stripes) the chopper can end up classifying tens of thousands of blobs
+  // (OSS-Fuzz issue 581720522, fuzzer-api-512x256).
+  // The counter is atomic because PrerecAllWordsPar() calls call_matcher()
+  // from several threads.
+  std::atomic<int> classifications_pass_remaining_{0};
+  // False until ResetClassificationBudget() was called for the first time.
+  // ClassificationBudgetExhausted() sets the budget lazily in that case.
+  bool classifications_budget_set_ = false;
+  // Set when the "budget exhausted" warning was printed, so that it is
+  // printed only once per page.
+  bool classifications_pass_warned_ = false;
 
 protected:
   inline bool SegSearchDone(int num_futile_classifications) {

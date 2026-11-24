@@ -292,7 +292,8 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
 /**
  * The datapath must be the name of the data directory or
  * some other file in which the data directory resides (for instance argv[0].)
- * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
+ * The language is (usually) an ISO 639-3 string. If it is nullptr or empty,
+ * no language data is loaded and Recognize fails.
  * If numeric_mode is true, then only digits and Roman numerals will
  * be returned.
  * @return: 0 on success and -1 on initialization failure.
@@ -321,8 +322,8 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
   // If the datapath, OcrEngineMode or the language have changed - start again.
   // Note that the language_ field stores the last requested language that was
   // initialized successfully, while tesseract_->lang stores the language
-  // actually used. They differ only if the requested language was nullptr, in
-  // which case tesseract_->lang is set to the Tesseract default ("eng").
+  // actually used. If the requested language was nullptr or empty, no language
+  // is loaded and tesseract_->lang stays empty.
   if (tesseract_ != nullptr &&
       (datapath_.empty() || language_.empty() || datapath_ != datapath ||
        last_oem_requested_ != oem || (language_ != language && tesseract_->lang != language))) {
@@ -541,6 +542,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
 
 /**
  * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+ * The rectangle is clipped to the image.
  * Each SetRectangle clears the recognition results so multiple rectangles
  * can be recognized with the same image.
  */
@@ -762,6 +764,19 @@ PageIterator *TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
  */
 int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   if (tesseract_ == nullptr) {
+    return -1;
+  }
+  // Training line recognition (tessedit_train_line_recognizer, used by the
+  // lstm.train config together with tessedit_init_config_only) needs no model.
+  if (!tesseract_->tessedit_train_line_recognizer &&
+      tesseract_->unicharset.size() <= SPECIAL_UNICHAR_CODES_COUNT) {
+    // Only the special unichars are present, so no language data was loaded:
+    // Init was called without a language (which loads nothing), Init failed
+    // before the unicharset was loaded (for example because the traineddata
+    // file is missing), or only InitForAnalysePage was used. Recognition needs
+    // a model. An Init that fails after the unicharset was loaded is not
+    // detected here.
+    tprintf("Error: Recognize called without a loaded language. Pass a language to Init.\n");
     return -1;
   }
   if (FindLines() != 0) {
@@ -1352,7 +1367,8 @@ static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::st
  * Returned string must be freed with the delete [] operator.
  */
 char *TessBaseAPI::GetTSVText(int page_number) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(nullptr) < 0)) {
     return nullptr;
   }
 
@@ -1998,6 +2014,12 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   if (*pix != nullptr) {
     pixDestroy(pix);
   }
+  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
+                              &image_height_);
+  if (rect_width_ <= 0 || rect_height_ <= 0) {
+    tprintf("Error: The rectangle to recognize is empty or outside of the image.\n");
+    return false;
+  }
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int user_dpi = 0;
   GetIntVariable("user_defined_dpi", &user_dpi);
@@ -2047,9 +2069,6 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     tesseract_->set_pix_thresholds(pix_thresholds);
     tesseract_->set_pix_grey(pix_grey);
   }
-
-  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
-                              &image_height_);
 
   // Set the internal resolution that is used for layout parameters from the
   // estimated resolution, rather than the image resolution, which may be
@@ -2131,6 +2150,9 @@ int TessBaseAPI::FindLines() {
         osd_tesseract_ = nullptr;
       }
     }
+  }
+  if (osd_tess != nullptr && osd_tess != tesseract_) {
+    osd_tess->min_characters_to_try.set_value(tesseract_->min_characters_to_try);
   }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
@@ -2215,6 +2237,14 @@ int TessBaseAPI::TextLength(int *blob_count) const {
  */
 bool TessBaseAPI::DetectOS(OSResults *osr) {
   if (tesseract_ == nullptr) {
+    return false;
+  }
+  if (tesseract_->PreTrainedTemplates == nullptr) {
+    // Orientation and script detection classifies with the legacy classifier
+    // of the primary language. Without its templates (for example the
+    // tessdata_fast or tessdata_best model of a language other than osd, or
+    // layout analysis only) the detector gets no script information.
+    tprintf("Error: OSD requires a model for the legacy engine, e.g. osd.traineddata\n");
     return false;
   }
   ClearResults();

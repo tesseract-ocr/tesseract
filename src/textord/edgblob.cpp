@@ -231,8 +231,12 @@ int32_t OL_BUCKETS::count_children( // recursive count
         if (child != outline && *child < *outline) {
           child_count++;
           if (child_count <= max_count) {
+            // Avoid an integer division by zero if the parameter is not
+            // positive.
             int max_grand =
-                (max_count - child_count) / edges_children_per_grandchild;
+                edges_children_per_grandchild > 0
+                    ? (max_count - child_count) / edges_children_per_grandchild
+                    : 0;
             if (max_grand > 0) {
               grandchild_count += count_children(child, max_grand) *
                                   edges_children_per_grandchild;

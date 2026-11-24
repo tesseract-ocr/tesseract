@@ -8,8 +8,8 @@
 #
 # ##############################################################################
 
-# Require CMake 3.18 for modern features like precompiled headers, unity builds, and better target management
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+# Require CMake 3.22 for modern features like precompiled headers, unity builds, and better target management
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 # In-source builds are disabled.
 if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -67,7 +67,7 @@ set(GENERIC_MAJOR_VERSION ${VERSION_MAJOR})
 set(GENERIC_MINOR_VERSION ${VERSION_MINOR})
 set(GENERIC_MICRO_VERSION ${VERSION_PATCH})
 
-set(MINIMUM_LEPTONICA_VERSION 1.74)
+set(MINIMUM_LEPTONICA_VERSION 1.80)
 
 # ##############################################################################
 #
@@ -99,6 +99,7 @@ option(ENABLE_NATIVE
 # https://stackoverflow.com/questions/52653025/why-is-march-native-used-so-rarely
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
+option(USE_SYSTEM_GTEST "Use installed GoogleTest and GoogleMock for tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 option(DISABLE_TIFF "Disable build with libtiff (if available)" OFF)
 option(DISABLE_ARCHIVE "Disable build with libarchive (if available)" OFF)
@@ -597,6 +598,7 @@ message(STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: "
 message(STATUS "Build training tools [BUILD_TRAINING_TOOLS]: "
                "${BUILD_TRAINING_TOOLS}")
 message(STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
+message(STATUS "Use system GoogleTest [USE_SYSTEM_GTEST]: ${USE_SYSTEM_GTEST}")
 message(STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message(
   STATUS "Install tesseract configs [INSTALL_CONFIGS]: ${INSTALL_CONFIGS}")
@@ -658,9 +660,10 @@ if(HAVE_AVX)
                               PROPERTIES COMPILE_FLAGS ${AVX_COMPILE_FLAGS})
 endif(HAVE_AVX)
 if(HAVE_AVX2)
-  list(APPEND arch_files_opt src/arch/intsimdmatrixavx2.cpp
-       src/arch/dotproductavx.cpp)
-  set_source_files_properties(src/arch/intsimdmatrixavx2.cpp
+  list(APPEND arch_files_opt src/arch/functionsavx2.cpp
+       src/arch/intsimdmatrixavx2.cpp src/arch/dotproductavx.cpp)
+  set_source_files_properties(src/arch/functionsavx2.cpp
+                              src/arch/intsimdmatrixavx2.cpp
                               PROPERTIES COMPILE_FLAGS ${AVX2_COMPILE_FLAGS})
 endif(HAVE_AVX2)
 if(HAVE_AVX512F)
@@ -682,10 +685,11 @@ if(HAVE_SSE4_1)
 endif(HAVE_SSE4_1)
 if(HAVE_NEON)
   list(APPEND arch_files_opt src/arch/dotproductneon.cpp
-       src/arch/intsimdmatrixneon.cpp)
+       src/arch/functionsneon.cpp src/arch/intsimdmatrixneon.cpp)
   if(NEON_COMPILE_FLAGS)
     set_source_files_properties(
-      src/arch/dotproductneon.cpp src/arch/intsimdmatrixneon.cpp
+      src/arch/dotproductneon.cpp src/arch/functionsneon.cpp
+      src/arch/intsimdmatrixneon.cpp
       PROPERTIES COMPILE_FLAGS ${NEON_COMPILE_FLAGS})
   endif()
 endif(HAVE_NEON)
@@ -762,6 +766,8 @@ if(ENABLE_PRECOMPILED_HEADERS)
     src/arch/dotproductfma.cpp
     src/arch/dotproductsse.cpp
     src/arch/dotproductneon.cpp
+    src/arch/functionsavx2.cpp
+    src/arch/functionsneon.cpp
     src/arch/intsimdmatrixavx2.cpp
     src/arch/intsimdmatrixsse.cpp
     src/arch/intsimdmatrixneon.cpp
@@ -873,12 +879,24 @@ endif()
 
 # ##############################################################################
 
-if(BUILD_TESTS
-   AND EXISTS
-       ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt
-)
+if(BUILD_TESTS)
+  if(USE_SYSTEM_GTEST)
+    find_package(GTest REQUIRED)
+    if(NOT TARGET GTest::gtest_main OR NOT TARGET GTest::gmock)
+      message(FATAL_ERROR
+              "Unit tests require GTest::gtest_main and GTest::gmock. Install "
+              "GoogleTest and GoogleMock together, or use the googletest submodule "
+              "with USE_SYSTEM_GTEST=OFF.")
+    endif()
+  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/unittest/third_party/googletest/CMakeLists.txt)
+    add_subdirectory(unittest/third_party/googletest)
+  else()
+    message(FATAL_ERROR
+            "Unit tests require GoogleTest and GoogleMock. Run "
+            "'git submodule update --init unittest/third_party/googletest', "
+            "or install GoogleTest and GoogleMock and set USE_SYSTEM_GTEST=ON.")
+  endif()
   enable_testing()
-  add_subdirectory(unittest/third_party/googletest)
   add_subdirectory(unittest)
 endif()
 

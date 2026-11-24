@@ -1305,6 +1305,11 @@ float compute_pitch_sd(        // find fp cells
     sp_sd = occupation;
     return word_sync;
   }
+  // check_pitch_sync(2) clamp their copy of the pitch, but the cell filling
+  // loop below steps by initial_pitch and never advances for a pitch below 1.
+  if (initial_pitch < 3) {
+    initial_pitch = 3; // nothing ludicrous
+  }
   mid_cuts = 0;
   cellpos = 0;
   total_count = 0;

@@ -18,10 +18,13 @@
 #include "include_gunit.h"
 
 #include "classify.h"
+#include "clusttool.h" // for ReadParamDesc
 #include "serialis.h" // for TFile
+#include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
 
+#include <cfenv> // for std::feclearexcept, std::fetestexcept
+#include <cmath> // for std::isfinite
 #include <cstdio>
-#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -48,10 +51,8 @@ std::vector<char> MakeNormproto(const std::string &lines) {
 class NormprotoTest : public testing::Test {
 protected:
   void SetUp() override {
-    tmpl_ = "/tmp/tess_normproto_test_XXXXXX";
-    char *dir = mkdtemp(tmpl_.data());
-    ASSERT_NE(dir, nullptr);
-    dir_ = dir;
+    dir_ = CreateTempDir("tess_normproto_test_");
+    ASSERT_FALSE(dir_.empty());
     std::string uc_path = dir_ + "/eng.unicharset";
     FILE *f = fopen(uc_path.c_str(), "w");
     ASSERT_NE(f, nullptr);
@@ -63,11 +64,9 @@ protected:
     ASSERT_TRUE(classifier_.unicharset.load_from_file(uc_path.c_str()));
   }
   void TearDown() override {
-    std::remove((dir_ + "/eng.unicharset").c_str());
-    rmdir(dir_.c_str());
+    RemoveTempDir(dir_);
   }
   std::string dir_;
-  std::string tmpl_;
   Classify classifier_;
 };
 
@@ -105,6 +104,23 @@ TEST_F(NormprotoTest, ReadsValidNormprotos) {
   ASSERT_NE(classifier_.NormProtos, nullptr);
   classifier_.FreeNormProtos();
   EXPECT_EQ(classifier_.NormProtos, nullptr);
+}
+
+// Parameter limits whose difference or sum does not fit in a float must not
+// raise a floating point overflow (the tesseract program traps it).
+TEST(ParamDescTest, ToleratesHugeLimits) {
+  for (const char *limits : {"-3e38 3e38", "3e38 3e38", "3e38 -3e38", "-3e38 -3e38"}) {
+    std::string line = std::string("linear essential ") + limits + "\n";
+    TFile fp;
+    ASSERT_TRUE(fp.Open(line.data(), line.size()));
+    std::feclearexcept(FE_OVERFLOW);
+    PARAM_DESC *desc = ReadParamDesc(&fp, 1);
+    EXPECT_FALSE(std::fetestexcept(FE_OVERFLOW)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->Range)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->HalfRange)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->MidRange)) << limits;
+    delete[] desc;
+  }
 }
 
 } // namespace

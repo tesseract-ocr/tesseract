@@ -39,10 +39,12 @@ constexpr double MAX_ASPECT_RATIO = 2.5; /* Widest character */
  * same_point
  *
  * Return true if the point values are the same. The parameters must
- * be of type POINT.
+ * be of type POINT. Equal points are the same for any value of
+ * chop_same_distance: the chopper relies on that to terminate.
  **********************************************************************/
 #define same_point(p1, p2) \
-  ((abs(p1.x - p2.x) < chop_same_distance) && (abs(p1.y - p2.y) < chop_same_distance))
+  (is_equal(p1, p2) ||     \
+   ((abs(p1.x - p2.x) < chop_same_distance) && (abs(p1.y - p2.y) < chop_same_distance)))
 
 /**********************************************************************
  * dist_square

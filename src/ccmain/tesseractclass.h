@@ -376,6 +376,18 @@ public:
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT *pr_it,
                           std::vector<WordData> *words);
+#ifndef DISABLED_LEGACY_ENGINE
+  // Starts fresh per-page budgets for the legacy engine (seam evaluations
+  // and blob classifications, see Wordrec::ResetSeamEvalsBudget() and
+  // Wordrec::ResetClassificationBudget()) for this language and for all
+  // sub-languages. Must be called at the start of each page.
+  void ResetPassBudgets();
+  // Returns true if the blob-classification budgets of this language and of
+  // all sub-languages are used up (see
+  // Wordrec::ClassificationBudgetExhausted()), so that the legacy engine
+  // cannot recognize any further word of this page.
+  bool AllClassificationBudgetsExhausted();
+#endif // ndef DISABLED_LEGACY_ENGINE
   bool recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
                        const char *word_config, int dopasses);
   void rejection_passes(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,

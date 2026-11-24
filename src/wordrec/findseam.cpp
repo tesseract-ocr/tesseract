@@ -104,6 +104,29 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
                                SEAM **seam_result, TBLOB *blob, SeamPile *seam_pile) {
   SEAM *seam;
   float my_priority;
+
+  // The seam-evaluation budget may already be exhausted. There is a per-word
+  // budget (seam_evals_remaining_, reset in chop_word_main()/chop_one_blob())
+  // and a per-pass budget (seam_evals_pass_remaining_, set at the start of
+  // the recognition pass in Tesseract::recog_all_words()/
+  // Tesseract::ApplyBoxes()); both are decremented for every seam evaluated
+  // in the queue loop below. If either is exhausted, stop searching without
+  // doing any more work and keep the best seam found so far (if any). This
+  // bounds the worst-case cost of the seam search on degenerate inputs that
+  // never yield a good enough seam (OSS-Fuzz issues 483188622 and
+  // 4775901406232576).
+  if (seam_evals_pass_remaining_ < 0) {
+    // Lazy fallback for chopping paths that are not covered by the pass
+    // entry points (e.g. the ambigs training path via
+    // recog_training_segmented()). This still gives them a bounded budget
+    // for the lifetime of the Tesseract object, but the "per pass"
+    // guarantee does not hold on those paths.
+    ResetSeamEvalsBudget();
+  }
+  if (seam_evals_remaining_ <= 0 || seam_evals_pass_remaining_ <= 0) {
+    return;
+  }
+
   /* Add seam of split */
   my_priority = priority;
   if (split != nullptr) {
@@ -122,11 +145,35 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split, PRIORI
   }
 
   TBOX bbox = blob->bounding_box();
-  /* Queue loop */
-  while (!seam_queue->empty()) {
+  /* Queue loop.
+   * The per-word and per-pass seam-evaluation budgets (seam_evals_remaining_
+   * and seam_evals_pass_remaining_) bound the loop so that a degenerate input
+   * where the seam search never finds a good enough seam cannot run for an
+   * unbounded amount of time, even when many words in the pass are degenerate
+   * (OSS-Fuzz issues 483188622 and 4775901406232576). A warning is printed
+   * once when each budget is reached.
+   */
+  while (!seam_queue->empty() && seam_evals_remaining_ > 0 &&
+         seam_evals_pass_remaining_ > 0) {
     SeamPair seam_pair;
     seam_queue->Pop(&seam_pair);
     seam = seam_pair.extract_data();
+    --seam_evals_remaining_;
+    if (seam_evals_remaining_ == 0 && !seam_evals_warning_) {
+      tprintf("WARNING: reached the seam evaluation budget "
+              "(chop_max_seam_evals = %d) for this word; stopping the seam "
+              "search early.\n",
+              (int)chop_max_seam_evals);
+      seam_evals_warning_ = true;
+    }
+    --seam_evals_pass_remaining_;
+    if (seam_evals_pass_remaining_ == 0 && !seam_evals_pass_warning_) {
+      tprintf("WARNING: reached the seam evaluation budget "
+              "(chop_max_seam_evals_pass = %d) for this recognition pass; "
+              "stopping further seam searching for the rest of the pass.\n",
+              (int)chop_max_seam_evals_pass);
+      seam_evals_pass_warning_ = true;
+    }
     /* Set full priority */
     my_priority =
         seam->FullPriority(bbox.left(), bbox.right(), chop_overlap_knob, chop_centered_maxwidth,

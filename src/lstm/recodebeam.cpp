@@ -137,6 +137,10 @@ void RecodeBeamSearch::DecodeSecondaryBeams(
 void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
                                               int num_outputs,
                                               const UNICHARSET *charset) {
+  // The outputs of a softmax add up to 1, so at most 100 of them can reach
+  // 0.01. A model whose last layer is not a softmax has no such limit, and
+  // without a cap the sorted insertion below is quadratic in num_outputs.
+  constexpr size_t kMaxChoices = 100;
   std::vector<std::pair<const char *, float>> choices;
   for (int i = 0; i < num_outputs; ++i) {
     if (outputs[i] >= 0.01f) {
@@ -154,8 +158,14 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
       while (choices.size() > pos && choices[pos].second > outputs[i]) {
         pos++;
       }
+      if (pos >= kMaxChoices) {
+        continue; // less likely than the kMaxChoices choices already kept
+      }
       choices.insert(choices.begin() + pos,
                      std::pair<const char *, float>(character, outputs[i]));
+      if (choices.size() > kMaxChoices) {
+        choices.pop_back();
+      }
     }
   }
   timesteps.push_back(std::move(choices));

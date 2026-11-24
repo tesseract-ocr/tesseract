@@ -179,6 +179,11 @@ void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
 
   while ((best_score != PERFECT_WERDS) && !current_perm.empty()) {
     match_current_words(current_perm, row, block);
+    if (AllClassificationBudgetsExhausted()) {
+      // The legacy engine might not have recognized all words of
+      // current_perm, so it cannot be compared with best_perm.
+      break;
+    }
     int16_t current_score = eval_word_spacing(current_perm);
     dump_words(current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -590,6 +595,11 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
 
   while (best_score != PERFECT_WERDS && !current_perm.empty()) {
     match_current_words(current_perm, row, block);
+    if (AllClassificationBudgetsExhausted()) {
+      // The legacy engine might not have recognized all words of
+      // current_perm, so it cannot be compared with best_perm.
+      break;
+    }
     current_score = fp_eval_word_spacing(current_perm);
     dump_words(current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -684,6 +694,11 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
 
   if (word_res->rebuild_word == nullptr) {
     return -1; // Can't handle cube words.
+  }
+  if (word_res->tess_failed) {
+    // A word which was not recognized (for example because the classification
+    // budget was used up) has boxes, but no blobs to get noise scores from.
+    return -1;
   }
 
   // Normalised.

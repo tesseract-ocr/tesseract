@@ -10,8 +10,11 @@
 // limitations under the License.
 
 #include "serialis.h"
+#include "unicharcompress.h" // for RecodedCharID
 
 #include "include_gunit.h"
+
+#include <cstdint> // for uint32_t
 
 namespace tesseract {
 
@@ -210,6 +213,144 @@ TEST_F(TfileTest, BigEndian) {
   MathData m3;
   m3.Setup();
   m3.ExpectEq(m2);
+}
+
+// Builds a little-endian uint32 followed by the given number of zero
+// trailing bytes, mirroring the count-prefixed layout the vector, string
+// and char-vector deserializers expect.
+std::vector<char> MakeCountBuffer(uint32_t count, int trailing_bytes) {
+  std::vector<char> buf;
+  for (int i = 0; i < 4; ++i) {
+    buf.push_back(static_cast<char>((count >> (8 * i)) & 0xFF));
+  }
+  buf.resize(buf.size() + trailing_bytes, 0);
+  return buf;
+}
+
+// A declared element count that is not backed by the bytes remaining in
+// the stream must be rejected before the vector is resized, so a tiny
+// crafted file cannot force a multi-gigabyte allocation (denial of
+// service). This is the case for a recoder encoder_ of 50,000,000
+// RecodedCharID: 50,000,000 * sizeof(RecodedCharID) is ~2.2 GB.
+TEST_F(TfileTest, RejectsUnbackedVectorCount) {
+  std::vector<char> data = MakeCountBuffer(50000000, 8);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<int> vec;
+  EXPECT_FALSE(fp.DeSerialize(vec));
+  // The vector must not have been resized before the rejection.
+  EXPECT_TRUE(vec.empty());
+}
+
+TEST_F(TfileTest, RejectsUnbackedStringVectorCount) {
+  std::vector<char> data = MakeCountBuffer(50000000, 8);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<std::string> vec;
+  EXPECT_FALSE(fp.DeSerialize(vec));
+  EXPECT_TRUE(vec.empty());
+}
+
+TEST_F(TfileTest, RejectsUnbackedCharVectorSize) {
+  std::vector<char> data = MakeCountBuffer(50000000, 8);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<char> vec;
+  EXPECT_FALSE(fp.DeSerialize(vec));
+  EXPECT_TRUE(vec.empty());
+}
+
+TEST_F(TfileTest, RejectsUnbackedStringSize) {
+  std::vector<char> data = MakeCountBuffer(50000000, 8);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::string str;
+  EXPECT_FALSE(fp.DeSerialize(str));
+  EXPECT_TRUE(str.empty());
+}
+
+// A declared element count of zero must be accepted (it clears the vector).
+// This is the only path that falls out of the branch chain without an
+// explicit read, so it must return a value (UBSan: "execution reached the
+// end of a value-returning function without returning a value").
+TEST_F(TfileTest, AcceptsZeroVectorCount) {
+  std::vector<char> data = MakeCountBuffer(0, 0);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<int> vec = {1, 2, 3};
+  EXPECT_TRUE(fp.DeSerialize(vec));
+  EXPECT_TRUE(vec.empty());
+}
+
+// A count that is fully backed by the remaining bytes must still be
+// accepted, so the stream-backing check does not reject valid data.
+TEST_F(TfileTest, AcceptsFullyBackedVectorCount) {
+  TFile fpw;
+  std::vector<char> data;
+  fpw.OpenWrite(&data);
+  std::vector<int> values = {7, -12, 0};
+  EXPECT_TRUE(fpw.Serialize(values));
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<int> vec;
+  EXPECT_TRUE(fp.DeSerialize(vec));
+  ASSERT_EQ(3, vec.size());
+  EXPECT_EQ(7, vec[0]);
+  EXPECT_EQ(-12, vec[1]);
+  EXPECT_EQ(0, vec[2]);
+}
+
+// A string vector that is fully backed (each string serialized as a uint32
+// length plus its bytes) must still be accepted.
+TEST_F(TfileTest, AcceptsFullyBackedStringVectorCount) {
+  TFile fpw;
+  std::vector<char> data;
+  fpw.OpenWrite(&data);
+  std::vector<std::string> strings = {"ab", ""};
+  EXPECT_TRUE(fpw.Serialize(strings));
+  TFile fpr;
+  EXPECT_TRUE(fpr.Open(&data[0], data.size()));
+  std::vector<std::string> result;
+  EXPECT_TRUE(fpr.DeSerialize(result));
+  ASSERT_EQ(2, result.size());
+  EXPECT_EQ("ab", result[0]);
+  EXPECT_EQ("", result[1]);
+}
+
+// The exact type from GHSA-fxpc-5x59-r9px: the recoder encoder_.
+// Declaring 50,000,000 RecodedCharID (~2.2 GB) from a tiny stream must be
+// rejected in the class branch.
+TEST_F(TfileTest, RejectsUnbackedRecodedCharIDVectorCount) {
+  std::vector<char> data = MakeCountBuffer(50000000, 8);
+  TFile fp;
+  EXPECT_TRUE(fp.Open(&data[0], data.size()));
+  std::vector<RecodedCharID> vec;
+  EXPECT_FALSE(fp.DeSerialize(vec));
+  EXPECT_TRUE(vec.empty());
+}
+
+// A fully backed vector of RecodedCharID must still be accepted, even
+// though sizeof(RecodedCharID) is 44 while it serializes to only 5 to 41
+// bytes per element (a self-normalized flag, a uint32 length, and that
+// many int32 codes): a sizeof-based backing check would wrongly reject
+// this.
+TEST_F(TfileTest, AcceptsFullyBackedRecodedCharIDVectorCount) {
+  std::vector<RecodedCharID> codes(3);
+  codes[0].Set(0, 1);
+  codes[1].Set3(2, 3, 4);
+  TFile fpw;
+  std::vector<char> data;
+  fpw.OpenWrite(&data);
+  EXPECT_TRUE(fpw.Serialize(codes));
+  TFile fpr;
+  EXPECT_TRUE(fpr.Open(&data[0], data.size()));
+  std::vector<RecodedCharID> result;
+  EXPECT_TRUE(fpr.DeSerialize(result));
+  ASSERT_EQ(3, result.size());
+  EXPECT_EQ(1u, result[0].length());
+  EXPECT_EQ(1, result[0](0));
+  EXPECT_EQ(3u, result[1].length());
+  EXPECT_EQ(4, result[1](2));
 }
 
 } // namespace tesseract

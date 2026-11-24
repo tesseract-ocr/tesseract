@@ -145,10 +145,12 @@ void NewProgressTester(const char *imgname, const char *tessdatadir, const char 
 }
 
 TEST(QuickTest, ClassicProgressReporting) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_fast", "eng");
   ClassicProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast", "eng");
 }
 
 TEST(QuickTest, NewProgressReporting) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR "_fast", "eng");
   NewProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast", "eng");
 }
 

@@ -24,6 +24,7 @@
 #include <locale>  // for std::locale::classic
 #include <memory>
 #include <sstream> // for std::stringstream
+#include <string>
 
 namespace tesseract {
 
@@ -95,7 +96,10 @@ bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
       "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
       "\t\t<sourceImageInformation>\n"
       "\t\t\t<fileName>");
-    AppendString(api->GetInputName());
+    const char *input_name = api->GetInputName();
+    if (input_name != nullptr) {
+      AppendString(HOcrEscape(input_name).c_str());
+    }
     AppendString(
       "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
@@ -139,6 +143,31 @@ TessAltoRenderer::TessAltoRenderer(const char *outputbase)
       begin_document(false) {}
 
 ///
+/// Get the font styles of the current word as a value for the attribute STYLE.
+/// The result is empty for a word without such styles.
+///
+static std::string GetWordStyle(const ResultIterator *it) {
+  bool bold, italic, underlined, monospace, serif, smallcaps;
+  int pointsize, font_id;
+  it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif, &smallcaps, &pointsize,
+                         &font_id);
+  std::string style;
+  if (bold) {
+    style += "bold ";
+  }
+  if (italic) {
+    style += "italics ";
+  }
+  if (smallcaps) {
+    style += "smallcaps ";
+  }
+  if (!style.empty()) {
+    style.pop_back();
+  }
+  return style;
+}
+
+///
 /// Make an XML-formatted string with ALTO markup from the internal
 /// data structures.
 ///
@@ -151,7 +180,8 @@ char *TessBaseAPI::GetAltoText(int page_number) {
 /// data structures.
 ///
 char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(monitor) < 0)) {
     return nullptr;
   }
 
@@ -228,6 +258,7 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
 
     alto_str << "\t\t\t\t\t\t\t<String ID=\"" << GetID("string", page_number, wcnt) << "\"";
     AddBoxToAlto(res_it.get(), RIL_WORD, alto_str);
+    const std::string style = GetWordStyle(res_it.get());
     alto_str << " CONTENT=\"";
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
@@ -244,7 +275,11 @@ char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
 
-    alto_str << "\"/>";
+    alto_str << "\"";
+    if (!style.empty()) {
+      alto_str << " STYLE=\"" << style << "\"";
+    }
+    alto_str << "/>";
 
     wcnt++;
 

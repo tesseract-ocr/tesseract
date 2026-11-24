@@ -440,6 +440,11 @@ bool MasterTrainer::LoadXHeights(const char *filename) {
       // fontinfo not in table.
       continue;
     }
+    if (xht <= 0) {
+      tprintf("Ignoring invalid xheight %d for font %s in %s\n", xht, buffer,
+              filename);
+      continue;
+    }
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
     ++xheight_count;
@@ -469,6 +474,15 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
   if (fontinfo_id < 0) {
     tprintf("No font found matching fontinfo filename %s\n", filename);
+    fclose(fontinfo_file);
+    return false;
+  }
+  // The spacing is scaled by the xheight of the font, which is only known if
+  // an xheights file was loaded (see LoadXHeights) and has an entry for it.
+  if (static_cast<size_t>(fontinfo_id) >= xheights_.size() ||
+      xheights_[fontinfo_id] <= 0) {
+    tprintf("No xheight for font %d, ignoring spacing file %s\n", fontinfo_id,
+            filename);
     fclose(fontinfo_file);
     return false;
   }
@@ -620,7 +634,8 @@ CLUSTERER *MasterTrainer::SetupForClustering(
 // to the given inttemp_file, and the corresponding pffmtable.
 // The unicharset is the original encoding of graphemes, and shape_set should
 // match the size of the shape_table, and may possibly be totally fake.
-void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
+// Returns false if the templates could not be created or written.
+bool MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
                                              const UNICHARSET &shape_set,
                                              const ShapeTable &shape_table,
                                              CLASS_STRUCT *float_classes,
@@ -631,9 +646,16 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
   INT_TEMPLATES_STRUCT *int_templates =
       classify->CreateIntTemplates(float_classes, shape_set);
+  if (int_templates == nullptr) {
+    tprintf("Error: failed to create integer templates\n");
+    delete classify;
+    return false;
+  }
+  bool success = true;
   FILE *fp = fopen(inttemp_file, "wb");
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", inttemp_file);
+    success = false;
   } else {
     classify->WriteIntTemplates(fp, int_templates, shape_set);
     fclose(fp);
@@ -672,6 +694,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   fp = fopen(pffmtable_file, "wb");
   if (fp == nullptr) {
     tprintf("Error, failed to open file \"%s\"\n", pffmtable_file);
+    success = false;
   } else {
     tesseract::Serialize(fp, shapetable_cutoffs);
     for (size_t c = 0; c < unicharset.size(); ++c) {
@@ -685,6 +708,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET &unicharset,
   }
   delete int_templates;
   delete classify;
+  return success;
 }
 
 // Generate debug output relating to the canonical distance between the

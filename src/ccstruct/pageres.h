@@ -303,6 +303,9 @@ public:
   bool done = false;             // ready for output?
   bool small_caps = false;       // word appears to be small caps
   bool odd_size = false;         // word is bigger than line or leader dots.
+  // The result is a fake because the blob classification budget of the
+  // language was used up (see Wordrec::ClassificationBudgetExhausted()).
+  bool budget_skipped = false;
   // The fontinfos are pointers to data owned by the classifier.
   const FontInfo *fontinfo = nullptr;
   const FontInfo *fontinfo2 = nullptr;

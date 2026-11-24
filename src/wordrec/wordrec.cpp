@@ -18,7 +18,13 @@
 
 #include "wordrec.h"
 
+#include <algorithm> // for std::max
+#include <cstdint>   // for INT32_MAX
 #include <memory>
+
+#ifndef DISABLED_LEGACY_ENGINE
+#  include "tesserrstream.h" // for tesserr
+#endif
 
 #ifdef DISABLED_LEGACY_ENGINE
 
@@ -77,6 +83,28 @@ Wordrec::Wordrec()
     , double_MEMBER(chop_width_change_knob, 5.0, "Width change adjustment", params())
     , double_MEMBER(chop_ok_split, 100.0, "OK split limit", params())
     , double_MEMBER(chop_good_split, 50.0, "Good split limit", params())
+    , INT_MEMBER(chop_max_seam_evals, 200000,
+                 "Max number of seam evaluations per word. Bounds the seam "
+                 "search on degenerate inputs where it never converges.",
+                 params())
+    , INT_MEMBER(chop_max_seam_evals_pass, 500000,
+                 "Max number of seam evaluations per recognition pass and "
+                 "per language (all words on one page, or all boxes of one "
+                 "ApplyBoxes call). Each language gets its own budget, so "
+                 "the worst case for a multilingual page is the number of "
+                 "languages times this value. The per-word seam evaluation "
+                 "budget (chop_max_seam_evals) is refreshed for every word, "
+                 "so a page with many degenerate words can take "
+                 "proportionally long in total; this cap bounds the total "
+                 "cost of the seam search over the whole pass. Read at the "
+                 "start of the pass; change it before Recognize() to take "
+                 "effect. A value changed with SetVariable() after Init() "
+                 "applies to the primary language only. 0 disables chopping.",
+                 params())
+    , INT_MEMBER(chop_max_classifications_pass, INT32_MAX,
+                 "Max number of blob classifications of the legacy engine "
+                 "per page and language. Further words are not recognized.",
+                 params())
     , INT_MEMBER(chop_x_y_weight, 3, "X / Y  length weight", params())
     , BOOL_MEMBER(assume_fixed_pitch_char_segment, false,
                   "include fixed-pitch heuristics in char segmentation", params())
@@ -103,6 +131,50 @@ Wordrec::Wordrec()
     , pass2_ok_split(0.0f)
     , prev_word_best_choice_(nullptr)
     , fill_lattice_(nullptr) {
+}
+
+void Wordrec::ResetSeamEvalsBudget() {
+  // Negative values would be indistinguishable from "not yet set"
+  // (seam_evals_pass_remaining_ == -1) and would make choose_best_seam()
+  // re-initialize the budget on every call, so clamp them to 0.
+  int budget = static_cast<int>(chop_max_seam_evals_pass);
+  if (budget < 0) {
+    budget = 0;
+  }
+  seam_evals_pass_remaining_ = budget;
+  if (budget == 0) {
+    tprintf(
+        "WARNING: chop_max_seam_evals_pass is 0; seam searching (chopping) "
+        "is disabled for this recognition pass.\n");
+  } else {
+    seam_evals_pass_warning_ = false;
+  }
+}
+
+void Wordrec::ResetClassificationBudget() {
+  classifications_pass_remaining_ = std::max<int>(0, chop_max_classifications_pass);
+  classifications_budget_set_ = true;
+  classifications_pass_warned_ = false;
+}
+
+bool Wordrec::ClassificationBudgetExhausted() {
+  if (!classifications_budget_set_) {
+    // Lazy fallback for callers which are not covered by
+    // Tesseract::ResetPassBudgets(). This gives them a budget for the
+    // lifetime of the Tesseract object instead of none.
+    ResetClassificationBudget();
+  }
+  if (classifications_pass_remaining_ > 0) {
+    return false;
+  }
+  if (!classifications_pass_warned_) {
+    tesserr << "WARNING: reached the blob classification budget "
+            << "(chop_max_classifications_pass = " << chop_max_classifications_pass
+            << ") of language " << lang << " for this page; the legacy "
+            << "engine does not recognize the remaining words.\n";
+    classifications_pass_warned_ = true;
+  }
+  return true;
 }
 
 } // namespace tesseract

@@ -303,7 +303,11 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level, int *left,
       break;
     case RIL_PARA:
       para = it_->row()->row->para();
-      // Fall through.
+      // For a paragraph the box is the union of the full bounding boxes of
+      // all its rows. Do not seed with the current row's restricted box: the
+      // restricted box excludes upper/lower dots, so the result would depend
+      // on which row the iterator currently sits on.
+      break;
     case RIL_TEXTLINE:
       box = it_->row()->row->restricted_bounding_box(include_upper_dots_,
                                                      include_lower_dots_);
@@ -577,6 +581,7 @@ void PageIterator::Orientation(tesseract::Orientation *orientation,
     *orientation = ORIENTATION_PAGE_UP;
     *writing_direction = WRITING_DIRECTION_LEFT_TO_RIGHT;
     *textline_order = TEXTLINE_ORDER_TOP_TO_BOTTOM;
+    *deskew_angle = 0.0F;
     return;
   }
   auto *block = block_res->block;
@@ -621,7 +626,12 @@ void PageIterator::Orientation(tesseract::Orientation *orientation,
 void PageIterator::ParagraphInfo(tesseract::ParagraphJustification *just,
                                  bool *is_list_item, bool *is_crown,
                                  int *first_line_indent) const {
+  // Set default values first, so that every output is defined even when
+  // the current paragraph has no model.
   *just = tesseract::JUSTIFICATION_UNKNOWN;
+  *is_list_item = false;
+  *is_crown = false;
+  *first_line_indent = 0;
   if (!it_->row() || !it_->row()->row || !it_->row()->row->para() ||
       !it_->row()->row->para()->model) {
     return;

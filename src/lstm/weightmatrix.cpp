@@ -17,9 +17,12 @@
 
 #include "weightmatrix.h"
 
-#include <cassert> // for assert
+#include <algorithm> // for std::min
+#include <cassert>   // for assert
+#include <cfloat>    // for FLT_MAX
+#include <cstring>   // for std::memcpy
 #include "intsimdmatrix.h"
-#include "simddetect.h" // for DotProduct
+#include "simddetect.h" // for RowDotProducts, CrossDotProducts
 #include "statistc.h"
 #include "tprintf.h"    // forTFloat
 
@@ -38,7 +41,25 @@ const TFloat kAdamEpsilon = 1e-8;
 
 // Utility functions convert between double and float arrays.
 #ifdef FAST_FLOAT
-static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
+// Returns true if a double read from a model file can be narrowed to float,
+// i.e. it is finite and its magnitude does not exceed FLT_MAX. Narrowing any
+// other value raises FE_OVERFLOW or FE_INVALID, which the tesseract program
+// traps (SIGFPE), so a corrupt model must be rejected before the conversion.
+// The test works on the bit pattern, because even a floating-point comparison
+// with a signaling NaN raises FE_INVALID. With the sign bit cleared, the bit
+// patterns of doubles order like their magnitudes, and infinities and NaNs
+// sort above every finite value.
+static bool FitsFloat(double value) {
+  uint64_t bits;
+  std::memcpy(&bits, &value, sizeof(bits));
+  const double max_float = FLT_MAX;
+  uint64_t max_bits;
+  std::memcpy(&max_bits, &max_float, sizeof(max_bits));
+  return (bits & ~(UINT64_C(1) << 63)) <= max_bits;
+}
+
+// Returns false if src has an element that does not fit a float.
+static bool DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<float> &dst) {
   const auto dim1 = src.dim1();
   const auto dim2 = src.dim2();
   dst.ResizeNoInit(dim1, dim2);
@@ -46,9 +67,13 @@ static void DoubleToFloat(const GENERIC_2D_ARRAY<double> &src, GENERIC_2D_ARRAY<
     const auto *src_i = src[i];
     auto *dst_i = dst[i];
     for (int j = 0; j < dim2; ++j) {
+      if (!FitsFloat(src_i[j])) {
+        return false;
+      }
       dst_i[j] = static_cast<float>(src_i[j]);
     }
   }
+  return true;
 }
 #endif
 
@@ -71,8 +96,7 @@ static bool DeSerialize(TFile *fp, GENERIC_2D_ARRAY<TFloat> &tfloat_array) {
   if (!double_array.DeSerialize(fp)) {
     return false;
   }
-  DoubleToFloat(double_array, tfloat_array);
-  return true;
+  return DoubleToFloat(double_array, tfloat_array);
 #else
   return tfloat_array.DeSerialize(fp);
 #endif
@@ -100,13 +124,14 @@ static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<TFloat> &w, bo
                                            bool skip_bias_back, const TFloat *u, TFloat *v) {
   int num_results = w.dim1() - skip_bias_back;
   int extent = w.dim2() - add_bias_fwd;
-  for (int i = 0; i < num_results; ++i) {
-    const TFloat *wi = w[i];
-    TFloat total = DotProduct(wi, u, extent);
-    if (add_bias_fwd) {
-      total += wi[extent]; // The bias value.
+  if (num_results <= 0) {
+    return;
+  }
+  RowDotProducts(w[0], w.dim2(), num_results, u, extent, v);
+  if (add_bias_fwd) {
+    for (int i = 0; i < num_results; ++i) {
+      v[i] += w[i][extent]; // The bias value.
     }
-    v[i] = total;
   }
 }
 
@@ -291,6 +316,20 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (!wi_.DeSerialize(fp)) {
       return false;
     }
+    // The first dimension is the number of output rows, so it must be at
+    // least 1. A zero dimension would leave the reshaped weight matrix and
+    // the scale vector empty, so reject the corrupt model.
+    if (wi_.dim1() < 1) {
+      return false;
+    }
+    // The second dimension is the number of inputs plus the bias column, so
+    // it must be at least 1. A zero dimension would make IntSimdMatrix::Init
+    // compute num_in = dim2 - 1 = -1 and read the bias from array_[-1] on an
+    // unallocated (null) array, so reject the corrupt model instead of
+    // crashing.
+    if (wi_.dim2() < 1) {
+      return false;
+    }
     uint32_t size;
     if (!fp->DeSerialize(&size)) {
       return false;
@@ -299,18 +338,34 @@ bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
     if (size > 100000000) {
       return false;
     }
+    // The scales are stored as doubles, so the file must contain that many
+    // bytes. Checking this before the allocation below stops a tiny crafted
+    // file from forcing a huge allocation.
+    if (static_cast<uint64_t>(size) * sizeof(double) > fp->RemainingBytes()) {
+      return false;
+    }
+    // A valid model carries one scale per output row: the generic
+    // (non-SIMD) MatrixDotVector reads scales_[i] for i < wi_.dim1(), and the
+    // SIMD path resizes to a rounded size no smaller than that. So the
+    // serialized scale vector must have at least wi_.dim1() entries. Check
+    // this here, before resizing below, where a zero size would otherwise
+    // make the &scales_[0] read index an empty vector (undefined behaviour).
+    if (static_cast<size_t>(size) < static_cast<size_t>(wi_.dim1())) {
+      return false;
+    }
 #ifdef FAST_FLOAT
     scales_.reserve(size);
     for (auto n = size; n > 0; n--) {
       double val;
-      if (!fp->DeSerialize(&val)) {
+      // The scales are narrowed to float like the weights of a float matrix.
+      if (!fp->DeSerialize(&val) || !FitsFloat(val)) {
         return false;
       }
       scales_.push_back(val / INT8_MAX);
     }
 #else
     scales_.resize(size);
-    if (!fp->DeSerialize(&scales_[0], size)) {
+    if (size > 0 && !fp->DeSerialize(&scales_[0], size)) {
       return false;
     }
     for (auto &scale : scales_) {
@@ -347,15 +402,41 @@ bool WeightMatrix::DeSerializeOld([[maybe_unused]] bool training,
                                   [[maybe_unused]] TFile *fp) {
 #ifdef FAST_FLOAT
   // Not implemented.
-  ASSERT_HOST(!"not implemented");
+  // Return false, like the other error paths of DeSerialize, instead of
+  // aborting the process: a corrupt or malicious model file with a weight
+  // matrix in the old (float) format must simply fail to load. Aborting
+  // (via ASSERT_HOST) would take down the whole host application, e.g. a
+  // long-running service embedding Tesseract, on a single bad input.
+  tprintf("Error: old format weight matrix not supported, "
+          "cannot load model\n");
   return false;
 #else
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) {
       return false;
     }
-    std::vector<float> old_scales;
-    if (!fp->DeSerialize(old_scales)) {
+    uint32_t num_scales;
+    if (!fp->DeSerialize(&num_scales)) {
+      return false;
+    }
+    // Reject unreasonably large scale vectors.
+    if (num_scales > 100000000) {
+      return false;
+    }
+    // The scales are stored as floats, so the file must contain that many
+    // bytes. Checking this before the allocation below stops a tiny crafted
+    // file from forcing a huge allocation.
+    if (static_cast<uint64_t>(num_scales) * sizeof(float) > fp->RemainingBytes()) {
+      return false;
+    }
+    std::vector<float> old_scales(num_scales);
+    if (num_scales > 0 && !fp->DeSerialize(&old_scales[0], num_scales)) {
+      return false;
+    }
+    // The generic (non-SIMD) IntSimdMatrix::MatrixDotVector reads
+    // scales_[i] for i < wi_.dim1(), so the old format carries at least
+    // one scale per output row as well.
+    if (old_scales.size() < static_cast<size_t>(wi_.dim1())) {
       return false;
     }
     scales_.reserve(old_scales.size());
@@ -441,21 +522,26 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray &u, const Transposed
   int num_samples = u.dim2();
   // v is missing the last element in dim1.
   assert(v.dim1() == num_inputs);
+  // The rows of u are handled in blocks, so that an optimized function can
+  // calculate the dot products for several rows of u at the same time.
+  const int kBlockSize = 4;
+  const TFloat *v0 = num_inputs > 0 ? v[0] : nullptr;
 #ifdef _OPENMP
 #  pragma omp parallel for num_threads(4) if (in_parallel)
 #endif
-  for (int i = 0; i < num_outputs; ++i) {
-    TFloat *dwi = dw_[i];
-    const TFloat *ui = u[i];
-    for (int j = 0; j < num_inputs; ++j) {
-      dwi[j] = DotProduct(ui, v[j], num_samples);
+  for (int block = 0; block < num_outputs; block += kBlockSize) {
+    int block_end = std::min(block + kBlockSize, num_outputs);
+    CrossDotProducts(u[block], block_end - block, v0, num_inputs, num_samples,
+                     dw_[block], dw_.dim2());
+    for (int i = block; i < block_end; ++i) {
+      // The last element of v is missing, presumed 1.0f.
+      const TFloat *ui = u[i];
+      TFloat total = 0;
+      for (int k = 0; k < num_samples; ++k) {
+        total += ui[k];
+      }
+      dw_[i][num_inputs] = total;
     }
-    // The last element of v is missing, presumed 1.0f.
-    TFloat total = 0;
-    for (int k = 0; k < num_samples; ++k) {
-      total += ui[k];
-    }
-    dwi[num_inputs] = total;
   }
 }
 
