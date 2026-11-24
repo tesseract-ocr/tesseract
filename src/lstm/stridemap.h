@@ -79,9 +79,9 @@ public:
     // Adds the given offset to the given dimension. Returns true if the result
     // makes a valid index.
     bool AddOffset(int offset, FlexDimensions dimension);
-    // Like AddOffset, with a valid starting index and a fixed spatial dimension.
-    // Check only the changed coordinate; the fixed dimension lets callers
-    // eliminate runtime dimension dispatch.
+    // Like AddOffset, with a valid starting index and a fixed spatial
+    // dimension. Check only the changed coordinate; the fixed dimension lets
+    // callers eliminate runtime dimension dispatch.
     template <FlexDimensions dimension>
     bool AddOffsetFromValid(int offset) {
       static_assert(dimension == FD_HEIGHT || dimension == FD_WIDTH);
@@ -90,7 +90,8 @@ public:
       t_ += offset * stride_map_->t_increments_[dimension];
       int max_index = stride_map_->shape_[dimension] - 1;
       const size_t batch = indices_[FD_BATCH];
-      const auto &limits = dimension == FD_HEIGHT ? stride_map_->heights_ : stride_map_->widths_;
+      const auto &limits =
+          dimension == FD_HEIGHT ? stride_map_->heights_ : stride_map_->widths_;
       if (batch < limits.size() && limits[batch] <= max_index) {
         max_index = limits[batch] - 1;
       }

@@ -99,7 +99,8 @@ void Reconfig::Forward(bool /*debug*/, const NetworkIO &input,
     for (int x = 0; x < x_scale_; ++x) {
       for (int y = 0; y < y_scale_; ++y) {
         StrideMap::Index src_xy(src_index);
-        if (src_xy.AddOffset(x, FD_WIDTH) && src_xy.AddOffset(y, FD_HEIGHT)) {
+        if (src_xy.AddOffsetFromValid<FD_WIDTH>(x) &&
+            src_xy.AddOffsetFromValid<FD_HEIGHT>(y)) {
           output->CopyTimeStepGeneral(out_t, (x * y_scale_ + y) * ni_, ni_, input, src_xy.t(), 0);
         }
       }
@@ -122,7 +123,8 @@ bool Reconfig::Backward(bool /*debug*/, const NetworkIO &fwd_deltas, NetworkScra
     for (int x = 0; x < x_scale_; ++x) {
       for (int y = 0; y < y_scale_; ++y) {
         StrideMap::Index dest_xy(dest_index);
-        if (dest_xy.AddOffset(x, FD_WIDTH) && dest_xy.AddOffset(y, FD_HEIGHT)) {
+        if (dest_xy.AddOffsetFromValid<FD_WIDTH>(x) &&
+            dest_xy.AddOffsetFromValid<FD_HEIGHT>(y)) {
           back_deltas->CopyTimeStepGeneral(dest_xy.t(), 0, ni_, fwd_deltas, in_t,
                                            (x * y_scale_ + y) * ni_);
         }
