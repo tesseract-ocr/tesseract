@@ -247,14 +247,17 @@ protected:
   }
 
   // Takes a synthetic page, which is destroyed here, and runs the layout
-  // analysis on it.
-  void AnalysePage(Pix *page) {
+  // analysis on it. A resolution of 0 leaves it to Tesseract.
+  void AnalysePage(Pix *page, int resolution = 0) {
     src_pix_.destroy();
     src_pix_ = pixThresholdToBinary(page, 128);
     pixDestroy(&page);
     ASSERT_EQ(api_.Init(TessdataPath().c_str(), "eng"), 0);
     api_.SetPageSegMode(tesseract::PSM_AUTO);
     api_.SetImage(src_pix_);
+    if (resolution > 0) {
+      api_.SetSourceResolution(resolution);
+    }
     page_it_.reset(api_.AnalyseLayout());
   }
 
@@ -380,6 +383,32 @@ TEST_F(LayoutTest, TextLineBetweenLeaders) {
   DrawText(page, dashes.c_str(), 500, 1300);
   AnalysePage(page);
   EXPECT_EQ(CountTextLinesIn(600, 1175, 1400, 1260), 1);
+}
+
+// Tests that a word is found in an image which has only a few pixels of
+// margin around it, like the images of single words or lines. The digits
+// all have the same height, so the word has straight edges.
+TEST_F(LayoutTest, WordWithLittleMargin) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  const int kMargin = 4;
+  Pix *page = pixCreate(600, 200, 8);
+  pixSetAll(page);
+  DrawText(page, "6881", 100, 120);
+  // Cut out the word with its margin.
+  Pix *binary = pixThresholdToBinary(page, 128);
+  Box *word_box = nullptr;
+  pixClipToForeground(binary, nullptr, &word_box);
+  ASSERT_NE(word_box, nullptr);
+  Pix *word = pixClipRectangle(page, word_box, nullptr);
+  Pix *image = pixAddBorder(word, kMargin, 255);
+  const int width = pixGetWidth(image);
+  const int height = pixGetHeight(image);
+  pixDestroy(&binary);
+  boxDestroy(&word_box);
+  pixDestroy(&word);
+  pixDestroy(&page);
+  AnalysePage(image, 300);
+  EXPECT_EQ(CountTextLinesIn(0, 0, width, height), 1);
 }
 
 } // namespace tesseract
