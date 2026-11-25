@@ -9,11 +9,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <iterator>
+#include <memory>
 #include <string>
 #include <utility>
 
 #include "include_gunit.h"
 
+#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
 #include "coutln.h"
@@ -50,6 +53,21 @@ static const char *kPolyBlockNames[] = {
 const char *kStrings8087_054[] = {"dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", nullptr};
 const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT, PT_PULLOUT_IMAGE,
                                          PT_CAPTION_TEXT, PT_FLOWING_TEXT};
+
+// Size of the synthetic pages, about A5 at 300 dpi.
+const int kPageWidth = 2000;
+const int kPageHeight = 2800;
+// Left end, baseline and size of the page number of the synthetic pages.
+const int kPageNumberLeft = 300;
+const int kPageNumberBaseline = 2580;
+const int kPageNumberHeight = 60;
+// Width of the dark border of a scan.
+const int kScanBorder = 60;
+// Words for the text of the synthetic pages.
+const char *kPageWords[] = {"layout", "analysis", "finds", "the",     "text",
+                            "lines",  "of",       "a",     "printed", "page",
+                            "and",    "puts",     "them",  "into",    "blocks",
+                            "which",  "are",      "read",  "in",      "order"};
 
 // The fixture for testing Tesseract.
 class LayoutTest : public testing::Test {
@@ -182,9 +200,96 @@ protected:
     } while (it->Next(tesseract::RIL_BLOCK));
   }
 
+  // Writes text with its baseline at y from x to the right on pix, with a
+  // font which is built in Leptonica. Returns the width of the text.
+  static int DrawText(Pix *pix, const char *text, int x, int y) {
+    static L_BMF *font = bmfCreate(nullptr, 10);
+    CHECK(font != nullptr);
+    int width = 0;
+    int overflow = 0;
+    pixSetTextline(pix, font, text, 0, x, y, &width, &overflow);
+    return width;
+  }
+
+  // Makes a white 8 bit page with 32 lines of text.
+  static Pix *MakeTextPage() {
+    Pix *pix = pixCreate(kPageWidth, kPageHeight, 8);
+    pixSetAll(pix);
+    int word = 0;
+    for (int y = 400; y <= 2300; y += 60) {
+      for (int x = 300; x < 1450;) {
+        x += DrawText(pix, kPageWords[word++ % std::size(kPageWords)], x, y) +
+             16;
+      }
+    }
+    return pix;
+  }
+
+  // Paints the given rectangle black, or white if not black.
+  static void FillRect(Pix *pix, int left, int top, int width, int height,
+                       bool black) {
+    Box *box = boxCreate(left, top, width, height);
+    if (black) {
+      pixClearInRect(pix, box);
+    } else {
+      pixSetInRect(pix, box);
+    }
+    boxDestroy(&box);
+  }
+
+  // Adds a dark border on all sides of the page, like the scan of a page
+  // which is smaller than the scanned area.
+  static void AddScanBorder(Pix *pix) {
+    FillRect(pix, 0, 0, kPageWidth, kScanBorder, true);
+    FillRect(pix, 0, kPageHeight - kScanBorder, kPageWidth, kScanBorder, true);
+    FillRect(pix, 0, 0, kScanBorder, kPageHeight, true);
+    FillRect(pix, kPageWidth - kScanBorder, 0, kScanBorder, kPageHeight, true);
+  }
+
+  // Takes a synthetic page, which is destroyed here, and runs the layout
+  // analysis on it.
+  void AnalysePage(Pix *page) {
+    src_pix_.destroy();
+    src_pix_ = pixThresholdToBinary(page, 128);
+    pixDestroy(&page);
+    ASSERT_EQ(api_.Init(TessdataPath().c_str(), "eng"), 0);
+    api_.SetPageSegMode(tesseract::PSM_AUTO);
+    api_.SetImage(src_pix_);
+    page_it_.reset(api_.AnalyseLayout());
+  }
+
+  // Returns the number of text lines which the last AnalysePage found
+  // completely inside the given rectangle.
+  int CountTextLinesIn(int left, int top, int right, int bottom) {
+    int count = 0;
+    if (page_it_ == nullptr) {
+      return count;
+    }
+    page_it_->Begin();
+    do {
+      int line_left, line_top, line_right, line_bottom;
+      if (PTIsTextType(page_it_->BlockType()) &&
+          page_it_->BoundingBox(tesseract::RIL_TEXTLINE, &line_left, &line_top,
+                                &line_right, &line_bottom) &&
+          line_left >= left && line_right <= right && line_top >= top &&
+          line_bottom <= bottom) {
+        ++count;
+      }
+    } while (page_it_->Next(tesseract::RIL_TEXTLINE));
+    return count;
+  }
+
+  // Returns the number of text lines found where the page number is.
+  int CountPageNumberLines() {
+    return CountTextLinesIn(kPageNumberLeft - 50,
+                            kPageNumberBaseline - kPageNumberHeight,
+                            kPageNumberLeft + 250, kPageNumberBaseline + 30);
+  }
+
   Image src_pix_;
   std::string ocr_text_;
   tesseract::TessBaseAPI api_;
+  std::unique_ptr<tesseract::PageIterator> page_it_;
 };
 
 // Tests that array sizes match their intended size.
@@ -233,6 +338,31 @@ TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   // And blobs should still be fully contained.
   VerifyTotalContainment(-1, it);
   delete it;
+}
+
+// Tests that a page number is found on a clean page. The following tests
+// need this to mean anything.
+TEST_F(LayoutTest, PageNumber) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  Pix *page = MakeTextPage();
+  DrawText(page, "184", kPageNumberLeft, kPageNumberBaseline);
+  AnalysePage(page);
+  EXPECT_EQ(CountTextLinesIn(250, 340, 1750, 2330), 32);
+  EXPECT_EQ(CountPageNumberLines(), 1);
+}
+
+// Tests that the dark border of a scan, which is a frame around the page,
+// does not take the page number and a running title as part of an image.
+TEST_F(LayoutTest, PageNumberInsideScanBorder) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  Pix *page = MakeTextPage();
+  DrawText(page, "CURATOR", 300, 240);
+  DrawText(page, "184", kPageNumberLeft, kPageNumberBaseline);
+  AddScanBorder(page);
+  AnalysePage(page);
+  EXPECT_EQ(CountTextLinesIn(250, 340, 1750, 2330), 32);
+  EXPECT_EQ(CountTextLinesIn(250, 180, 750, 270), 1);
+  EXPECT_EQ(CountPageNumberLines(), 1);
 }
 
 } // namespace tesseract
