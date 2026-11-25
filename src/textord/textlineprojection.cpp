@@ -42,6 +42,10 @@ const int kParaPerpDistRatio = 4;
 const int kMinLineSpacingFactor = 4;
 // Maximum tab-stop overrun for horizontal padding, in projection pixels.
 const int kMaxTabStopOverrun = 6;
+// Margin of the projection map around the image, in projection pixels.
+// The gradients are measured up to 3 pixels from the edge of a box, and the
+// map is smoothed over 3 pixels.
+const int kProjectionMargin = 4;
 
 namespace tesseract {
 
@@ -67,10 +71,16 @@ void TextlineProjection::ConstructProjection(TO_BLOCK *input_block, const FCOORD
                                              Image nontext_map) {
   pix_.destroy();
   TBOX image_box(0, 0, pixGetWidth(nontext_map), pixGetHeight(nontext_map));
-  x_origin_ = 0;
-  y_origin_ = image_box.height();
-  int width = (image_box.width() + scale_factor_ - 1) / scale_factor_;
-  int height = (image_box.height() + scale_factor_ - 1) / scale_factor_;
+  // The map has a margin around the image. Without it there is nothing to
+  // compare a text line with which touches the edge of the image, or is so
+  // close to it that the padding of its blobs reaches the edge. Such a line
+  // had no gradient across that edge and did not look like a text line.
+  x_origin_ = -kProjectionMargin * scale_factor_;
+  y_origin_ = image_box.height() + kProjectionMargin * scale_factor_;
+  int width = (image_box.width() + scale_factor_ - 1) / scale_factor_ +
+              2 * kProjectionMargin;
+  int height = (image_box.height() + scale_factor_ - 1) / scale_factor_ +
+               2 * kProjectionMargin;
 
   pix_ = pixCreate(width, height, 8);
   ProjectBlobs(&input_block->blobs, rotation, image_box, nontext_map);
@@ -666,10 +676,25 @@ void TextlineProjection::ProjectBlobs(BLOBNBOX_LIST *blobs, const FCOORD &rotati
       spreading_horizontally = !spreading_horizontally;
     }
     // Clip to the image before applying the increments.
+    const TBOX padded_box(bbox);
     bbox &= nontext_map_box; // This is in-place box intersection.
     // Check for image pixels before spreading.
     TruncateBoxToMissNonText(middle.x(), middle.y(), spreading_horizontally, nontext_map, &bbox);
     if (bbox.area() > 0) {
+      // Where the box was only stopped by the edge of the image, it goes on
+      // into the margin of the map, as it would in a larger image.
+      if (bbox.left() == nontext_map_box.left()) {
+        bbox.set_left(padded_box.left());
+      }
+      if (bbox.right() == nontext_map_box.right()) {
+        bbox.set_right(padded_box.right());
+      }
+      if (bbox.bottom() == nontext_map_box.bottom()) {
+        bbox.set_bottom(padded_box.bottom());
+      }
+      if (bbox.top() == nontext_map_box.top()) {
+        bbox.set_top(padded_box.top());
+      }
       IncrementRectangle8Bit(bbox);
     }
   }
