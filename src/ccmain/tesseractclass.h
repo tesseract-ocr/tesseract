@@ -205,6 +205,7 @@ public:
   // Destroy any existing pix and return a pointer to the pointer.
   Image *mutable_pix_binary() {
     pix_binary_.destroy();
+    pix_removed_lines_.destroy();
     return &pix_binary_;
   }
   Image pix_binary() const {
@@ -990,6 +991,10 @@ private:
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Image pix_binary_;
+  // The pixels of the lines which the layout analysis removed from the binary
+  // image, or nullptr. Kept for the font style pass, which needs them to find
+  // underlined words.
+  Image pix_removed_lines_;
   // Grey-level input image if the input was not binary, otherwise nullptr.
   Image pix_grey_;
   // Original input image. Color if the input was color.

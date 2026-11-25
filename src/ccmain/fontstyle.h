@@ -21,6 +21,7 @@
 
 #include <tesseract/export.h> // for TESS_API
 
+#include <utility> // for std::pair
 #include <vector>
 
 namespace tesseract {
@@ -84,6 +85,26 @@ struct WordStrokes {
 // than the upright ones.
 TESS_API
 void SetWordWeights(std::vector<WordStrokes> *words);
+
+// Finds the underlined words of a text line in an image with a depth of 1 bit,
+// which shows the text line, at least from the top of its lowercase letters,
+// and the space below it. The set pixels are the text.
+//
+// baseline has an entry for each column of the image: the distance of the
+// baseline from the upper edge of the image in pixels. x_height is the height
+// of the lowercase letters in pixels. Each word is given by its first and its
+// last column. All words of the text line must be given, because a line which
+// goes on beyond the text is a ruling, for example that of a table, and not
+// an underline. The image must therefore show some space on both sides of the
+// text, too.
+//
+// A word is underlined if a horizontal line below the baseline covers nearly
+// all of its columns. The line follows the baseline, so the text can be
+// skewed. Returns a value for each word.
+TESS_API
+std::vector<bool> FindUnderlinedWords(Image pix, const std::vector<float> &baseline,
+                                      float x_height,
+                                      const std::vector<std::pair<int, int>> &words);
 
 // Returns the entry of a table of fonts without a name for the given style.
 // The entries have the font id -1 and stay valid until the program ends.

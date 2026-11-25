@@ -312,6 +312,9 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
     if (italic) {
       hocr_str << "<em>";
     }
+    if (underlined) {
+      hocr_str << "<u>";
+    }
     do {
       const std::unique_ptr<const char[]> grapheme(
           res_it->GetUTF8Text(RIL_SYMBOL));
@@ -377,6 +380,9 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
       }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
+    if (underlined) {
+      hocr_str << "</u>";
+    }
     if (italic) {
       hocr_str << "</em>";
     }

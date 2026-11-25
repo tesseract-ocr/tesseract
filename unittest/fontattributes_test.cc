@@ -120,6 +120,7 @@ protected:
       bool bold = false;
       bool italic = false;
       bool smallcaps = false;
+      bool underlined = false;
       bool has_font = true;
       switch (line) {
         case 0:
@@ -129,7 +130,7 @@ protected:
           italic = true;
           break;
         case 2:
-          bold = italic = smallcaps = true;
+          bold = italic = smallcaps = underlined = true;
           break;
         case 3:
           bold = word_in_line == 0;
@@ -138,18 +139,25 @@ protected:
           bold = true;
           italic = word_in_line % 2 == 1;
           break;
+        case 5:
+          underlined = true;
+          break;
         default:
           has_font = false;
       }
       word->fontinfo = has_font ? &fonts_[(italic ? 1 : 0) | (bold ? 2 : 0)] : nullptr;
       word->small_caps = smallcaps;
+      word->underlined = underlined;
+      num_underlined_ += underlined;
       expected_alto_.push_back(std::string(bold ? "bold " : "") + (italic ? "italics " : "") +
-                               (smallcaps ? "smallcaps " : ""));
+                               (smallcaps ? "smallcaps " : "") +
+                               (underlined ? "underline " : ""));
       if (!expected_alto_.back().empty()) {
         expected_alto_.back().pop_back();
       }
       expected_page_.push_back(std::string(bold ? " bold=\"true\"" : "") +
                                (italic ? " italic=\"true\"" : "") +
+                               (underlined ? " underlined=\"true\"" : "") +
                                (smallcaps ? " smallCaps=\"true\"" : ""));
       ++word_in_line;
     }
@@ -157,8 +165,10 @@ protected:
     // A line has the attributes which all of its words have.
     expected_lines_[0] = " bold=\"true\"";
     expected_lines_[1] = " italic=\"true\"";
-    expected_lines_[2] = " bold=\"true\" italic=\"true\" smallCaps=\"true\"";
+    expected_lines_[2] =
+        " bold=\"true\" italic=\"true\" underlined=\"true\" smallCaps=\"true\"";
     expected_lines_[4] = " bold=\"true\"";
+    expected_lines_[5] = " underlined=\"true\"";
 
     std::unique_ptr<ResultIterator> result(api_.GetIterator());
     ASSERT_NE(result, nullptr);
@@ -189,7 +199,35 @@ protected:
   std::vector<std::string> expected_page_;
   // The same for each text line.
   std::vector<std::string> expected_lines_;
+  // Number of the underlined words.
+  int num_underlined_ = 0;
 };
+
+// Returns how often a text contains another one.
+static int Count(const std::string &text, const std::string &part) {
+  int count = 0;
+  for (size_t pos = text.find(part); pos != std::string::npos; pos = text.find(part, pos + 1)) {
+    ++count;
+  }
+  return count;
+}
+
+TEST_F(FontAttributesTest, Hocr) {
+  ASSERT_NO_FATAL_FAILURE(Recognize());
+  if (IsSkipped()) {
+    return;
+  }
+  std::unique_ptr<char[]> hocr(api_.GetHOCRText(0));
+  ASSERT_NE(hocr, nullptr);
+  const std::string text(hocr.get());
+  ASSERT_GT(num_underlined_, 0);
+  EXPECT_EQ(Count(text, "<u>"), num_underlined_);
+  EXPECT_EQ(Count(text, "</u>"), num_underlined_);
+  // The element for underlined text is the innermost one.
+  EXPECT_NE(text.find("<strong><em><u>"), std::string::npos);
+  EXPECT_NE(text.find("</u></em></strong>"), std::string::npos);
+  EXPECT_EQ(text.find("<u><"), std::string::npos);
+}
 
 TEST_F(FontAttributesTest, Alto) {
   ASSERT_NO_FATAL_FAILURE(Recognize());
@@ -283,10 +321,14 @@ TEST_F(FontAttributesTest, NoAttributes) {
   for (it.restart_page(); it.word() != nullptr; it.forward()) {
     it.word()->fontinfo = nullptr;
     it.word()->small_caps = false;
+    it.word()->underlined = false;
   }
   std::unique_ptr<char[]> alto(api_.GetAltoText(0));
   ASSERT_NE(alto, nullptr);
   EXPECT_EQ(std::string(alto.get()).find("STYLE"), std::string::npos);
+  std::unique_ptr<char[]> hocr(api_.GetHOCRText(0));
+  ASSERT_NE(hocr, nullptr);
+  EXPECT_EQ(std::string(hocr.get()).find("<u>"), std::string::npos);
   for (const char *level : {"0", "1"}) {
     ASSERT_TRUE(api_.SetVariable("page_xml_level", level));
     std::unique_ptr<char[]> page(api_.GetPAGEText(0));

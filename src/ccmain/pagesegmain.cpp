@@ -283,9 +283,17 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
   if (tessedit_dump_pageseg_images) {
     pixa_debug_.AddPix(pix_binary_, "PageSegInput");
   }
-  // Leptonica is used to find the rule/separator lines in the input.
+  // Leptonica is used to find the rule/separator lines in the input. The font
+  // style pass needs the removed lines, because a long underline is one of
+  // them.
+  Image pix_with_lines = lstm_font_attributes ? pix_binary_.copy() : nullptr;
   LineFinder::FindAndRemoveLines(source_resolution_, textord_tabfind_show_vlines, pix_binary_,
                                  &vertical_x, &vertical_y, music_mask_pix, &v_lines, &h_lines);
+  pix_removed_lines_.destroy();
+  if (pix_with_lines != nullptr) {
+    pixSubtract(pix_with_lines, pix_with_lines, pix_binary_);
+    pix_removed_lines_ = pix_with_lines;
+  }
   if (tessedit_dump_pageseg_images) {
     pixa_debug_.AddPix(pix_binary_, "NoLines");
   }

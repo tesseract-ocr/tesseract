@@ -610,6 +610,7 @@ static Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
 struct FontStyle {
   bool bold = false;
   bool italic = false;
+  bool underlined = false;
   bool smallcaps = false;
 };
 
@@ -618,9 +619,9 @@ struct FontStyle {
 ///
 static FontStyle GetWordFontStyle(const ResultIterator *it) {
   FontStyle style;
-  bool underlined, monospace, serif;
+  bool monospace, serif;
   int pointsize, font_id;
-  it->WordFontAttributes(&style.bold, &style.italic, &underlined, &monospace, &serif,
+  it->WordFontAttributes(&style.bold, &style.italic, &style.underlined, &monospace, &serif,
                          &style.smallcaps, &pointsize, &font_id);
   return style;
 }
@@ -630,7 +631,7 @@ static FontStyle GetWordFontStyle(const ResultIterator *it) {
 ///
 static void AddTextStyleToPAGE(const FontStyle &style, const char *indent,
                                std::stringstream &str) {
-  if (!style.bold && !style.italic && !style.smallcaps) {
+  if (!style.bold && !style.italic && !style.underlined && !style.smallcaps) {
     return;
   }
   str << indent << "<TextStyle";
@@ -639,6 +640,9 @@ static void AddTextStyleToPAGE(const FontStyle &style, const char *indent,
   }
   if (style.italic) {
     str << " italic=\"true\"";
+  }
+  if (style.underlined) {
+    str << " underlined=\"true\"";
   }
   if (style.smallcaps) {
     str << " smallCaps=\"true\"";
@@ -920,6 +924,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
       line_conf = res_it->Confidence(RIL_TEXTLINE) / 100;
       line_style.bold = true;
       line_style.italic = true;
+      line_style.underlined = true;
       line_style.smallcaps = true;
       char *utf8text = res_it->GetUTF8Text(RIL_TEXTLINE);
       std::string textline = utf8text;
@@ -954,6 +959,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
     const FontStyle word_style = GetWordFontStyle(res_it.get());
     line_style.bold &= word_style.bold;
     line_style.italic &= word_style.italic;
+    line_style.underlined &= word_style.underlined;
     line_style.smallcaps &= word_style.smallcaps;
 
     // Create word stream if word level output is active

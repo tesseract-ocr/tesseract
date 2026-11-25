@@ -161,6 +161,9 @@ static std::string GetWordStyle(const ResultIterator *it) {
   if (smallcaps) {
     style += "smallcaps ";
   }
+  if (underlined) {
+    style += "underline ";
+  }
   if (!style.empty()) {
     style.pop_back();
   }

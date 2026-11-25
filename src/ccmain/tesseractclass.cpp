@@ -440,7 +440,7 @@ Tesseract::Tesseract()
                  "value greater than 0 to produce results.",
                  this->params())
     , BOOL_MEMBER(lstm_font_attributes, false,
-                  "Estimate bold and italic for the words recognized by LSTM.",
+                  "Estimate bold, italic and underlined for the words recognized by LSTM.",
                   this->params())
     , double_MEMBER(lstm_rating_coefficient, 5,
                     "Sets the rating coefficient for the lstm choices. The smaller the "
@@ -454,6 +454,7 @@ Tesseract::Tesseract()
 
     backup_config_file_(nullptr)
     , pix_binary_(nullptr)
+    , pix_removed_lines_(nullptr)
     , pix_grey_(nullptr)
     , pix_original_(nullptr)
     , pix_thresholds_(nullptr)
@@ -495,6 +496,7 @@ void Tesseract::Clear() {
   std::string debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.c_str());
   pix_binary_.destroy();
+  pix_removed_lines_.destroy();
   pix_grey_.destroy();
   pix_thresholds_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
