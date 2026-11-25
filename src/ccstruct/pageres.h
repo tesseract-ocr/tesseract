@@ -302,6 +302,7 @@ public:
   bool tess_would_adapt = false; // Tess would adapt?
   bool done = false;             // ready for output?
   bool small_caps = false;       // word appears to be small caps
+  bool underlined = false;       // word has a line below its baseline
   bool odd_size = false;         // word is bigger than line or leader dots.
   // The result is a fake because the blob classification budget of the
   // language was used up (see Wordrec::ClassificationBudgetExhausted()).

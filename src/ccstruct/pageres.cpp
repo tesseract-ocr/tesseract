@@ -258,6 +258,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES &source) {
   done = source.done;
   unlv_crunch_mode = source.unlv_crunch_mode;
   small_caps = source.small_caps;
+  underlined = source.underlined;
   odd_size = source.odd_size;
   budget_skipped = source.budget_skipped;
   fontinfo = source.fontinfo;

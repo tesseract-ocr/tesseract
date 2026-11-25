@@ -31,6 +31,7 @@
 #include <cmath>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace tesseract {
@@ -321,6 +322,192 @@ TEST(FontStyleTest, NamelessFonts) {
   EXPECT_TRUE(named == named);
 }
 
+// A text line for the search of underlines: an image with words of vertical
+// bars, which stand for the stems of letters with the x-height kXHeight. The
+// baseline rises by the given number of rows from the left to the right.
+class UnderlineTest : public testing::Test {
+protected:
+  static const int kWidth = 600;
+  static const int kHeight = 90;
+  static const int kXHeight = 20;
+  // Row below the stems at the left edge of the image.
+  static const int kBaseline = 50;
+
+  void SetUp() override {
+    pix_ = pixCreate(kWidth, kHeight, 1);
+    ASSERT_TRUE(pix_ != nullptr);
+  }
+
+  void TearDown() override {
+    pix_.destroy();
+  }
+
+  // Sets the baseline. Call this before the words are added.
+  void SetRise(int rise) {
+    baseline_.resize(kWidth);
+    for (int x = 0; x < kWidth; ++x) {
+      baseline_[x] = kBaseline - static_cast<float>(rise) * x / (kWidth - 1);
+    }
+  }
+
+  // Returns the first row below the baseline in the given column.
+  int Row(int x) const {
+    return static_cast<int>(std::floor(baseline_[x] + 0.5f));
+  }
+
+  // Adds a word from the column left to the column right.
+  void AddWord(int left, int right) {
+    if (baseline_.empty()) {
+      SetRise(0);
+    }
+    for (int stem = left; stem + 3 <= right + 1; stem += 9) {
+      for (int x = stem; x < stem + 3; ++x) {
+        for (int y = Row(x) - kXHeight; y < Row(x); ++y) {
+          pixSetPixel(pix_, x, y, 1);
+        }
+      }
+    }
+    words_.emplace_back(left, right);
+  }
+
+  // Draws a line from the column left to the column right which is parallel
+  // to the baseline. offset is the distance of its upper edge from the first
+  // row below the baseline.
+  void AddLine(int left, int right, int offset, int thickness) {
+    for (int x = left; x <= right; ++x) {
+      for (int y = Row(x) + offset; y < Row(x) + offset + thickness; ++y) {
+        pixSetPixel(pix_, x, y, 1);
+      }
+    }
+  }
+
+  std::vector<bool> Find() const {
+    return FindUnderlinedWords(pix_, baseline_, kXHeight, words_);
+  }
+
+  Image pix_;
+  std::vector<float> baseline_;
+  std::vector<std::pair<int, int>> words_;
+};
+
+TEST_F(UnderlineTest, FindsUnderlinedWord) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddWord(280, 380);
+  EXPECT_EQ(Find(), std::vector<bool>({false, false, false}));
+  AddLine(160, 260, 4, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({false, true, false}));
+}
+
+// A line below several words underlines all of them, also the short ones.
+TEST_F(UnderlineTest, FindsUnderlinedRun) {
+  AddWord(60, 140);
+  AddWord(160, 172);
+  AddWord(190, 290);
+  AddWord(310, 400);
+  AddLine(160, 290, 5, 3);
+  EXPECT_EQ(Find(), std::vector<bool>({false, true, true, false}));
+}
+
+// The line of a short word alone could be a part of a letter.
+TEST_F(UnderlineTest, IgnoresShortLines) {
+  AddWord(60, 140);
+  AddWord(160, 172);
+  AddWord(190, 290);
+  AddLine(160, 172, 4, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({false, false, false}));
+}
+
+// The baseline of the layout analysis is too low where descenders join the
+// text and its underline, so the line can be on it.
+TEST_F(UnderlineTest, FindsLineOnBaseline) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddLine(160, 260, -3, 3);
+  EXPECT_EQ(Find(), std::vector<bool>({false, true}));
+}
+
+TEST_F(UnderlineTest, FindsLineOfSkewedText) {
+  SetRise(24);
+  AddWord(60, 140);
+  AddWord(160, 300);
+  AddWord(320, 420);
+  AddLine(160, 300, 4, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({false, true, false}));
+}
+
+// A line which goes on beyond the text is a ruling, for example of a table.
+TEST_F(UnderlineTest, RulingIsNoUnderline) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddWord(280, 380);
+  AddLine(60, 380, 6, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({true, true, true}));
+  AddLine(381, 420, 6, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({false, false, false}));
+}
+
+// The same if the layout analysis added the end of the ruling to a word.
+TEST_F(UnderlineTest, RulingInWordIsNoUnderline) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddLine(20, 300, 6, 2);
+  words_[0].first = 20;
+  words_[1].second = 300;
+  EXPECT_EQ(Find(), std::vector<bool>({false, false}));
+}
+
+// A full stop has no pixels at the height of the letters, but it is text, so
+// the line below it does not go on beyond the text.
+TEST_F(UnderlineTest, LowPunctuationIsText) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddLine(272, 275, -4, 4);
+  words_[1].second = 275;
+  AddLine(160, 275, 4, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({false, true}));
+}
+
+// The feet of the letters are short lines on the baseline.
+TEST_F(UnderlineTest, SerifsAreNoUnderline) {
+  AddWord(60, 240);
+  for (int stem = 60; stem + 3 <= 241; stem += 9) {
+    AddLine(stem - 2, stem + 4, -2, 2);
+  }
+  EXPECT_EQ(Find(), std::vector<bool>({false}));
+}
+
+// Neither is the bar of a wide letter, which is shorter than a line.
+TEST_F(UnderlineTest, LetterBarIsNoUnderline) {
+  AddWord(60, 84);
+  AddLine(60, 84, -3, 3);
+  EXPECT_EQ(Find(), std::vector<bool>({false}));
+}
+
+// Text on a dark background has no line below it.
+TEST_F(UnderlineTest, DarkBackgroundIsNoUnderline) {
+  AddWord(60, 140);
+  AddWord(160, 260);
+  AddLine(60, 260, 2, 30);
+  EXPECT_EQ(Find(), std::vector<bool>({false, false}));
+}
+
+TEST_F(UnderlineTest, RejectsUnusableInput) {
+  AddWord(60, 140);
+  AddLine(60, 140, 4, 2);
+  EXPECT_EQ(Find(), std::vector<bool>({true}));
+  EXPECT_EQ(FindUnderlinedWords(nullptr, baseline_, kXHeight, words_), std::vector<bool>({false}));
+  EXPECT_EQ(FindUnderlinedWords(pix_, baseline_, 0.0f, words_), std::vector<bool>({false}));
+  baseline_.pop_back();
+  EXPECT_EQ(Find(), std::vector<bool>({false}));
+  Image grey = pixCreate(kWidth, kHeight, 8);
+  baseline_.push_back(kBaseline);
+  EXPECT_EQ(FindUnderlinedWords(grey, baseline_, kXHeight, words_), std::vector<bool>({false}));
+  grey.destroy();
+  words_.clear();
+  EXPECT_TRUE(Find().empty());
+}
+
 // A word with the font attributes which the API reports for it.
 struct StyledWord {
   std::string text;
@@ -328,6 +515,7 @@ struct StyledWord {
   int line = -1;
   bool bold = false;
   bool italic = false;
+  bool underlined = false;
   bool has_font_name = false;
   int font_id = 0;
   int pointsize = 0;
@@ -382,11 +570,10 @@ protected:
           word.line = static_cast<int>(line);
         }
       }
-      bool underlined, monospace, serif, smallcaps;
+      bool monospace, serif, smallcaps;
       word.has_font_name =
-          it->WordFontAttributes(&word.bold, &word.italic, &underlined, &monospace, &serif,
+          it->WordFontAttributes(&word.bold, &word.italic, &word.underlined, &monospace, &serif,
                                  &smallcaps, &word.pointsize, &word.font_id) != nullptr;
-      EXPECT_FALSE(underlined);
       EXPECT_FALSE(monospace);
       EXPECT_FALSE(serif);
       words.push_back(word);
@@ -530,6 +717,62 @@ TEST_F(FontStyleApiTest, FindsStylesInRotatedPage) {
   }
   EXPECT_GE(num_italic, 6);
   EXPECT_GE(num_bold, 6);
+}
+
+// The words of a text line with a line below it must be underlined, with and
+// without a layout analysis, which removes long lines from the image.
+TEST_F(FontStyleApiTest, FindsUnderlinedLine) {
+  const int kLine = 3;
+  ASSERT_TRUE(api_.SetVariable("lstm_font_attributes", "1"));
+  std::vector<StyledWord> words = Recognize();
+  ASSERT_EQ(line_boxes_.size(), 8u);
+  for (const auto &word : words) {
+    EXPECT_FALSE(word.underlined) << word.text;
+  }
+  // The box of the text line ends with its descenders.
+  const std::array<int, 4> &box = line_boxes_[kLine];
+  for (int y = box[3] - 4; y < box[3] - 1; ++y) {
+    for (int x = box[0]; x < box[2]; ++x) {
+      pixSetPixel(pix_, x, y, 1);
+    }
+  }
+  for (const PageSegMode mode : {PSM_AUTO, PSM_SINGLE_BLOCK}) {
+    api_.SetPageSegMode(mode);
+    words = Recognize();
+    int num_underlined = 0;
+    for (const auto &word : words) {
+      if (word.line == kLine) {
+        num_underlined += word.underlined;
+      } else {
+        EXPECT_FALSE(word.underlined) << word.text;
+      }
+    }
+    EXPECT_GE(num_underlined, 6) << "mode " << mode;
+  }
+}
+
+// A ruling below a text line goes on beyond the text and is no underline.
+TEST_F(FontStyleApiTest, RulingIsNoUnderline) {
+  const int kLine = 3;
+  ASSERT_TRUE(api_.SetVariable("lstm_font_attributes", "1"));
+  std::vector<StyledWord> words = Recognize();
+  ASSERT_EQ(line_boxes_.size(), 8u);
+  const std::array<int, 4> &box = line_boxes_[kLine];
+  ASSERT_GT(box[0], 20);
+  ASSERT_LT(box[2] + 20, pixGetWidth(pix_));
+  for (int y = box[3] - 4; y < box[3] - 1; ++y) {
+    for (int x = 4; x < pixGetWidth(pix_) - 4; ++x) {
+      pixSetPixel(pix_, x, y, 1);
+    }
+  }
+  for (const PageSegMode mode : {PSM_AUTO, PSM_SINGLE_BLOCK}) {
+    api_.SetPageSegMode(mode);
+    words = Recognize();
+    ASSERT_GT(words.size(), 40u);
+    for (const auto &word : words) {
+      EXPECT_FALSE(word.underlined) << word.text;
+    }
+  }
 }
 
 // Larger text has wider strokes, but it is not bold.

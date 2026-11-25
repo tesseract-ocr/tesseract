@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        fontstyle.cpp
-// Description: Estimation of font style attributes (bold, italic) from
-//              the image of a word.
+// Description: Estimation of font style attributes (bold, italic,
+//              underlined) from the image of a word.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,6 +74,37 @@ const float kXHeightOfCapitals = 0.7f;
 const size_t kMinItalicWords = 5;
 // A word needs this number of letters and digits for a decision of its own.
 const int kMinStyleLetters = 3;
+// An underline is searched from this share of the x-height above the
+// baseline to this share of it below the baseline. The search starts above
+// the baseline, because the baseline of the layout analysis is too low where
+// descenders join the text and its underline.
+const float kMaxUnderlineRise = 0.3f;
+const float kMaxUnderlineOffset = 0.8f;
+// A line which was found there is followed to the neighbours of the word in
+// rows which are up to this share of the x-height further away, because the
+// baseline is not exact.
+const float kUnderlineSlack = 0.5f;
+// A line consists of horizontal runs of pixels which are at least this share
+// of the x-height long. The serifs and the bars of the letters are shorter.
+const float kMinUnderlinePiece = 0.75f;
+// One of its runs is at least this share of the x-height long, which is
+// longer than the bar of any letter, for example that of E, L or Z.
+const float kMinUnderlineRun = 1.5f;
+// A line is thicker than a line of the background which is this share of the
+// x-height.
+const float kMaxUnderlineThickness = 0.3f;
+// An underline covers at least this share of the columns of a word.
+const float kMinUnderlineCover = 0.8f;
+// A line can have gaps of this share of the x-height, for example next to a
+// descender.
+const float kMaxUnderlineGap = 0.15f;
+// A line which goes on for more than this share of the x-height beyond the
+// text is a ruling.
+const float kMaxUnderlineOverhang = 0.5f;
+// Space on both sides of a text line which is needed to see that, as a share
+// of the x-height.
+const float kUnderlineMargin = 1.0f;
+
 // Letters and symbols with diagonal strokes which can have the slant of the
 // stems of italic text. They are left out when the slant is measured.
 const char kDiagonalLetters[] = "AMVWXYvwxy/";
@@ -408,6 +439,158 @@ void SetWordWeights(std::vector<WordStrokes> *words) {
   }
 }
 
+std::vector<bool> FindUnderlinedWords(Image pix, const std::vector<float> &baseline,
+                                      float x_height,
+                                      const std::vector<std::pair<int, int>> &words) {
+  std::vector<bool> underlined(words.size(), false);
+  if (pix == nullptr || pixGetDepth(pix) != 1 || x_height <= 0.0f || words.empty()) {
+    return underlined;
+  }
+  const int width = pixGetWidth(pix);
+  const int height = pixGetHeight(pix);
+  if (width <= 0 || height <= 0 || baseline.size() != static_cast<size_t>(width)) {
+    return underlined;
+  }
+  // The rows of each column in which a line is searched.
+  const int rise = static_cast<int>(std::ceil(kMaxUnderlineRise * x_height));
+  const int depth = static_cast<int>(std::ceil(kMaxUnderlineOffset * x_height));
+  const int slack = static_cast<int>(std::ceil(kUnderlineSlack * x_height));
+  std::vector<int> first_rows(width);
+  int first_row = height;
+  int last_row = -1;
+  for (int x = 0; x < width; ++x) {
+    first_rows[x] = static_cast<int>(std::floor(baseline[x] + 0.5f)) - rise;
+    first_row = std::min(first_row, first_rows[x] - slack);
+    last_row = std::max(last_row, first_rows[x] + rise + depth + slack);
+  }
+  first_row = std::max(first_row, 0);
+  last_row = std::min(last_row, height - 1);
+
+  // Collect the long runs of pixels in these rows: for each column the number
+  // of rows in which it is part of such a run, and the length of the longest
+  // of these runs. A line is followed in more rows than those in which it is
+  // searched.
+  const int min_piece =
+      std::max(2, static_cast<int>(std::ceil(kMinUnderlinePiece * x_height)));
+  std::vector<int> thickness(width, 0);
+  std::vector<int> longest(width, 0);
+  std::vector<bool> has_line(width, false);
+  const l_uint32 *data = pixGetData(pix);
+  const int wpl = pixGetWpl(pix);
+  for (int y = first_row; y <= last_row; ++y) {
+    const l_uint32 *line = data + static_cast<size_t>(y) * wpl;
+    int start = -1;
+    for (int x = 0; x <= width; ++x) {
+      if (x < width && GET_DATA_BIT(line, x) != 0) {
+        if (start < 0) {
+          start = x;
+        }
+        continue;
+      }
+      if (start >= 0 && x - start >= min_piece) {
+        for (int run_x = start; run_x < x; ++run_x) {
+          const int offset = y - first_rows[run_x];
+          if (offset >= 0 && offset <= rise + depth) {
+            ++thickness[run_x];
+          }
+          if (offset >= -slack && offset <= rise + depth + slack) {
+            has_line[run_x] = true;
+            longest[run_x] = std::max(longest[run_x], x - start);
+          }
+        }
+      }
+      start = -1;
+    }
+  }
+
+  // The text ends with its first and its last column which have a pixel that
+  // is not part of a line, from the top of the lowercase letters to the
+  // descenders. The words alone do not tell that, because the layout analysis
+  // can add the end of a ruling to a word.
+  int text_left = width;
+  int text_right = -1;
+  for (const auto &word : words) {
+    text_left = std::min(text_left, word.first);
+    text_right = std::max(text_right, word.second);
+  }
+  text_left = std::max(text_left, 0);
+  text_right = std::min(text_right, width - 1);
+  const int text_height = static_cast<int>(std::ceil(x_height)) - rise;
+  auto has_text = [&](int x) {
+    for (int y = std::max(first_rows[x] - text_height, 0);
+         y < first_rows[x] + 2 * rise && y < height; ++y) {
+      const l_uint32 *line = data + static_cast<size_t>(y) * wpl;
+      if (GET_DATA_BIT(line, x) == 0) {
+        continue;
+      }
+      int start = x;
+      while (start > 0 && x - start < min_piece && GET_DATA_BIT(line, start - 1) != 0) {
+        --start;
+      }
+      int end = x + 1;
+      while (end < width && end - start < min_piece && GET_DATA_BIT(line, end) != 0) {
+        ++end;
+      }
+      if (end - start < min_piece) {
+        return true;
+      }
+    }
+    return false;
+  };
+  while (text_left < text_right && !has_text(text_left)) {
+    ++text_left;
+  }
+  while (text_right > text_left && !has_text(text_right)) {
+    --text_right;
+  }
+  const int max_thickness = std::max(2, static_cast<int>(kMaxUnderlineThickness * x_height));
+  const int max_gap = static_cast<int>(kMaxUnderlineGap * x_height) + 1;
+  const float max_overhang = kMaxUnderlineOverhang * x_height;
+  for (size_t w = 0; w < words.size(); ++w) {
+    const int first = std::max(0, words[w].first);
+    const int last = std::min(width - 1, words[w].second);
+    if (first > last) {
+      continue;
+    }
+    int num_covered = 0;
+    int num_thick = 0;
+    for (int x = first; x <= last; ++x) {
+      num_covered += thickness[x] > 0;
+      num_thick += thickness[x] > max_thickness;
+    }
+    // Text on a dark background has a line which is too thick.
+    if (num_covered < kMinUnderlineCover * (last - first + 1) || 2 * num_thick > num_covered) {
+      continue;
+    }
+    // Follow the line to both sides of the word.
+    int line_left = first;
+    for (int x = first - 1, gap = 0; x >= 0 && gap <= max_gap; --x) {
+      if (has_line[x]) {
+        line_left = x;
+        gap = 0;
+      } else {
+        ++gap;
+      }
+    }
+    int line_right = last;
+    for (int x = last + 1, gap = 0; x < width && gap <= max_gap; ++x) {
+      if (has_line[x]) {
+        line_right = x;
+        gap = 0;
+      } else {
+        ++gap;
+      }
+    }
+    if (line_left < text_left - max_overhang || line_right > text_right + max_overhang) {
+      continue;
+    }
+    const int longest_run =
+        *std::max_element(longest.begin() + line_left, longest.begin() + line_right + 1);
+    underlined[w] = longest_run >= kMinUnderlineRun * x_height;
+  }
+  return underlined;
+}
+
 // Returns the value which a word with too little text gets for a style
 // attribute: the value of its reliable neighbours in the same row if they
 // agree or if there is only one, else the value from its own measurement.
@@ -472,6 +655,33 @@ static bool HasUprightScript(const WERD_RES &word) {
   return num_upright > num_others;
 }
 
+// Returns true if the word has more characters of the scripts which have
+// long horizontal strokes next to the baseline than of other scripts. Those
+// are Arabic, which joins its letters there, and Chinese, Japanese and Korean.
+// Such a stroke cannot be told from an underline.
+static bool HasLineLikeStrokes(const WERD_RES &word) {
+  if (HasUprightScript(word)) {
+    return true;
+  }
+  const UNICHARSET &unicharset = *word.uch_set;
+  const WERD_CHOICE &choice = *word.best_choice;
+  const int arabic_sid = unicharset.get_script_id_from_name("Arabic");
+  if (arabic_sid == unicharset.null_sid()) {
+    return false;
+  }
+  int num_arabic = 0;
+  int num_others = 0;
+  for (unsigned i = 0; i < choice.length(); ++i) {
+    const int script = unicharset.get_script(choice.unichar_id(i));
+    if (script == arabic_sid) {
+      ++num_arabic;
+    } else if (script != unicharset.null_sid() && script != unicharset.common_sid()) {
+      ++num_others;
+    }
+  }
+  return num_arabic > num_others;
+}
+
 // Measures the shape of the text in an image which needs the given number of
 // clockwise quarter turns to get upright characters.
 static bool MeasureTurnedText(Image pix, int turns, TextShape *shape) {
@@ -484,18 +694,146 @@ static bool MeasureTurnedText(Image pix, int turns, TextShape *shape) {
   return measured;
 }
 
+// Returns the part of the image which the given box of a block covers, turned
+// like the block, so that the text lines are horizontal. The boxes of a block
+// refer to the block, which is rotated against the image if the page is not
+// upright or if the text lines are vertical. The box is reduced to its part
+// in the image. Returns nullptr if there is none.
+static Image ClipBlockImage(Image pix, const FCOORD &re_rotation, TBOX *box) {
+  const TBOX image_box(0, 0, pixGetWidth(pix), pixGetHeight(pix));
+  TBOX image_part = *box;
+  image_part.rotate(re_rotation);
+  image_part = image_part.intersection(image_box);
+  if (image_part.null_box()) {
+    return nullptr;
+  }
+  Box *clip_box = boxCreate(image_part.left(), image_box.top() - image_part.top(),
+                            image_part.width(), image_part.height());
+  Image result = pixClipRectangle(pix, clip_box, nullptr);
+  boxDestroy(&clip_box);
+  const int turns = (4 - QuarterTurns(re_rotation)) % 4;
+  if (result != nullptr && turns != 0) {
+    Image turned = pixRotateOrth(result, turns);
+    result.destroy();
+    result = turned;
+  }
+  image_part.rotate(FCOORD(re_rotation.x(), -re_rotation.y()));
+  *box = image_part;
+  return result;
+}
+
+// Marks the underlined words of the page which have no font, which are those
+// recognized by LSTM. removed_lines has the pixels of the lines which the
+// layout analysis removed from the image, or is nullptr.
+static void MarkUnderlinedWords(Image pix, Image removed_lines, PAGE_RES *page_res,
+                                bool debug) {
+  PAGE_RES_IT page_res_it(page_res);
+  page_res_it.restart_page();
+  while (page_res_it.word() != nullptr) {
+    // The words of the next text line.
+    const BLOCK *block = page_res_it.block()->block;
+    const ROW *row = page_res_it.row()->row;
+    std::vector<WERD_RES *> row_words;
+    do {
+      row_words.push_back(page_res_it.word());
+      page_res_it.forward();
+    } while (page_res_it.word() != nullptr && page_res_it.row()->row == row);
+    if (block == nullptr || row == nullptr || row->x_height() <= 0.0f) {
+      continue;
+    }
+    const float x_height = row->x_height();
+    TBOX text_box;
+    bool has_candidate = false;
+    for (const WERD_RES *word : row_words) {
+      if (word->word != nullptr) {
+        text_box += word->word->bounding_box();
+        has_candidate =
+            has_candidate || (word->fontinfo == nullptr && word->best_choice != nullptr);
+      }
+    }
+    if (!has_candidate || text_box.null_box()) {
+      continue;
+    }
+    // The image of the text line from the top of its lowercase letters to
+    // the space below the baseline, with a margin on both sides.
+    const int margin = static_cast<int>(std::ceil(kUnderlineMargin * x_height));
+    const int left = text_box.left() - margin;
+    const int right = text_box.right() + margin;
+    float lowest = row->base_line(left);
+    float highest = lowest;
+    for (const int x : {(left + right) / 2, right}) {
+      lowest = std::min(lowest, row->base_line(x));
+      highest = std::max(highest, row->base_line(x));
+    }
+    const int depth =
+        static_cast<int>(std::ceil((kMaxUnderlineOffset + kUnderlineSlack) * x_height)) + 2;
+    // The lowercase letters show where the text ends.
+    const int rise = static_cast<int>(std::ceil(x_height)) + 2;
+    TBOX box(left, static_cast<int>(std::floor(lowest)) - depth, right,
+             static_cast<int>(std::ceil(highest)) + rise);
+    TBOX lines_box = box;
+    Image row_pix = ClipBlockImage(pix, block->re_rotation(), &box);
+    if (row_pix == nullptr) {
+      continue;
+    }
+    if (removed_lines != nullptr) {
+      Image row_lines = ClipBlockImage(removed_lines, block->re_rotation(), &lines_box);
+      if (row_lines != nullptr) {
+        pixOr(row_pix, row_pix, row_lines);
+        row_lines.destroy();
+      }
+    }
+    std::vector<float> baseline(box.width());
+    for (int x = 0; x < box.width(); ++x) {
+      baseline[x] = box.top() - row->base_line(box.left() + x + 0.5f);
+    }
+    std::vector<std::pair<int, int>> columns;
+    for (const WERD_RES *word : row_words) {
+      if (word->word != nullptr) {
+        const TBOX word_box = word->word->bounding_box();
+        columns.emplace_back(word_box.left() - box.left(), word_box.right() - 1 - box.left());
+      }
+    }
+    const std::vector<bool> underlined = FindUnderlinedWords(row_pix, baseline, x_height, columns);
+    row_pix.destroy();
+    size_t index = 0;
+    for (WERD_RES *word : row_words) {
+      if (word->word == nullptr) {
+        continue;
+      }
+      const bool has_line = underlined[index++];
+      if (word->fontinfo != nullptr || word->best_choice == nullptr) {
+        continue;
+      }
+      // A word needs a letter or a digit. A line below a dash or below nothing
+      // is a line of its own. And the line must not be a stroke of the word.
+      bool has_text = false;
+      const WERD_CHOICE &choice = *word->best_choice;
+      for (unsigned i = 0; i < choice.length(); ++i) {
+        const UNICHAR_ID id = choice.unichar_id(i);
+        has_text = has_text || word->uch_set->get_isalpha(id) || word->uch_set->get_isdigit(id);
+      }
+      word->underlined = has_line && has_text && !HasLineLikeStrokes(*word);
+      if (debug && has_line) {
+        tprintf("Word underline: text=%d %s\n", has_text, choice.unichar_string().c_str());
+      }
+    }
+  }
+}
+
 /**
  * font_style_pass
  *
- * Estimate bold and italic for the words which have no font, which are those
- * recognized by LSTM, from the binary image.
+ * Estimate bold, italic and underlined for the words which have no font,
+ * which are those recognized by LSTM, from the binary image.
  */
 void Tesseract::font_style_pass(PAGE_RES *page_res) {
   Image pix = pix_binary();
   if (pix == nullptr) {
     return;
   }
-  const TBOX image_box(0, 0, pixGetWidth(pix), pixGetHeight(pix));
+  // This needs the words without the fonts which they get below.
+  MarkUnderlinedWords(pix, pix_removed_lines_, page_res, tessedit_debug_fonts);
   std::vector<WordStyle> styles;
   // The measurements for bold of the same words.
   std::vector<WordStrokes> strokes;
@@ -510,38 +848,19 @@ void Tesseract::font_style_pass(PAGE_RES *page_res) {
     if (block == nullptr || row == nullptr || row->x_height() <= 0.0f) {
       continue;
     }
-    // The boxes refer to the block, which is rotated against the image if the
-    // page is not upright or if the text lines are vertical. Get the image of
-    // the word as it is in the block, with a horizontal text line.
-    const FCOORD re_rotation = block->re_rotation();
-    const int block_turns = (4 - QuarterTurns(re_rotation)) % 4;
     // Vertical lines of a rotated page have upright characters in the block.
     // Those of Chinese, Japanese and Korean text are turned in the block, and
     // the rotation for the classifier makes them upright. The block is the
     // same for both, so the script of the word decides.
     const int upright_turns =
         HasUprightScript(*word) ? QuarterTurns(block->classify_rotation()) : 0;
+    // The image of the word as it is in the block, with a horizontal text
+    // line. From here on the box is the part of the word in the image.
     TBOX box = word->word->bounding_box();
-    box.rotate(re_rotation);
-    box = box.intersection(image_box);
-    if (box.null_box()) {
-      continue;
-    }
-    Box *clip_box =
-        boxCreate(box.left(), image_box.top() - box.top(), box.width(), box.height());
-    Image word_pix = pixClipRectangle(pix, clip_box, nullptr);
-    boxDestroy(&clip_box);
-    if (word_pix != nullptr && block_turns != 0) {
-      Image turned = pixRotateOrth(word_pix, block_turns);
-      word_pix.destroy();
-      word_pix = turned;
-    }
+    Image word_pix = ClipBlockImage(pix, block->re_rotation(), &box);
     if (word_pix == nullptr) {
       continue;
     }
-    // From here on the box is the part of the word in the image, in the
-    // coordinates of the block.
-    box.rotate(FCOORD(re_rotation.x(), -re_rotation.y()));
     // Invert white text on black. Such text has more set pixels than others,
     // but so can heavy bold text. The upper and lower edge of the box are
     // above and below the text, so they must show the background, too.
