@@ -1672,8 +1672,10 @@ void ColPartitionGrid::AccumulatePartDistances(
                                         nontext_map)) {
       continue; // Text not visible the other side of image.
     }
-    if (BLOBNBOX::IsLineType(n_type)) {
-      continue; // Don't use horizontal lines as neighbours.
+    if (BLOBNBOX::IsLineType(n_type) || neighbour->flow() == BTFT_LEADER) {
+      // Don't use horizontal lines as neighbours, and no leaders, which are
+      // dotted or dashed lines.
+      continue;
     }
     int x_gap = std::max(part_box.x_gap(nbox), 0);
     int y_gap = std::max(part_box.y_gap(nbox), 0);

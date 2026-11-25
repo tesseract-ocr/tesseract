@@ -365,4 +365,21 @@ TEST_F(LayoutTest, PageNumberInsideScanBorder) {
   EXPECT_EQ(CountPageNumberLines(), 1);
 }
 
+// Tests that a line of text between two dashed lines is found.
+TEST_F(LayoutTest, TextLineBetweenLeaders) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  Pix *page = MakeTextPage();
+  // Make room in the middle of the text.
+  FillRect(page, 200, 1090, 1600, 250, false);
+  std::string dashes;
+  for (int i = 0; i < 30; ++i) {
+    dashes += "- ";
+  }
+  DrawText(page, dashes.c_str(), 500, 1160);
+  DrawText(page, "Insert Table 6 about here", 700, 1230);
+  DrawText(page, dashes.c_str(), 500, 1300);
+  AnalysePage(page);
+  EXPECT_EQ(CountTextLinesIn(600, 1175, 1400, 1260), 1);
+}
+
 } // namespace tesseract
