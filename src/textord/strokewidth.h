@@ -50,6 +50,11 @@ enum PartitionFindResult {
  * It is used to find good large blobs and move them to the normal blobs
  * by virtue of having a reasonable strokewidth compatible neighbour.
  */
+// Min number of similar blobs in a row which make a small word next to very
+// large text instead of diacritics of that text, see
+// StrokeWidth::SaveLetterOfSmallWord and ColumnFinder::AddSmallWordBlocks.
+const int kMinSmallWordBlobs = 3;
+
 class StrokeWidth : public BlobGrid {
 public:
   StrokeWidth(int gridsize, const ICOORD &bleft, const ICOORD &tright);
@@ -231,6 +236,9 @@ private:
   // that are not in this grid, but may be useful for determining a connection
   // between blob and its potential base character. (See DiacriticXGapFilled.)
   bool DiacriticBlob(BlobGrid *small_grid, BLOBNBOX *blob);
+  // Saves a copy of the diacritic blob in block->small_word_blobs if it is
+  // more likely a letter of a small word next to very large text.
+  void SaveLetterOfSmallWord(BlobGrid *small_grid, const BLOBNBOX *blob, TO_BLOCK *block);
   // Returns true if there is no gap between the base char and the diacritic
   // bigger than a fraction of the height of the base char:
   // Eg: line end.....'

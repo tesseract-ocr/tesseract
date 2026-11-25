@@ -778,6 +778,11 @@ public:
   BLOBNBOX_LIST noise_blobs; // very small
   BLOBNBOX_LIST small_blobs; // fairly small
   BLOBNBOX_LIST large_blobs; // big blobs
+  // Copies of the letters of small words which the layout analysis treats
+  // as diacritics of very large text, see
+  // StrokeWidth::SaveLetterOfSmallWord. Their boxes are reflected and
+  // deskewed like those of the other lists.
+  BLOBNBOX_LIST small_word_blobs;
   BLOCK *block;              // real block
   PITCH_TYPE pitch_decision; // how strong is decision
   float line_spacing;        // estimate

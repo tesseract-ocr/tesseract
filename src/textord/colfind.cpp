@@ -457,6 +457,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
     part_grid_.ExtractPartitionsAsBlocks(blocks, to_blocks);
   } else {
     TransformToBlocks(blocks, to_blocks);
+    AddSmallWordBlocks(input_block, blocks, to_blocks);
   }
   if (textord_debug_tabfind) {
     tprintf("Found %d blocks, %d to_blocks\n", blocks->length(), to_blocks->length());
@@ -1495,6 +1496,7 @@ void ColumnFinder::ReflectForRtl(TO_BLOCK *input_block, BLOBNBOX_LIST *bblobs) {
   ReflectBlobList(&input_block->small_blobs);
   ReflectBlobList(&input_block->noise_blobs);
   ReflectBlobList(&input_block->large_blobs);
+  ReflectBlobList(&input_block->small_word_blobs);
   // Update the denorm with the reflection.
   auto *new_denorm = new DENORM;
   new_denorm->SetupNormalization(nullptr, nullptr, denorm_, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f);
@@ -1532,6 +1534,139 @@ static void RotateAndExplodeBlobList(const FCOORD &blob_rotation, BLOBNBOX_LIST 
       blob->compute_bounding_box();
       widths->add(blob->bounding_box().width(), 1);
       heights->add(blob->bounding_box().height(), 1);
+    }
+  }
+}
+
+// Makes a text block of its own from each row of the letters which
+// StrokeWidth::SaveLetterOfSmallWord has saved in block->small_word_blobs,
+// and puts it after the block of the large text above it.
+// The letters are the copies of blobs which the layout analysis has added as
+// diacritics to very large text, so the blocks of that text are not changed.
+void ColumnFinder::AddSmallWordBlocks(TO_BLOCK *block, BLOCK_LIST *blocks,
+                                      TO_BLOCK_LIST *to_blocks) {
+  // Sort the letters from left to right, without the duplicates which a
+  // second pass of the diacritic test can leave.
+  std::vector<BLOBNBOX *> letters;
+  BLOBNBOX_IT letter_it(&block->small_word_blobs);
+  for (letter_it.mark_cycle_pt(); !letter_it.empty(); letter_it.forward()) {
+    BLOBNBOX *letter = letter_it.extract();
+    bool duplicate = false;
+    for (const BLOBNBOX *other : letters) {
+      if (other->bounding_box() == letter->bounding_box()) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (duplicate) {
+      delete letter;
+    } else {
+      letters.push_back(letter);
+    }
+  }
+  std::sort(letters.begin(), letters.end(), [](const BLOBNBOX *a, const BLOBNBOX *b) {
+    return a->bounding_box().left() < b->bounding_box().left();
+  });
+  // Collect the rows: a letter joins the row which it overlaps vertically
+  // and which ends near its left side.
+  std::vector<std::vector<BLOBNBOX *>> rows;
+  std::vector<TBOX> row_boxes;
+  for (BLOBNBOX *letter : letters) {
+    const TBOX &box = letter->bounding_box();
+    size_t r = 0;
+    for (; r < rows.size(); ++r) {
+      const TBOX &last_box = rows[r].back()->bounding_box();
+      if ((box.major_y_overlap(row_boxes[r]) || row_boxes[r].major_y_overlap(box)) &&
+          box.x_gap(last_box) <= std::max(box.height(), last_box.height())) {
+        break;
+      }
+    }
+    if (r == rows.size()) {
+      rows.emplace_back();
+      row_boxes.push_back(box);
+    } else {
+      row_boxes[r] += box;
+    }
+    rows[r].push_back(letter);
+  }
+  for (size_t r = 0; r < rows.size(); ++r) {
+    if (rows[r].size() < static_cast<size_t>(kMinSmallWordBlobs)) {
+      for (BLOBNBOX *letter : rows[r]) {
+        delete letter;
+      }
+      continue;
+    }
+    const TBOX &box = row_boxes[r];
+    auto *new_block = new BLOCK("", true, 0, 0, box.left(), box.bottom(), box.right(), box.top());
+    new_block->pdblk.set_poly_block(new POLY_BLOCK(box, PT_FLOWING_TEXT));
+    auto *new_to_block = new TO_BLOCK(new_block);
+    BLOBNBOX_IT blob_it(&new_to_block->blobs);
+    STATS heights(0, box.height());
+    for (BLOBNBOX *letter : rows[r]) {
+      heights.add(letter->bounding_box().height(), 1);
+      blob_it.add_to_end(letter);
+    }
+    new_to_block->line_size = std::max(1.0f, static_cast<float>(heights.median()));
+    new_to_block->line_spacing = static_cast<float>(box.height());
+    new_to_block->max_blob_size = static_cast<float>(box.height() + 1);
+    if (textord_debug_tabfind) {
+      tprintf("Small word of %zu letters next to large text:", rows[r].size());
+      box.print();
+    }
+    // Reading order: after the nearest block above the word which shares its
+    // columns (the upper line of the large text), else in front of the first
+    // block which lies below the word.
+    const int mid_y = (box.bottom() + box.top()) / 2;
+    BLOCK *prev_block = nullptr;
+    int prev_mid_y = 0;
+    BLOCK *next_block = nullptr;
+    BLOCK_IT block_it(blocks);
+    for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+      const TBOX &other = block_it.data()->pdblk.bounding_box();
+      const int other_mid_y = (other.bottom() + other.top()) / 2;
+      if (other_mid_y > mid_y && other.major_x_overlap(box) &&
+          (prev_block == nullptr || other_mid_y < prev_mid_y)) {
+        prev_block = block_it.data();
+        prev_mid_y = other_mid_y;
+      }
+      if (next_block == nullptr && other.top() < mid_y) {
+        next_block = block_it.data();
+      }
+    }
+    if (prev_block != nullptr) {
+      // The block which follows prev_block, if there is one.
+      next_block = nullptr;
+      for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+        if (block_it.data() == prev_block) {
+          if (!block_it.at_last()) {
+            next_block = block_it.data_relative(1);
+          }
+          break;
+        }
+      }
+    }
+    if (next_block == nullptr) {
+      block_it.add_to_end(new_block);
+    } else {
+      for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+        if (block_it.data() == next_block) {
+          block_it.add_before_then_move(new_block);
+          break;
+        }
+      }
+    }
+    TO_BLOCK_IT to_block_it(to_blocks);
+    bool added = false;
+    for (to_block_it.mark_cycle_pt(); next_block != nullptr && !to_block_it.cycled_list();
+         to_block_it.forward()) {
+      if (to_block_it.data()->block == next_block) {
+        to_block_it.add_before_then_move(new_to_block);
+        added = true;
+        break;
+      }
+    }
+    if (!added) {
+      to_block_it.add_to_end(new_to_block);
     }
   }
 }
