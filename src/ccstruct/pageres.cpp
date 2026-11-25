@@ -1576,6 +1576,23 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
 WERD_RES *PAGE_RES_IT::start_page(bool empty_ok) {
   block_res_it.set_to_list(&page_res->block_res_list);
   block_res_it.mark_cycle_pt();
+  return start_at_block_res_it(empty_ok);
+}
+
+/*************************************************************************
+ * PAGE_RES_IT::start_block
+ *
+ * Move to the first word of the current block, as start_page() does for the
+ * first block.
+ *************************************************************************/
+
+WERD_RES *PAGE_RES_IT::start_block(bool empty_ok) {
+  ASSERT_HOST(block_res != nullptr);
+  block_res_it = bl_it_of_current_word;
+  return start_at_block_res_it(empty_ok);
+}
+
+WERD_RES *PAGE_RES_IT::start_at_block_res_it(bool empty_ok) {
   prev_block_res = nullptr;
   prev_row_res = nullptr;
   prev_word_res = nullptr;
@@ -1652,6 +1669,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
   row_res = next_row_res;
   word_res = next_word_res;
   wr_it_of_current_word = wr_it_of_next_word;
+  bl_it_of_current_word = bl_it_of_next_word;
   next_block_res = nullptr;
   next_row_res = nullptr;
   next_word_res = nullptr;
@@ -1662,6 +1680,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
       row_res_it.mark_cycle_pt();
       if (row_res_it.empty() && empty_ok) {
         next_block_res = block_res_it.data();
+        bl_it_of_next_word = block_res_it;
         break;
       }
       new_row = true;
@@ -1678,6 +1697,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
       }
       if (!word_res_it.cycled_list()) {
         next_block_res = block_res_it.data();
+        bl_it_of_next_word = block_res_it;
         next_row_res = row_res_it.data();
         next_word_res = word_res_it.data();
         wr_it_of_next_word = word_res_it;
@@ -1705,14 +1725,15 @@ foundword:
 /*************************************************************************
  * PAGE_RES_IT::restart_row()
  *
- * Move to the beginning (leftmost word) of the current row.
+ * Move to the beginning (leftmost word) of the current row. As with
+ * forward_with_empties(), a following empty block is not skipped.
  *************************************************************************/
 WERD_RES *PAGE_RES_IT::restart_row() {
   ROW_RES *row = this->row();
   if (!row) {
     return nullptr;
   }
-  for (restart_page(); this->row() != row; forward()) {
+  for (start_block(true); this->row() != row; forward_with_empties()) {
     // pass
   }
   return word();

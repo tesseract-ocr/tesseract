@@ -10,8 +10,10 @@
 
 #include "pageres.h"
 
+#include <tesseract/pageiterator.h>
 #include "boxword.h"
 #include "ocrblock.h"
+#include "ocrpara.h"
 #include "ocrrow.h"
 #include "rect.h"
 #include "stepblob.h"
@@ -37,21 +39,49 @@ WERD *MakeWord(const std::vector<TBOX> &boxes) {
   return new WERD(&blobs, 1, nullptr);
 }
 
-// Adds a block to blocks, with one row holding the given words.
-void AddRow(BLOCK_LIST *blocks, const std::vector<WERD *> &words) {
-  int32_t xstarts[] = {0, 200};
-  double coeffs[] = {0.0, 0.0, 10.0};
-  auto *row = new ROW(1, xstarts, coeffs, 20.0f, 10.0f, -5.0f, 0, 10);
-  WERD_IT w_it(row->word_list());
-  for (auto *word : words) {
-    w_it.add_to_end(word);
-  }
-  row->recalc_bounding_box();
+// Adds a block with one row per element of rows. Without rows it is empty.
+BLOCK *AddBlock(BLOCK_LIST *blocks,
+                const std::vector<std::vector<WERD *>> &rows) {
   auto *block = new BLOCK("", true, 0, 0, 0, 0, 200, 50);
   ROW_IT row_it(block->row_list());
-  row_it.add_to_end(row);
+  for (const auto &words : rows) {
+    int32_t xstarts[] = {0, 200};
+    double coeffs[] = {0.0, 0.0, 10.0};
+    auto *row = new ROW(1, xstarts, coeffs, 20.0f, 10.0f, -5.0f, 0, 10);
+    WERD_IT w_it(row->word_list());
+    for (auto *word : words) {
+      w_it.add_to_end(word);
+    }
+    row->recalc_bounding_box();
+    row_it.add_to_end(row);
+  }
   BLOCK_IT block_it(blocks);
   block_it.add_to_end(block);
+  return block;
+}
+
+// Returns an iterator at the word made from werd.
+PAGE_RES_IT PageResItAt(PAGE_RES *page_res, const WERD *werd) {
+  PAGE_RES_IT it(page_res);
+  while (it.word()->word != werd) {
+    it.forward();
+  }
+  return it;
+}
+
+// Returns an iterator at the first empty block.
+PAGE_RES_IT PageResItAtEmptyBlock(PAGE_RES *page_res) {
+  PAGE_RES_IT it(page_res);
+  it.restart_page_with_empties();
+  while (it.word() != nullptr) {
+    it.forward_with_empties();
+  }
+  return it;
+}
+
+// Adds a block to blocks, with one row holding the given words.
+void AddRow(BLOCK_LIST *blocks, const std::vector<WERD *> &words) {
+  AddBlock(blocks, {words});
 }
 
 // Makes a word as the LSTM recognizer gives it: a combination that owns a
@@ -183,6 +213,148 @@ TEST(PageResTest, ReplaceCurrentWordCopiesSharedCombinationWord) {
   EXPECT_EQ(whole, it.word());
   EXPECT_EQ(lstm, it.forward());
   EXPECT_EQ(nullptr, it.forward());
+}
+
+// restart_row() starts from the current block, so use a block after the first.
+TEST(PageResTest, RestartRowInLaterBlock) {
+  BLOCK_LIST blocks;
+  WERD *a1 = MakeWord({kInputBlobs[0]});
+  WERD *b1 = MakeWord({kInputBlobs[0]});
+  WERD *b2 = MakeWord({kInputBlobs[1]});
+  WERD *b3 = MakeWord({kInputBlobs[0]});
+  WERD *b4 = MakeWord({kInputBlobs[1]});
+  WERD *c1 = MakeWord({kInputBlobs[0]});
+  AddBlock(&blocks, {{a1}});
+  AddBlock(&blocks, {{b1, b2}, {b3, b4}});
+  AddBlock(&blocks, {{c1}});
+  PAGE_RES page_res(false, &blocks, nullptr);
+  PAGE_RES_IT it(&page_res);
+  while (it.word()->word != b2) {
+    it.forward();
+  }
+  EXPECT_EQ(b1, it.restart_row()->word);
+  EXPECT_EQ(b2, it.forward()->word);
+  EXPECT_EQ(b3, it.forward()->word);
+  EXPECT_EQ(b4, it.forward()->word);
+  ROW_RES *row = it.row();
+  EXPECT_EQ(b3, it.restart_row()->word);
+  EXPECT_EQ(row, it.row());
+  EXPECT_EQ(b4, it.forward()->word);
+  EXPECT_EQ(c1, it.forward()->word);
+  EXPECT_EQ(nullptr, it.forward());
+}
+
+TEST(PageResTest, StartBlockWithEmptyBlock) {
+  BLOCK_LIST blocks;
+  WERD *a1 = MakeWord({kInputBlobs[0]});
+  WERD *b1 = MakeWord({kInputBlobs[0]});
+  WERD *b2 = MakeWord({kInputBlobs[1]});
+  AddBlock(&blocks, {{a1}});
+  AddBlock(&blocks, {});
+  AddBlock(&blocks, {{b1}, {b2}});
+  PAGE_RES page_res(false, &blocks, nullptr);
+  PAGE_RES_IT it(&page_res);
+  it.restart_page_with_empties();
+  EXPECT_EQ(a1, it.word()->word);
+
+  EXPECT_EQ(nullptr, it.forward_with_empties());
+  BLOCK_RES *empty_block = it.block();
+  ASSERT_NE(nullptr, empty_block);
+  EXPECT_EQ(nullptr, it.start_block(true));
+  EXPECT_EQ(empty_block, it.block());
+
+  EXPECT_EQ(b1, it.forward_with_empties()->word);
+  EXPECT_EQ(b2, it.forward_with_empties()->word);
+  BLOCK_RES *block = it.block();
+  EXPECT_EQ(b1, it.start_block(true)->word);
+  EXPECT_EQ(block, it.block());
+  // As at the start of the page, there is no previous word.
+  EXPECT_EQ(nullptr, it.prev_block());
+  EXPECT_EQ(nullptr, it.prev_word());
+  EXPECT_EQ(b2, it.forward_with_empties()->word);
+  EXPECT_EQ(nullptr, it.forward_with_empties());
+  EXPECT_EQ(nullptr, it.block());
+}
+
+// RestartParagraph() starts from the current block, so use a block after the
+// first.
+TEST(PageIteratorTest, RestartParagraphInLaterBlock) {
+  BLOCK_LIST blocks;
+  WERD *a1 = MakeWord({kInputBlobs[0]});
+  WERD *b1 = MakeWord({kInputBlobs[0]});
+  WERD *b2 = MakeWord({kInputBlobs[0]});
+  WERD *b3 = MakeWord({kInputBlobs[0]});
+  WERD *b4 = MakeWord({kInputBlobs[1]});
+  AddBlock(&blocks, {{a1}});
+  BLOCK *block = AddBlock(&blocks, {{b1}, {b2}, {b3, b4}});
+  auto *first = new PARA;
+  auto *second = new PARA;
+  PARA_IT para_it(block->para_list());
+  para_it.add_to_end(first);
+  para_it.add_to_end(second);
+  ROW_IT row_it(block->row_list());
+  row_it.data()->set_para(first);
+  row_it.forward();
+  row_it.data()->set_para(second);
+  row_it.forward();
+  row_it.data()->set_para(second);
+  PAGE_RES page_res(false, &blocks, nullptr);
+  // The Tesseract object is only needed for images.
+  PageIterator it(&page_res, nullptr, 1, 300, 0, 0, 200, 50);
+  PAGE_RES_IT b4_it = PageResItAt(&page_res, b4);
+  while (!it.PositionedAtSameWord(&b4_it)) {
+    ASSERT_TRUE(it.Next(RIL_WORD));
+  }
+
+  it.RestartParagraph();
+  PAGE_RES_IT b2_it = PageResItAt(&page_res, b2);
+  EXPECT_TRUE(it.PositionedAtSameWord(&b2_it));
+  EXPECT_TRUE(it.IsAtBeginningOf(RIL_PARA));
+  ASSERT_TRUE(it.Next(RIL_WORD));
+  PAGE_RES_IT b3_it = PageResItAt(&page_res, b3);
+  EXPECT_TRUE(it.PositionedAtSameWord(&b3_it));
+}
+
+// RestartParagraph() used to leave a look-ahead that skipped an empty block
+// after a block with a single word.
+TEST(PageIteratorTest, NextAfterRestartParagraphVisitsEmptyBlock) {
+  BLOCK_LIST blocks;
+  WERD *a1 = MakeWord({kInputBlobs[0]});
+  WERD *b1 = MakeWord({kInputBlobs[0]});
+  AddBlock(&blocks, {{a1}});
+  AddBlock(&blocks, {});
+  AddBlock(&blocks, {{b1}});
+  PAGE_RES page_res(false, &blocks, nullptr);
+  PageIterator it(&page_res, nullptr, 1, 300, 0, 0, 200, 50);
+  PAGE_RES_IT a1_it = PageResItAt(&page_res, a1);
+  ASSERT_TRUE(it.PositionedAtSameWord(&a1_it));
+
+  it.RestartParagraph();
+  ASSERT_TRUE(it.Next(RIL_WORD));
+  PAGE_RES_IT empty_it = PageResItAtEmptyBlock(&page_res);
+  EXPECT_TRUE(it.PositionedAtSameWord(&empty_it));
+}
+
+// The same for RestartRow() on a single-word last row of a block.
+TEST(PageIteratorTest, NextAfterRestartRowVisitsEmptyBlock) {
+  BLOCK_LIST blocks;
+  WERD *a1 = MakeWord({kInputBlobs[0]});
+  WERD *a2 = MakeWord({kInputBlobs[0]});
+  WERD *b1 = MakeWord({kInputBlobs[0]});
+  AddBlock(&blocks, {{a1}, {a2}});
+  AddBlock(&blocks, {});
+  AddBlock(&blocks, {{b1}});
+  PAGE_RES page_res(false, &blocks, nullptr);
+  PageIterator it(&page_res, nullptr, 1, 300, 0, 0, 200, 50);
+  ASSERT_TRUE(it.Next(RIL_WORD));
+  PAGE_RES_IT a2_it = PageResItAt(&page_res, a2);
+  ASSERT_TRUE(it.PositionedAtSameWord(&a2_it));
+
+  it.RestartRow();
+  EXPECT_TRUE(it.PositionedAtSameWord(&a2_it));
+  ASSERT_TRUE(it.Next(RIL_WORD));
+  PAGE_RES_IT empty_it = PageResItAtEmptyBlock(&page_res);
+  EXPECT_TRUE(it.PositionedAtSameWord(&empty_it));
 }
 
 } // namespace
