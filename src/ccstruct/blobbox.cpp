@@ -957,6 +957,7 @@ TO_BLOCK::~TO_BLOCK() {
   BLOBNBOX::clear_blobnboxes(&noise_blobs);
   BLOBNBOX::clear_blobnboxes(&small_blobs);
   BLOBNBOX::clear_blobnboxes(&large_blobs);
+  BLOBNBOX::clear_blobnboxes(&small_word_blobs);
 }
 
 // Helper function to divide the input blobs over noise, small, medium

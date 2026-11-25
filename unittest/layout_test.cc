@@ -216,6 +216,61 @@ protected:
     return width;
   }
 
+  // A rectangle in the coordinates of the image.
+  struct Rect {
+    int left;
+    int top;
+    int right;
+    int bottom;
+  };
+
+  // Writes text with the largest built in font, enlarged by the factor
+  // scale, with its centre at x and its baseline at y on pix. Returns the
+  // rectangle of its pixels.
+  static Rect DrawCentredText(Pix *pix, const char *text, int x, int y,
+                              int scale) {
+    const int kBaseline = 60;
+    Pix *line = pixCreate(1200, 100, 8);
+    pixSetAll(line);
+    DrawText(line, text, 10, kBaseline, 20);
+    Pix *binary = pixThresholdToBinary(line, 128);
+    Box *box = nullptr;
+    pixClipToForeground(binary, nullptr, &box);
+    CHECK(box != nullptr);
+    l_int32 left, top, width, height;
+    boxGetGeometry(box, &left, &top, &width, &height);
+    Pix *word = pixClipRectangle(line, box, nullptr);
+    Pix *scaled = pixScaleBySampling(word, scale, scale);
+    Rect rect;
+    rect.left = x - width * scale / 2;
+    rect.top = y - (kBaseline - top) * scale;
+    rect.right = rect.left + width * scale;
+    rect.bottom = rect.top + height * scale;
+    pixRasterop(pix, rect.left, rect.top, width * scale, height * scale,
+                PIX_SRC, scaled, 0, 0);
+    pixDestroy(&scaled);
+    pixDestroy(&word);
+    boxDestroy(&box);
+    pixDestroy(&binary);
+    pixDestroy(&line);
+    return rect;
+  }
+
+  // Makes a page of text with a title of two lines of very large text and a
+  // small word between them, like the title of a newspaper. The letters of
+  // the small word are as high as the lines of the text, and they are so
+  // close to the title that the layout analysis takes them for diacritics
+  // of its letters. Returns the rectangle of the small word in small_word.
+  static Pix *MakeTitlePage(Rect *small_word) {
+    Pix *page = MakeTextPage();
+    // Make room at the top of the text.
+    FillRect(page, 200, 300, 1600, 660, false);
+    DrawCentredText(page, "German Gazette", kPageWidth / 2, 400, 3);
+    *small_word = DrawCentredText(page, "and", kPageWidth / 2, 500, 1);
+    DrawCentredText(page, "Prussian Herald", kPageWidth / 2, 720, 3);
+    return page;
+  }
+
   // Makes a white 8 bit page with 32 lines of text.
   static Pix *MakeTextPage() {
     Pix *pix = pixCreate(kPageWidth, kPageHeight, 8);
@@ -254,11 +309,12 @@ protected:
   // Takes a synthetic page, which is destroyed here, and runs the layout
   // analysis on it. A resolution of 0 leaves it to Tesseract.
   void AnalysePage(Pix *page, int resolution = 0,
-                   tesseract::PageSegMode mode = tesseract::PSM_AUTO) {
+                   tesseract::PageSegMode mode = tesseract::PSM_AUTO,
+                   const char *lang = "eng") {
     src_pix_.destroy();
     src_pix_ = pixThresholdToBinary(page, 128);
     pixDestroy(&page);
-    ASSERT_EQ(api_.Init(TessdataPath().c_str(), "eng"), 0);
+    ASSERT_EQ(api_.Init(TessdataPath().c_str(), lang), 0);
     api_.SetPageSegMode(mode);
     api_.SetImage(src_pix_);
     if (resolution > 0) {
@@ -286,6 +342,66 @@ protected:
       }
     } while (page_it_->Next(tesseract::RIL_TEXTLINE));
     return count;
+  }
+
+  // Finds the text line which the last AnalysePage found completely inside
+  // area, not more than margin pixels from its sides. Sets line to its box
+  // and block to the bounding box of the polygon of its block. Returns false
+  // if there is no such line or more than one.
+  bool FindTextLineIn(const Rect &area, int margin, Rect *line, Rect *block) {
+    int count = 0;
+    if (page_it_ == nullptr) {
+      return false;
+    }
+    page_it_->Begin();
+    do {
+      Rect box;
+      if (!PTIsTextType(page_it_->BlockType()) ||
+          !page_it_->BoundingBox(tesseract::RIL_TEXTLINE, &box.left, &box.top,
+                                 &box.right, &box.bottom) ||
+          box.left < area.left - margin || box.right > area.right + margin ||
+          box.top < area.top - margin || box.bottom > area.bottom + margin) {
+        continue;
+      }
+      ++count;
+      *line = box;
+      *block = {0, 0, 0, 0};
+      Pta *polygon = page_it_->BlockPolygon();
+      if (polygon != nullptr) {
+        l_float32 left, right, top, bottom;
+        ptaGetRange(polygon, &left, &right, &top, &bottom);
+        *block = {static_cast<int>(left), static_cast<int>(top),
+                  static_cast<int>(right), static_cast<int>(bottom)};
+        ptaDestroy(&polygon);
+      }
+    } while (page_it_->Next(tesseract::RIL_TEXTLINE));
+    return count == 1;
+  }
+
+  // Expects that the two rectangles differ by not more than tolerance pixels
+  // on each side.
+  static void ExpectNear(const Rect &a, const Rect &b, int tolerance) {
+    EXPECT_NEAR(a.left, b.left, tolerance);
+    EXPECT_NEAR(a.top, b.top, tolerance);
+    EXPECT_NEAR(a.right, b.right, tolerance);
+    EXPECT_NEAR(a.bottom, b.bottom, tolerance);
+  }
+
+  // Expects that the last AnalysePage found the small word of a page from
+  // MakeTitlePage as a text line with a block of its own, which is where
+  // the line is. The word is at small_word, not more than margin pixels
+  // away, and its line and its block fit with the given tolerance.
+  void ExpectSmallWordBlock(const Rect &small_word, int margin,
+                            int tolerance) {
+    Rect line;
+    Rect block;
+    ASSERT_TRUE(FindTextLineIn(small_word, margin, &line, &block));
+    // All of the word, not a part of it.
+    EXPECT_NEAR(line.right - line.left, small_word.right - small_word.left,
+                tolerance);
+    EXPECT_NEAR(line.bottom - line.top, small_word.bottom - small_word.top,
+                tolerance);
+    ExpectNear(block, line, tolerance);
   }
 
   // Returns the number of text lines found where the page number is.
@@ -432,6 +548,73 @@ TEST_F(LayoutTest, RowFromTwoColumns) {
   DrawText(page, "No. : 91385763", 900, kBaseline, 12);
   AnalysePage(page, 0, tesseract::PSM_SINGLE_BLOCK);
   EXPECT_EQ(CountTextLinesIn(250, kBaseline - 60, 1750, kBaseline + 60), 1);
+}
+
+// Tests that a small word between the two lines of a very large title is
+// found. Its letters are shared out as diacritics among the letters of the
+// title, so it gets a text line and a block of its own.
+TEST_F(LayoutTest, SmallWordInLargeTitle) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  Rect small_word;
+  Pix *page = MakeTitlePage(&small_word);
+  AnalysePage(page);
+  ExpectSmallWordBlock(small_word, 2, 2);
+  // The lines of the text are still there.
+  EXPECT_EQ(CountTextLinesIn(250, 960, 1750, 2330), 22);
+}
+
+// Tests that the block of the small word is where the word is on a skewed
+// page. The layout analysis makes the blocks from deskewed boxes and turns
+// them back at the end.
+TEST_F(LayoutTest, SmallWordInSkewedLargeTitle) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  const float kRadiansPerDegree = 0.0174533f;
+  for (float degrees : {1.0f, -1.0f}) {
+    SCOPED_TRACE(degrees);
+    Rect small_word;
+    Pix *page = MakeTitlePage(&small_word);
+    Pix *skewed = pixRotate(page, degrees * kRadiansPerDegree,
+                            L_ROTATE_AREA_MAP, L_BRING_IN_WHITE, 0, 0);
+    pixDestroy(&page);
+    ASSERT_NE(skewed, nullptr);
+    AnalysePage(skewed);
+    // The skew moves the word by some pixels.
+    ExpectSmallWordBlock(small_word, 30, 5);
+  }
+}
+
+// Tests that the block of the small word is where the word is on a page
+// which is read from right to left, where the layout analysis works with
+// reflected boxes.
+TEST_F(LayoutTest, SmallWordInLargeTitleRightToLeft) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
+  Rect small_word;
+  Pix *page = MakeTitlePage(&small_word);
+  AnalysePage(page, 0, tesseract::PSM_AUTO, "heb");
+  ExpectSmallWordBlock(small_word, 2, 2);
+}
+
+// Tests that the block of the small word is where the word is on a page
+// which is upside down, and that it comes after the block of the title.
+TEST_F(LayoutTest, SmallWordInLargeTitleUpsideDown) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "osd");
+  Rect small_word;
+  Pix *page = MakeTitlePage(&small_word);
+  Pix *turned = pixRotate180(nullptr, page);
+  pixDestroy(&page);
+  AnalysePage(turned, 0, tesseract::PSM_AUTO_OSD);
+  const Rect turned_word = {kPageWidth - small_word.right,
+                            kPageHeight - small_word.bottom,
+                            kPageWidth - small_word.left,
+                            kPageHeight - small_word.top};
+  ExpectSmallWordBlock(turned_word, 2, 2);
+  // The first block is the title, which is much wider than the small word.
+  page_it_->Begin();
+  int left, top, right, bottom;
+  ASSERT_TRUE(page_it_->BoundingBox(tesseract::RIL_BLOCK, &left, &top, &right,
+                                    &bottom));
+  EXPECT_GT(right - left, 1000);
 }
 
 } // namespace tesseract
