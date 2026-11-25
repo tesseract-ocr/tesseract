@@ -717,6 +717,8 @@ public:
     return start_page(true); // Allow empty blocks.
   }
   WERD_RES *start_page(bool empty_ok);
+  // Like start_page(), but from the current block, which must not be nullptr.
+  WERD_RES *start_block(bool empty_ok);
 
   WERD_RES *restart_row();
 
@@ -786,6 +788,7 @@ public:
 
 private:
   WERD_RES *internal_forward(bool new_block, bool empty_ok);
+  WERD_RES *start_at_block_res_it(bool empty_ok);
 
   WERD_RES *prev_word_res = nullptr; // previous word
   ROW_RES *prev_row_res = nullptr;   // row of prev word
@@ -806,6 +809,9 @@ private:
   // Since word_res_it is 2 words further on, this is otherwise hard to do.
   WERD_RES_IT wr_it_of_current_word;
   WERD_RES_IT wr_it_of_next_word;
+  // The same for block_res_it, which may already be on a later block.
+  BLOCK_RES_IT bl_it_of_current_word;
+  BLOCK_RES_IT bl_it_of_next_word;
 };
 
 } // namespace tesseract

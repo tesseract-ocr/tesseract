@@ -113,7 +113,9 @@ void PageIterator::RestartParagraph() {
   }
   const BLOCK_RES *target_block = it_->block();
   const PARA *target_para = it_->row() == nullptr ? nullptr : it_->row()->row->para();
-  PAGE_RES_IT para(page_res_);
+  // Paragraphs do not span blocks, so the scan can start at the current block.
+  PAGE_RES_IT para(*it_);
+  para.start_block(true);
   // Paragraph and block identities are stable within PAGE_RES. Avoid cmp(),
   // which searches the page and makes this forward scan quadratic.
   while (para.block() != nullptr &&
