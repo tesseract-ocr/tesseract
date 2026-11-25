@@ -185,6 +185,43 @@ TEST(PageResTest, ReplaceCurrentWordCopiesSharedCombinationWord) {
   EXPECT_EQ(nullptr, it.forward());
 }
 
+// With merge_similar_words (set for LSTM), ROW_RES combines close words of
+// similar size, but a word of repeated chars (W_REP_CHAR, e.g. the leader
+// dots of a table of contents) must stay separate from both neighbors.
+TEST(PageResTest, MergeSimilarWordsKeepsRepCharWordSeparate) {
+  BLOCK_LIST blocks;
+  WERD *title1 = MakeWord({kInputBlobs[0], kInputBlobs[1]});
+  WERD *title2 = MakeWord({kInputBlobs[2]});
+  WERD *leader = MakeWord({TBOX(60, 10, 64, 14), TBOX(70, 10, 74, 14),
+                           TBOX(80, 10, 84, 14), TBOX(90, 10, 94, 14),
+                           TBOX(100, 10, 104, 14)});
+  leader->set_flag(W_REP_CHAR, true);
+  WERD *page = MakeWord({TBOX(115, 10, 125, 30)});
+  // Stale flags must be cleared, not kept.
+  leader->set_flag(W_FUZZY_NON, true);
+  page->set_flag(W_FUZZY_NON, true);
+  AddRow(&blocks, {title1, title2, leader, page});
+  PAGE_RES page_res(true, &blocks, nullptr);
+  PAGE_RES_IT it(&page_res);
+
+  // The two title words are close and of similar size, so they still combine.
+  ASSERT_TRUE(it.word()->combination);
+  EXPECT_EQ(TBOX(10, 10, 50, 30), it.word()->word->bounding_box());
+  EXPECT_TRUE(title2->flag(W_FUZZY_NON));
+  EXPECT_FALSE(leader->flag(W_FUZZY_NON));
+  EXPECT_FALSE(page->flag(W_FUZZY_NON));
+
+  ASSERT_NE(nullptr, it.forward());
+  EXPECT_EQ(leader, it.word()->word);
+  EXPECT_FALSE(it.word()->combination);
+  EXPECT_FALSE(it.word()->part_of_combo);
+  // The last word of a row may be a combination of its own, but it must not
+  // take in the leader.
+  ASSERT_NE(nullptr, it.forward());
+  EXPECT_EQ(page->bounding_box(), it.word()->word->bounding_box());
+  EXPECT_EQ(nullptr, it.forward());
+}
+
 } // namespace
 
 } // namespace tesseract
