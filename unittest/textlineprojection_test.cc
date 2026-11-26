@@ -100,8 +100,9 @@ protected:
     denorm_ = finder_->denorm();
     TO_BLOCK_LIST to_blocks;
     BLOBNBOX_LIST diacritic_blobs;
-    EXPECT_GE(finder_->FindBlocks(tesseract::PSM_AUTO, to_block, photomask_pix, nullptr,
-                                  nullptr, nullptr, &found_blocks, &diacritic_blobs, &to_blocks),
+    EXPECT_GE(finder_->FindBlocks(tesseract::PSM_AUTO, to_block, photomask_pix, nullptr, nullptr,
+                                  nullptr, &found_blocks, &diacritic_blobs, &to_blocks,
+                                  osd_tess.get(), nullptr, tesseract_->min_orientation_margin),
               0);
     projection_ = finder_->projection();
     photomask_pix.destroy();
