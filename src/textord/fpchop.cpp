@@ -63,8 +63,7 @@ static void join_segments(C_OUTLINE_FRAG *bottom, C_OUTLINE_FRAG *top);
  * Make a ROW from a fixed pitch TO_ROW.
  **********************************************************************/
 ROW *fixed_pitch_words( // find lines
-    TO_ROW *row,        // row to do
-    FCOORD rotation     // for drawing
+    TO_ROW *row         // row to do
 ) {
   bool bol;                // start of line
   uint8_t blanks;          // in front of word
@@ -438,7 +437,11 @@ static bool fixed_chop_coutline(     // chop the outline
     }
     pos += srcline->step(stepindex);
   }
-  if (left_edge >= chop_coord - pitch_error) {
+  // The walk below starts at the leftmost point and only terminates if that
+  // point is strictly left of the chop line, so refuse to chop an outline
+  // whose left edge is on it regardless of pitch_error (which comes from a
+  // parameter and may be negative).
+  if (left_edge >= chop_coord || left_edge >= chop_coord - pitch_error) {
     return false; // not worth it
   }
 
@@ -785,7 +788,7 @@ C_OUTLINE *C_OUTLINE_FRAG::close() { // join pieces
   new_steps = new DIR128[new_stepcount];
   memmove(new_steps, steps, stepcount);
   memset(new_steps + stepcount, fake_step.get_dir(), fake_count);
-  auto *result = new C_OUTLINE(start, new_steps, new_stepcount);
+  auto *result = new C_OUTLINE(start, new_steps, static_cast<int16_t>(new_stepcount));
   delete[] new_steps;
   return result;
 }

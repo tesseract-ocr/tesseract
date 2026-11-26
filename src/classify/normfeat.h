@@ -23,7 +23,7 @@
 
 namespace tesseract {
 
-#define LENGTH_COMPRESSION (10.0)
+constexpr double LENGTH_COMPRESSION = 10.0;
 
 struct INT_FX_RESULT_STRUCT;
 

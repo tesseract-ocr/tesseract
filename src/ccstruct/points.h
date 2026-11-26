@@ -38,16 +38,11 @@ class ICOORD {
 
 public:
   /// empty constructor
-  ICOORD() {
-    xcoord = ycoord = 0; // default zero
-  }
+  constexpr ICOORD() : xcoord(0), ycoord(0) {}
   /// constructor
   ///@param xin x value
   ///@param yin y value
-  ICOORD(TDimension xin, TDimension yin) {
-    xcoord = xin;
-    ycoord = yin;
-  }
+  constexpr ICOORD(TDimension xin, TDimension yin) : xcoord(xin), ycoord(yin) {}
   /// destructor
   ~ICOORD() = default;
 
@@ -55,11 +50,11 @@ public:
   bool Serialize(TFile *f) const;
 
   /// access function
-  TDimension x() const {
+  constexpr TDimension x() const {
     return xcoord;
   }
   /// access_function
-  TDimension y() const {
+  constexpr TDimension y() const {
     return ycoord;
   }
 
@@ -105,7 +100,7 @@ public:
   }
 
   /// test equality
-  bool operator==(const ICOORD &other) const {
+  constexpr bool operator==(const ICOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
@@ -113,31 +108,31 @@ public:
     return xcoord != other.xcoord || ycoord != other.ycoord;
   }
   /// rotate 90 deg anti
-  friend ICOORD operator!(const ICOORD &);
+  friend constexpr ICOORD operator!(const ICOORD &);
   /// unary minus
-  friend ICOORD operator-(const ICOORD &);
+  friend constexpr ICOORD operator-(const ICOORD &);
   /// add
-  friend ICOORD operator+(const ICOORD &, const ICOORD &);
+  friend constexpr ICOORD operator+(const ICOORD &, const ICOORD &);
   /// add
-  friend ICOORD &operator+=(ICOORD &, const ICOORD &);
+  friend constexpr ICOORD &operator+=(ICOORD &, const ICOORD &);
   /// subtract
-  friend ICOORD operator-(const ICOORD &, const ICOORD &);
+  friend constexpr ICOORD operator-(const ICOORD &, const ICOORD &);
   /// subtract
-  friend ICOORD &operator-=(ICOORD &, const ICOORD &);
+  friend constexpr ICOORD &operator-=(ICOORD &, const ICOORD &);
   /// scalar product
-  friend int32_t operator%(const ICOORD &, const ICOORD &);
+  friend constexpr int32_t operator%(const ICOORD &, const ICOORD &);
   /// cross product
-  friend int32_t operator*(const ICOORD &, const ICOORD &);
+  friend constexpr int32_t operator*(const ICOORD &, const ICOORD &);
   /// multiply
-  friend ICOORD operator*(const ICOORD &, TDimension);
+  friend constexpr ICOORD operator*(const ICOORD &, TDimension);
   /// multiply
-  friend ICOORD operator*(TDimension, const ICOORD &);
+  friend constexpr ICOORD operator*(TDimension, const ICOORD &);
   /// multiply
-  friend ICOORD &operator*=(ICOORD &, TDimension);
+  friend constexpr ICOORD &operator*=(ICOORD &, TDimension);
   /// divide
-  friend ICOORD operator/(const ICOORD &, TDimension);
+  friend constexpr ICOORD operator/(const ICOORD &, TDimension);
   /// divide
-  friend ICOORD &operator/=(ICOORD &, TDimension);
+  friend constexpr ICOORD &operator/=(ICOORD &, TDimension);
   /// rotate
   ///@param vec by vector
   void rotate(const FCOORD &vec);
@@ -189,24 +184,18 @@ ELISTIZEH(ICOORDELT)
 class TESS_API FCOORD {
 public:
   /// empty constructor
-  FCOORD() = default;
+  constexpr FCOORD() : xcoord(0.0f), ycoord(0.0f) {}
   /// constructor
   ///@param xvalue x value
   ///@param yvalue y value
-  FCOORD(float xvalue, float yvalue) {
-    xcoord = xvalue; // set coords
-    ycoord = yvalue;
-  }
-  FCOORD(              // make from ICOORD
-      ICOORD icoord) { // coords to set
-    xcoord = icoord.xcoord;
-    ycoord = icoord.ycoord;
-  }
+  constexpr FCOORD(float xvalue, float yvalue) : xcoord(xvalue), ycoord(yvalue) {}
+  constexpr FCOORD(              // make from ICOORD
+      ICOORD icoord) : xcoord(icoord.xcoord), ycoord(icoord.ycoord) {}
 
-  float x() const { // get coords
+  constexpr float x() const { // get coords
     return xcoord;
   }
-  float y() const {
+  constexpr float y() const {
     return ycoord;
   }
   /// rewrite function
@@ -269,36 +258,36 @@ public:
   bool normalise();
 
   /// test equality
-  bool operator==(const FCOORD &other) const {
+  constexpr bool operator==(const FCOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
-  bool operator!=(const FCOORD &other) const {
+  constexpr bool operator!=(const FCOORD &other) const {
     return xcoord != other.xcoord || ycoord != other.ycoord;
   }
   /// rotate 90 deg anti
-  friend FCOORD operator!(const FCOORD &);
+  friend constexpr FCOORD operator!(const FCOORD &);
   /// unary minus
-  friend FCOORD operator-(const FCOORD &);
+  friend constexpr FCOORD operator-(const FCOORD &);
   /// add
-  friend FCOORD operator+(const FCOORD &, const FCOORD &);
+  friend constexpr FCOORD operator+(const FCOORD &, const FCOORD &);
   /// add
-  friend FCOORD &operator+=(FCOORD &, const FCOORD &);
+  friend constexpr FCOORD &operator+=(FCOORD &, const FCOORD &);
   /// subtract
-  friend FCOORD operator-(const FCOORD &, const FCOORD &);
+  friend constexpr FCOORD operator-(const FCOORD &, const FCOORD &);
   /// subtract
-  friend FCOORD &operator-=(FCOORD &, const FCOORD &);
+  friend constexpr FCOORD &operator-=(FCOORD &, const FCOORD &);
   /// scalar product
-  friend float operator%(const FCOORD &, const FCOORD &);
+  friend constexpr float operator%(const FCOORD &, const FCOORD &);
   /// cross product
-  friend float operator*(const FCOORD &, const FCOORD &);
+  friend constexpr float operator*(const FCOORD &, const FCOORD &);
   /// multiply
-  friend FCOORD operator*(const FCOORD &, float);
+  friend constexpr FCOORD operator*(const FCOORD &, float);
   /// multiply
-  friend FCOORD operator*(float, const FCOORD &);
+  friend constexpr FCOORD operator*(float, const FCOORD &);
 
   /// multiply
-  friend FCOORD &operator*=(FCOORD &, float);
+  friend constexpr FCOORD &operator*=(FCOORD &, float);
   /// divide
   friend FCOORD operator/(const FCOORD &, float);
   /// rotate
@@ -321,7 +310,7 @@ private:
  * Rotate an ICOORD 90 degrees anticlockwise.
  **********************************************************************/
 
-inline ICOORD operator!( // rotate 90 deg anti
+constexpr inline ICOORD operator!( // rotate 90 deg anti
     const ICOORD &src    // thing to rotate
 ) {
   ICOORD result; // output
@@ -337,7 +326,7 @@ inline ICOORD operator!( // rotate 90 deg anti
  * Unary minus of an ICOORD.
  **********************************************************************/
 
-inline ICOORD operator-( // unary minus
+constexpr inline ICOORD operator-( // unary minus
     const ICOORD &src    // thing to minus
 ) {
   ICOORD result; // output
@@ -353,7 +342,7 @@ inline ICOORD operator-( // unary minus
  * Add 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD operator+( // sum vectors
+constexpr inline ICOORD operator+( // sum vectors
     const ICOORD &op1,   // operands
     const ICOORD &op2) {
   ICOORD sum; // result
@@ -369,7 +358,7 @@ inline ICOORD operator+( // sum vectors
  * Add 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD &operator+=( // sum vectors
+constexpr inline ICOORD &operator+=( // sum vectors
     ICOORD &op1,           // operands
     const ICOORD &op2) {
   op1.xcoord += op2.xcoord;
@@ -383,7 +372,7 @@ inline ICOORD &operator+=( // sum vectors
  * Subtract 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD operator-( // subtract vectors
+constexpr inline ICOORD operator-( // subtract vectors
     const ICOORD &op1,   // operands
     const ICOORD &op2) {
   ICOORD sum; // result
@@ -399,7 +388,7 @@ inline ICOORD operator-( // subtract vectors
  * Subtract 2 ICOORDS.
  **********************************************************************/
 
-inline ICOORD &operator-=( // subtract vectors
+constexpr inline ICOORD &operator-=( // subtract vectors
     ICOORD &op1,           // operands
     const ICOORD &op2) {
   op1.xcoord -= op2.xcoord;
@@ -413,7 +402,7 @@ inline ICOORD &operator-=( // subtract vectors
  * Scalar product of 2 ICOORDS.
  **********************************************************************/
 
-inline int32_t operator%( // scalar product
+constexpr inline int32_t operator%( // scalar product
     const ICOORD &op1,    // operands
     const ICOORD &op2) {
   return op1.xcoord * op2.xcoord + op1.ycoord * op2.ycoord;
@@ -425,7 +414,7 @@ inline int32_t operator%( // scalar product
  * Cross product of 2 ICOORDS.
  **********************************************************************/
 
-inline int32_t operator*( // cross product
+constexpr inline int32_t operator*( // cross product
     const ICOORD &op1,    // operands
     const ICOORD &op2) {
   return op1.xcoord * op2.ycoord - op1.ycoord * op2.xcoord;
@@ -437,7 +426,7 @@ inline int32_t operator*( // cross product
  * Scalar multiply of an ICOORD.
  **********************************************************************/
 
-inline ICOORD operator*( // scalar multiply
+constexpr inline ICOORD operator*( // scalar multiply
     const ICOORD &op1,   // operands
     TDimension scale) {
   ICOORD result; // output
@@ -447,7 +436,7 @@ inline ICOORD operator*( // scalar multiply
   return result;
 }
 
-inline ICOORD operator*( // scalar multiply
+constexpr inline ICOORD operator*( // scalar multiply
     TDimension scale,
     const ICOORD &op1 // operands
 ) {
@@ -464,7 +453,7 @@ inline ICOORD operator*( // scalar multiply
  * Scalar multiply of an ICOORD.
  **********************************************************************/
 
-inline ICOORD &operator*=( // scalar multiply
+constexpr inline ICOORD &operator*=( // scalar multiply
     ICOORD &op1,           // operands
     TDimension scale) {
   op1.xcoord *= scale;
@@ -478,7 +467,7 @@ inline ICOORD &operator*=( // scalar multiply
  * Scalar divide of an ICOORD.
  **********************************************************************/
 
-inline ICOORD operator/( // scalar divide
+constexpr inline ICOORD operator/( // scalar divide
     const ICOORD &op1,   // operands
     TDimension scale) {
   ICOORD result; // output
@@ -494,7 +483,7 @@ inline ICOORD operator/( // scalar divide
  * Scalar divide of an ICOORD.
  **********************************************************************/
 
-inline ICOORD &operator/=( // scalar divide
+constexpr inline ICOORD &operator/=( // scalar divide
     ICOORD &op1,           // operands
     TDimension scale) {
   op1.xcoord /= scale;
@@ -521,7 +510,7 @@ inline void ICOORD::rotate( // rotate by vector
  * Rotate an FCOORD 90 degrees anticlockwise.
  **********************************************************************/
 
-inline FCOORD operator!( // rotate 90 deg anti
+constexpr inline FCOORD operator!( // rotate 90 deg anti
     const FCOORD &src    // thing to rotate
 ) {
   FCOORD result; // output
@@ -537,7 +526,7 @@ inline FCOORD operator!( // rotate 90 deg anti
  * Unary minus of an FCOORD.
  **********************************************************************/
 
-inline FCOORD operator-( // unary minus
+constexpr inline FCOORD operator-( // unary minus
     const FCOORD &src    // thing to minus
 ) {
   FCOORD result; // output
@@ -553,7 +542,7 @@ inline FCOORD operator-( // unary minus
  * Add 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD operator+( // sum vectors
+constexpr inline FCOORD operator+( // sum vectors
     const FCOORD &op1,   // operands
     const FCOORD &op2) {
   FCOORD sum; // result
@@ -569,7 +558,7 @@ inline FCOORD operator+( // sum vectors
  * Add 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD &operator+=( // sum vectors
+constexpr inline FCOORD &operator+=( // sum vectors
     FCOORD &op1,           // operands
     const FCOORD &op2) {
   op1.xcoord += op2.xcoord;
@@ -583,7 +572,7 @@ inline FCOORD &operator+=( // sum vectors
  * Subtract 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD operator-( // subtract vectors
+constexpr inline FCOORD operator-( // subtract vectors
     const FCOORD &op1,   // operands
     const FCOORD &op2) {
   FCOORD sum; // result
@@ -599,7 +588,7 @@ inline FCOORD operator-( // subtract vectors
  * Subtract 2 FCOORDS.
  **********************************************************************/
 
-inline FCOORD &operator-=( // subtract vectors
+constexpr inline FCOORD &operator-=( // subtract vectors
     FCOORD &op1,           // operands
     const FCOORD &op2) {
   op1.xcoord -= op2.xcoord;
@@ -613,7 +602,7 @@ inline FCOORD &operator-=( // subtract vectors
  * Scalar product of 2 FCOORDS.
  **********************************************************************/
 
-inline float operator%( // scalar product
+constexpr inline float operator%( // scalar product
     const FCOORD &op1,  // operands
     const FCOORD &op2) {
   return op1.xcoord * op2.xcoord + op1.ycoord * op2.ycoord;
@@ -625,7 +614,7 @@ inline float operator%( // scalar product
  * Cross product of 2 FCOORDS.
  **********************************************************************/
 
-inline float operator*( // cross product
+constexpr inline float operator*( // cross product
     const FCOORD &op1,  // operands
     const FCOORD &op2) {
   return op1.xcoord * op2.ycoord - op1.ycoord * op2.xcoord;
@@ -637,7 +626,7 @@ inline float operator*( // cross product
  * Scalar multiply of an FCOORD.
  **********************************************************************/
 
-inline FCOORD operator*( // scalar multiply
+constexpr inline FCOORD operator*( // scalar multiply
     const FCOORD &op1,   // operands
     float scale) {
   FCOORD result; // output
@@ -647,7 +636,7 @@ inline FCOORD operator*( // scalar multiply
   return result;
 }
 
-inline FCOORD operator*( // scalar multiply
+constexpr inline FCOORD operator*( // scalar multiply
     float scale,
     const FCOORD &op1 // operands
 ) {
@@ -664,7 +653,7 @@ inline FCOORD operator*( // scalar multiply
  * Scalar multiply of an FCOORD.
  **********************************************************************/
 
-inline FCOORD &operator*=( // scalar multiply
+constexpr inline FCOORD &operator*=( // scalar multiply
     FCOORD &op1,           // operands
     float scale) {
   op1.xcoord *= scale;

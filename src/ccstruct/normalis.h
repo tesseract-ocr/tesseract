@@ -29,9 +29,9 @@ struct Pix;
 
 namespace tesseract {
 
-const int kBlnCellHeight = 256;    // Full-height for baseline normalization.
-const int kBlnXHeight = 128;       // x-height for baseline normalization.
-const int kBlnBaselineOffset = 64; // offset for baseline normalization.
+constexpr int kBlnCellHeight = 256;    // Full-height for baseline normalization.
+constexpr int kBlnXHeight = 128;       // x-height for baseline normalization.
+constexpr int kBlnBaselineOffset = 64; // offset for baseline normalization.
 
 class BLOCK;
 class FCOORD;

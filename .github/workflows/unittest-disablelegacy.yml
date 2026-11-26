@@ -1,6 +1,5 @@
 name: unittest-disablelegacy
 # autotools build on ubuntu, unittests with disabled legacy engine.
-# currently some unittests are failing with disabled legacy engine.
 
 on:
   #push:
@@ -18,7 +17,7 @@ jobs:
         os: [ ubuntu-24.04 ]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
 

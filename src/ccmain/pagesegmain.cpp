@@ -29,7 +29,6 @@
 #  include "config_auto.h"
 #endif
 
-#include <allheaders.h>
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
@@ -38,6 +37,7 @@
 #  include "equationdetect.h"
 #endif
 #include <tesseract/osdetect.h>
+#include "image.h"          // for Image
 #include "imagefind.h"
 #include "linefind.h"
 #include "makerow.h"
@@ -84,7 +84,7 @@ static Image RemoveEnclosingCircle(Image pixs) {
       min_count = count;
       pixout.destroy();
       pixout = pixt.copy(); // Save the best.
-    } else if (count >= min_count) {
+    } else {
       break; // We have passed by the best.
     }
   }
@@ -112,7 +112,7 @@ int Tesseract::SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract
     if (lastdot != std::string::npos) {
       name.resize(lastdot);
     }
-    read_unlv_file(name, width, height, blocks);
+    read_unlv_file(name, height, blocks);
   }
   if (blocks->empty()) {
     // No UNLV file present. Work according to the PageSegMode.
@@ -223,7 +223,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST *blocks, TO_BLOC
       finder->SetEquationDetect(equ_detect_);
     }
 #endif // ndef DISABLED_LEGACY_ENGINE
-    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_, to_block,
+    result = finder->FindBlocks(pageseg_mode, to_block,
                                 photomask_pix, pix_thresholds_, pix_grey_, &pixa_debug_,
                                 &found_blocks, diacritic_blobs, to_blocks);
     if (result >= 0) {
@@ -278,7 +278,6 @@ ColumnFinder *Tesseract::SetupPageSegAndDetectOrientation(PageSegMode pageseg_mo
   int vertical_y = 1;
   TabVector_LIST v_lines;
   TabVector_LIST h_lines;
-  ICOORD bleft(0, 0);
 
   ASSERT_HOST(pix_binary_ != nullptr);
   if (tessedit_dump_pageseg_images) {

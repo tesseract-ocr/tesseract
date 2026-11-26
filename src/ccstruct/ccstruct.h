@@ -28,11 +28,11 @@ public:
   // Globally accessible constants.
   // APPROXIMATIONS of the fractions of the character cell taken by
   // the descenders, ascenders, and x-height.
-  static const double kDescenderFraction; // = 0.25;
-  static const double kXHeightFraction;   // = 0.5;
-  static const double kAscenderFraction;  // = 0.25;
+  static constexpr double kDescenderFraction = 0.25;
+  static constexpr double kXHeightFraction = 0.5;
+  static constexpr double kAscenderFraction = 0.25;
   // Derived value giving the x-height as a fraction of cap-height.
-  static const double kXHeightCapRatio; // = XHeight/(XHeight + Ascender).
+  static constexpr double kXHeightCapRatio = kXHeightFraction / (kXHeightFraction + kAscenderFraction);
 };
 
 } // namespace tesseract

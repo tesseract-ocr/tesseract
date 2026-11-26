@@ -21,8 +21,10 @@
 #ifndef TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 #define TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 
+#include <array>
 #include <unordered_map>
 #include <vector>
+
 #include "serialis.h"
 #include "unicharset.h"
 
@@ -35,13 +37,16 @@ public:
   static const int kMaxCodeLen = 9;
 
   RecodedCharID() : self_normalized_(1), length_(0) {
-    memset(code_, 0, sizeof(code_));
+    code_.fill(0);
   }
-  void Truncate(int length) {
+  void Truncate(uint32_t length) {
     length_ = length;
   }
   // Sets the code value at the given index in the code.
-  void Set(int index, int value) {
+  void Set(uint32_t index, int value) {
+    if (index >= kMaxCodeLen) {
+      return;
+    }
     code_[index] = value;
     if (length_ <= index) {
       length_ = index + 1;
@@ -59,10 +64,10 @@ public:
     return length_ == 0;
   }
   // Accessors
-  int length() const {
+  uint32_t length() const {
     return length_;
   }
-  int operator()(int index) const {
+  int operator()(uint32_t index) const {
     return code_[index];
   }
 
@@ -73,14 +78,29 @@ public:
   }
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(TFile *fp) {
-    return fp->DeSerialize(&self_normalized_) && fp->DeSerialize(&length_) &&
-           fp->DeSerialize(&code_[0], length_);
+    if (!fp->DeSerialize(&self_normalized_) || !fp->DeSerialize(&length_)) {
+      return false;
+    }
+    if (length_ > kMaxCodeLen) {
+      return false;
+    }
+    if (!fp->DeSerialize(&code_[0], length_)) {
+      return false;
+    }
+    // Code values index arrays sized from the maximum code; reject values
+    // that are out of the sane range for a recoded alphabet.
+    for (uint32_t i = 0; i < length_; ++i) {
+      if (code_[i] < 0 || code_[i] >= static_cast<int32_t>(UINT16_MAX)) {
+        return false;
+      }
+    }
+    return true;
   }
   bool operator==(const RecodedCharID &other) const {
     if (length_ != other.length_) {
       return false;
     }
-    for (int i = 0; i < length_; ++i) {
+    for (uint32_t i = 0; i < length_; ++i) {
       if (code_[i] != other.code_[i]) {
         return false;
       }
@@ -91,7 +111,7 @@ public:
   struct RecodedCharIDHash {
     uint64_t operator()(const RecodedCharID &code) const {
       uint64_t result = 0;
-      for (int i = 0; i < code.length_; ++i) {
+      for (uint32_t i = 0; i < code.length_; ++i) {
         result ^= static_cast<uint64_t>(code(i)) << (7 * i);
       }
       return result;
@@ -103,9 +123,9 @@ private:
   // that map to the same code. Has boolean value, but int8_t for serialization.
   int8_t self_normalized_;
   // The number of elements in use in code_;
-  int32_t length_;
+  uint32_t length_;
   // The re-encoded form of the unichar-id to which this RecodedCharID relates.
-  int32_t code_[kMaxCodeLen];
+  std::array<int32_t, kMaxCodeLen> code_;
 };
 
 // Class holds a "compression" of a unicharset to simplify the learning problem
@@ -180,6 +200,7 @@ public:
   int DecodeUnichar(const RecodedCharID &code) const;
   // Returns true if the given code is a valid start or single code.
   bool IsValidFirstCode(int code) const {
+    ASSERT_HOST(code >= 0 && code < code_range_);
     return is_valid_start_[code];
   }
   // Returns a list of valid non-final next codes for a given prefix code,

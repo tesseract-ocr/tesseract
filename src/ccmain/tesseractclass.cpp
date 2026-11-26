@@ -40,11 +40,11 @@
 
 #include "tesseractclass.h"
 
-#include <allheaders.h>
 #include "edgblob.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "equationdetect.h"
 #endif
+#include "image.h"       // for Image
 #include "lstmrecognizer.h"
 #include "thresholder.h" // for ThresholdMethod
 
@@ -439,6 +439,9 @@ Tesseract::Tesseract()
                  "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
                  "value greater than 0 to produce results.",
                  this->params())
+    , BOOL_MEMBER(lstm_font_attributes, false,
+                  "Estimate bold and italic for the words recognized by LSTM.",
+                  this->params())
     , double_MEMBER(lstm_rating_coefficient, 5,
                     "Sets the rating coefficient for the lstm choices. The smaller the "
                     "coefficient, the better are the ratings for each choice and less "
@@ -457,8 +460,6 @@ Tesseract::Tesseract()
     , source_resolution_(0)
     , textord_(this)
     , right_to_left_(false)
-    , scaled_color_(nullptr)
-    , scaled_factor_(-1)
     , deskew_(1.0f, 0.0f)
     , reskew_(1.0f, 0.0f)
     , gradient_(0.0f)
@@ -496,12 +497,10 @@ void Tesseract::Clear() {
   pix_binary_.destroy();
   pix_grey_.destroy();
   pix_thresholds_.destroy();
-  scaled_color_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   gradient_ = 0.0f;
   splitter_.Clear();
-  scaled_factor_ = -1;
   for (auto &sub_lang : sub_langs_) {
     sub_lang->Clear();
   }
@@ -589,7 +588,7 @@ void Tesseract::PrepareForPageseg() {
 // Note that this method resets pix_binary_ to the original binarized image,
 // which may be different from the image actually used for OCR depending on the
 // value of devanagari_ocr_split_strategy.
-void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, OSResults *osr) {
+void Tesseract::PrepareForTessOCR(BLOCK_LIST *block_list) {
   // Find the max splitter strategy over all langs.
   auto max_ocr_strategy = static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(ocr_devanagari_split_strategy));

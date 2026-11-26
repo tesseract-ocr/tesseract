@@ -221,6 +221,13 @@ public:
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(const TessdataManager *mgr, TFile *fp);
 
+  // Switches the network to inference mode for an evaluation.
+  // A trainer keeps all layers in training mode, but layers like dropout
+  // must not modify their input while a model is evaluated.
+  void DisableTrainingForEval() {
+    network_->SetEnableTraining(TS_TEMP_DISABLE);
+  }
+
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to
   // NF_LAYER_SPECIFIC_LR).
@@ -343,7 +350,7 @@ protected:
   // as an image in the given window, and the corresponding labels at the
   // corresponding x_starts.
   // Returns false if the truth string is empty.
-  bool DebugLSTMTraining(const NetworkIO &inputs, const ImageData &trainingdata,
+  bool DebugLSTMTraining(const NetworkIO &inputs,
                          const NetworkIO &fwd_outputs,
                          const std::vector<int> &truth_labels,
                          const NetworkIO &outputs);
@@ -353,8 +360,7 @@ protected:
 
   // Builds a no-compromises target where the first positions should be the
   // truth labels and the rest is padded with the null_char_.
-  bool ComputeTextTargets(const NetworkIO &outputs,
-                          const std::vector<int> &truth_labels,
+  bool ComputeTextTargets(const std::vector<int> &truth_labels,
                           NetworkIO *targets);
 
   // Builds a target using standard CTC. truth_labels should be pre-padded with

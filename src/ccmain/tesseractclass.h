@@ -36,6 +36,7 @@
 #  include "docqual.h" // for GARBAGE_LEVEL
 #endif
 #include "genericvector.h"   // for PointerVector
+#include "image.h"           // for Image
 #include "pageres.h"         // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"          // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"          // for FCOORD
@@ -46,8 +47,6 @@
 
 #include <tesseract/publictypes.h> // for OcrEngineMode, PageSegMode, OEM_L...
 #include <tesseract/unichar.h>     // for UNICHAR_ID
-
-#include <allheaders.h> // for pixDestroy, pixGetWidth, pixGetHe...
 
 #include <cstdint> // for int16_t, int32_t, uint16_t
 #include <cstdio>  // for FILE
@@ -263,16 +262,6 @@ public:
   int ImageHeight() const {
     return pixGetHeight(pix_binary_);
   }
-  Image scaled_color() const {
-    return scaled_color_;
-  }
-  int scaled_factor() const {
-    return scaled_factor_;
-  }
-  void SetScaledColor(int factor, Image color) {
-    scaled_factor_ = factor;
-    scaled_color_ = color;
-  }
   const Textord &textord() const {
     return textord_;
   }
@@ -327,7 +316,7 @@ public:
   // Uses the strategy specified in the global variable
   // ocr_devanagari_split_strategy for performing splitting while preparing for
   // Tesseract ocr.
-  void PrepareForTessOCR(BLOCK_LIST *block_list, Tesseract *osd_tess, OSResults *osr);
+  void PrepareForTessOCR(BLOCK_LIST *block_list);
 
   int SegmentPage(const char *input_file, BLOCK_LIST *blocks, Tesseract *osd_tess, OSResults *osr);
   void SetupWordScripts(BLOCK_LIST *blocks);
@@ -387,6 +376,18 @@ public:
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT *pr_it,
                           std::vector<WordData> *words);
+#ifndef DISABLED_LEGACY_ENGINE
+  // Starts fresh per-page budgets for the legacy engine (seam evaluations
+  // and blob classifications, see Wordrec::ResetSeamEvalsBudget() and
+  // Wordrec::ResetClassificationBudget()) for this language and for all
+  // sub-languages. Must be called at the start of each page.
+  void ResetPassBudgets();
+  // Returns true if the blob-classification budgets of this language and of
+  // all sub-languages are used up (see
+  // Wordrec::ClassificationBudgetExhausted()), so that the legacy engine
+  // cannot recognize any further word of this page.
+  bool AllClassificationBudgetsExhausted();
+#endif // ndef DISABLED_LEGACY_ENGINE
   bool recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
                        const char *word_config, int dopasses);
   void rejection_passes(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
@@ -445,7 +446,9 @@ public:
 
   ACCEPTABLE_WERD_TYPE acceptable_word_string(const UNICHARSET &char_set, const char *s,
                                               const char *lengths);
-  void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK *block);
+  ACCEPTABLE_WERD_TYPE check_abbreviation(const UNICHARSET &char_set, const char *s,
+                                          const char *lengths, ACCEPTABLE_WERD_TYPE word_type);
+  void match_word_pass_n(int pass_n, WERD_RES *word);
   void classify_word_pass2(const WordData &word_data, WERD_RES **in_word,
                            PointerVector<WERD_RES> *out_words);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht, WERD_RES *word, WERD_RES *new_word);
@@ -460,6 +463,8 @@ public:
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES *page_res);
+  // Estimates bold and italic from the image for the words without a font.
+  void font_style_pass(PAGE_RES *page_res);
   void dictionary_correction_pass(PAGE_RES *page_res);
   bool check_debug_pt(WERD_RES *word, int location);
 
@@ -494,7 +499,11 @@ public:
   // Initialize for potentially a set of languages defined by the language
   // string and recursively any additional languages required by any language
   // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
-  // See init_tesseract_internal for args.
+  // arg0 is the datapath for the tessdata directory, which could be the
+  // path of the tessdata directory with no trailing /, or (if tessdata
+  // lives in the same directory as the executable, the path of the executable,
+  // hence the name arg0.
+  // See init_tesseract_internal for remaining args.
   int init_tesseract(const std::string &arg0, const std::string &textbase,
                      const std::string &language, OcrEngineMode oem, char **configs,
                      int configs_size, const std::vector<std::string> *vars_vec,
@@ -505,10 +514,6 @@ public:
     return init_tesseract(datapath, {}, language, oem, nullptr, 0, nullptr, nullptr, false, &mgr);
   }
   // Common initialization for a single language.
-  // arg0 is the datapath for the tessdata directory, which could be the
-  // path of the tessdata directory with no trailing /, or (if tessdata
-  // lives in the same directory as the executable, the path of the executable,
-  // hence the name arg0.
   // textbase is an optional output file basename (used only for training)
   // language is the language code to load.
   // oem controls which engine(s) will operate on the image
@@ -520,7 +525,7 @@ public:
   // in vars_vec.
   // If set_only_non_debug_params is true, only params that do not contain
   // "debug" in the name will be set.
-  int init_tesseract_internal(const std::string &arg0, const std::string &textbase,
+  int init_tesseract_internal(const std::string &textbase,
                               const std::string &language, OcrEngineMode oem, char **configs,
                               int configs_size, const std::vector<std::string> *vars_vec,
                               const std::vector<std::string> *vars_values,
@@ -533,8 +538,7 @@ public:
   void recognize_page(std::string &image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const std::string &arg0,
-                                const std::string &language, OcrEngineMode oem, char **configs,
+  bool init_tesseract_lang_data(const std::string &language, OcrEngineMode oem, char **configs,
                                 int configs_size, const std::vector<std::string> *vars_vec,
                                 const std::vector<std::string> *vars_values,
                                 bool set_only_non_debug_params, TessdataManager *mgr);
@@ -566,7 +570,7 @@ public:
   void blob_feature_display(PAGE_RES *page_res, const TBOX &selection_box);
   //// reject.h //////////////////////////////////////////////////////////
   // make rej map for word
-  void make_reject_map(WERD_RES *word, ROW *row, int16_t pass);
+  void make_reject_map(WERD_RES *word, int16_t pass);
   bool one_ell_conflict(WERD_RES *word_res, bool update_map);
   int16_t first_alphanum_index(const char *word, const char *word_lengths);
   int16_t first_alphanum_offset(const char *word, const char *word_lengths);
@@ -578,7 +582,7 @@ public:
   void flip_0O(WERD_RES *word);
   bool non_0_digit(const UNICHARSET &ch_set, UNICHAR_ID unichar_id);
   bool non_O_upper(const UNICHARSET &ch_set, UNICHAR_ID unichar_id);
-  bool repeated_nonalphanum_wd(WERD_RES *word, ROW *row);
+  bool repeated_nonalphanum_wd(WERD_RES *word);
   void nn_match_word( // Match a word
       WERD_RES *word, ROW *row);
   void nn_recover_rejects(WERD_RES *word, ROW *row);
@@ -966,13 +970,14 @@ public:
   STRING_VAR_H(page_separator);
   INT_VAR_H(lstm_choice_mode);
   INT_VAR_H(lstm_choice_iterations);
+  BOOL_VAR_H(lstm_font_attributes);
   double_VAR_H(lstm_rating_coefficient);
   BOOL_VAR_H(pageseg_apply_music_mask);
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const char *filename);
   void recog_training_segmented(const char *filename, PAGE_RES *page_res,
-                                volatile ETEXT_DESC *monitor, FILE *output_file);
+                                FILE *output_file);
   void ambigs_classify_and_output(const char *label, PAGE_RES_IT *pr_it, FILE *output_file);
 
 private:
@@ -1003,8 +1008,6 @@ private:
   Textord textord_;
   // True if the primary language uses right_to_left reading order.
   bool right_to_left_;
-  Image scaled_color_;
-  int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;
   float gradient_;

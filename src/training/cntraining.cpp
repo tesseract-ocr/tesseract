@@ -49,7 +49,7 @@ static void WriteProtos(FILE *File, uint16_t N, LIST ProtoList, bool WriteSigPro
 ----------------------------------------------------------------------------*/
 /* global variable to hold configuration parameters to control clustering */
 //-M 0.025   -B 0.05   -I 0.8   -C 1e-3
-static const CLUSTERCONFIG CNConfig = {elliptical, 0.025, 0.05, 0.8, 1e-3, 0};
+static const CLUSTERCONFIG CNConfig = {PROTOSTYLE::elliptical, 0.025, 0.05, 0.8, 1e-3, 0};
 
 /*----------------------------------------------------------------------------
               Public Code

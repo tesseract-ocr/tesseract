@@ -31,6 +31,9 @@ IndexMap::~IndexMap() = default;
 // Uses a binary search to find the result. For faster speed use
 // IndexMapBiDi, but that takes more memory.
 int IndexMap::SparseToCompact(int sparse_index) const {
+  if (compact_map_.empty()) {
+    return -1;
+  }
   auto pos = std::upper_bound(compact_map_.begin(), compact_map_.end(), sparse_index);
   if (pos > compact_map_.begin()) {
     --pos;
@@ -142,6 +145,16 @@ void IndexMapBiDi::CopyFrom(const IndexMapBiDi &src) {
 // the merges must be concluded by a call to CompleteMerges.
 // Returns true if a merge was actually performed.
 bool IndexMapBiDi::Merge(int compact_index1, int compact_index2) {
+  // A compact index may be -1 (meaning "merge away") or in [0, compact size).
+  const bool index1_ok =
+      compact_index1 == -1 ||
+      (compact_index1 >= 0 && static_cast<size_t>(compact_index1) < compact_map_.size());
+  const bool index2_ok =
+      compact_index2 == -1 ||
+      (compact_index2 >= 0 && static_cast<size_t>(compact_index2) < compact_map_.size());
+  if (!index1_ok || !index2_ok) {
+    return false;
+  }
   // Find the current master index for index1 and index2.
   compact_index1 = MasterCompactIndex(compact_index1);
   compact_index2 = MasterCompactIndex(compact_index2);
@@ -241,14 +254,42 @@ bool IndexMapBiDi::DeSerialize(bool swap, FILE *fp) {
   if (!tesseract::DeSerialize(swap, fp, remaining_pairs)) {
     return false;
   }
+  // The indices in the file are untrusted. Validate them before using them
+  // as subscripts, so that corrupt or crafted data is rejected instead of
+  // writing outside sparse_map_ (or leaving invalid compact indices behind).
+  // Each sparse slot may be claimed by at most one compact representative
+  // or one remaining pair, as in any map produced by Setup/CompleteMerges;
+  // duplicate claims would let a crafted file encode a master cycle that
+  // makes MasterCompactIndex loop forever.
+  const size_t sparse_size = static_cast<size_t>(sparse_size_);
+  std::vector<uint8_t> claimed(sparse_size, 0);
+  for (int32_t sparse_index : compact_map_) {
+    if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_size ||
+        claimed[sparse_index]) {
+      return false;
+    }
+    claimed[sparse_index] = 1;
+  }
+  if (remaining_pairs.size() % 2 != 0) {
+    return false;
+  }
+  for (size_t i = 0; i < remaining_pairs.size(); i += 2) {
+    const int32_t sparse_index = remaining_pairs[i];
+    const int32_t compact_index = remaining_pairs[i + 1];
+    if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_size ||
+        compact_index < 0 || static_cast<size_t>(compact_index) >= compact_map_.size() ||
+        claimed[sparse_index]) {
+      return false;
+    }
+    claimed[sparse_index] = 1;
+  }
   sparse_map_.clear();
-  sparse_map_.resize(sparse_size_, -1);
+  sparse_map_.resize(sparse_size, -1);
   for (unsigned i = 0; i < compact_map_.size(); ++i) {
     sparse_map_[compact_map_[i]] = i;
   }
-  for (size_t i = 0; i < remaining_pairs.size(); ++i) {
-    int sparse_index = remaining_pairs[i++];
-    sparse_map_[sparse_index] = remaining_pairs[i];
+  for (size_t i = 0; i < remaining_pairs.size(); i += 2) {
+    sparse_map_[remaining_pairs[i]] = remaining_pairs[i + 1];
   }
   return true;
 }
@@ -264,7 +305,13 @@ int IndexMapBiDi::MapFeatures(const std::vector<int> &sparse, std::vector<int> *
   int missed_features = 0;
   int prev_good_feature = -1;
   for (int f = 0; f < num_features; ++f) {
-    int feature = sparse_map_[sparse[f]];
+    const int sparse_index = sparse[f];
+    if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_map_.size()) {
+      // A feature outside the sparse space cannot map to the compact space.
+      ++missed_features;
+      continue;
+    }
+    int feature = sparse_map_[sparse_index];
     if (feature >= 0) {
       if (feature != prev_good_feature) {
         compact->push_back(feature);

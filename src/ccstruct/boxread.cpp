@@ -19,7 +19,6 @@
 #include "boxread.h"
 
 #include "errcode.h" // for ERRCODE, TESSEXIT
-#include "fileerr.h" // for CANTOPENFILE
 #include "rect.h"    // for TBOX
 #include "tprintf.h" // for tprintf
 
@@ -32,8 +31,11 @@
 #include <locale>  // for std::locale::classic
 #include <sstream> // for std::stringstream
 #include <string>  // for std::string
+#include <utility> // for std::move
 
 namespace tesseract {
+
+constexpr ERRCODE CANTOPENFILE("Can't open file");
 
 // Special char code used to identify multi-blob labels.
 static const char *kMultiBlobLabelCode = "WordStr";
@@ -129,7 +131,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char *box_data, bool 
     if (box_texts != nullptr) {
       std::string full_text;
       MakeBoxFileStr(utf8_str.c_str(), box, target_page, full_text);
-      box_texts->push_back(full_text);
+      box_texts->push_back(std::move(full_text));
     }
     if (pages != nullptr) {
       pages->push_back(page);

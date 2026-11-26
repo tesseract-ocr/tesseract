@@ -65,6 +65,7 @@ public:
                 int bytes_per_line);
 
   /// Store the coordinates of the rectangle to process for later use.
+  /// The rectangle is clipped to the image, so it may end up empty.
   /// Doesn't actually do any thresholding.
   void SetRectangle(int left, int top, int width, int height);
 

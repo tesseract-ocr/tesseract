@@ -24,11 +24,10 @@
 #include "imagefind.h"
 
 #include "colpartitiongrid.h"
+#include "image.h"            // for Image
 #include "linlsq.h"
 #include "params.h"
 #include "statistc.h"
-
-#include <allheaders.h>
 
 #include <algorithm>
 
@@ -46,10 +45,6 @@ const double kMaxRectangularFraction = 0.75;
 const double kMaxRectangularGradient = 0.1; // About 6 degrees.
 // Minimum image size to be worth looking for images on.
 const int kMinImageFindSize = 100;
-// Pixel padding for noise blobs and partitions when rendering on the image
-// mask to encourage them to join together. Make it too big and images
-// will fatten out too much and have to be clipped to text.
-const int kNoisePadding = 4;
 
 // Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
 // stepping y+=y_step, until y=y_end. *ystart is input/output.
@@ -67,7 +62,7 @@ static bool HScanForEdge(uint32_t *data, int wpl, int x_start, int x_end, int mi
     int pix_count = 0;
     uint32_t *line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x)) {
+      if (Image::getDataBit(line, x)) {
         ++pix_count;
       }
     }
@@ -102,7 +97,7 @@ static bool VScanForEdge(uint32_t *data, int wpl, int y_start, int y_end, int mi
     int pix_count = 0;
     uint32_t *line = data + y_start * wpl;
     for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x)) {
+      if (Image::getDataBit(line, x)) {
         ++pix_count;
       }
     }
@@ -1139,7 +1134,7 @@ static void DeleteSmallImages(ColPartitionGrid *part_grid) {
 // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
 // situation and collect the image blobs.
 void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
-                                    const FCOORD &rerotation, TO_BLOCK *block, TabFind *tab_grid,
+                                    const FCOORD &rerotation,
                                     DebugPixa *pixa_debug, ColPartitionGrid *part_grid,
                                     ColPartition_LIST *big_parts) {
   int imageheight = pixGetHeight(image_pix);

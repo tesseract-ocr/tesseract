@@ -24,6 +24,7 @@
 #include "unicharcompress.h"
 
 #include <algorithm> // for std::reverse
+#include <utility>   // for std::move
 
 namespace tesseract {
 
@@ -93,7 +94,7 @@ void RecodeBeamSearch::Decode(const NetworkIO &output, double dict_ratio,
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert,
                charset);
     if (lstm_choice_mode) {
-      SaveMostCertainChoices(output.f(t), output.NumFeatures(), charset, t);
+      SaveMostCertainChoices(output.f(t), output.NumFeatures(), charset);
     }
   }
 }
@@ -111,7 +112,7 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float> &output,
 
 void RecodeBeamSearch::DecodeSecondaryBeams(
     const NetworkIO &output, double dict_ratio, double cert_offset,
-    double worst_dict_cert, const UNICHARSET *charset, int lstm_choice_mode) {
+    double worst_dict_cert, const UNICHARSET *charset) {
   for (auto data : secondary_beam_) {
     delete data;
   }
@@ -135,8 +136,11 @@ void RecodeBeamSearch::DecodeSecondaryBeams(
 
 void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
                                               int num_outputs,
-                                              const UNICHARSET *charset,
-                                              int xCoord) {
+                                              const UNICHARSET *charset) {
+  // The outputs of a softmax add up to 1, so at most 100 of them can reach
+  // 0.01. A model whose last layer is not a softmax has no such limit, and
+  // without a cap the sorted insertion below is quadratic in num_outputs.
+  constexpr size_t kMaxChoices = 100;
   std::vector<std::pair<const char *, float>> choices;
   for (int i = 0; i < num_outputs; ++i) {
     if (outputs[i] >= 0.01f) {
@@ -154,11 +158,17 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float *outputs,
       while (choices.size() > pos && choices[pos].second > outputs[i]) {
         pos++;
       }
+      if (pos >= kMaxChoices) {
+        continue; // less likely than the kMaxChoices choices already kept
+      }
       choices.insert(choices.begin() + pos,
                      std::pair<const char *, float>(character, outputs[i]));
+      if (choices.size() > kMaxChoices) {
+        choices.pop_back();
+      }
     }
   }
-  timesteps.push_back(choices);
+  timesteps.push_back(std::move(choices));
 }
 
 void RecodeBeamSearch::segmentTimestepsByCharacters() {
@@ -168,7 +178,7 @@ void RecodeBeamSearch::segmentTimestepsByCharacters() {
          ++j) {
       segment.push_back(timesteps[j]);
     }
-    segmentedTimesteps.push_back(segment);
+    segmentedTimesteps.push_back(std::move(segment));
   }
 }
 std::vector<std::vector<std::pair<const char *, float>>>
@@ -239,8 +249,7 @@ void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
 void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box,
                                               float scale_factor, bool debug,
                                               const UNICHARSET *unicharset,
-                                              PointerVector<WERD_RES> *words,
-                                              int lstm_choice_mode) {
+                                              PointerVector<WERD_RES> *words) {
   words->truncate(0);
   std::vector<int> unichar_ids;
   std::vector<float> certs;
@@ -299,7 +308,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX &line_box,
     WERD_RES *word_res =
         InitializeWord(leading_space, line_box, word_start, word_end,
                        std::min(space_cert, prev_space_cert), unicharset,
-                       xcoords, scale_factor);
+                       scale_factor);
     for (int i = word_start; i < word_end; ++i) {
       auto *choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);
@@ -327,7 +336,7 @@ struct greater_than {
   }
 };
 
-void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
+void RecodeBeamSearch::PrintBeam2(bool uids,
                                   const UNICHARSET *charset,
                                   bool secondary) const {
   std::vector<std::vector<const RecodeNode *>> topology;
@@ -336,7 +345,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
   // create the topology
   for (int step = beam.size() - 1; step >= 0; --step) {
     std::vector<const RecodeNode *> layer;
-    topology.push_back(layer);
+    topology.push_back(std::move(layer));
   }
   // fill the topology with depths first
   for (int step = beam.size() - 1; step >= 0; --step) {
@@ -477,7 +486,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
           excludedUnichars[j - 1].insert(elem);
         }
       } else {
-        excludedUnichars.push_back(excludeCodeList);
+        excludedUnichars.push_back(std::move(excludeCodeList));
       }
       // Save the best choice for the choice iterator.
       if (j - 1 < ctc_choices.size()) {
@@ -492,17 +501,17 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET *unicharset) {
         const char *result = unicharset->id_to_unichar_ext(id);
         float rating = ratings[bestPos];
         choice.emplace_back(result, rating);
-        ctc_choices.push_back(choice);
+        ctc_choices.push_back(std::move(choice));
       }
       // fill the blank spot with an empty array
     } else {
       if (j - 1 >= excludedUnichars.size()) {
         std::unordered_set<int> excludeCodeList;
-        excludedUnichars.push_back(excludeCodeList);
+        excludedUnichars.push_back(std::move(excludeCodeList));
       }
       if (j - 1 >= ctc_choices.size()) {
         std::vector<std::pair<const char *, float>> choice;
-        ctc_choices.push_back(choice);
+        ctc_choices.push_back(std::move(choice));
       }
     }
   }
@@ -637,7 +646,6 @@ WERD_RES *RecodeBeamSearch::InitializeWord(bool leading_space,
                                            const TBOX &line_box, int word_start,
                                            int word_end, float space_certainty,
                                            const UNICHARSET *unicharset,
-                                           const std::vector<int> &xcoords,
                                            float scale_factor) {
   // Make a fake blob for each non-zero label.
   C_BLOB_LIST blobs;
@@ -901,6 +909,15 @@ void RecodeBeamSearch::ContinueContext(
   for (int p = length - 1; p >= 0 && previous != nullptr; --p) {
     while (previous->duplicate || previous->code == null_char_) {
       previous = previous->prev;
+      if (previous == nullptr) {
+        break;
+      }
+    }
+    if (previous == nullptr) {
+      // The beam entry has fewer than length codes in its history, so the
+      // prefix cannot be reconstructed reliably. Drop this continuation
+      // rather than using partially initialized prefix/full_code entries.
+      return;
     }
     prefix.Set(p, previous->code);
     full_code.Set(p, previous->code);
@@ -1112,6 +1129,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
     dawg_args.active_dawgs = uni_prev->dawgs;
     word_start = uni_prev->start_of_dawg;
   } else {
+    delete updated_dawgs;
     return; // Can't continue if not a dict word.
   }
   auto permuter = static_cast<PermuterType>(dict_->def_letter_is_okay(

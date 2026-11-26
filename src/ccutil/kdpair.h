@@ -99,12 +99,12 @@ struct KDPairDec : public KDPair<Key, Data> {
 template <typename Key, typename Data>
 class KDPtrPair {
 public:
-  KDPtrPair() : data_(nullptr) {}
+  KDPtrPair() : data_(nullptr), key_{} {}
   KDPtrPair(Key k, Data *d) : data_(d), key_(k) {}
   // Copy constructor steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
   KDPtrPair(const KDPtrPair &src) : data_(src.data_), key_(src.key_) {
-    ((KDPtrPair &)src).data_ = nullptr;
+    const_cast<KDPtrPair &>(src).data_ = nullptr;
   }
   // Destructor deletes data, assuming it is the sole owner.
   ~KDPtrPair() {
@@ -116,7 +116,7 @@ public:
   void operator=(const KDPtrPair &src) {
     delete this->data_;
     this->data_ = src.data_;
-    ((KDPtrPair &)src).data_ = nullptr;
+    const_cast<KDPtrPair &>(src).data_ = nullptr;
     this->key_ = src.key_;
   }
 

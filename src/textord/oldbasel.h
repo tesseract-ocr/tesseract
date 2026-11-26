@@ -89,8 +89,6 @@ int partition_coords(  // find relevant coords
     int ycoords[]      /*points to work on */
 );
 int segment_spline(             // make xstarts
-    TBOX blobcoords[],          // boundign boxes
-    int blobcount,              /*no of blobs in row */
     int xcoords[],              /*points to work on */
     int ycoords[],              /*points to work on */
     int degree, int pointcount, /*no of points */
@@ -134,8 +132,7 @@ void make_first_xheight( // find xheight
     int lineheight,      // initial guess
     int init_lineheight, // block level guess
     int blobcount,       /*blobs in blobcoords */
-    QSPLINE *baseline,   /*established */
-    float jumplimit      /*min ascender height */
+    QSPLINE *baseline    // established
 );
 
 int *make_height_array( // get array of heights

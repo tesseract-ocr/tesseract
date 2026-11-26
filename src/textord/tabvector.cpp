@@ -634,7 +634,7 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
     int tab_x = XAtY(mid_y);
     int gutter_width;
     int neighbour_gap;
-    finder->GutterWidthAndNeighbourGap(tab_x, mean_height, max_gutter, left, bbox, &gutter_width,
+    finder->GutterWidthAndNeighbourGap(tab_x, max_gutter, left, bbox, &gutter_width,
                                        &neighbour_gap);
     if (debug) {
       tprintf("Box (%d,%d)->(%d,%d) has gutter %d, ndist %d\n", box.left(), box.bottom(),
@@ -704,7 +704,7 @@ void TabVector::Evaluate(const ICOORD &vertical, TabFind *finder) {
       }
       int gutter_width;
       int neighbour_gap;
-      finder->GutterWidthAndNeighbourGap(tab_x, mean_height, max_gutter, left, bbox, &gutter_width,
+      finder->GutterWidthAndNeighbourGap(tab_x, max_gutter, left, bbox, &gutter_width,
                                          &neighbour_gap);
       // Now we can make the test.
       if (gutter_width >= median_gutter * kMinGutterFraction) {

@@ -83,7 +83,7 @@ public:
   /* static */
   static Image PrepareLSTMInputs(const ImageData &image_data,
                                  const Network *network, int min_width,
-                                 TRand *randomizer, float *image_scale);
+                                 float *image_scale);
   // Converts the given pix to a NetworkIO of height and depth appropriate to
   // the given StaticShape:
   // If depth == 3, convert to 24 bit color, otherwise normalized grey.

@@ -109,6 +109,9 @@ bool TessdataManager::Init(const char *data_file_name) {
 // Loads from the given memory buffer as if a file.
 bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size) {
   // TODO: This method supports only the proprietary file format.
+  if (size < 0) {
+    return false;
+  }
   Clear();
   data_file_name_ = name;
   TFile fp;
@@ -132,16 +135,25 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data, int size
   }
   for (unsigned i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {
     if (offset_table[i] >= 0) {
+      if (offset_table[i] > size) {
+        return false;
+      }
       int64_t entry_size = size - offset_table[i];
       unsigned j = i + 1;
       while (j < num_entries && offset_table[j] == -1) {
         ++j;
       }
       if (j < num_entries) {
+        if (offset_table[j] < 0 || offset_table[j] > size) {
+          return false;
+        }
         entry_size = offset_table[j] - offset_table[i];
       }
+      if (entry_size < 0) {
+        return false;
+      }
       entries_[i].resize(entry_size);
-      if (!fp.DeSerialize(&entries_[i][0], entry_size)) {
+      if (entry_size > 0 && !fp.DeSerialize(&entries_[i][0], entry_size)) {
         return false;
       }
     }

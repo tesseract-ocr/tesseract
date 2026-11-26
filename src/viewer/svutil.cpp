@@ -26,6 +26,7 @@
 
 #include "svutil.h"
 
+#include <cerrno> // for errno
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -109,6 +110,9 @@ void SVSync::StartProcess(const char *executable, const char *args) {
     }
     argv[argc] = nullptr;
     execvp(executable, argv.get());
+    // execvp returns only if execution failed.
+    perror(executable);
+    _exit(EXIT_FAILURE);
   }
 #  endif
 }
@@ -134,7 +138,7 @@ SVSemaphore::~SVSemaphore() {
 #  elif defined(__APPLE__)
   sem_close(semaphore_);
 #  else
-  sem_close(&semaphore_);
+  sem_destroy(&semaphore_);
 #  endif
 }
 
@@ -168,8 +172,23 @@ void SVNetwork::Send(const char *msg) {
 void SVNetwork::Flush() {
   std::lock_guard<std::mutex> guard(mutex_send_);
   while (!msg_buffer_out_.empty()) {
-    int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
-    msg_buffer_out_.erase(0, i);
+    int i =
+        send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
+
+    if (i < 0) {
+#ifndef _WIN32
+      if (errno == EINTR) {
+        continue;
+      }
+#endif
+      break;
+    }
+
+    if (i == 0) {
+      break;
+    }
+
+    msg_buffer_out_.erase(0, static_cast<std::string::size_type>(i));
   }
 }
 
@@ -344,7 +363,9 @@ SVNetwork::SVNetwork(const char *hostname, int port) {
 #  ifdef _WIN32
   // WSACleanup();  // This cause ScrollView windows is not displayed
 #  endif // _WIN32
-  freeaddrinfo(addr_info);
+  if (addr_info != nullptr) {
+    freeaddrinfo(addr_info);
+  }
 }
 
 SVNetwork::~SVNetwork() {

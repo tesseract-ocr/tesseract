@@ -28,7 +28,6 @@
 #include <string>
 #include "lstmtrainer.h"
 
-#include <allheaders.h>
 #include "boxread.h"
 #include "ctc.h"
 #include "imagedata.h"
@@ -183,7 +182,7 @@ bool LSTMTrainer::InitNetwork(const char *network_spec, int append_index,
   return true;
 }
 
-// Resets all the iteration counters for fine tuning or traininng a head,
+// Resets all the iteration counters for fine tuning or training a head,
 // where we want the error reporting to reset.
 void LSTMTrainer::InitIterations() {
   sample_iteration_ = 0;
@@ -208,6 +207,14 @@ void LSTMTrainer::InitIterations() {
     error_rates_[i] = 100.0;
   }
   error_rate_of_last_saved_best_ = kMinStartedErrorRate;
+  // The models which a checkpoint keeps for the evaluation and for the
+  // sub-trainer belong to the old counters. They must not be used any more:
+  // after a change of the character set (--old_traineddata) they even have
+  // another number of outputs than the new recoder, and evaluating them made
+  // ComputeCharError write beyond its array of label counts.
+  best_model_data_.clear();
+  worst_model_data_.clear();
+  best_trainer_.clear();
 }
 
 // If the training sample is usable, grid searches for the optimal
@@ -794,7 +801,7 @@ bool LSTMTrainer::EncodeString(const std::string &str,
                                const UNICHARSET &unicharset,
                                const UnicharCompress *recoder, bool simple_text,
                                int null_char, std::vector<int> *labels) {
-  if (str.c_str() == nullptr || str.length() <= 0) {
+  if (str.empty()) {
     tprintf("Empty truth string!\n");
     return false;
   }
@@ -934,7 +941,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   targets->Resize(*fwd_outputs, network_->NumOutputs());
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
-    if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
+    if (!ComputeTextTargets(truth_labels, targets)) {
       tprintf("Compute simple targets failed for %s!\n",
               trainingdata->imagefilename().c_str());
       return UNENCODABLE;
@@ -956,8 +963,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData *trainingdata,
   if (loss_type != LT_CTC) {
     LabelsFromOutputs(*targets, &truth_labels, &xcoords);
   }
-  if (!DebugLSTMTraining(inputs, *trainingdata, *fwd_outputs, truth_labels,
-                         *targets)) {
+  if (!DebugLSTMTraining(inputs, *fwd_outputs, truth_labels, *targets)) {
     tprintf("Input width was %d\n", inputs.Width());
     return UNENCODABLE;
   }
@@ -1132,12 +1138,11 @@ void LSTMTrainer::EmptyConstructor() {
 // corresponding x_starts.
 // Returns false if the truth string is empty.
 bool LSTMTrainer::DebugLSTMTraining(const NetworkIO &inputs,
-                                    const ImageData &trainingdata,
                                     const NetworkIO &fwd_outputs,
                                     const std::vector<int> &truth_labels,
                                     const NetworkIO &outputs) {
   const std::string &truth_text = DecodeLabels(truth_labels);
-  if (truth_text.c_str() == nullptr || truth_text.length() <= 0) {
+  if (truth_text.empty()) {
     tprintf("Empty truth string at decode time!\n");
     return false;
   }
@@ -1209,8 +1214,7 @@ void LSTMTrainer::DisplayTargets(const NetworkIO &targets,
 
 // Builds a no-compromises target where the first positions should be the
 // truth labels and the rest is padded with the null_char_.
-bool LSTMTrainer::ComputeTextTargets(const NetworkIO &outputs,
-                                     const std::vector<int> &truth_labels,
+bool LSTMTrainer::ComputeTextTargets(const std::vector<int> &truth_labels,
                                      NetworkIO *targets) {
   if (truth_labels.size() > targets->Width()) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",

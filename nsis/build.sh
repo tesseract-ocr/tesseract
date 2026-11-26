@@ -2,7 +2,7 @@
 
 # GitHub actions - Create Tesseract installer for Windows
 
-# Author: Stefan Weil (2010-2024)
+# Author: Stefan Weil (2010-2026)
 
 set -e
 set -x
@@ -19,16 +19,15 @@ else
 fi
 
 ROOTDIR=$PWD
-DISTDIR=$ROOTDIR/dist
 HOST=$ARCH-w64-mingw32
 TAG=$(cat VERSION).$(date +%Y%m%d)
-BUILDDIR=bin/ndebug/$HOST-$TAG
+BUILDDIR=bin/ndebug/$HOST
 PKG_ARCH=mingw-w64-${ARCH/_/-}
 
 # Install packages.
 sudo apt-get update --quiet
 sudo apt-get install --assume-yes --no-install-recommends --quiet \
-  asciidoc curl xsltproc docbook-xml docbook-xsl \
+  asciidoctor ruby-asciidoctor-pdf curl \
   automake dpkg-dev libtool pkg-config default-jdk-headless \
   mingw-w64-tools nsis g++-"$PKG_ARCH" \
   makepkg pacman-package-manager python3-venv unzip
@@ -95,7 +94,9 @@ export PKG_CONFIG_PATH
   CXXFLAGS="-fno-math-errno -Wall -Wextra -Wpedantic -g -O2 -isystem $MINGW/include" \
   LDFLAGS="-L$MINGW/lib"
 
-make all training
+make all -j$(nproc)
+make training -j$(nproc)
+
 MINGW_INSTALL=${PWD}${MINGW}
 make install-jars install training-install html prefix="$MINGW_INSTALL" INSTALL_STRIP_FLAG=-s
 test -d venv || python3 -m venv venv
@@ -106,6 +107,3 @@ ln -sv $("$ROOTDIR/nsis/find_deps.py" "$MINGW_INSTALL"/bin/*.exe "$MINGW_INSTALL
 ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libstdc++-6.dll dll/
 ln -svf /usr/lib/gcc/x86_64-w64-mingw32/*-win32/libgcc_s_seh-1.dll dll/
 make winsetup prefix="$MINGW_INSTALL"
-
-# Copy result for upload.
-mkdir -p "$DISTDIR" && cp nsis/tesseract-ocr-w*-setup-*.exe "$DISTDIR"

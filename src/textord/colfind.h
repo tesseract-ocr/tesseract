@@ -144,8 +144,6 @@ public:
   // removed and placed in the output blocks, while unused ones will be deleted.
   // If single_column is true, the input is treated as single column, but
   // it is still divided into blocks of equal line spacing/text size.
-  // scaled_color is scaled down by scaled_factor from the input color image,
-  // and may be nullptr if the input was not color.
   // grey_pix is optional, but if present must match the photo_mask_pix in size,
   // and must be a *real* grey image instead of binary_pix * 255.
   // thresholds_pix is expected to be present iff grey_pix is present and
@@ -156,7 +154,7 @@ public:
   // appropriate word after the rest of layout analysis.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(PageSegMode pageseg_mode, Image scaled_color, int scaled_factor, TO_BLOCK *block,
+  int FindBlocks(PageSegMode pageseg_mode, TO_BLOCK *block,
                  Image photo_mask_pix, Image thresholds_pix, Image grey_pix, DebugPixa *pixa_debug,
                  BLOCK_LIST *blocks, BLOBNBOX_LIST *diacritic_blobs, TO_BLOCK_LIST *to_blocks);
 
@@ -171,7 +169,7 @@ private:
   void DisplayBlocks(BLOCK_LIST *blocks);
   // Displays the column edges at each grid y coordinate defined by
   // best_columns_.
-  void DisplayColumnBounds(PartSetVector *sets);
+  void DisplayColumnBounds();
 
   ////// Functions involved in determining the columns used on the page. /////
 

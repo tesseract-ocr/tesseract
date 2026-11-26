@@ -99,7 +99,7 @@ public:
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
   virtual int DisplayClassifyAs(const TrainingSample &sample, Image page_pix, UNICHAR_ID unichar_id,
-                                int index, std::vector<ScrollView *> &windows);
+                                int index);
 
   // Prints debug information on the results. context is some introductory/title
   // message.

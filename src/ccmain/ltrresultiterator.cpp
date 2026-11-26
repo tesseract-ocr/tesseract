@@ -19,11 +19,10 @@
 
 #include <tesseract/ltrresultiterator.h>
 
+#include "fontinfo.h" // for FontInfo
 #include "helpers.h"  // for copy_string
 #include "pageres.h"
 #include "tesseractclass.h"
-
-#include <allheaders.h>
 
 namespace tesseract {
 
@@ -49,9 +48,15 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   std::string text;
   PAGE_RES_IT res_it(*it_);
   WERD_CHOICE *best_choice = res_it.word()->best_choice;
-  ASSERT_HOST(best_choice != nullptr);
+  if ((level == RIL_WORD || level == RIL_SYMBOL) && best_choice == nullptr) {
+    return nullptr; // No recognition results available
+  }
   if (level == RIL_SYMBOL) {
-    text = res_it.word()->BestUTF8(blob_index_, false);
+    const char *utf8 = res_it.word()->BestUTF8(blob_index_, false);
+    if (utf8 == nullptr) {
+      return nullptr;
+    }
+    text = utf8;
   } else if (level == RIL_WORD) {
     text = best_choice->unichar_string();
   } else {
@@ -59,15 +64,23 @@ char *LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
     bool eop = false; // end of paragraph?
     do {              // for each paragraph in a block
       do {            // for each text line in a paragraph
+        const auto line_start = text.length();
         do {          // for each word in a text line
           best_choice = res_it.word()->best_choice;
-          ASSERT_HOST(best_choice != nullptr);
+          if (best_choice == nullptr) {
+            res_it.forward();
+            eol = res_it.row() != res_it.prev_row();
+            continue; // Skip words without recognition results.
+          }
           text += best_choice->unichar_string();
           text += " ";
           res_it.forward();
           eol = res_it.row() != res_it.prev_row();
         } while (!eol);
-        text.resize(text.length() - 1);
+        if (text.length() > line_start) {
+          // Remove the space after the last word of the text line.
+          text.resize(text.length() - 1);
+        }
         text += line_separator_;
         eop = res_it.block() != res_it.prev_block() ||
               res_it.row()->row->para() != res_it.prev_row()->row->para();
@@ -104,16 +117,20 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
     case RIL_BLOCK:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.block() == res_it.prev_block());
       break;
     case RIL_PARA:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.block() == res_it.prev_block() &&
                res_it.row()->row->para() == res_it.prev_row()->row->para());
@@ -121,20 +138,26 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
     case RIL_TEXTLINE:
       do {
         best_choice = res_it.word()->best_choice;
-        mean_certainty += best_choice->certainty();
-        ++certainty_count;
+        if (best_choice != nullptr) {
+          mean_certainty += best_choice->certainty();
+          ++certainty_count;
+        }
         res_it.forward();
       } while (res_it.row() == res_it.prev_row());
       break;
     case RIL_WORD:
       best_choice = res_it.word()->best_choice;
-      mean_certainty = best_choice->certainty();
-      certainty_count = 1;
+      if (best_choice != nullptr) {
+        mean_certainty = best_choice->certainty();
+        certainty_count = 1;
+      }
       break;
     case RIL_SYMBOL:
       best_choice = res_it.word()->best_choice;
-      mean_certainty = best_choice->certainty(blob_index_);
-      certainty_count = 1;
+      if (best_choice != nullptr) {
+        mean_certainty = best_choice->certainty(blob_index_);
+        certainty_count = 1;
+      }
   }
   if (certainty_count > 0) {
     mean_certainty /= certainty_count;
@@ -150,12 +173,17 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
 // to an internal table and SHOULD NOT BE DELETED. Lifespan is the same as
 // the iterator itself, ie rendered invalid by various members of
 // TessBaseAPI, including Init, SetImage, End or deleting the TessBaseAPI.
+// The return value is nullptr if the font name is not known. The attributes
+// can be set nevertheless: with the parameter lstm_font_attributes, bold
+// and italic are estimated for words recognized by LSTM, which have no font
+// name and the font_id -1.
 // Pointsize is returned in printers points (1/72 inch.)
 const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic,
                                                   bool *is_underlined, bool *is_monospace,
                                                   bool *is_serif, bool *is_smallcaps,
                                                   int *pointsize, int *font_id) const {
   const char *result = nullptr;
+  const FontInfo *font_info = nullptr;
 
   if (it_->word() == nullptr) {
     // Already at the end!
@@ -167,10 +195,10 @@ const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic
     *pointsize =
         scaled_yres_ > 0 ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5) : 0;
 
-#ifndef DISABLED_LEGACY_ENGINE
-    const FontInfo *font_info = it_->word()->fontinfo;
+    font_info = it_->word()->fontinfo;
     if (font_info) {
-      // Font information available.
+      // Font information available. The font has no name if the attributes
+      // come from an estimation instead of from a font classifier.
       *font_id = font_info->universal_id;
       *is_bold = font_info->is_bold();
       *is_italic = font_info->is_italic();
@@ -179,12 +207,11 @@ const char *LTRResultIterator::WordFontAttributes(bool *is_bold, bool *is_italic
       *is_serif = font_info->is_serif();
       result = font_info->name;
     }
-#endif // ndef DISABLED_LEGACY_ENGINE
 
     *is_smallcaps = it_->word()->small_caps;
   }
 
-  if (!result) {
+  if (!font_info) {
     *is_bold = false;
     *is_italic = false;
     *is_underlined = false;
@@ -226,8 +253,8 @@ StrongScriptDirection LTRResultIterator::WordDirection() const {
 
 // Returns true if the current word was found in a dictionary.
 bool LTRResultIterator::WordIsFromDictionary() const {
-  if (it_->word() == nullptr) {
-    return false; // Already at the end!
+  if (it_->word() == nullptr || it_->word()->best_choice == nullptr) {
+    return false; // Already at the end or no recognition results!
   }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == SYSTEM_DAWG_PERM || permuter == FREQ_DAWG_PERM || permuter == USER_DAWG_PERM;
@@ -243,8 +270,8 @@ int LTRResultIterator::BlanksBeforeWord() const {
 
 // Returns true if the current word is numeric.
 bool LTRResultIterator::WordIsNumeric() const {
-  if (it_->word() == nullptr) {
-    return false; // Already at the end!
+  if (it_->word() == nullptr || it_->word()->best_choice == nullptr) {
+    return false; // Already at the end or no recognition results!
   }
   int permuter = it_->word()->best_choice->permuter();
   return permuter == NUMBER_PERM;
@@ -315,8 +342,11 @@ char *LTRResultIterator::WordNormedUTF8Text() const {
   if (it_->word() == nullptr) {
     return nullptr; // Already at the end!
   }
-  std::string ocr_text;
   WERD_CHOICE *best_choice = it_->word()->best_choice;
+  if (best_choice == nullptr) {
+    return nullptr; // No recognition results available
+  }
+  std::string ocr_text;
   const UNICHARSET *unicharset = it_->word()->uch_set;
   for (unsigned i = 0; i < best_choice->length(); ++i) {
     ocr_text += unicharset->get_normed_unichar(best_choice->unichar_id(i));
@@ -341,7 +371,7 @@ const char *LTRResultIterator::WordLattice(int *lattice_size) const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSuperscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUPERSCRIPT;
   }
   return false;
@@ -351,7 +381,7 @@ bool LTRResultIterator::SymbolIsSuperscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSubscript() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUBSCRIPT;
   }
   return false;
@@ -361,7 +391,7 @@ bool LTRResultIterator::SymbolIsSubscript() const {
 // If iterating at a higher level object than symbols, eg words, then
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsDropcap() const {
-  if (cblob_it_ == nullptr && it_->word() != nullptr) {
+  if (cblob_it_ == nullptr && it_->word() != nullptr && it_->word()->best_choice != nullptr) {
     return it_->word()->best_choice->BlobPosition(blob_index_) == SP_DROPCAP;
   }
   return false;

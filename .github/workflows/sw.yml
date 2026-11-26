@@ -1,9 +1,10 @@
 name: sw
 
 on:
+  workflow_dispatch:
   schedule:
-    # every 3rd day
-    - cron: 0 0 */3 * *
+    # every Wednesday
+    - cron: 0 0 * * 3
 
 jobs:
   build:
@@ -22,7 +23,7 @@ jobs:
       if: matrix.os == 'ubuntu-22.04'
       run: sudo dnf -y install cmake gcc lld which flex bison clang clang-tools-extra git
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - uses: egorpugin/sw-action@master

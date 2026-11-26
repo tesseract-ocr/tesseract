@@ -26,6 +26,7 @@
 #include "ccstruct.h"
 #include "detlinefit.h"
 #include "drawtord.h"
+#include "helpers.h" // for ClipToRange
 #include "makerow.h"
 #include "quadlsq.h"
 #include "statistc.h"
@@ -77,7 +78,6 @@ static double_VAR(textord_oldbl_jumplimit, 0.15, "X fraction for new partition")
  **********************************************************************/
 
 void Textord::make_old_baselines(TO_BLOCK *block, // block to do
-                                 bool testing_on, // correct orientation
                                  float gradient) {
   QSPLINE *prev_baseline; // baseline of previous row
   TO_ROW *row;            // current row
@@ -143,7 +143,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
       block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
     }
     if (block->xheight < textord_min_xheight) {
-      block->xheight = (float)textord_min_xheight;
+      block->xheight = static_cast<float>(textord_min_xheight);
     }
   } else {
     compute_block_xheight(block, gradient);
@@ -378,7 +378,7 @@ void Textord::find_textlines(TO_BLOCK *block,   // block row is in
                               &row->baseline, jumplimit, &ydiffs[0]);
     pointcount = partition_coords(&blobcoords[0], blobcount, &partids[0], bestpart, &xcoords[0],
                                   &ycoords[0]);
-    segments = segment_spline(&blobcoords[0], blobcount, &xcoords[0], &ycoords[0], degree,
+    segments = segment_spline(&xcoords[0], &ycoords[0], degree,
                               pointcount, xstarts);
     if (!holed_line) {
       do {
@@ -400,7 +400,7 @@ void Textord::find_textlines(TO_BLOCK *block,   // block row is in
     old_first_xheight(row, &blobcoords[0], lineheight, blobcount, &row->baseline, jumplimit);
   } else if (textord_old_xheight) {
     make_first_xheight(row, &blobcoords[0], lineheight, static_cast<int>(block->line_size),
-                       blobcount, &row->baseline, jumplimit);
+                       blobcount, &row->baseline);
   } else {
     compute_row_xheight(row, block->block->classify_rotation(), row->line_m(), block->line_size);
   }
@@ -1004,8 +1004,6 @@ int partition_coords(  // find relevant coords
  **********************************************************************/
 
 int segment_spline(             // make xstarts
-    TBOX blobcoords[],          // boundign boxes
-    int blobcount,              /*no of blobs in row */
     int xcoords[],              /*points to work on */
     int ycoords[],              /*points to work on */
     int degree, int pointcount, /*no of points */
@@ -1149,6 +1147,10 @@ bool split_stepped_spline( // make xstarts
   float leftcoord, rightcoord;
   int leftindex, rightindex;
   float step; // spline step
+  // The index arithmetic below keeps leftindex - 1 and rightindex - 1 inside
+  // startindex..endindex only if the window is at least 4, and the window
+  // has to be small enough to be multiplied by 3.
+  const int medianwin = ClipToRange<int>(textord_spline_medianwin, 4, INT16_MAX);
 
   doneany = false;
   startindex = 0;
@@ -1174,11 +1176,11 @@ bool split_stepped_spline( // make xstarts
         if (textord_debug_baselines) {
           tprintf("Too many segments to resegment spline!!\n");
         }
-      } else if (endindex - startindex >= textord_spline_medianwin * 3) {
-        while (centreindex - startindex < textord_spline_medianwin * 3 / 2) {
+      } else if (endindex - startindex >= medianwin * 3) {
+        while (centreindex - startindex < medianwin * 3 / 2) {
           centreindex++;
         }
-        while (endindex - centreindex < textord_spline_medianwin * 3 / 2) {
+        while (endindex - centreindex < medianwin * 3 / 2) {
           centreindex--;
         }
         leftindex = (startindex + startindex + centreindex) / 3;
@@ -1186,22 +1188,22 @@ bool split_stepped_spline( // make xstarts
         leftcoord = (xcoords[startindex] * 2 + xcoords[centreindex]) / 3.0;
         rightcoord = (xcoords[centreindex] + xcoords[endindex] * 2) / 3.0;
         while (xcoords[leftindex] > leftcoord &&
-               leftindex - startindex > textord_spline_medianwin) {
+               leftindex - startindex > medianwin) {
           leftindex--;
         }
         while (xcoords[leftindex] < leftcoord &&
-               centreindex - leftindex > textord_spline_medianwin / 2) {
+               centreindex - leftindex > medianwin / 2) {
           leftindex++;
         }
         if (xcoords[leftindex] - leftcoord > leftcoord - xcoords[leftindex - 1]) {
           leftindex--;
         }
         while (xcoords[rightindex] > rightcoord &&
-               rightindex - centreindex > textord_spline_medianwin / 2) {
+               rightindex - centreindex > medianwin / 2) {
           rightindex--;
         }
         while (xcoords[rightindex] < rightcoord &&
-               endindex - rightindex > textord_spline_medianwin) {
+               endindex - rightindex > medianwin) {
           rightindex++;
         }
         if (xcoords[rightindex] - rightcoord > rightcoord - xcoords[rightindex - 1]) {
@@ -1219,7 +1221,7 @@ bool split_stepped_spline( // make xstarts
         doneany = true;
       } else if (textord_debug_baselines) {
         tprintf("Resegmenting spline failed - insufficient pts (%d,%d,%d,%d)\n", startindex,
-                centreindex, endindex, (int32_t)textord_spline_medianwin);
+                centreindex, endindex, medianwin);
       }
     }
     //              else tprintf("Spline step at %d is %g\n",
@@ -1424,8 +1426,7 @@ void make_first_xheight( // find xheight
     int lineheight,      // initial guess
     int init_lineheight, // block level guess
     int blobcount,       /*blobs in blobcoords */
-    QSPLINE *baseline,   /*established */
-    float jumplimit      /*min ascender height */
+    QSPLINE *baseline    // established
 ) {
   STATS heightstat(0, HEIGHTBUCKETS - 1);
   int lefts[HEIGHTBUCKETS];

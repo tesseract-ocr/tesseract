@@ -13,12 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-arm-14-clang-unittest, os: macos-14, cxx: clang++ } # Apple silicon
+          - { name: macos-arm-15-clang-unittest, os: macos-15, cxx: clang++ } # Apple silicon
           - { name: macos-latest-clang-unittest, os: macos-latest, cxx: clang++ }
           - { name: macos-latest-gcc-unittest, os: macos-latest, cxx: g++ }
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
 

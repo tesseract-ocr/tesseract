@@ -100,7 +100,6 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST *real_rows) {
 void make_words(tesseract::Textord *textord,
                 ICOORD page_tr,               // top right
                 float gradient,               // page skew
-                BLOCK_LIST *blocks,           // block list
                 TO_BLOCK_LIST *port_blocks) { // output list
   TO_BLOCK_IT block_it;                       // iterator
   TO_BLOCK *block;                            // current block
@@ -108,14 +107,14 @@ void make_words(tesseract::Textord *textord,
   if (textord->use_cjk_fp_model()) {
     compute_fixed_pitch_cjk(page_tr, port_blocks);
   } else {
-    compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD(0.0f, -1.0f),
+    compute_fixed_pitch(page_tr, port_blocks, gradient,
                         !bool(textord_test_landscape));
   }
-  textord->to_spacing(page_tr, port_blocks);
+  textord->to_spacing(port_blocks);
   block_it.set_to_list(port_blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     block = block_it.data();
-    make_real_words(textord, block, FCOORD(1.0f, 0.0f));
+    make_real_words(textord, block);
   }
 }
 
@@ -128,7 +127,6 @@ void make_words(tesseract::Textord *textord,
 
 void set_row_spaces( // find space sizes
     TO_BLOCK *block, // block to do
-    FCOORD rotation, // for drawing
     bool testing_on  // correct orientation
 ) {
   TO_ROW *row; // current row
@@ -170,7 +168,6 @@ int32_t row_words(    // compute space size
     TO_BLOCK *block,  // block it came from
     TO_ROW *row,      // row to operate on
     int32_t maxwidth, // max expected space size
-    FCOORD rotation,  // for drawing
     bool testing_on   // for debug
 ) {
   bool testing_row;      // contains testpt
@@ -323,7 +320,6 @@ int32_t row_words2(   // compute space size
     TO_BLOCK *block,  // block it came from
     TO_ROW *row,      // row to operate on
     int32_t maxwidth, // max expected space size
-    FCOORD rotation,  // for drawing
     bool testing_on   // for debug
 ) {
   bool prev_valid;       // if decent size
@@ -472,8 +468,7 @@ int32_t row_words2(   // compute space size
  */
 
 void make_real_words(tesseract::Textord *textord,
-                     TO_BLOCK *block, // block to do
-                     FCOORD rotation  // for drawing
+                     TO_BLOCK *block // block to do
 ) {
   TO_ROW *row; // current row
   TO_ROW_IT row_it = block->get_rows();
@@ -495,13 +490,13 @@ void make_real_words(tesseract::Textord *textord,
       // with force_make_prop_words flag.
       POLY_BLOCK *pb = block->block->pdblk.poly_block();
       if (textord_chopper_test) {
-        real_row = textord->make_blob_words(row, rotation);
+        real_row = textord->make_blob_words(row);
       } else if (textord_force_make_prop_words || (pb != nullptr && !pb->IsText()) ||
                  row->pitch_decision == PITCH_DEF_PROP || row->pitch_decision == PITCH_CORR_PROP) {
-        real_row = textord->make_prop_words(row, rotation);
+        real_row = textord->make_prop_words(row);
       } else if (row->pitch_decision == PITCH_DEF_FIXED ||
                  row->pitch_decision == PITCH_CORR_FIXED) {
-        real_row = fixed_pitch_words(row, rotation);
+        real_row = fixed_pitch_words(row);
       } else {
         ASSERT_HOST(false);
       }

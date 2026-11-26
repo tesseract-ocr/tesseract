@@ -8,18 +8,13 @@ endif()
 # Include build optimizations
 include(BuildOptimizations)
 
-if(SW_BUILD)
-  set(ICU_FOUND 1)
-else() # NOT SW_BUILD
-  find_package(PkgConfig)
-endif()
+find_package(PkgConfig)
 
 # experimental
 # If PkgConfig is not present training tools will not be build,
 # so it does not make sense to set ICU.
 if(MSVC
    AND PKG_CONFIG_FOUND
-   AND NOT SW_BUILD
    AND NOT USE_SYSTEM_ICU)
   include(CheckTypeSize)
   check_type_size("void *" SIZEOF_VOID_P)
@@ -67,18 +62,16 @@ if(MSVC
 endif()
 # experimental
 
-if(NOT SW_BUILD)
-  if(PKG_CONFIG_FOUND)
-    pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
-  else()
-    find_package(ICU 52.1 COMPONENTS uc i18n)
-  endif()
-  if(ICU_FOUND)
-    message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
-  else()
-    message(">> ICU not found!")
-  endif()
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
+else()
+  find_package(ICU 52.1 COMPONENTS uc i18n)
+endif()
+if(ICU_FOUND)
+  message(">> ICU_FOUND ${ICU_FOUND} ${ICU_VERSION} ${ICU_LIBRARIES} ${ICU_INCLUDE_DIRS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ICU_CXX_FLAGS}")
+else()
+  message(">> ICU not found!")
 endif()
 
 
@@ -137,7 +130,7 @@ project_group(common_training "Training Tools")
 # EXECUTABLE ambiguous_words
 # ##############################################################################
 
-if(NOT DISABLED_LEGACY_ENGINE)
+if(BUILD_TRAINING_TOOLS AND NOT DISABLED_LEGACY_ENGINE)
   add_executable(ambiguous_words ambiguous_words.cpp)
   target_link_libraries(ambiguous_words common_training)
   project_group(ambiguous_words "Training Tools")
@@ -155,7 +148,7 @@ endif()
 # EXECUTABLE classifier_tester
 # ##############################################################################
 
-if(NOT DISABLED_LEGACY_ENGINE)
+if(BUILD_TRAINING_TOOLS AND NOT DISABLED_LEGACY_ENGINE)
   add_executable(classifier_tester classifier_tester.cpp)
   target_link_libraries(classifier_tester common_training)
   project_group(classifier_tester "Training Tools")
@@ -173,23 +166,25 @@ endif()
 # EXECUTABLE combine_tessdata
 # ##############################################################################
 
-add_executable(combine_tessdata combine_tessdata.cpp)
-target_link_libraries(combine_tessdata common_training)
-project_group(combine_tessdata "Training Tools")
-install(
-  TARGETS combine_tessdata
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
-if (MSVC)
-  install(FILES $<TARGET_PDB_FILE:combine_tessdata> DESTINATION bin OPTIONAL)
+if(BUILD_TRAINING_TOOLS)
+  add_executable(combine_tessdata combine_tessdata.cpp)
+  target_link_libraries(combine_tessdata common_training)
+  project_group(combine_tessdata "Training Tools")
+  install(
+    TARGETS combine_tessdata
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+  if (MSVC)
+    install(FILES $<TARGET_PDB_FILE:combine_tessdata> DESTINATION bin OPTIONAL)
+  endif()
 endif()
 
 # ##############################################################################
 # EXECUTABLE cntraining
 # ##############################################################################
 
-if(NOT DISABLED_LEGACY_ENGINE)
+if(BUILD_TRAINING_TOOLS AND NOT DISABLED_LEGACY_ENGINE)
   add_executable(cntraining cntraining.cpp)
   target_link_libraries(cntraining common_training)
   project_group(cntraining "Training Tools")
@@ -207,23 +202,25 @@ endif()
 # EXECUTABLE dawg2wordlist
 # ##############################################################################
 
-add_executable(dawg2wordlist dawg2wordlist.cpp)
-target_link_libraries(dawg2wordlist common_training)
-project_group(dawg2wordlist "Training Tools")
-install(
-  TARGETS dawg2wordlist
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
-if (MSVC)
-  install(FILES $<TARGET_PDB_FILE:dawg2wordlist> DESTINATION bin OPTIONAL)
+if(BUILD_TRAINING_TOOLS)
+  add_executable(dawg2wordlist dawg2wordlist.cpp)
+  target_link_libraries(dawg2wordlist common_training)
+  project_group(dawg2wordlist "Training Tools")
+  install(
+    TARGETS dawg2wordlist
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+  if (MSVC)
+    install(FILES $<TARGET_PDB_FILE:dawg2wordlist> DESTINATION bin OPTIONAL)
+  endif()
 endif()
 
 # ##############################################################################
 # EXECUTABLE mftraining
 # ##############################################################################
 
-if(NOT DISABLED_LEGACY_ENGINE)
+if(BUILD_TRAINING_TOOLS AND NOT DISABLED_LEGACY_ENGINE)
   add_executable(mftraining mftraining.cpp mergenf.cpp mergenf.h)
   target_link_libraries(mftraining common_training)
   project_group(mftraining "Training Tools")
@@ -241,7 +238,7 @@ endif()
 # EXECUTABLE shapeclustering
 # ##############################################################################
 
-if(NOT DISABLED_LEGACY_ENGINE)
+if(BUILD_TRAINING_TOOLS AND NOT DISABLED_LEGACY_ENGINE)
   add_executable(shapeclustering shapeclustering.cpp)
   target_link_libraries(shapeclustering common_training)
   project_group(shapeclustering "Training Tools")
@@ -259,22 +256,22 @@ endif()
 # EXECUTABLE wordlist2dawg
 # ##############################################################################
 
-add_executable(wordlist2dawg wordlist2dawg.cpp)
-target_link_libraries(wordlist2dawg common_training)
-project_group(wordlist2dawg "Training Tools")
-install(
-  TARGETS wordlist2dawg
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
-if (MSVC)
-  install(FILES $<TARGET_PDB_FILE:wordlist2dawg> DESTINATION bin OPTIONAL)
+if(BUILD_TRAINING_TOOLS)
+  add_executable(wordlist2dawg wordlist2dawg.cpp)
+  target_link_libraries(wordlist2dawg common_training)
+  project_group(wordlist2dawg "Training Tools")
+  install(
+    TARGETS wordlist2dawg
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+  if (MSVC)
+    install(FILES $<TARGET_PDB_FILE:wordlist2dawg> DESTINATION bin OPTIONAL)
+  endif()
 endif()
 
 if(ICU_FOUND)
-  if(NOT SW_BUILD)
-    include_directories(${ICU_INCLUDE_DIRS})
-  endif()
+  include_directories(${ICU_INCLUDE_DIRS})
 
   # ############################################################################
   # LIBRARY unicharset_training
@@ -283,15 +280,10 @@ if(ICU_FOUND)
   file(GLOB unicharset_training_src unicharset/*)
 
   add_library(unicharset_training ${unicharset_training_src})
-  if(SW_BUILD)
-    target_link_libraries(unicharset_training
-                          PUBLIC common_training org.sw.demo.unicode.icu.i18n)
+  if(PKG_CONFIG_FOUND)
+    target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
   else()
-    if(PKG_CONFIG_FOUND)
-      target_link_libraries(unicharset_training PUBLIC common_training PkgConfig::ICU)
-    else()
-      target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
-    endif()
+    target_link_libraries(unicharset_training PUBLIC common_training ${ICU_LIBRARIES})
   endif()
   target_include_directories(unicharset_training
                              PUBLIC unicharset ${CMAKE_CURRENT_BINARY_DIR})
@@ -311,114 +303,123 @@ if(ICU_FOUND)
   # EXECUTABLE combine_lang_model
   # ############################################################################
 
-  add_executable(combine_lang_model combine_lang_model.cpp)
-  target_link_libraries(combine_lang_model unicharset_training)
-  project_group(combine_lang_model "Training Tools")
-  install(
-    TARGETS combine_lang_model
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:combine_lang_model> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(combine_lang_model combine_lang_model.cpp)
+    target_link_libraries(combine_lang_model unicharset_training)
+    project_group(combine_lang_model "Training Tools")
+    install(
+      TARGETS combine_lang_model
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:combine_lang_model> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
   # EXECUTABLE lstmeval
   # ############################################################################
 
-  add_executable(lstmeval lstmeval.cpp)
-  target_link_libraries(lstmeval unicharset_training)
-  project_group(lstmeval "Training Tools")
-  install(
-    TARGETS lstmeval
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:lstmeval> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(lstmeval lstmeval.cpp)
+    target_link_libraries(lstmeval unicharset_training)
+    project_group(lstmeval "Training Tools")
+    install(
+      TARGETS lstmeval
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:lstmeval> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
   # EXECUTABLE lstmtraining
   # ############################################################################
 
-  add_executable(lstmtraining lstmtraining.cpp)
-  target_link_libraries(lstmtraining unicharset_training)
-  project_group(lstmtraining "Training Tools")
-  install(
-    TARGETS lstmtraining
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:lstmtraining> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(lstmtraining lstmtraining.cpp)
+    target_link_libraries(lstmtraining unicharset_training)
+    project_group(lstmtraining "Training Tools")
+    install(
+      TARGETS lstmtraining
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:lstmtraining> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
   # EXECUTABLE merge_unicharsets
   # ############################################################################
 
-  add_executable(merge_unicharsets merge_unicharsets.cpp)
-  target_link_libraries(merge_unicharsets common_training)
-  project_group(merge_unicharsets "Training Tools")
-  install(
-    TARGETS merge_unicharsets
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:merge_unicharsets> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(merge_unicharsets merge_unicharsets.cpp)
+    target_link_libraries(merge_unicharsets common_training)
+    project_group(merge_unicharsets "Training Tools")
+    install(
+      TARGETS merge_unicharsets
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:merge_unicharsets> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
   # EXECUTABLE set_unicharset_properties
   # ############################################################################
 
-  add_executable(set_unicharset_properties set_unicharset_properties.cpp)
-  target_link_libraries(set_unicharset_properties unicharset_training)
-  project_group(set_unicharset_properties "Training Tools")
-  install(
-    TARGETS set_unicharset_properties
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:set_unicharset_properties> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(set_unicharset_properties set_unicharset_properties.cpp)
+    target_link_libraries(set_unicharset_properties unicharset_training)
+    project_group(set_unicharset_properties "Training Tools")
+    install(
+      TARGETS set_unicharset_properties
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:set_unicharset_properties> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
   # EXECUTABLE unicharset_extractor
   # ############################################################################
 
-  add_executable(unicharset_extractor unicharset_extractor.cpp)
-  target_compile_features(unicharset_extractor PRIVATE cxx_std_17)
-  target_link_libraries(unicharset_extractor unicharset_training)
-  project_group(unicharset_extractor "Training Tools")
-  install(
-    TARGETS unicharset_extractor
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-  if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:unicharset_extractor> DESTINATION bin OPTIONAL)
+  if(BUILD_TRAINING_TOOLS)
+    add_executable(unicharset_extractor unicharset_extractor.cpp)
+    target_compile_features(unicharset_extractor PRIVATE cxx_std_17)
+    target_link_libraries(unicharset_extractor unicharset_training)
+    project_group(unicharset_extractor "Training Tools")
+    install(
+      TARGETS unicharset_extractor
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+    if (MSVC)
+      install(FILES $<TARGET_PDB_FILE:unicharset_extractor> DESTINATION bin OPTIONAL)
+    endif()
   endif()
 
   # ############################################################################
 
-  if(PKG_CONFIG_FOUND OR SW_BUILD)
-
-    if(PKG_CONFIG_FOUND)
-      pkg_check_modules(
-        PANGO
-        REQUIRED
-        IMPORTED_TARGET
-        pango>=1.38.0
-        cairo
-        pangoft2
-        pangocairo
-        fontconfig)
-    endif()
+  if(BUILD_TRAINING_TOOLS AND PKG_CONFIG_FOUND)
+    pkg_check_modules(
+      PANGO
+      REQUIRED
+      IMPORTED_TARGET
+      pango>=1.38.0
+      cairo
+      pangoft2
+      pangocairo
+      fontconfig)
 
     # ##########################################################################
     # LIBRARY pango_training
@@ -428,17 +429,10 @@ if(ICU_FOUND)
 
     add_library(pango_training ${pango_training_src})
     target_link_libraries(pango_training PUBLIC unicharset_training)
-    if(SW_BUILD)
-      target_link_libraries(pango_training
-                            PUBLIC org.sw.demo.gnome.pango.pangocairo)
-    else()
-      if(PKG_CONFIG_FOUND)
-        target_include_directories(pango_training BEFORE
-                                   PUBLIC ${PANGO_INCLUDE_DIRS})
-        target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
-        target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
-      endif()
-    endif()
+    target_include_directories(pango_training BEFORE
+                               PUBLIC ${PANGO_INCLUDE_DIRS})
+    target_compile_definitions(pango_training PUBLIC -DPANGO_ENABLE_ENGINE)
+    target_link_libraries(pango_training PUBLIC PkgConfig::PANGO)
     target_include_directories(pango_training
                                PUBLIC pango ${CMAKE_CURRENT_BINARY_DIR})
     generate_export_header(pango_training EXPORT_MACRO_NAME

@@ -17,12 +17,8 @@
 #include "include_gunit.h"
 #include "util/utf8/unicodetext.h"
 
-#include <string.h>  // for memcpy, NULL, memcmp, etc
 #include <algorithm> // for max
-
-//#include "base/logging.h"               // for operator<<, CHECK, etc
-//#include "base/stringprintf.h"          // for StringPrintf, StringAppendF
-//#include "strings/stringpiece.h"        // for StringPiece, etc
+#include <cstring>   // for memcpy, memcmp, etc.
 
 #include "third_party/utf/utf.h"         // for isvalidcharntorune, etc
 #include "util/utf8/unilib.h"            // for IsInterchangeValid, etc
@@ -393,7 +389,7 @@ string UnicodeText::DebugString() const {
 
 // The implementation of const_iterator would be nicer if it
 // inherited from boost::iterator_facade
-// (http://boost.org/libs/iterator/doc/iterator_facade.html).
+// (https://www.boost.org/doc/libs/latest/libs/iterator/doc/iterator_facade.html).
 
 UnicodeText::const_iterator::const_iterator() : it_(nullptr) {}
 

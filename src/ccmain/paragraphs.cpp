@@ -535,7 +535,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
       model_string += ",";
     }
     if (StrongModel(hypothese.model)) {
-      model_string += std::to_string(1 + theory.IndexOf(hypothese.model));
+      model_string += std::to_string(static_cast<int64_t>(theory.IndexOf(hypothese.model)) + 1);
     } else if (hypothese.model == kCrownLeft) {
       model_string += "CrL";
     } else if (hypothese.model == kCrownRight) {
@@ -547,7 +547,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
     model_string += "0";
   }
 
-  dbg.push_back(model_string);
+  dbg.push_back(std::move(model_string));
 }
 
 void RowScratchRegisters::Init(const RowInfo &row) {
@@ -866,7 +866,7 @@ static void CalculateTabStops(std::vector<RowScratchRegisters> *rows, int row_st
 //     We mark a line as short (end of paragraph) if the offside indent
 //     is greater than eop_threshold.
 static void MarkRowsWithModel(std::vector<RowScratchRegisters> *rows, int row_start, int row_end,
-                              const ParagraphModel *model, bool ltr, int eop_threshold) {
+                              const ParagraphModel *model, int eop_threshold) {
   if (!AcceptableRowArgs(0, 0, __func__, rows, row_start, row_end)) {
     return;
   }
@@ -1099,7 +1099,7 @@ static void GeometricClassifyThreeTabStopTextBlock(int debug_level, GeometricCla
     }
   }
   const ParagraphModel *model = theory->AddModel(s.Model());
-  MarkRowsWithModel(s.rows, s.row_start, s.row_end, model, s.ltr, s.eop_threshold);
+  MarkRowsWithModel(s.rows, s.row_start, s.row_end, model, s.eop_threshold);
   return;
 }
 
@@ -1263,7 +1263,7 @@ static void GeometricClassify(int debug_level, std::vector<RowScratchRegisters> 
       }
     }
   }
-  MarkRowsWithModel(rows, row_start, row_end, model, s.ltr, s.eop_threshold);
+  MarkRowsWithModel(rows, row_start, row_end, model, s.eop_threshold);
 }
 
 // =============== Implementation of ParagraphTheory =====================
@@ -1541,7 +1541,7 @@ static void DiscardUnusedModels(const std::vector<RowScratchRegisters> &rows,
 //   Comb backwards through the row scratch registers, and turn any
 //   sequences of body lines of equivalent type abutted against the beginning
 //   or a body or start line of a different type into a crown paragraph.
-static void DowngradeWeakestToCrowns(int debug_level, ParagraphTheory *theory,
+static void DowngradeWeakestToCrowns(ParagraphTheory *theory,
                                      std::vector<RowScratchRegisters> *rows) {
   int start;
   for (int end = rows->size(); end > 0; end = start) {
@@ -2080,8 +2080,7 @@ static void SeparateSimpleLeaderLines(std::vector<RowScratchRegisters> *rows, in
 
 // Collect sequences of unique hypotheses in row registers and create proper
 // paragraphs for them, referencing the paragraphs in row_owners.
-static void ConvertHypothesizedModelRunsToParagraphs(int debug_level,
-                                                     std::vector<RowScratchRegisters> &rows,
+static void ConvertHypothesizedModelRunsToParagraphs(std::vector<RowScratchRegisters> &rows,
                                                      std::vector<PARA *> *row_owners,
                                                      ParagraphTheory *theory) {
   int end = rows.size();
@@ -2112,7 +2111,7 @@ static void ConvertHypothesizedModelRunsToParagraphs(int debug_level,
       continue;
     }
     // rows[start, end) should be a paragraph.
-    PARA *p = new PARA();
+    std::unique_ptr<PARA> p(new PARA());
     if (model == kCrownLeft || model == kCrownRight) {
       p->is_very_first_or_continuation = true;
       // Crown paragraph.
@@ -2149,14 +2148,20 @@ static void ConvertHypothesizedModelRunsToParagraphs(int debug_level,
     p->is_list_item = model->justification() == JUSTIFICATION_RIGHT
                           ? rows[start].ri_->rword_indicates_list_item
                           : rows[start].ri_->lword_indicates_list_item;
+    // Free any stale owners of the rows of the run, then give all rows of
+    // the run a reference to the new paragraph, whose ownership is
+    // transferred directly to the first row of the run.
     for (int row = start; row < end; row++) {
       if ((*row_owners)[row] != nullptr) {
         tprintf(
-            "Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
+            "Memory leak! ConvertHypothesizedModelRunsToParagraphs() called "
             "more than once!\n");
         delete (*row_owners)[row];
       }
-      (*row_owners)[row] = p;
+    }
+    (*row_owners)[start] = p.release();
+    for (int row = start + 1; row < end; row++) {
+      (*row_owners)[row] = (*row_owners)[start];
     }
   }
 }
@@ -2377,7 +2382,7 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
   }
 
   // Undo any flush models for which there's little evidence.
-  DowngradeWeakestToCrowns(debug_level, &theory, &rows);
+  DowngradeWeakestToCrowns(&theory, &rows);
 
   DebugDump(debug_level > 1, "End of Pass 3", theory, rows);
 
@@ -2393,7 +2398,7 @@ void DetectParagraphs(int debug_level, std::vector<RowInfo> *row_infos,
   DebugDump(debug_level > 1, "End of Pass 4", theory, rows);
 
   // Convert all of the unique hypothesis runs to PARAs.
-  ConvertHypothesizedModelRunsToParagraphs(debug_level, rows, row_owners, &theory);
+  ConvertHypothesizedModelRunsToParagraphs(rows, row_owners, &theory);
 
   DebugDump(debug_level > 0, "Final Paragraph Segmentation", theory, rows);
 

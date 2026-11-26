@@ -26,7 +26,6 @@
 #ifdef INCLUDE_TENSORFLOW
 #  include <tensorflow/core/lib/core/threadpool.h>
 #endif
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include "commandlineflags.h"
 #include "include_gunit.h"
@@ -178,6 +177,7 @@ static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &la
 // operation. If not, it is pointless to run the real multi-threaded tests.
 TEST_F(BaseapiThreadTest, TestBasicSanity) {
   for (int i = 0; i < num_langs_; ++i) {
+    REQUIRE_TRAINEDDATA(TESSDATA_DIR, langs_[i].c_str());
     TessBaseAPI tess;
     InitTessInstance(&tess, langs_[i]);
     std::string ocr_text;

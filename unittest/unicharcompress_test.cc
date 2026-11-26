@@ -11,8 +11,6 @@
 
 #include <string>
 
-#include <allheaders.h>
-
 #include "include_gunit.h"
 #include "log.h" // for LOG
 #include "serialis.h"

@@ -28,6 +28,7 @@
 #include "unicity_table.h"
 
 #include <algorithm>
+#include <utility> // for std::move
 
 namespace tesseract {
 
@@ -743,7 +744,7 @@ int ShapeTable::AddUnicharToResults(int unichar_id, float rating, std::vector<in
   if (result_index < 0) {
     UnicharRating result(unichar_id, rating);
     result_index = results->size();
-    results->push_back(result);
+    results->push_back(std::move(result));
     (*unichar_map)[unichar_id] = result_index;
   }
   return result_index;

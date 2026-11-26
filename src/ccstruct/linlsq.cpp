@@ -246,7 +246,7 @@ double LLSQ::rms_orth(const FCOORD &dir) const {
 // uses this formula is http://web.mit.edu/18.06/www/Essays/tlsfit.pdf but
 // that is still a much more complex derivation. It seems Pearson had already
 // found this simple solution in 1901.
-// http://books.google.com/books?id=WXwvAQAAIAAJ&pg=PA559
+// https://books.google.com/books?id=WXwvAQAAIAAJ&pg=PA559
 FCOORD LLSQ::vector_fit() const {
   double x_var = x_variance();
   double y_var = y_variance();

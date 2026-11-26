@@ -37,17 +37,12 @@ extern double_VAR_H(textord_balance_factor);
 void compute_fixed_pitch(ICOORD page_tr,             // top right
                          TO_BLOCK_LIST *port_blocks, // input list
                          float gradient,             // page skew
-                         FCOORD rotation,            // for drawing
                          bool testing_on);           // correct orientation
-void fix_row_pitch(                                  // get some value
-    TO_ROW *bad_row,                                 // row to fix
-    TO_BLOCK *bad_block,                             // block of bad_row
-    TO_BLOCK_LIST *blocks,                           // blocks to scan
-    int32_t row_target,                              // number of row
-    int32_t block_target                             // number of block
-);
+void fix_row_pitch(TO_ROW *bad_row,        // row to fix
+                   TO_BLOCK_LIST *blocks,  // blocks to scan
+                   int32_t row_target,     // number of row
+                   int32_t block_target);  // number of block
 void compute_block_pitch(TO_BLOCK *block,     // input list
-                         FCOORD rotation,     // for drawing
                          int32_t block_index, // block number
                          bool testing_on);    // correct orientation
 bool compute_rows_pitch(                      // find line stats
@@ -55,15 +50,8 @@ bool compute_rows_pitch(                      // find line stats
     int32_t block_index,                      // block number
     bool testing_on                           // correct orientation
 );
-bool try_doc_fixed(             // determine pitch
-    ICOORD page_tr,             // top right
-    TO_BLOCK_LIST *port_blocks, // input list
-    float gradient              // page skew
-);
-bool try_block_fixed(   // find line stats
-    TO_BLOCK *block,    // block to do
-    int32_t block_index // block number
-);
+// determine pitch
+bool try_doc_fixed(TO_BLOCK_LIST *port_blocks, float gradient);
 bool try_rows_fixed(     // find line stats
     TO_BLOCK *block,     // block to do
     int32_t block_index, // block number
@@ -165,8 +153,7 @@ void print_pitch_sd(         // find fp cells
     int16_t projection_right, float space_size,
     float initial_pitch // guess at pitch
 );
-void find_repeated_chars(TO_BLOCK *block,  // Block to search.
-                         bool testing_on); // Debug mode.
+void find_repeated_chars(TO_BLOCK *block); // Block to search.
 void plot_fp_word(                         // draw block of words
     TO_BLOCK *block,                       // block to draw
     float pitch,                           // pitch to draw with

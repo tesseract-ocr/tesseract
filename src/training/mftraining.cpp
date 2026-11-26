@@ -40,7 +40,6 @@
 #include "intproto.h"
 #include "mastertrainer.h"
 #include "mergenf.h"
-#include "mf.h"
 #include "ocrfeatures.h"
 #include "oldlist.h"
 #include "protos.h"
@@ -54,7 +53,7 @@ using namespace tesseract;
             Public Code
 -----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-static void DisplayProtoList(const char *ch, LIST protolist) {
+static void DisplayProtoList(LIST protolist) {
   auto window = std::make_unique<ScrollView>("Char samples", 50, 200, 520, 520, 260, 260, true);
   LIST proto = protolist;
   iterate(proto) {
@@ -102,7 +101,7 @@ static LIST ClusterOneConfig(int shape_id, const char *class_label, LIST mf_clas
   MergeInsignificantProtos(proto_list, class_label, clusterer, &Config);
 #ifndef GRAPHICS_DISABLED
   if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0) {
-    DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
+    DisplayProtoList(proto_list);
   }
 #endif // !GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.
@@ -230,6 +229,16 @@ int main(int argc, char **argv) {
       snprintf(shape_label, sizeof(shape_label), "sh%04d", s);
       shape_set.unichar_insert(shape_label);
     }
+    // The shape_set is built in memory, so the unicharset parser cap does not
+    // apply here. The id indexes the fixed-size arrays of the int/adaptive
+    // classifier, so reject an oversized set up front rather than producing
+    // no templates after the training run.
+    if (shape_set.size() > MAX_NUM_CLASSES) {
+      tprintf("Error: number of shapes %zu exceeds MAX_NUM_CLASSES %d\n",
+              shape_set.size(), MAX_NUM_CLASSES);
+      delete shape_table;
+      return EXIT_FAILURE;
+    }
   }
 
   // Now train each config separately.
@@ -253,14 +262,19 @@ int main(int argc, char **argv) {
   pffmtable_file += "pffmtable";
   CLASS_STRUCT *float_classes = SetUpForFloat2Int(*unicharset, mf_classes);
   // Now write the inttemp and pffmtable.
-  trainer->WriteInttempAndPFFMTable(trainer->unicharset(), *unicharset, *shape_table, float_classes,
-                                    inttemp_file.c_str(), pffmtable_file.c_str());
+  bool success = trainer->WriteInttempAndPFFMTable(trainer->unicharset(), *unicharset, *shape_table,
+                                                    float_classes, inttemp_file.c_str(),
+                                                    pffmtable_file.c_str());
   for (size_t c = 0; c < unicharset->size(); ++c) {
     FreeClassFields(&float_classes[c]);
   }
   delete[] float_classes;
   FreeLabeledClassList(mf_classes);
   delete shape_table;
+  if (!success) {
+    printf("Failed to write the inttemp and pffmtable!\n");
+    return EXIT_FAILURE;
+  }
   printf("Done!\n");
   if (!FLAGS_test_ch.empty()) {
     // If we are displaying debug window(s), wait for the user to look at them.

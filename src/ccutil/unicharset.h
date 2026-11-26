@@ -670,6 +670,12 @@ public:
       return true;
     }
     int script_id = get_script(unichar_id);
+    // The id of a script which is missing in the unicharset is null_sid_,
+    // so a character with the null script (like the space) must not be
+    // compared with those ids.
+    if (script_id == null_sid_) {
+      return true;
+    }
     return script_id != han_sid_ && script_id != thai_sid_ &&
            script_id != hangul_sid_ && script_id != hiragana_sid_ &&
            script_id != katakana_sid_;
@@ -754,7 +760,8 @@ public:
   // SpecialUnicharCodes available. If false then there are normal unichars
   // at these codes and they should not be used.
   bool has_special_codes() const {
-    return get_fragment(UNICHAR_BROKEN) != nullptr &&
+    return contains_unichar_id(UNICHAR_BROKEN) &&
+           get_fragment(UNICHAR_BROKEN) != nullptr &&
            strcmp(id_to_unichar(UNICHAR_BROKEN),
                   kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }

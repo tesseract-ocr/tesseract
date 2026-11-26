@@ -2,7 +2,6 @@
 // File:        equationdetectbase.cpp
 // Description: The base class equation detection class.
 // Author:      Zongyi (Joe) Liu (joeliu@google.com)
-// Created:     Fri Aug 31 11:13:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +23,7 @@
 #include "equationdetectbase.h"
 
 #include "blobbox.h"
-
-#include <allheaders.h>
+#include "image.h"   // for Image
 
 namespace tesseract {
 

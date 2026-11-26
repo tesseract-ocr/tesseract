@@ -136,13 +136,12 @@ void ColPartitionSet::ImproveColumnCandidate(const WidthCallback &cb,
         int col_box_left = col_part->BoxLeftKey();
         bool tab_width_ok = cb(part->KeyWidth(col_left, part_right));
         bool box_width_ok = cb(part->KeyWidth(col_box_left, part_right));
-        if (tab_width_ok || (!part_width_ok)) {
+        if (tab_width_ok || !part_width_ok) {
           // The tab is leaving the good column metric at least as good as
           // it was before, so use the tab.
           part->CopyLeftTab(*col_part, false);
           part->SetColumnGoodness(cb);
-        } else if (col_box_left < part_left &&
-                   (box_width_ok || !part_width_ok)) {
+        } else if (col_box_left < part_left && box_width_ok) {
           // The box is leaving the good column metric at least as good as
           // it was before, so use the box.
           part->CopyLeftTab(*col_part, true);

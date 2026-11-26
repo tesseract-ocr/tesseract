@@ -42,7 +42,7 @@ namespace tesseract {
 // to use Key::operator< to generate a MIN heap and KDPairDec defines
 // Pair::operator< to use Key::operator> to generate a MAX heap by reversing
 // all the comparisons.
-// See http://en.wikipedia.org/wiki/Heap_(data_structure) for more detail on
+// See https://en.wikipedia.org/wiki/Heap_(data_structure) for more detail on
 // the basic heap implementation.
 //
 // Insertion and removal are both O(log n) and, unlike the STL heap, an

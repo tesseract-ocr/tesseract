@@ -137,7 +137,7 @@ public:
   // Copy cleaned partitions from ColumnFinder's part_grid_ to this
   // clean_part_grid_ and insert dot-like noise into period_grid_.
   // It resizes the grids in this object to the dimensions of grid.
-  void InsertCleanPartitions(ColPartitionGrid *grid, TO_BLOCK *block);
+  void InsertCleanPartitions(ColPartitionGrid *grid);
 
   // High level function to perform table detection
   // Finds tables and updates the grid object with new partitions for the
@@ -145,7 +145,7 @@ public:
   // The reskew argument is only used to write the tables to the out.png
   // if that feature is enabled.
   void LocateTables(ColPartitionGrid *grid, ColPartitionSet **columns,
-                    WidthCallback width_cb, const FCOORD &reskew);
+                    WidthCallback width_cb);
 
 protected:
   // Access for the grid dimensions.

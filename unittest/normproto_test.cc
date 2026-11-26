@@ -1,0 +1,127 @@
+///////////////////////////////////////////////////////////////////////
+// File:        normproto_test.cc
+// Description: Tests that Classify::ReadNormProtos handles a normproto
+//              line whose first (unichar) token exceeds the
+//              unichar[2 * UNICHAR_LEN + 1] stack buffer. The
+//              istream extraction has no intrinsic length limit, so a
+//              crafted NORMPROTO component in a .traineddata file
+//              could overflow the stack buffer during legacy engine
+//              initialization.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+///////////////////////////////////////////////////////////////////////
+
+#include "include_gunit.h"
+
+#include "classify.h"
+#include "clusttool.h" // for ReadParamDesc
+#include "serialis.h" // for TFile
+#include "util/tempdir.h" // for CreateTempDir, RemoveTempDir
+
+#include <cfenv> // for std::feclearexcept, std::fetestexcept
+#include <cmath> // for std::isfinite
+#include <cstdio>
+#include <string>
+#include <vector>
+
+namespace tesseract {
+namespace {
+
+// Minimal unicharset (space and 'a').
+const char kMinUnicharset[] =
+    "2\n"
+    "NULL 1 0,255,0,255,0,0,0,0,0,0 Latin 2 0 2\n"
+    "a 1 0,255,0,255,0,0,0,0,0,0 Latin 2 0 2\n";
+
+// Builds a normproto component: a sample-size line (5), five parameter
+// description lines, then the given raw proto lines.
+std::vector<char> MakeNormproto(const std::string &lines) {
+  std::string data = "5\n";
+  for (int i = 0; i < 5; ++i) {
+    data += "e e 0 1\n";
+  }
+  data += lines;
+  return std::vector<char>(data.begin(), data.end());
+}
+
+class NormprotoTest : public testing::Test {
+protected:
+  void SetUp() override {
+    dir_ = CreateTempDir("tess_normproto_test_");
+    ASSERT_FALSE(dir_.empty());
+    std::string uc_path = dir_ + "/eng.unicharset";
+    FILE *f = fopen(uc_path.c_str(), "w");
+    ASSERT_NE(f, nullptr);
+    ASSERT_EQ(fwrite(kMinUnicharset, 1, sizeof(kMinUnicharset) - 1, f),
+              sizeof(kMinUnicharset) - 1);
+    fclose(f);
+    // Load the minimal unicharset into the classifier's inherited
+    // unicharset member.
+    ASSERT_TRUE(classifier_.unicharset.load_from_file(uc_path.c_str()));
+  }
+  void TearDown() override {
+    RemoveTempDir(dir_);
+  }
+  std::string dir_;
+  Classify classifier_;
+};
+
+// A 99-character first token (the maximum FGets can return) overflows
+// unichar[2 * UNICHAR_LEN + 1] on unpatched code; the width-limited
+// extraction must reject the line instead.
+TEST_F(NormprotoTest, ToleratesOverlongUnicharToken) {
+  std::vector<char> bytes = MakeNormproto(std::string(99, 'A') + "\n");
+  TFile fp;
+  ASSERT_TRUE(fp.Open(bytes.data(), bytes.size()));
+  classifier_.NormProtos = classifier_.ReadNormProtos(&fp);
+  ASSERT_NE(classifier_.NormProtos, nullptr);
+  classifier_.FreeNormProtos();
+  EXPECT_EQ(classifier_.NormProtos, nullptr);
+}
+
+// A token of exactly 2 * UNICHAR_LEN characters is the maximum legitimate
+// size; it must not be truncated or rejected by the width limit.
+TEST_F(NormprotoTest, ToleratesMaxLenUnicharToken) {
+  std::vector<char> bytes = MakeNormproto(std::string(2 * UNICHAR_LEN, 'A') + " 0\n");
+  TFile fp;
+  ASSERT_TRUE(fp.Open(bytes.data(), bytes.size()));
+  classifier_.NormProtos = classifier_.ReadNormProtos(&fp);
+  ASSERT_NE(classifier_.NormProtos, nullptr);
+  classifier_.FreeNormProtos();
+  EXPECT_EQ(classifier_.NormProtos, nullptr);
+}
+
+// A well-formed normproto component must still parse.
+TEST_F(NormprotoTest, ReadsValidNormprotos) {
+  std::vector<char> bytes = MakeNormproto("a 0\n");
+  TFile fp;
+  ASSERT_TRUE(fp.Open(bytes.data(), bytes.size()));
+  classifier_.NormProtos = classifier_.ReadNormProtos(&fp);
+  ASSERT_NE(classifier_.NormProtos, nullptr);
+  classifier_.FreeNormProtos();
+  EXPECT_EQ(classifier_.NormProtos, nullptr);
+}
+
+// Parameter limits whose difference or sum does not fit in a float must not
+// raise a floating point overflow (the tesseract program traps it).
+TEST(ParamDescTest, ToleratesHugeLimits) {
+  for (const char *limits : {"-3e38 3e38", "3e38 3e38", "3e38 -3e38", "-3e38 -3e38"}) {
+    std::string line = std::string("linear essential ") + limits + "\n";
+    TFile fp;
+    ASSERT_TRUE(fp.Open(line.data(), line.size()));
+    std::feclearexcept(FE_OVERFLOW);
+    PARAM_DESC *desc = ReadParamDesc(&fp, 1);
+    EXPECT_FALSE(std::fetestexcept(FE_OVERFLOW)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->Range)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->HalfRange)) << limits;
+    EXPECT_TRUE(std::isfinite(desc->MidRange)) << limits;
+    delete[] desc;
+  }
+}
+
+} // namespace
+} // namespace tesseract

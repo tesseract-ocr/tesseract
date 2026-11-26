@@ -18,6 +18,10 @@
 
 #include "reconfig.h"
 
+#include <cstdint>
+
+#include "tprintf.h"
+
 namespace tesseract {
 
 Reconfig::Reconfig(const std::string &name, int ni, int x_scale, int y_scale)
@@ -60,14 +64,29 @@ bool Reconfig::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&y_scale_)) {
     return false;
   }
-  no_ = ni_ * x_scale_ * y_scale_;
+  if (x_scale_ <= 0 || y_scale_ <= 0 || ni_ <= 0) {
+    tprintf("Error: invalid Reconfig parameters: ni=%d x_scale=%d y_scale=%d\n", ni_, x_scale_,
+            y_scale_);
+    return false;
+  }
+  int64_t xs = x_scale_;
+  int64_t ys = y_scale_;
+  // Stepwise overflow check: ni_ * x_scale_ * y_scale_ must fit in int.
+  int64_t xsys = xs * ys;
+  if (static_cast<int64_t>(ni_) > INT_MAX / xsys) {
+    tprintf("Error: Reconfig output-channel count overflows: ni=%d x_scale=%d y_scale=%d\n", ni_,
+            x_scale_, y_scale_);
+    return false;
+  }
+  no_ = static_cast<int>(static_cast<int64_t>(ni_) * xsys);
   return true;
 }
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Reconfig::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
-                       NetworkScratch *scratch, NetworkIO *output) {
+void Reconfig::Forward(bool /*debug*/, const NetworkIO &input,
+                       const TransposedArray * /*input_transpose*/,
+                       NetworkScratch * /*scratch*/, NetworkIO *output) {
   output->ResizeScaled(input, x_scale_, y_scale_, no_);
   back_map_ = input.stride_map();
   StrideMap::Index dest_index(output->stride_map());
@@ -90,9 +109,12 @@ void Reconfig::Forward(bool debug, const NetworkIO &input, const TransposedArray
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Reconfig::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+bool Reconfig::Backward(bool /*debug*/, const NetworkIO &fwd_deltas, NetworkScratch * /*scratch*/,
                         NetworkIO *back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
+  // Input rows and columns that do not fill a whole x_scale_ by y_scale_ tile
+  // had no part in the output, so nothing is copied to them below.
+  back_deltas->Zero();
   StrideMap::Index src_index(fwd_deltas.stride_map());
   do {
     int in_t = src_index.t();

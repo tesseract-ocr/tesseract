@@ -942,7 +942,9 @@ void ColPartitionGrid::ReTypeBlobs(BLOBNBOX_LIST *im_blobs) {
         BLOBNBOX *blob = blob_it.data();
         if (blob->cblob()->area() == 0) {
           // Any blob with zero area is a fake image blob and should be deleted.
-          delete blob->cblob();
+          // Remove it from the list first to avoid a double delete.
+          delete blob->remove_cblob();
+          blob_it.extract();
           delete blob;
         }
       }

@@ -21,14 +21,14 @@
 #  include "config_auto.h"
 #endif
 
+#include "image.h"   // for Image
 #include "otsuthr.h"
 #include "thresholder.h"
 #include "tprintf.h" // for tprintf
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h> // for api->GetIntVariable()
 
-#include <algorithm> // for std::max, std::min
+#include <algorithm> // for std::clamp, std::max, std::min
 #include <cstdint>   // for uint32_t
 #include <cstring>
 #include <tuple>
@@ -83,9 +83,9 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
       for (int y = 0; y < height; ++y, data += wpl, imagedata += bytes_per_line) {
         for (int x = 0; x < width; ++x) {
           if (imagedata[x / 8] & (0x80 >> (x % 8))) {
-            CLEAR_DATA_BIT(data, x);
+            Image::clearDataBit(data, x);
           } else {
-            SET_DATA_BIT(data, x);
+            Image::setDataBit(data, x);
           }
         }
       }
@@ -95,7 +95,7 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
       // Greyscale just copies the bytes in the right order.
       for (int y = 0; y < height; ++y, data += wpl, imagedata += bytes_per_line) {
         for (int x = 0; x < width; ++x) {
-          SET_DATA_BYTE(data, x, imagedata[x]);
+          Image::setDataByte(data, x, imagedata[x]);
         }
       }
       break;
@@ -104,9 +104,9 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
       // Put the colors in the correct places in the line buffer.
       for (int y = 0; y < height; ++y, imagedata += bytes_per_line) {
         for (int x = 0; x < width; ++x, ++data) {
-          SET_DATA_BYTE(data, COLOR_RED, imagedata[3 * x]);
-          SET_DATA_BYTE(data, COLOR_GREEN, imagedata[3 * x + 1]);
-          SET_DATA_BYTE(data, COLOR_BLUE, imagedata[3 * x + 2]);
+          Image::setDataByte(data, COLOR_RED, imagedata[3 * x]);
+          Image::setDataByte(data, COLOR_GREEN, imagedata[3 * x + 1]);
+          Image::setDataByte(data, COLOR_BLUE, imagedata[3 * x + 2]);
         }
       }
       break;
@@ -130,11 +130,15 @@ void ImageThresholder::SetImage(const unsigned char *imagedata, int width, int h
 
 // Store the coordinates of the rectangle to process for later use.
 // Doesn't actually do any thresholding.
+// The rectangle is clipped to the image, as the thresholding code reads
+// rect_width_ x rect_height_ pixels from the source image without checking.
 void ImageThresholder::SetRectangle(int left, int top, int width, int height) {
-  rect_left_ = left;
-  rect_top_ = top;
-  rect_width_ = width;
-  rect_height_ = height;
+  const int64_t right = std::min<int64_t>(static_cast<int64_t>(left) + width, image_width_);
+  const int64_t bottom = std::min<int64_t>(static_cast<int64_t>(top) + height, image_height_);
+  rect_left_ = std::clamp(left, 0, image_width_);
+  rect_top_ = std::clamp(top, 0, image_height_);
+  rect_width_ = static_cast<int>(std::max<int64_t>(right - rect_left_, 0));
+  rect_height_ = static_cast<int>(std::max<int64_t>(bottom - rect_top_, 0));
 }
 
 // Get enough parameters to be able to rebuild bounding boxes in the
@@ -242,8 +246,8 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     }
 
     r = pixSauvolaBinarizeTiled(pix_grey, half_window_size, kfactor, nx, ny,
-                               (PIX**)pix_thresholds,
-                                (PIX**)pix_binary);
+                                static_cast<PIX **>(pix_thresholds),
+                                static_cast<PIX **>(pix_binary));
   } else { // if (method == ThresholdMethod::LeptonicaOtsu)
     int tile_size;
     double tile_size_factor;
@@ -269,8 +273,8 @@ std::tuple<bool, Image, Image, Image> ImageThresholder::Threshold(
     r = pixOtsuAdaptiveThreshold(pix_grey, tile_size, tile_size,
                                  half_smooth_size, half_smooth_size,
                                  score_fraction,
-                                 (PIX**)pix_thresholds,
-                                 (PIX**)pix_binary);
+                                 static_cast<PIX **>(pix_thresholds),
+                                 static_cast<PIX **>(pix_binary));
   }
 
   bool ok = (r == 0);
@@ -403,16 +407,16 @@ void ImageThresholder::ThresholdRectToPix(Image src_pix, int num_channels, const
     for (int x = 0; x < rect_width_; ++x) {
       bool white_result = true;
       for (int ch = 0; ch < num_channels; ++ch) {
-        int pixel = GET_DATA_BYTE(linedata, (x + rect_left_) * num_channels + ch);
+        int pixel = Image::getDataByte(linedata, (x + rect_left_) * num_channels + ch);
         if (hi_values[ch] >= 0 && (pixel > thresholds[ch]) == (hi_values[ch] == 0)) {
           white_result = false;
           break;
         }
       }
       if (white_result) {
-        CLEAR_DATA_BIT(pixline, x);
+        Image::clearDataBit(pixline, x);
       } else {
-        SET_DATA_BIT(pixline, x);
+        Image::setDataBit(pixline, x);
       }
     }
   }

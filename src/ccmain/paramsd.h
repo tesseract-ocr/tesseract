@@ -26,6 +26,8 @@
 #  include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #  include "scrollview.h" // for ScrollView (ptr only), SVEvent (ptr only)
 
+#include <string>
+
 namespace tesseract {
 
 class SVMenuNode;
@@ -119,7 +121,7 @@ private:
   SVMenuNode *BuildListOfAllLeaves(tesseract::Tesseract *tess);
 
   // Write all (changed_) parameters to a config file.
-  void WriteParams(char *filename, bool changes_only);
+  void WriteParams(const std::string &filename, bool changes_only);
 
   ScrollView *sv_window_;
 };

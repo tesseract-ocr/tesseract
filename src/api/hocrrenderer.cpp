@@ -134,7 +134,8 @@ char *TessBaseAPI::GetHOCRText(int page_number) {
  */
 char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
   if (tesseract_ == nullptr ||
-      (page_res_ == nullptr && Recognize(monitor) < 0)) {
+      ((page_res_ == nullptr || !recognition_done_) &&
+       Recognize(monitor) < 0)) {
     return nullptr;
   }
 
@@ -226,7 +227,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
                << "par_" << page_id << "_" << pcnt << "'";
       paragraph_lang = res_it->WordRecognitionLanguage();
       if (paragraph_lang) {
-        hocr_str << " lang='" << paragraph_lang << "'";
+        hocr_str << " lang='" << HOcrEscape(paragraph_lang).c_str() << "'";
       }
       AddBoxTohOCR(res_it.get(), RIL_PARA, hocr_str);
     }
@@ -285,7 +286,7 @@ char *TessBaseAPI::GetHOCRText(ETEXT_DESC *monitor, int page_number) {
     hocr_str << "'";
     const char *lang = res_it->WordRecognitionLanguage();
     if (lang && (!paragraph_lang || strcmp(lang, paragraph_lang))) {
-      hocr_str << " lang='" << lang << "'";
+      hocr_str << " lang='" << HOcrEscape(lang).c_str() << "'";
     }
     switch (res_it->WordDirection()) {
       // Only emit direction if different from current paragraph direction
@@ -567,7 +568,7 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
       "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
       "lang=\"en\">\n <head>\n  <title>");
-  AppendString(title());
+  AppendString(HOcrEscape(title()).c_str());
   AppendString(
       "</title>\n"
       "  <meta http-equiv=\"Content-Type\" content=\"text/html;"

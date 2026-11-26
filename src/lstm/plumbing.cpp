@@ -18,6 +18,10 @@
 
 #include "plumbing.h"
 
+#include <limits>
+
+#include <utility> // for std::move
+
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
@@ -152,7 +156,7 @@ void Plumbing::EnumerateLayers(const std::string *prefix, std::vector<std::strin
       auto *plumbing = static_cast<Plumbing *>(stack_[i]);
       plumbing->EnumerateLayers(&layer_name, layers);
     } else {
-      layers.push_back(layer_name);
+      layers.push_back(std::move(layer_name));
     }
   }
 }
@@ -222,9 +226,28 @@ bool Plumbing::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&size)) {
     return false;
   }
+  // Reject unreasonably large network stacks.
+  if (size > 10000) {
+    return false;
+  }
+  // Reject empty stacks: XScaleFactor, CacheXScaleFactor and other methods
+  // unconditionally dereference stack_[0] during network initialization.
+  // A Series needs at least two networks (see Series::Forward).
+  if (size == 0 || (type() == NT_SERIES && size == 1)) {
+    return false;
+  }
   for (uint32_t i = 0; i < size; ++i) {
     Network *network = CreateFromFile(fp);
     if (network == nullptr) {
+      return false;
+    }
+    // Validate the dimensions before AddToStack combines the child layers.
+    if (!stack_.empty() &&
+        ((type_ == NT_SERIES && no_ != network->NumInputs()) ||
+         (type_ != NT_SERIES &&
+          (ni_ != network->NumInputs() ||
+           network->NumOutputs() > std::numeric_limits<int>::max() - no_)))) {
+      delete network;
       return false;
     }
     AddToStack(network);

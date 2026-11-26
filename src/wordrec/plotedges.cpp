@@ -82,8 +82,8 @@ void draw_blob_edges(TBLOB *blob) {
  **********************************************************************/
 void mark_outline(EDGEPT *edgept) { /* Start of point list */
   auto window = edge_window;
-  float x = edgept->pos.x;
-  float y = edgept->pos.y;
+  int x = edgept->pos.x;
+  int y = edgept->pos.y;
 
   window->Pen(ScrollView::RED);
   window->SetCursor(x, y);

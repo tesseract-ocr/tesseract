@@ -26,9 +26,10 @@
 
 // This base class needs to know about all its sub-classes because of the
 // factory deserializing method: CreateFromFile.
-#include <allheaders.h>
 #include "convolve.h"
+#include "dropout.h"
 #include "fullyconnected.h"
+#include "image.h"          // for Image
 #include "input.h"
 #include "lstm.h"
 #include "maxpool.h"
@@ -71,7 +72,7 @@ static char const *const kTypeNames[NT_COUNT] = {
     "Relu",        "Linear",
     "Softmax",     "SoftmaxNoCTC",
     "LSTMSoftmax", "LSTMBinarySoftmax",
-    "TensorFlow",
+    "TensorFlow",  "Dropout",
 };
 
 Network::Network()
@@ -247,9 +248,18 @@ Network *Network::CreateFromFile(TFile *fp) {
     return nullptr;
   }
 
+  if (ni < 0 || no < 0 || num_weights < 0) {
+    tprintf("Error: invalid network layer parameters: type=%d ni=%d no=%d num_weights=%d\n", type,
+            ni, no, num_weights);
+    return nullptr;
+  }
+
   switch (type) {
     case NT_CONVOLVE:
       network = new Convolve(name, ni, 0, 0);
+      break;
+    case NT_DROPOUT:
+      network = new Dropout(name, ni, 0.5f);
       break;
     case NT_INPUT:
       network = new Input(name, ni, no);

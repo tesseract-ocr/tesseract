@@ -10,6 +10,7 @@
 // limitations under the License.
 
 #include <string>
+#include <utility> // for std::move
 #include <vector>
 
 #include "imagedata.h"
@@ -97,7 +98,7 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   for (size_t d = 0; d < kNumPages.size(); ++d) {
     page_texts.emplace_back(std::vector<std::string>());
     std::string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());
-    filenames.push_back(filename);
+    filenames.push_back(std::move(filename));
   }
   // Now try getting them back with different cache strategies and check that
   // the pages come out in the right order.

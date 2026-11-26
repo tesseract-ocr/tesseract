@@ -274,21 +274,42 @@ bool LSTM::DeSerialize(TFile *fp) {
       is_2d_ = na_ - nf_ == ni_ + 2 * ns_;
     }
   }
-  delete softmax_;
-  if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    softmax_ = static_cast<FullyConnected *>(Network::CreateFromFile(fp));
-    if (softmax_ == nullptr) {
+  // The deserialized dimensions must be mutually consistent: the forward
+  // pass sizes its buffers from na_, no_ and ns_ while the gate matrices
+  // drive their own dimensions.
+  if (na_ != ni_ + nf_ + (is_2d_ ? 2 : 1) * ns_) {
+    return false;
+  }
+  for (int w = 0; w < WT_COUNT; ++w) {
+    if (w == GFS && !Is2D()) {
+      continue;
+    }
+    if (gate_weights_[w].Dim1() != ns_ || gate_weights_[w].Dim2() != na_ + 1) {
       return false;
     }
-  } else {
-    softmax_ = nullptr;
+  }
+  if ((type_ == NT_LSTM || type_ == NT_LSTM_SUMMARY) && ns_ != no_) {
+    return false;
+  }
+  delete softmax_;
+  softmax_ = nullptr;
+  if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
+    Network *network = Network::CreateFromFile(fp);
+    auto *softmax = dynamic_cast<FullyConnected *>(network);
+    if (softmax == nullptr || softmax->NumInputs() != ns_ ||
+        softmax->NumOutputs() != no_) {
+      delete network;
+      return false;
+    }
+    softmax_ = softmax;
   }
   return true;
 }
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+void LSTM::Forward(bool debug, const NetworkIO &input,
+                   const TransposedArray * /*input_transpose*/,
                    NetworkScratch *scratch, NetworkIO *output) {
   input_map_ = input.stride_map();
   input_width_ = input.Width();
@@ -458,7 +479,7 @@ void LSTM::Forward(bool debug, const NetworkIO &input, const TransposedArray *in
     if (softmax_ != nullptr) {
       if (input.int_mode()) {
         int_output->WriteTimeStepPart(0, 0, ns_, curr_output);
-        softmax_->ForwardTimeStep(int_output->i(0), t, softmax_output);
+        softmax_->ForwardTimeStep(int_output->i(0), softmax_output);
       } else {
         softmax_->ForwardTimeStep(curr_output, t, softmax_output);
       }

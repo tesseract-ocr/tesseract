@@ -348,6 +348,27 @@ TEST(NormstrngsTest, SpanUTF8NotWhitespace) {
   EXPECT_EQ(12, SpanUTF8NotWhitespace(kMixedText));
 }
 
+TEST(NormstrngsTest, SpanUTF8TruncatedPrefix) {
+  // A multibyte sequence truncated at the end of the string must not be
+  // read past the NUL terminator (issue #4495).
+  // 2-, 3- and 4-byte prefixes truncated at the terminator.
+  EXPECT_EQ(0, SpanUTF8Whitespace("\xC2"));
+  EXPECT_EQ(0, SpanUTF8Whitespace("\xE8"));
+  EXPECT_EQ(0, SpanUTF8Whitespace("\xF0"));
+  // A truncated prefix is not whitespace, even after leading spaces.
+  EXPECT_EQ(2, SpanUTF8Whitespace("  \xE8"));
+  EXPECT_FALSE(IsUTF8Whitespace(" \xE8"));
+  // A truncated prefix is counted as non-whitespace.
+  EXPECT_EQ(3, SpanUTF8NotWhitespace("ab\xE8"));
+  EXPECT_EQ(1, SpanUTF8NotWhitespace("\xC2"));
+  // An illegal leading byte keeps the previous semantics: one whitespace
+  // byte for the whitespace span, and a boundary for the other.
+  EXPECT_EQ(1, SpanUTF8Whitespace("\x80"));
+  EXPECT_EQ(2, SpanUTF8Whitespace("\x80 "));
+  EXPECT_EQ(0, SpanUTF8NotWhitespace("\x80" "abc"));
+  EXPECT_EQ(3, SpanUTF8NotWhitespace("abc\x80"));
+}
+
 // Test that the method clones the util/utf8/unilib definition of
 // interchange validity.
 TEST(NormstrngsTest, IsInterchangeValid) {

@@ -50,28 +50,24 @@ static BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image"
 ///////////////////////////////////////////////////////////////////////////
 // Utility ColPartition sort functions.
 ///////////////////////////////////////////////////////////////////////////
-static int SortCPByTopReverse(const void *p1, const void *p2) {
-  const ColPartition *cp1 = *static_cast<ColPartition *const *>(p1);
-  const ColPartition *cp2 = *static_cast<ColPartition *const *>(p2);
+// These are std::sort comparators: they receive the ColPartition pointers
+// held in the vector, not pointers to the elements as qsort would pass.
+static bool SortCPByTopReverse(const ColPartition *cp1, const ColPartition *cp2) {
   ASSERT_HOST(cp1 != nullptr && cp2 != nullptr);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
-  return box2.top() - box1.top();
+  return box1.top() > box2.top();
 }
 
-static int SortCPByBottom(const void *p1, const void *p2) {
-  const ColPartition *cp1 = *static_cast<ColPartition *const *>(p1);
-  const ColPartition *cp2 = *static_cast<ColPartition *const *>(p2);
+static bool SortCPByBottom(const ColPartition *cp1, const ColPartition *cp2) {
   ASSERT_HOST(cp1 != nullptr && cp2 != nullptr);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
-  return box1.bottom() - box2.bottom();
+  return box1.bottom() < box2.bottom();
 }
 
-static int SortCPByHeight(const void *p1, const void *p2) {
-  const ColPartition *cp1 = *static_cast<ColPartition *const *>(p1);
-  const ColPartition *cp2 = *static_cast<ColPartition *const *>(p2);
+static bool SortCPByHeight(const ColPartition *cp1, const ColPartition *cp2) {
   ASSERT_HOST(cp1 != nullptr && cp2 != nullptr);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
-  return box1.height() - box2.height();
+  return box1.height() < box2.height();
 }
 
 // TODO(joeliu): we may want to parameterize these constants.

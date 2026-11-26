@@ -106,7 +106,7 @@ inline bool within_error_margin(float test, float num, float margin) {
 void fill_heights(TO_ROW *row, float gradient, int min_height, int max_height, STATS *heights,
                   STATS *floating_heights);
 
-float make_single_row(ICOORD page_tr, bool allow_sub_blobs, TO_BLOCK *block, TO_BLOCK_LIST *blocks);
+float make_single_row(bool allow_sub_blobs, TO_BLOCK *block, TO_BLOCK_LIST *blocks);
 float make_rows(ICOORD page_tr, // top right
                 TO_BLOCK_LIST *port_blocks);
 void make_initial_textrows(ICOORD page_tr,
@@ -222,7 +222,6 @@ bool segment_baseline(                      // split baseline
 );
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
-    TO_BLOCK *block,            // block it came from
     int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 );

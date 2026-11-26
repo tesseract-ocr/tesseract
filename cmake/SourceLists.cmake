@@ -46,6 +46,7 @@ set(TESSERACT_SRC_ARCH_SSE41
 
 set(TESSERACT_SRC_ARCH_NEON
     src/arch/dotproductneon.cpp
+    src/arch/functionsneon.cpp
     src/arch/intsimdmatrixneon.cpp
 )
 
@@ -55,6 +56,7 @@ set(TESSERACT_SRC_CCMAIN
     src/ccmain/applybox.cpp
     src/ccmain/control.cpp
     src/ccmain/docqual.cpp
+    src/ccmain/fontstyle.cpp
     src/ccmain/equationdetect.cpp
     src/ccmain/fixspace.cpp
     src/ccmain/fixxht.cpp
@@ -91,7 +93,6 @@ set(TESSERACT_SRC_CCSTRUCT
     src/ccstruct/blread.cpp
     src/ccstruct/boxread.cpp
     src/ccstruct/boxword.cpp
-    src/ccstruct/ccstruct.cpp
     src/ccstruct/coutln.cpp
     src/ccstruct/detlinefit.cpp
     src/ccstruct/dppoint.cpp
@@ -110,7 +111,6 @@ set(TESSERACT_SRC_CCSTRUCT
     src/ccstruct/params_training_featdef.cpp
     src/ccstruct/pdblock.cpp
     src/ccstruct/points.cpp
-    src/ccstruct/polyaprx.cpp
     src/ccstruct/polyblk.cpp
     src/ccstruct/quadlsq.cpp
     src/ccstruct/quspline.cpp
@@ -159,7 +159,6 @@ set(TESSERACT_SRC_CLASSIFY
     src/classify/intmatcher.cpp
     src/classify/intproto.cpp
     src/classify/kdtree.cpp
-    src/classify/mf.cpp
     src/classify/mfoutline.cpp
     src/classify/mfx.cpp
     src/classify/normfeat.cpp
@@ -194,6 +193,7 @@ set(TESSERACT_SRC_DICT
 # LSTM module sources
 set(TESSERACT_SRC_LSTM
     src/lstm/convolve.cpp
+    src/lstm/dropout.cpp
     src/lstm/fullyconnected.cpp
     src/lstm/functions.cpp
     src/lstm/input.cpp
@@ -318,7 +318,6 @@ set(TESSERACT_SRC_LEGACY
     src/classify/intmatcher.cpp
     src/classify/intproto.cpp
     src/classify/kdtree.cpp
-    src/classify/mf.cpp
     src/classify/mfoutline.cpp
     src/classify/mfx.cpp
     src/classify/normfeat.cpp
@@ -377,6 +376,7 @@ set(TESSERACT_HDR_INTERNAL
     src/ccmain/docqual.h
     src/ccmain/equationdetect.h
     src/ccmain/fixspace.h
+    src/ccmain/fontstyle.h
     src/ccmain/mutableiterator.h
     src/ccmain/output.h
     src/ccmain/paragraphs.h
@@ -415,7 +415,6 @@ set(TESSERACT_HDR_INTERNAL
     src/ccstruct/params_training_featdef.h
     src/ccstruct/pdblock.h
     src/ccstruct/points.h
-    src/ccstruct/polyaprx.h
     src/ccstruct/polyblk.h
     src/ccstruct/quadlsq.h
     src/ccstruct/quadratc.h
@@ -435,7 +434,6 @@ set(TESSERACT_HDR_INTERNAL
     src/ccutil/elst.h
     src/ccutil/elst2.h
     src/ccutil/errcode.h
-    src/ccutil/fileerr.h
     src/ccutil/genericvector.h
     src/ccutil/genericheap.h
     src/ccutil/helpers.h
@@ -470,7 +468,6 @@ set(TESSERACT_HDR_INTERNAL
     src/classify/intmatcher.h
     src/classify/intproto.h
     src/classify/kdtree.h
-    src/classify/mf.h
     src/classify/mfdefs.h
     src/classify/mfoutline.h
     src/classify/mfx.h

@@ -16,18 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-man_xslt=http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
-asciidoc=$(which asciidoc)
-xsltproc=$(which xsltproc)
-if [[ -z "${asciidoc}" ]] || [[ -z "${xsltproc}" ]]; then
-  echo "Please make sure asciidoc and xsltproc are installed."
+asciidoctor=$(which asciidoctor)
+asciidoctor_pdf=$(which asciidoctor-pdf)
+if [[ -z "${asciidoctor}" ]]; then
+  echo "Please make sure asciidoctor is installed."
   exit 1
 else
   for src in *.asc; do
     pagename=${src/.asc/}
-    (${asciidoc} -d manpage "${src}" &&
-     ${asciidoc} -d manpage -b docbook "${src}" &&
-       ${xsltproc} --nonet ${man_xslt} "${pagename}".xml) ||
+    (${asciidoctor} -b manpage "${src}" -o "${pagename}" &&
+     ${asciidoctor} -b html5 "${src}" -o "${pagename}".html &&
+     { [[ -z "${asciidoctor_pdf}" ]] || ${asciidoctor_pdf} "${src}" -o "${pagename}".pdf; }) ||
        echo "Error generating ${pagename}"
   done
 fi

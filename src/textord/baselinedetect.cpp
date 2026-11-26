@@ -24,7 +24,6 @@
 
 #include "baselinedetect.h"
 
-#include <allheaders.h>
 #include <algorithm>
 #include <cfloat> // for FLT_MAX
 #include <cmath>  // for M_PI
@@ -32,6 +31,7 @@
 #include "detlinefit.h"
 #include "drawtord.h"
 #include "helpers.h"
+#include "image.h"          // for Image
 #include "linlsq.h"
 #include "makerow.h"
 #include "tesserrstream.h"  // for tesserr

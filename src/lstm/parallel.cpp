@@ -49,7 +49,8 @@ StaticShape Parallel::OutputShape(const StaticShape &input_shape) const {
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Parallel::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
+void Parallel::Forward(bool debug, const NetworkIO &input,
+                       const TransposedArray * /*input_transpose*/,
                        NetworkScratch *scratch, NetworkIO *output) {
   bool parallel_debug = false;
   // If this parallel is a replicator of convolvers, or holds a 1-d LSTM pair,

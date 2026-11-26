@@ -19,7 +19,6 @@
 
 #include <algorithm>
 
-#include <allheaders.h>
 #include "boxread.h"
 #include "fontinfo.h"
 //#include "helpers.h"
@@ -406,8 +405,8 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1, int font_i
 float TrainingSampleSet::ComputeClusterDistance(int font_id1, int class_id1, int font_id2,
                                                 int class_id2,
                                                 const IntFeatureMap &feature_map) const {
-  int dist = ReliablySeparable(font_id1, class_id1, font_id2, class_id2, feature_map, false);
-  dist += ReliablySeparable(font_id2, class_id2, font_id1, class_id1, feature_map, false);
+  int dist = ReliablySeparable(font_id1, class_id1, font_id2, class_id2, feature_map);
+  dist += ReliablySeparable(font_id2, class_id2, font_id1, class_id1, feature_map);
   int denominator = GetCanonicalFeatures(font_id1, class_id1).size();
   denominator += GetCanonicalFeatures(font_id2, class_id2).size();
   return static_cast<float>(dist) / denominator;
@@ -450,7 +449,7 @@ static void AddNearFeatures(const IntFeatureMap &feature_map, int f, int levels,
 // ComputeCanonicalFeatures and ComputeCloudFeatures must have been called
 // first, or the results will be nonsense.
 int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1, int font_id2, int class_id2,
-                                         const IntFeatureMap &feature_map, bool thorough) const {
+                                         const IntFeatureMap &feature_map) const {
   int result = 0;
   const TrainingSample *sample2 = GetCanonicalSample(font_id2, class_id2);
   if (sample2 == nullptr) {
@@ -540,10 +539,12 @@ void TrainingSampleSet::KillSample(TrainingSample *sample) {
 // Deletes all samples with zero features marked by KillSample.
 void TrainingSampleSet::DeleteDeadSamples() {
   using namespace std::placeholders; // for _1
-  for (auto &&it = samples_.begin(); it < samples_.end();) {
+  for (auto it = samples_.begin(); it != samples_.end();) {
     if (*it == nullptr || (*it)->class_id() < 0) {
-      samples_.erase(it);
+      // Delete before erasing: erase shifts the following samples down, so
+      // *it would otherwise refer to the next (live) sample.
       delete *it;
+      it = samples_.erase(it);
     } else {
       ++it;
     }

@@ -38,11 +38,6 @@ namespace tesseract {
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
 ----------------------------------------------------------------------------*/
-// Parameters of the sigmoid used to convert similarity to evidence in the
-// similarity_evidence_table_ that is used to convert distance metric to an
-// 8 bit evidence value in the secondary matcher. (See IntMatcher::Init).
-const float IntegerMatcher::kSEExponentialMultiplier = 0.0f;
-const float IntegerMatcher::kSimilarityCenter = 0.0075f;
 
 static const uint8_t offset_table[] = {
     255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2,
@@ -554,7 +549,7 @@ void IntegerMatcher::Match(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask
  */
 int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask,
                                    BIT_VECTOR ConfigMask, int16_t NumFeatures,
-                                   INT_FEATURE_ARRAY Features, PROTO_ID *ProtoArray,
+                                   const INT_FEATURE_ARRAY &Features, PROTO_ID *ProtoArray,
                                    int AdaptProtoThreshold, int Debug) {
   auto *tables = new ScratchEvidence();
   int NumGoodProtos = 0;
@@ -585,7 +580,10 @@ int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR P
       Temp += tables->proto_evidence_[proto][i];
     }
 
-    Temp /= ClassTemplate->ProtoLengths[proto];
+    // ConvertProto never stores a length below 1, but a templates file can.
+    if (ClassTemplate->ProtoLengths[proto] > 0) {
+      Temp /= ClassTemplate->ProtoLengths[proto];
+    }
 
     /* Find Good Protos */
     if (Temp >= AdaptProtoThreshold) {
@@ -618,7 +616,7 @@ int IntegerMatcher::FindGoodProtos(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR P
  */
 int IntegerMatcher::FindBadFeatures(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR ProtoMask,
                                     BIT_VECTOR ConfigMask, int16_t NumFeatures,
-                                    INT_FEATURE_ARRAY Features, FEATURE_ID *FeatureArray,
+                                    const INT_FEATURE_ARRAY &Features, FEATURE_ID *FeatureArray,
                                     int AdaptFeatureThreshold, int Debug) {
   auto *tables = new ScratchEvidence();
   int NumBadFeatures = 0;
@@ -668,8 +666,8 @@ int IntegerMatcher::FindBadFeatures(INT_CLASS_STRUCT *ClassTemplate, BIT_VECTOR 
 IntegerMatcher::IntegerMatcher(tesseract::IntParam *classify_debug_level)
     : classify_debug_level_(classify_debug_level) {
   /* Initialize table for evidence to similarity lookup */
-  for (int i = 0; i < SE_TABLE_SIZE; i++) {
-    uint32_t IntSimilarity = i << (27 - SE_TABLE_BITS);
+  for (int i = 0; i < kSETableSize; i++) {
+    uint32_t IntSimilarity = i << (27 - kSETableBits);
     double Similarity = (static_cast<double>(IntSimilarity)) / 65536.0 / 65536.0;
     double evidence = Similarity / kSimilarityCenter;
     evidence = 255.0 / (evidence * evidence + 1.0);
@@ -677,17 +675,17 @@ IntegerMatcher::IntegerMatcher(tesseract::IntParam *classify_debug_level)
     if (kSEExponentialMultiplier > 0.0) {
       double scale =
           1.0 - std::exp(-kSEExponentialMultiplier) *
-                    exp(kSEExponentialMultiplier * (static_cast<double>(i) / SE_TABLE_SIZE));
+                    exp(kSEExponentialMultiplier * (static_cast<double>(i) / kSETableSize));
       evidence *= ClipToRange(scale, 0.0, 1.0);
     }
 
     similarity_evidence_table_[i] = static_cast<uint8_t>(evidence + 0.5);
   }
 
-  /* Initialize evidence computation variables */
+  // Initialize evidence computation variables
   evidence_table_mask_ = ((1 << kEvidenceTableBits) - 1) << (9 - kEvidenceTableBits);
   mult_trunc_shift_bits_ = (14 - kIntEvidenceTruncBits);
-  table_trunc_shift_bits_ = (27 - SE_TABLE_BITS - (mult_trunc_shift_bits_ << 1));
+  table_trunc_shift_bits_ = (27 - kSETableBits - (mult_trunc_shift_bits_ << 1));
   evidence_mult_mask_ = ((1 << kIntEvidenceTruncBits) - 1);
 }
 
@@ -1010,7 +1008,9 @@ void IntegerMatcher::DisplayProtoDebugInfo(INT_CLASS_STRUCT *ClassTemplate, BIT_
         temp += tables.proto_evidence_[ActualProtoNum][i];
       }
 
-      temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
+      if (ClassTemplate->ProtoLengths[ActualProtoNum] > 0) {
+        temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
+      }
 
       if ((ProtoSet->Protos[ProtoNum]).Configs[0] & (*ConfigMask)) {
         DisplayIntProto(ClassTemplate, ActualProtoNum, temp / 255.0);

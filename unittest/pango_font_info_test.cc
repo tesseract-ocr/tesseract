@@ -171,6 +171,20 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
   }
 }
 
+TEST_F(PangoFontInfoTest, HandlesTruncatedUtf8) {
+  font_info_.ParseFontDescriptionName("Verdana 12");
+  // A multibyte sequence truncated at the end of the string must not be
+  // read past the end of the string (or loop forever).
+  std::string word = std::string("ab") + "\xE8";
+  EXPECT_EQ(1, font_info_.DropUncoveredChars(&word));
+  EXPECT_STREQ("ab", word.c_str());
+  const std::string covers = std::string("ab") + "\xF0";
+  EXPECT_TRUE(font_info_.CoversUTF8Text(covers.c_str(), covers.length()));
+  int x_bearing, x_advance;
+  EXPECT_TRUE(font_info_.GetSpacingProperties(covers, &x_bearing, &x_advance));
+  EXPECT_GT(x_advance, 0);
+}
+
 // ------------------------ FontUtils ------------------------------------
 
 class FontUtilsTest : public ::testing::Test {

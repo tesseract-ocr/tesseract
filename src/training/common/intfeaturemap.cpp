@@ -144,7 +144,7 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator *it) {
   feature_map_.Setup();
   compact_size_ = feature_map_.CompactSize();
   mapping_changed_ = true;
-  FinalizeMapping(it);
+  FinalizeMapping();
   tprintf("%d non-zero features found in %d samples\n", compact_size_, total_samples);
   return compact_size_;
 }
@@ -152,7 +152,7 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator *it) {
 
 // After deleting some features, finish setting up the mapping, and map
 // all the samples. Returns the size of the compacted feature space.
-int IntFeatureMap::FinalizeMapping(SampleIterator *it) {
+int IntFeatureMap::FinalizeMapping() {
   if (mapping_changed_) {
     feature_map_.CompleteMerges();
     compact_size_ = feature_map_.CompactSize();

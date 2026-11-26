@@ -90,7 +90,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
     ++total_samples;
   }
   // Create the appropriate error report.
-  unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table, *it,
+  unscaled_error = counter.ReportErrors(report_level, boosting_mode, fontinfo_table,
                                         unichar_error, fonts_report);
   if (scaled_error != nullptr) {
     *scaled_error = counter.scaled_error_;
@@ -138,8 +138,8 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
       // old classifier was correct, check the new one.
       new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
                                             &results);
-      if (correct_id != 0 && new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
-                                                          results, mutable_sample)) {
+      if (new_counter.AccumulateErrors(true, boosting_mode, fontinfo_table,
+                                       results, mutable_sample)) {
         tprintf("New Error on sample %d: Classifier debug output:\n", it->GlobalSampleIndex());
         ++total_new_errors;
         new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1, correct_id, &results);
@@ -356,7 +356,7 @@ bool ErrorCounter::AccumulateJunk(bool debug, const std::vector<UnicharRating> &
 // If not nullptr, the report string is saved in fonts_report.
 // (Ignoring report_level).
 double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
-                                  const FontInfoTable &fontinfo_table, const SampleIterator &it,
+                                  const FontInfoTable &fontinfo_table,
                                   double *unichar_error, std::string *fonts_report) {
   // Compute totals over all the fonts and report individual font results
   // when required.

@@ -18,8 +18,8 @@
  **********************************************************************/
 
 #include "degradeimage.h"
+#include "image.h"        // for Image
 
-#include <allheaders.h> // from leptonica
 #include <cstdlib>
 #include "helpers.h" // For TRand.
 #include "rect.h"
@@ -96,7 +96,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
   if (exposure >= 2) {
     // An erosion simulates the spreading darkening of a dark copy.
     // This is backwards to binary morphology,
-    // see http://www.leptonica.com/grayscale-morphology.html
+    // see http://www.leptonica.org/grayscale-morphology.html
     pix = input;
     input = pixErodeGray(pix, 3, 3);
     pix.destroy();
@@ -126,7 +126,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
     // Erosion after the convolution is not as heavy as before, so it is
     // good for level 1 and in addition as a level 3.
     // This is backwards to binary morphology,
-    // see http://www.leptonica.com/grayscale-morphology.html
+    // see http://www.leptonica.org/grayscale-morphology.html
     pix = input;
     input = pixErodeGray(pix, 3, 3);
     pix.destroy();
@@ -150,7 +150,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
   l_uint32 *data = pixGetData(input);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      int pixel = GET_DATA_BYTE(data, x);
+      int pixel = Image::getDataByte(data, x);
       if (randomizer != nullptr) {
         pixel += randomizer->IntRand() % (kSaltnPepper * 2 + 1) - kSaltnPepper;
       }
@@ -164,7 +164,7 @@ Image DegradeImage(Image input, int exposure, TRand *randomizer, float *rotation
       if (pixel > 255) {
         pixel = 255;
       }
-      SET_DATA_BYTE(data, x, pixel);
+      Image::setDataByte(data, x, pixel);
     }
     data += pixGetWpl(input);
   }

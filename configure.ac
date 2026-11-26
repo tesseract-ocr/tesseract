@@ -28,8 +28,8 @@ AM_INIT_AUTOMAKE([foreign subdir-objects nostdinc])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2025
-PACKAGE_DATE="12/26"
+PACKAGE_YEAR=2026
+PACKAGE_DATE="10/28"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
@@ -302,7 +302,7 @@ m4_define([MY_CHECK_FRAMEWORK],
             [my_cv_framework_$1=no])
      LIBS="$save_LIBS"
     ])
-   if test "$my_cv_framework_$1"="yes"; then
+   if test "$my_cv_framework_$1" = "yes"; then
      AC_DEFINE(AS_TR_CPP([HAVE_FRAMEWORK_$1]), 1,
             [Define if you have the $1 framework])
      AS_TR_CPP([FRAMEWORK_$1])="-framework $1"
@@ -312,6 +312,8 @@ m4_define([MY_CHECK_FRAMEWORK],
 
 case "${host_os}" in
   *darwin* | *-macos10*)
+    test -z "$MACOSX_DEPLOYMENT_TARGET" && MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion 2>/dev/null || echo 10.15)
+    AC_SUBST([MACOSX_DEPLOYMENT_TARGET])
     MY_CHECK_FRAMEWORK([Accelerate])
     if test $my_cv_framework_Accelerate = yes; then
       AM_CPPFLAGS="-DHAVE_FRAMEWORK_ACCELERATE $AM_CPPFLAGS"
@@ -324,7 +326,7 @@ case "${host_os}" in
 esac
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
-# http://gcc.gnu.org/wiki/Visibility
+# https://gcc.gnu.org/wiki/Visibility
 # https://groups.google.com/g/tesseract-dev/c/l2ZFrpgYkSc/m/_cdYSRDSXuUJ
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
@@ -437,36 +439,24 @@ fi
 # Check for programs needed to build documentation.
 # ----------------------------------------
 
-AM_CONDITIONAL([ASCIIDOC], false)
-AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], false)
+AM_CONDITIONAL([ASCIIDOCTOR], false)
+AM_CONDITIONAL([ASCIIDOCTOR_PDF], false)
 AC_ARG_ENABLE([doc],
               AS_HELP_STRING([--disable-doc], [disable build of documentation])
               [],
               [: m4_divert_text([DEFAULTS], [enable_doc=check])])
 AS_IF([test "$enable_doc" != "no"], [
-  AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
-  AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
-  # macOS with Homebrew requires the environment variable
-  # XML_CATALOG_FILES for xsltproc.
-  if $have_asciidoc && $have_xsltproc; then
-    AM_CONDITIONAL([ASCIIDOC], true)
-    XML_CATALOG_FILES=
-    if $have_brew; then
-      catalog_file=$brew_prefix/etc/xml/catalog
-      if test -f $catalog_file; then
-        AM_CONDITIONAL([HAVE_XML_CATALOG_FILES], true)
-        XML_CATALOG_FILES=file:$catalog_file
-      else
-        AC_MSG_WARN([Missing file $catalog_file.])
-      fi
-    fi
-    AC_SUBST([XML_CATALOG_FILES])
+  AC_CHECK_PROG([have_asciidoctor], asciidoctor, true, false)
+  if $have_asciidoctor; then
+    AM_CONDITIONAL([ASCIIDOCTOR], true)
   else
     AS_IF([test "x$enable_doc" != xcheck], [
       AC_MSG_FAILURE(
-        [--enable-doc was given, but test for asciidoc and xsltproc failed])
+        [--enable-doc was given, but test for asciidoctor failed])
     ])
   fi
+  AC_CHECK_PROG([have_asciidoctor_pdf], asciidoctor-pdf, true, false)
+  AM_CONDITIONAL([ASCIIDOCTOR_PDF], $have_asciidoctor_pdf)
 ])
 
 # ----------------------------------------
@@ -494,11 +484,11 @@ AS_IF([test "x$with_curl" != xno], [
   fi
 ])
 
-PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
+PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.80], [have_lept=true], [have_lept=false])
 if $have_lept; then
   CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
 else
-  AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
+  AC_MSG_ERROR([Leptonica 1.80 or higher is required. Try to install libleptonica-dev package.])
 fi
 
 AM_CONDITIONAL([HAVE_LIBARCHIVE], false)
@@ -577,13 +567,17 @@ echo "$ sudo make install"
 echo "$ sudo ldconfig"
 echo ""
 
-AM_COND_IF([ASCIIDOC], [
-  echo "This will also build the documentation."
+AM_COND_IF([ASCIIDOCTOR], [
+  AM_COND_IF([ASCIIDOCTOR_PDF], [
+    echo "This will also build the documentation (including PDF)."
+  ], [
+    echo "This will also build the documentation (PDF skipped: asciidoctor-pdf not found)."
+  ])
 ], [
   AS_IF([test "$enable_doc" = "no"], [
     echo "Documentation will not be built because it was disabled."
   ], [
-    echo "Documentation will not be built because asciidoc or xsltproc is missing."
+    echo "Documentation will not be built because asciidoctor is missing."
   ])
 ])
 

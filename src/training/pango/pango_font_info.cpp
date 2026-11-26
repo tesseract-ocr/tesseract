@@ -42,6 +42,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string_view>
+#include <utility> // for std::move
 
 #ifndef _MSC_VER
 #  include <sys/param.h>
@@ -220,23 +222,31 @@ bool PangoFontInfo::CoversUTF8Text(const char *utf8_text, int byte_length) const
     return false;
   }
   PangoCoverage *coverage = pango_font_get_coverage(font, nullptr);
-  for (UNICHAR::const_iterator it = UNICHAR::begin(utf8_text, byte_length);
-       it != UNICHAR::end(utf8_text, byte_length); ++it) {
-    if (IsWhitespace(*it) || pango_is_zero_width(*it)) {
-      continue;
-    }
-    if (pango_coverage_get(coverage, *it) != PANGO_COVERAGE_EXACT) {
-      char tmp[5];
-      int len = it.get_utf8(tmp);
-      tmp[len] = '\0';
-      tlog(2, "'%s' (U+%x) not covered by font\n", tmp, *it);
+  const char *const text_end = utf8_text + byte_length;
+  for (const char *p = utf8_text; p < text_end;) {
+    const int step = UNICHAR::utf8_step(p);
+    if (step > 0 && step <= text_end - p) {
+      const int unicode = UNICHAR(p, step).first_uni();
+      if (!IsWhitespace(unicode) && !pango_is_zero_width(unicode) &&
+          pango_coverage_get(coverage, unicode) != PANGO_COVERAGE_EXACT) {
+        char tmp[5];
+        memcpy(tmp, p, step);
+        tmp[step] = '\0';
+        tlog(2, "'%s' (U+%x) not covered by font\n", tmp, unicode);
 #if PANGO_VERSION_CHECK(1, 50, 4)
-      g_object_unref(coverage);
+        g_object_unref(coverage);
 #else
-      pango_coverage_unref(coverage);
+        pango_coverage_unref(coverage);
 #endif
-      g_object_unref(font);
-      return false;
+        g_object_unref(font);
+        return false;
+      }
+      p += step;
+    } else {
+      // An illegal byte or a multibyte sequence truncated at the end of the
+      // string is not a character to check coverage for. Skipping it one
+      // byte at a time also avoids reading past the end of the string.
+      ++p;
     }
   }
 #if PANGO_VERSION_CHECK(1, 50, 4)
@@ -284,19 +294,22 @@ int PangoFontInfo::DropUncoveredChars(std::string *utf8_text) const {
   // will repeatedly copy one covered UTF8 character from one to the other, and
   // at the end resize the string to the right length.
   char *out = const_cast<char *>(utf8_text->c_str());
-  const UNICHAR::const_iterator it_begin = UNICHAR::begin(utf8_text->c_str(), utf8_text->length());
-  const UNICHAR::const_iterator it_end = UNICHAR::end(utf8_text->c_str(), utf8_text->length());
-  for (UNICHAR::const_iterator it = it_begin; it != it_end;) {
-    // Skip bad utf-8.
-    if (!it.is_legal()) {
-      ++it; // One suitable error message will still be issued.
+  const char *const in_end = utf8_text->c_str() + utf8_text->length();
+  for (const char *p = utf8_text->c_str(); p < in_end;) {
+    const int step = UNICHAR::utf8_step(p);
+    if (step <= 0) {
+      // Skip bad utf-8.
+      ++p;
       continue;
     }
-    int unicode = *it;
-    int utf8_len = it.utf8_len();
-    const char *utf8_char = it.utf8_data();
-    // Move it forward before the data gets modified.
-    ++it;
+    if (step > in_end - p) {
+      // A multibyte sequence truncated at the end of the string: drop the
+      // stray bytes instead of reading past the NUL terminator.
+      ++num_dropped_chars;
+      ++p;
+      continue;
+    }
+    const int unicode = UNICHAR(p, step).first_uni();
     if (!IsWhitespace(unicode) && !pango_is_zero_width(unicode) &&
         pango_coverage_get(coverage, unicode) != PANGO_COVERAGE_EXACT) {
       if (TLOG_IS_ON(2)) {
@@ -306,10 +319,11 @@ int PangoFontInfo::DropUncoveredChars(std::string *utf8_text) const {
         delete[] str;
       }
       ++num_dropped_chars;
-      continue;
+    } else {
+      my_strnmove(out, p, step);
+      out += step;
     }
-    my_strnmove(out, utf8_char, utf8_len);
-    out += utf8_len;
+    p += step;
   }
 #if PANGO_VERSION_CHECK(1, 50, 4)
   g_object_unref(coverage);
@@ -334,10 +348,26 @@ bool PangoFontInfo::GetSpacingProperties(const std::string &utf8_char, int *x_be
   // Handle multi-unicode strings by reporting the left-most position of the
   // x-bearing, and right-most position of the x-advance if the string were to
   // be rendered.
-  const UNICHAR::const_iterator it_begin = UNICHAR::begin(utf8_char.c_str(), utf8_char.length());
-  const UNICHAR::const_iterator it_end = UNICHAR::end(utf8_char.c_str(), utf8_char.length());
-  for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
-    PangoGlyph glyph_index = get_glyph(font, *it);
+  bool first_char = true;
+  const char *p = utf8_char.c_str();
+  const char *const p_end = p + utf8_char.length();
+  for (; p < p_end;) {
+    const int step = UNICHAR::utf8_step(p);
+    int unicode;
+    if (step <= 0) {
+      // The iterator maps an illegal leading byte to a space.
+      unicode = ' ';
+      ++p;
+    } else if (step > p_end - p) {
+      // A multibyte sequence truncated at the end of the string: skip the
+      // stray bytes instead of reading past the NUL terminator.
+      ++p;
+      continue;
+    } else {
+      unicode = UNICHAR(p, step).first_uni();
+      p += step;
+    }
+    PangoGlyph glyph_index = get_glyph(font, unicode);
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
       g_object_unref(font);
@@ -350,9 +380,10 @@ bool PangoFontInfo::GetSpacingProperties(const std::string &utf8_char, int *x_be
     pango_extents_to_pixels(&logical_rect, nullptr);
 
     int bearing = total_advance + PANGO_LBEARING(ink_rect);
-    if (it == it_begin || bearing < min_bearing) {
+    if (first_char || bearing < min_bearing) {
       min_bearing = bearing;
     }
+    first_char = false;
     total_advance += PANGO_RBEARING(logical_rect);
   }
   *x_bearing = min_bearing;
@@ -535,11 +566,11 @@ bool FontUtils::IsAvailableFont(const char *input_query_desc, std::string *best_
   return equal;
 }
 
-static bool ShouldIgnoreFontFamilyName(const char *query) {
+static bool ShouldIgnoreFontFamilyName(std::string_view query) {
   static const char *kIgnoredFamilyNames[] = {"Sans", "Serif", "Monospace", nullptr};
   const char **list = kIgnoredFamilyNames;
   for (; *list != nullptr; ++list) {
-    if (!strcmp(*list, query)) {
+    if (query == *list) {
       return true;
     }
   }
@@ -646,7 +677,7 @@ std::string FontUtils::BestFonts(const std::unordered_map<char32, int64_t> &ch_m
     most_ok_chars = std::max(ok_chars, most_ok_chars);
     best_raw_score = std::max(raw_score, best_raw_score);
 
-    font_flags.push_back(ch_flags);
+    font_flags.push_back(std::move(ch_flags));
     font_scores.push_back(ok_chars);
     raw_scores.push_back(raw_score);
   }
@@ -668,7 +699,7 @@ std::string FontUtils::BestFonts(const std::unordered_map<char32, int64_t> &ch_m
     int score = font_scores[i];
     int raw_score = raw_scores[i];
     if ((score >= least_good_enough && raw_score >= least_raw_enough) || score >= override_enough) {
-      fonts->push_back(std::make_pair(font_names[i].c_str(), font_flags[i]));
+      fonts->push_back(std::make_pair(font_names[i].c_str(), std::move(font_flags[i])));
       tlog(1, "OK font %s = %.4f%%, raw = %d = %.2f%%\n", font_names[i].c_str(),
            100.0 * score / most_ok_chars, raw_score, 100.0 * raw_score / best_raw_score);
       font_list += font_names[i];

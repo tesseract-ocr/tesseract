@@ -19,8 +19,8 @@
 #include <cfloat> // for FLT_MAX
 #include <cmath>
 
-#include <allheaders.h>
 #include "functions.h"
+#include "image.h"     // for Image
 #include "statistc.h"
 #include "tprintf.h"
 
@@ -131,10 +131,10 @@ static void ComputeBlackWhite(Image pix, float *black, float *white) {
   if (width >= 3) {
     int y = height / 2;
     l_uint32 *line = pixGetData(pix) + pixGetWpl(pix) * y;
-    int prev = GET_DATA_BYTE(line, 0);
-    int curr = GET_DATA_BYTE(line, 1);
+    int prev = Image::getDataByte(line, 0);
+    int curr = Image::getDataByte(line, 1);
     for (int x = 1; x + 1 < width; ++x) {
-      int next = GET_DATA_BYTE(line, x + 1);
+      int next = Image::getDataByte(line, x + 1);
       if ((curr < prev && curr <= next) || (curr <= prev && curr < next)) {
         // Local minimum.
         mins.add(curr, 1);
@@ -235,11 +235,11 @@ void NetworkIO::Copy2DImage(int batch, Image pix, float black, float contrast, T
         if (color) {
           int f = 0;
           for (int c = COLOR_RED; c <= COLOR_BLUE; ++c) {
-            int pixel = GET_DATA_BYTE(line + x, c);
+            int pixel = Image::getDataByte(line + x, c);
             SetPixel(t, f++, pixel, black, contrast);
           }
         } else {
-          int pixel = GET_DATA_BYTE(line, x);
+          int pixel = Image::getDataByte(line, x);
           SetPixel(t, 0, pixel, black, contrast);
         }
       }
@@ -271,7 +271,7 @@ void NetworkIO::Copy1DGreyImage(int batch, Image pix, float black, float contras
   for (x = 0; x < width; ++x, ++t) {
     for (int y = 0; y < height; ++y) {
       uint32_t *line = pixGetData(pix) + wpl * y;
-      int pixel = GET_DATA_BYTE(line, x);
+      int pixel = Image::getDataByte(line, x);
       SetPixel(t, y, pixel, black, contrast);
     }
   }
@@ -405,6 +405,7 @@ void NetworkIO::CopyTimeStepFrom(int dest_t, const NetworkIO &src, int src_t) {
 void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_features,
                                     const NetworkIO &src, int src_t, int src_offset) {
   ASSERT_HOST(int_mode_ == src.int_mode_);
+  ASSERT_HOST(dest_offset + num_features <= NumFeatures());
   if (int_mode_) {
     memcpy(i_[dest_t] + dest_offset, src.i_[src_t] + src_offset, num_features * sizeof(i_[0][0]));
   } else {
@@ -414,6 +415,7 @@ void NetworkIO::CopyTimeStepGeneral(int dest_t, int dest_offset, int num_feature
 
 // Sets the given range to random values.
 void NetworkIO::Randomize(int t, int offset, int num_features, TRand *randomizer) {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
     int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
@@ -639,6 +641,7 @@ void NetworkIO::AddTimeStep(int t, TFloat *inout) const {
 
 // Adds part of a single timestep to floats.
 void NetworkIO::AddTimeStepPart(int t, int offset, int num_features, float *inout) const {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
     const int8_t *line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
@@ -660,11 +663,11 @@ void NetworkIO::WriteTimeStep(int t, const TFloat *input) {
 // Writes a single timestep from floats in the range [-1, 1] writing only
 // num_features elements of input to (*this)[t], starting at offset.
 void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features, const TFloat *input) {
+  ASSERT_HOST(offset + num_features <= NumFeatures());
   if (int_mode_) {
-    int8_t *line = i_[t] + offset;
-    for (int i = 0; i < num_features; ++i) {
-      line[i] = ClipToRange<int>(IntCastRounded(input[i] * INT8_MAX), -INT8_MAX, INT8_MAX);
-    }
+    // The values are clipped before the conversion to int: the output of a
+    // linear layer of an untrusted model is not bounded to [-1, 1].
+    FloatToInt8Vector(num_features, input, i_[t] + offset);
   } else {
     float *line = f_[t] + offset;
     for (int i = 0; i < num_features; ++i) {

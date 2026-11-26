@@ -51,14 +51,14 @@ typedef enum { PicoFeatY, PicoFeatDir, PicoFeatX } PICO_FEAT_PARAM_NAME;
 extern double_VAR_H(classify_pico_feature_length);
 
 /**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
-#define GetPicoFeatureLength() (PicoFeatureLength)
-
-/**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
 extern TESS_API float PicoFeatureLength;
+
+/**----------------------------------------------------------------------------
+          Public Function Prototypes
+----------------------------------------------------------------------------**/
+inline float GetPicoFeatureLength() { return PicoFeatureLength; }
 
 } // namespace tesseract
 

@@ -62,8 +62,7 @@ public:
       STATS *projection,      // occupation
       float projection_scale, // scaling
       int16_t zero_count,     // official zero
-      int16_t pitch,          // proposed pitch
-      int16_t pitch_error);   // allowed tolerance
+      int16_t pitch);         // proposed pitch
 
   int32_t position() { // access func
     return xpos;

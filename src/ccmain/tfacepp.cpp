@@ -182,13 +182,12 @@ void Tesseract::split_word(WERD_RES *word, unsigned split_pt, WERD_RES **right_p
   delete word2->chopped_word;
   word2->chopped_word = nullptr;
 
-  const UNICHARSET &unicharset = *word->uch_set;
   word->ClearResults();
   word2->ClearResults();
   word->chopped_word = chopped;
   word2->chopped_word = chopped2;
-  word->SetupBasicsFromChoppedWord(unicharset);
-  word2->SetupBasicsFromChoppedWord(unicharset);
+  word->SetupBasicsFromChoppedWord();
+  word2->SetupBasicsFromChoppedWord();
 
   // Try to adjust the blamer bundle.
   if (orig_bb != nullptr) {

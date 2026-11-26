@@ -88,8 +88,8 @@ void render_edgepts(ScrollView *window, EDGEPT *edgept, ScrollView::Color color)
     return;
   }
 
-  float x = edgept->pos.x;
-  float y = edgept->pos.y;
+  int x = edgept->pos.x;
+  int y = edgept->pos.y;
   EDGEPT *this_edge = edgept;
 
   window->Pen(color);

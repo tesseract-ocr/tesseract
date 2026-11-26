@@ -1,14 +1,48 @@
 
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
+#include <memory>
 #include <string>
+#include "image.h"      // for Image
+#include "pageres.h"
 #include "scrollview.h"
 
 #include "include_gunit.h"
 #include "log.h" // for LOG
 
 namespace tesseract {
+
+class TestLTRResultIterator : public LTRResultIterator {
+ public:
+  using LTRResultIterator::LTRResultIterator;
+
+  explicit TestLTRResultIterator(const LTRResultIterator &src) : LTRResultIterator(src) {}
+
+  WERD_RES *CurrentWord() const { return it_->word(); }
+
+  void SetCurrentWordBestChoiceNull() {
+    if (it_ != nullptr && it_->word() != nullptr) {
+      it_->word()->best_choice = nullptr;
+    }
+  }
+};
+
+// Unlike TestLTRResultIterator, this keeps the concrete ResultIterator,
+// so the tests run the code of ResultIterator and not that of its base class.
+class TestResultIterator : public ResultIterator {
+ public:
+  explicit TestResultIterator(const ResultIterator &src) : ResultIterator(src) {}
+
+  WERD_RES *CurrentWord() const { return it_->word(); }
+};
+
+// Returns the text of the given iterator at the given level and frees the
+// buffer. A missing text gives an empty string.
+template <class Iterator>
+static std::string TextOf(const Iterator &it, PageIteratorLevel level) {
+  std::unique_ptr<char[]> text(it.GetUTF8Text(level));
+  return text ? std::string(text.get()) : std::string();
+}
 
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
@@ -32,9 +66,10 @@ protected:
   }
   ~ResultIteratorTest() override = default;
 
-  void SetImage(const char *filename) {
+  void SetImage(const char *filename, const char *language = "eng",
+                OcrEngineMode oem = tesseract::OEM_TESSERACT_ONLY) {
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
-    api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+    api_.Init(TessdataPath().c_str(), language, oem);
     //    if (!FLAGS_tess_config.empty())
     //      api_.ReadConfigFile(FLAGS_tess_config.c_str());
     api_.SetPageSegMode(tesseract::PSM_AUTO);
@@ -256,6 +291,7 @@ protected:
 
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(ResultIteratorTest, EasyTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("phototest.tif");
   // Just run layout analysis.
   PageIterator *p_it = api_.AnalyseLayout();
@@ -346,6 +382,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
 // Tests image rebuild on the UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
 TEST_F(ResultIteratorTest, ComplexTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3B.tif");
   // Just run layout analysis.
   PageIterator *it = api_.AnalyseLayout();
@@ -355,8 +392,46 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   delete it;
 }
 
+// Tests that restarting at a paragraph preserves the current paragraph while
+// iterating a page with multiple blocks and paragraphs.
+TEST_F(ResultIteratorTest, RestartParagraphTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  SetImage("8087_054.3B.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  ResultIterator *it = api_.GetIterator();
+  ASSERT_NE(it, nullptr);
+  do {
+    int left;
+    int top;
+    int right;
+    int bottom;
+    ASSERT_TRUE(it->BoundingBox(tesseract::RIL_PARA, &left, &top, &right, &bottom));
+    char *paragraph_text = it->GetUTF8Text(tesseract::RIL_PARA);
+
+    ResultIterator paragraph_start(*it);
+    paragraph_start.RestartParagraph();
+    EXPECT_TRUE(paragraph_start.IsAtBeginningOf(tesseract::RIL_PARA));
+    int start_left;
+    int start_top;
+    int start_right;
+    int start_bottom;
+    ASSERT_TRUE(paragraph_start.BoundingBox(tesseract::RIL_PARA, &start_left, &start_top,
+                                            &start_right, &start_bottom));
+    EXPECT_EQ(left, start_left);
+    EXPECT_EQ(top, start_top);
+    EXPECT_EQ(right, start_right);
+    EXPECT_EQ(bottom, start_bottom);
+    char *start_text = paragraph_start.GetUTF8Text(tesseract::RIL_PARA);
+    EXPECT_STREQ(paragraph_text, start_text);
+    delete[] paragraph_text;
+    delete[] start_text;
+  } while (it->Next(tesseract::RIL_WORD));
+  delete it;
+}
+
 // Tests image rebuild on the UNLV page numbered 8087_054.3G.tif. (Dubrovnik)
 TEST_F(ResultIteratorTest, GreyTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8087_054.3G.tif");
   // Just run layout analysis.
   PageIterator *it = api_.AnalyseLayout();
@@ -366,12 +441,80 @@ TEST_F(ResultIteratorTest, GreyTest) {
   delete it;
 }
 
+// Tests that higher-level iteration lands at both the logical and physical
+// start of each LTR object, including when constructed from an interior word.
+TEST_F(ResultIteratorTest, IteratorLevelStartsTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  SetImage("8087_054.3B.tif");
+  char *text = api_.GetUTF8Text();
+  delete[] text;
+
+  const PageIteratorLevel levels[] = {RIL_BLOCK, RIL_PARA, RIL_TEXTLINE};
+  for (const auto level : levels) {
+    ResultIterator *it = api_.GetIterator();
+    ASSERT_NE(nullptr, it);
+    int count = 0;
+    do {
+      EXPECT_TRUE(it->IsAtBeginningOf(level));
+      EXPECT_TRUE(it->PageIterator::IsAtBeginningOf(level));
+      ++count;
+    } while (it->Next(level));
+    EXPECT_GT(count, 1);
+    delete it;
+  }
+
+  ResultIterator *it = api_.GetIterator();
+  ASSERT_NE(nullptr, it);
+  while (it->PageIterator::IsAtBeginningOf(RIL_TEXTLINE)) {
+    ASSERT_TRUE(it->Next(RIL_WORD));
+  }
+  EXPECT_FALSE(it->IsAtBeginningOf(RIL_TEXTLINE));
+  EXPECT_FALSE(it->PageIterator::IsAtBeginningOf(RIL_TEXTLINE));
+
+  ResultIterator *paragraph_start = ResultIterator::StartOfParagraph(*it);
+  ASSERT_NE(nullptr, paragraph_start);
+  EXPECT_TRUE(paragraph_start->IsAtBeginningOf(RIL_PARA));
+  EXPECT_TRUE(paragraph_start->PageIterator::IsAtBeginningOf(RIL_PARA));
+  delete paragraph_start;
+  delete it;
+}
+
+// Tests that RTL iteration remains at logical starts even when those differ
+// from the physical left-to-right starts used by PageIterator.
+TEST_F(ResultIteratorTest, RightToLeftIteratorStartsTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
+  SetImage("hebrew.png", "heb", tesseract::OEM_DEFAULT);
+  char *text = api_.GetUTF8Text();
+  ASSERT_NE(nullptr, text);
+  std::string truth(text);
+  delete[] text;
+
+  ResultIterator *it = api_.GetIterator();
+  ASSERT_NE(nullptr, it);
+  ASSERT_FALSE(it->ParagraphIsLtr());
+  int line_count = 0;
+  int logical_only_starts = 0;
+  do {
+    EXPECT_TRUE(it->IsAtBeginningOf(RIL_TEXTLINE));
+    if (!it->PageIterator::IsAtBeginningOf(RIL_TEXTLINE)) {
+      ++logical_only_starts;
+    }
+    ++line_count;
+  } while (it->Next(RIL_TEXTLINE));
+  EXPECT_GT(line_count, 1);
+  EXPECT_GT(logical_only_starts, 0);
+
+  VerifyAllText(truth, it);
+  delete it;
+}
+
 // Tests that Tesseract gets smallcaps and dropcaps.
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
 #ifdef DISABLED_LEGACY_ENGINE
   // Skip test as LSTM mode does not recognize smallcaps & dropcaps attributes.
   GTEST_SKIP();
 #else
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("8071_093.3B.tif");
   char *result = api_.GetUTF8Text();
   delete[] result;
@@ -533,6 +676,156 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
   }
 }
 
+TEST_F(ResultIteratorTest, NullBestChoiceRegressionTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  std::vector<std::pair<std::string, TestLTRResultIterator>> words;
+  for (TestLTRResultIterator it(*r_it); !it.Empty(RIL_WORD); it.Next(RIL_WORD)) {
+    if (it.CurrentWord() == nullptr || it.CurrentWord()->best_choice == nullptr) {
+      continue;
+    }
+    char *word = it.GetUTF8Text(RIL_WORD);
+    if (word == nullptr) {
+      continue;
+    }
+    words.emplace_back(word, TestLTRResultIterator(it));
+    delete[] word;
+  }
+  ASSERT_GE(words.size(), 3);
+
+  auto target = words[1];
+  target.second.SetCurrentWordBestChoiceNull();
+  EXPECT_EQ(nullptr, target.second.GetUTF8Text(RIL_WORD));
+  EXPECT_EQ(nullptr, target.second.GetUTF8Text(RIL_SYMBOL));
+
+  char *text = target.second.GetUTF8Text(RIL_TEXTLINE);
+  ASSERT_NE(text, nullptr);
+  std::string text_line(text);
+  delete[] text;
+  EXPECT_NE(text_line.find(words[2].first), std::string::npos)
+      << "A null best_choice should not stop textline traversal";
+
+  char *para_text = target.second.GetUTF8Text(RIL_PARA);
+  ASSERT_NE(para_text, nullptr);
+  std::string para(para_text);
+  delete[] para_text;
+  EXPECT_NE(para.find(words[2].first), std::string::npos)
+      << "A null best_choice should not stop paragraph traversal";
+}
+
+// A word without best_choice in the middle of a text line must be skipped
+// by ResultIterator, too: no text, no additional space, no confidence.
+TEST_F(ResultIteratorTest, NullBestChoiceInTextlineTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  // Get the first three words of the first text line.
+  const TestResultIterator line(*r_it);
+  TestResultIterator second(line);
+  ASSERT_TRUE(second.Next(RIL_WORD));
+  TestResultIterator third(second);
+  ASSERT_TRUE(third.Next(RIL_WORD));
+  ASSERT_FALSE(third.IsAtBeginningOf(RIL_TEXTLINE));
+  const std::string prefix =
+      TextOf(line, RIL_WORD) + " " + TextOf(second, RIL_WORD) + " " + TextOf(third, RIL_WORD);
+  const std::string without_second = TextOf(line, RIL_WORD) + " " + TextOf(third, RIL_WORD);
+
+  // The text line without its second word, for both kinds of iterators.
+  const TestLTRResultIterator ltr_line(line);
+  const std::string text_line = TextOf(line, RIL_TEXTLINE);
+  const std::string ltr_text_line = TextOf(ltr_line, RIL_TEXTLINE);
+  ASSERT_EQ(0, text_line.compare(0, prefix.size(), prefix)) << text_line;
+  ASSERT_EQ(0, ltr_text_line.compare(0, prefix.size(), prefix)) << ltr_text_line;
+  const std::string expected = without_second + text_line.substr(prefix.size());
+  const std::string ltr_expected = without_second + ltr_text_line.substr(prefix.size());
+
+  WERD_RES *word = second.CurrentWord();
+  ASSERT_NE(word, nullptr);
+  WERD_CHOICE *best_choice = word->best_choice;
+  ASSERT_NE(best_choice, nullptr);
+  EXPECT_GT(second.Confidence(RIL_WORD), 0.0f);
+
+  // A best_choice without any character has no symbol.
+  WERD_CHOICE empty_choice(word->uch_set);
+  word->best_choice = &empty_choice;
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_SYMBOL));
+
+  word->best_choice = nullptr;
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_WORD));
+  EXPECT_EQ(nullptr, second.GetUTF8Text(RIL_SYMBOL));
+  EXPECT_EQ(0.0f, second.Confidence(RIL_WORD));
+  EXPECT_EQ(0.0f, second.Confidence(RIL_SYMBOL));
+  EXPECT_GT(line.Confidence(RIL_TEXTLINE), 0.0f);
+  EXPECT_EQ(expected, TextOf(line, RIL_TEXTLINE));
+  EXPECT_EQ(ltr_expected, TextOf(ltr_line, RIL_TEXTLINE));
+
+  word->best_choice = best_choice;
+  EXPECT_EQ(text_line, TextOf(line, RIL_TEXTLINE));
+}
+
+// A text line without any best_choice gives an empty line. It must neither
+// add spaces nor remove the line separator of the previous text line.
+TEST_F(ResultIteratorTest, NullBestChoiceTextlineTest) {
+  SetImage("phototest.tif");
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> r_it(api_.GetIterator());
+  ASSERT_NE(r_it, nullptr);
+
+  // The second text line must be neither the first nor the last one
+  // of its paragraph.
+  const TestResultIterator first_line(*r_it);
+  TestResultIterator second_line(first_line);
+  ASSERT_TRUE(second_line.Next(RIL_TEXTLINE));
+  ASSERT_FALSE(second_line.IsAtBeginningOf(RIL_PARA));
+  TestResultIterator third_line(second_line);
+  ASSERT_TRUE(third_line.Next(RIL_TEXTLINE));
+  ASSERT_FALSE(third_line.IsAtBeginningOf(RIL_PARA));
+
+  // The paragraph with an empty second text line, for both kinds of iterators.
+  const TestLTRResultIterator ltr_first_line(first_line);
+  const TestLTRResultIterator ltr_second_line(second_line);
+  const std::string lines = TextOf(first_line, RIL_TEXTLINE) + TextOf(second_line, RIL_TEXTLINE);
+  const std::string ltr_lines =
+      TextOf(ltr_first_line, RIL_TEXTLINE) + TextOf(ltr_second_line, RIL_TEXTLINE);
+  const std::string para = TextOf(first_line, RIL_PARA);
+  const std::string ltr_para = TextOf(ltr_first_line, RIL_PARA);
+  ASSERT_EQ(0, para.compare(0, lines.size(), lines)) << para;
+  ASSERT_EQ(0, ltr_para.compare(0, ltr_lines.size(), ltr_lines)) << ltr_para;
+  const std::string expected =
+      TextOf(first_line, RIL_TEXTLINE) + "\n" + para.substr(lines.size());
+  const std::string ltr_expected =
+      TextOf(ltr_first_line, RIL_TEXTLINE) + "\n" + ltr_para.substr(ltr_lines.size());
+
+  // Remove the best_choice of all words of the second text line.
+  std::vector<std::pair<WERD_RES *, WERD_CHOICE *>> saved;
+  TestResultIterator it(second_line);
+  do {
+    WERD_RES *word = it.CurrentWord();
+    ASSERT_NE(word, nullptr);
+    saved.emplace_back(word, word->best_choice);
+  } while (it.Next(RIL_WORD) && !it.IsAtBeginningOf(RIL_TEXTLINE));
+  ASSERT_GE(saved.size(), 2u);
+  for (auto &entry : saved) {
+    entry.first->best_choice = nullptr;
+  }
+
+  EXPECT_EQ("\n", TextOf(second_line, RIL_TEXTLINE));
+  EXPECT_EQ("\n", TextOf(ltr_second_line, RIL_TEXTLINE));
+  EXPECT_EQ(0.0f, second_line.Confidence(RIL_TEXTLINE));
+  EXPECT_EQ(expected, TextOf(first_line, RIL_PARA));
+  EXPECT_EQ(ltr_expected, TextOf(ltr_first_line, RIL_PARA));
+
+  for (auto &entry : saved) {
+    entry.first->best_choice = entry.second;
+  }
+  EXPECT_EQ(para, TextOf(first_line, RIL_PARA));
+}
+
 // TODO: Missing image
 TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
   SetImage("5318c4b679264.jpg");
@@ -568,6 +861,7 @@ TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
 // TODO: Missing image
 TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
   //  SetImage("line6.tiff");
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   SetImage("trainingitalline.tif");
   api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
   // Force recognition so we can used the result iterator.

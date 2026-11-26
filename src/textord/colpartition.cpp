@@ -1708,7 +1708,7 @@ TO_BLOCK *ColPartition::MakeBlock(const ICOORD &bleft, const ICOORD &tright,
   ColPartition *part = it.data();
   PolyBlockType type = part->type();
   if (type == PT_VERTICAL_TEXT) {
-    return MakeVerticalTextBlock(bleft, tright, block_parts, used_parts);
+    return MakeVerticalTextBlock(block_parts, used_parts);
   }
   // LineSpacingBlocks has handed us a collection of evenly spaced lines and
   // put the average spacing in each partition, so we can just take the
@@ -1754,9 +1754,7 @@ TO_BLOCK *ColPartition::MakeBlock(const ICOORD &bleft, const ICOORD &tright,
 
 // Constructs a block from the given list of vertical text partitions.
 // Currently only creates rectangular blocks.
-TO_BLOCK *ColPartition::MakeVerticalTextBlock(const ICOORD &bleft,
-                                              const ICOORD &tright,
-                                              ColPartition_LIST *block_parts,
+TO_BLOCK *ColPartition::MakeVerticalTextBlock(ColPartition_LIST *block_parts,
                                               ColPartition_LIST *used_parts) {
   if (block_parts->empty()) {
     return nullptr; // Nothing to do.
@@ -2333,9 +2331,7 @@ void ColPartition::SmoothSpacings(int resolution, int page_height,
     if (neighbourhood[PN_LOWER] == nullptr ||
         (!neighbourhood[PN_UPPER]->SpacingsEqual(*neighbourhood[PN_LOWER],
                                                  resolution) &&
-         (neighbourhood[PN_UPPER] == nullptr ||
-          neighbourhood[PN_LOWER] == nullptr ||
-          !OKSpacingBlip(resolution, median_space, neighbourhood, 0)) &&
+         !OKSpacingBlip(resolution, median_space, neighbourhood, 0) &&
          (neighbourhood[PN_UPPER - 1] == nullptr ||
           neighbourhood[PN_LOWER - 1] == nullptr ||
           !OKSpacingBlip(resolution, median_space, neighbourhood, -1) ||

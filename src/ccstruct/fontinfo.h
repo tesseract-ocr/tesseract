@@ -66,6 +66,10 @@ struct FontInfo {
   ~FontInfo() = default;
 
   bool operator==(const FontInfo &rhs) const {
+    // Fonts without a name are only equal to themselves.
+    if (name == nullptr || rhs.name == nullptr) {
+      return this == &rhs;
+    }
     return strcmp(name, rhs.name) == 0;
   }
 
@@ -76,7 +80,7 @@ struct FontInfo {
   bool DeSerialize(TFile *fp);
 
   // Reserves unicharset_size spots in spacing_vec.
-  void init_spacing(int unicharset_size) {
+  void init_spacing(uint32_t unicharset_size) {
     spacing_vec = new std::vector<FontSpacingInfo *>(unicharset_size);
   }
   // Adds the given pointer to FontSpacingInfo to spacing_vec member

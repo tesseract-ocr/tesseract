@@ -26,7 +26,7 @@
 namespace tesseract {
 
 /* Enumerate the different types of features currently defined. */
-#define NUM_FEATURE_TYPES 4
+constexpr int NUM_FEATURE_TYPES = 4;
 extern TESS_API const char *const kMicroFeatureType;
 extern TESS_API const char *const kCNFeatureType;
 extern TESS_API const char *const kIntFeatureType;
@@ -47,9 +47,8 @@ using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 struct CHAR_DESC_STRUCT {
   /// Allocate a new character description, initialize its
   /// feature sets to be empty, and return it.
-  CHAR_DESC_STRUCT(const FEATURE_DEFS_STRUCT &FeatureDefs) {
-    NumFeatureSets = FeatureDefs.NumFeatureTypes;
-  }
+  CHAR_DESC_STRUCT(const FEATURE_DEFS_STRUCT &FeatureDefs)
+      : NumFeatureSets(FeatureDefs.NumFeatureTypes), FeatureSets{} {}
 
   /// Release the memory consumed by the specified character
   /// description and all of the features in that description.
@@ -69,7 +68,7 @@ struct CHAR_DESC_STRUCT {
 TESS_API
 void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
 
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc);
+bool ValidCharDescription(CHAR_DESC_STRUCT *CharDesc);
 
 void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs, CHAR_DESC_STRUCT *CharDesc, std::string &str);
 

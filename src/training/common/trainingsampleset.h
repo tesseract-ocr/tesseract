@@ -136,7 +136,7 @@ public:
   // ComputeCanonicalFeatures and ComputeCloudFeatures must have been called
   // first, or the results will be nonsense.
   int ReliablySeparable(int font_id1, int class_id1, int font_id2, int class_id2,
-                        const IntFeatureMap &feature_map, bool thorough) const;
+                        const IntFeatureMap &feature_map) const;
 
   // Returns the total index of the requested sample.
   // OrganizeByFontAndClass must have been already called.

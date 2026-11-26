@@ -69,26 +69,27 @@
 #include <cstdint>   // for INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
 #include <cstring>   // for strstr, memset, strcmp
+#include <unordered_map> // for unordered_map
 
 namespace tesseract {
 
 // TODO: The parameter classify_enable_adaptive_matcher can cause
 // a segmentation fault if it is set to false (issue #256),
 // so override it here.
-#define CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE true
+constexpr bool CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE = true;
 
-#define ADAPT_TEMPLATE_SUFFIX ".a"
+constexpr const char *ADAPT_TEMPLATE_SUFFIX = ".a";
 
-#define MAX_MATCHES 10
-#define UNLIKELY_NUM_FEAT 200
-#define NO_DEBUG 0
-#define MAX_ADAPTABLE_WERD_SIZE 40
+constexpr int MAX_MATCHES = 10;
+constexpr int UNLIKELY_NUM_FEAT = 200;
+constexpr int NO_DEBUG = 0;
+constexpr int MAX_ADAPTABLE_WERD_SIZE = 40;
 
-#define ADAPTABLE_WERD_ADJUSTMENT (0.05)
+constexpr double ADAPTABLE_WERD_ADJUSTMENT = 0.05;
 
-#define Y_DIM_OFFSET (Y_SHIFT - BASELINE_Y_SHIFT)
+constexpr double Y_DIM_OFFSET = Y_SHIFT - BASELINE_Y_SHIFT;
 
-#define WORST_POSSIBLE_RATING (0.0f)
+constexpr float WORST_POSSIBLE_RATING = 0.0f;
 
 struct ADAPT_RESULTS {
   int32_t BlobLength;
@@ -97,6 +98,11 @@ struct ADAPT_RESULTS {
   int best_match_index;
   float best_rating;
   std::vector<UnicharRating> match;
+  // Index in match of each unichar_id, maintained by AddNewResult while the
+  // results are gathered, so that a shape of thousands of unichars does not
+  // cost a linear search of match per unichar. Not updated by the filtering
+  // and sorting that follow (RemoveBadMatches etc), which do no more lookups.
+  std::unordered_map<UNICHAR_ID, unsigned> match_index;
   std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
@@ -149,10 +155,9 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
 static unsigned FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
-  for (unsigned i = 0; i < results.match.size(); i++) {
-    if (results.match[i].unichar_id == id) {
-      return i;
-    }
+  auto it = results.match_index.find(id);
+  if (it != results.match_index.end()) {
+    return it->second;
   }
   return results.match.size();
 }
@@ -421,7 +426,7 @@ void Classify::LearnPieces(const char *fontname, int start, int length, float th
     tess_bn_matching.set_value(false);         // turn it off
     tess_cn_matching.set_value(false);
     DENORM bl_denorm, cn_denorm;
-    INT_FX_RESULT_STRUCT fx_info;
+    INT_FX_RESULT_STRUCT fx_info{};
     SetupBLCNDenorms(*rotated_blob, classify_nonlinear_norm, &bl_denorm, &cn_denorm, &fx_info);
     LearnBlob(fontname, rotated_blob, cn_denorm, fx_info, correct_text);
   } else if (unicharset.contains_unichar(correct_text)) {
@@ -524,9 +529,9 @@ void Classify::EndAdaptiveClassifier() {
  *      classify_use_pre_adapted_templates
  *                            enables use of pre-adapted templates
  */
-void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
+bool Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
   if (!CLASSIFY_ENABLE_ADAPTIVE_MATCHER_OVERRIDE) {
-    return;
+    return true;
   }
   if (AllProtosOn != nullptr) {
     EndAdaptiveClassifier(); // Don't leak with multiple inits.
@@ -538,6 +543,11 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     TFile fp;
     ASSERT_HOST(mgr->GetComponent(TESSDATA_INTTEMP, &fp));
     PreTrainedTemplates = ReadIntTemplates(&fp);
+    if (PreTrainedTemplates == nullptr) {
+      tprintf("Error: invalid inttemp component in traineddata, "
+              "cannot initialize the legacy engine.\n");
+      return false;
+    }
 
     if (mgr->GetComponent(TESSDATA_SHAPE_TABLE, &fp)) {
       shape_table_ = new ShapeTable(unicharset);
@@ -575,30 +585,72 @@ void Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     std::string Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
     if (!fp.Open(Filename.c_str(), nullptr)) {
-      AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+      AdaptedTemplates = NewAdaptedTemplates();
     } else {
       tprintf("\nReading pre-adapted templates from %s ...\n", Filename.c_str());
       fflush(stdout);
       AdaptedTemplates = ReadAdaptedTemplates(&fp);
-      tprintf("\n");
-      PrintAdaptedTemplates(stdout, AdaptedTemplates);
+      if (AdaptedTemplates == nullptr) {
+        tprintf("Error: invalid pre-adapted templates in %s, ignoring.\n", Filename.c_str());
+        AdaptedTemplates = NewAdaptedTemplates();
+      } else {
+        tprintf("\n");
+        PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
-      for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
-        BaselineCutoffs[i] = CharNormCutoffs[i];
+        for (unsigned i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
+          BaselineCutoffs[i] = CharNormCutoffs[i];
+        }
       }
     }
   } else {
     delete AdaptedTemplates;
-    AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+    AdaptedTemplates = NewAdaptedTemplates();
   }
+  if (AdaptedTemplates == nullptr) {
+    tprintf("Error: failed to initialize the adaptive classifier.\n");
+    return false;
+  }
+  return true;
 } /* InitAdaptiveClassifier */
+
+/*---------------------------------------------------------------------------*/
+/**
+ * This routine creates a new set of adapted templates for the current
+ * unicharset.
+ *  A unichar id indexes the fixed-size class arrays of the legacy
+ *  classifier, so a unicharset with more than MAX_NUM_CLASSES entries cannot
+ *  be represented. The constructor of ADAPT_TEMPLATES_STRUCT cannot report
+ *  that failure, so it is checked here.
+ *  Returns:
+ *      the new templates, or nullptr if they could not be created.
+ */
+ADAPT_TEMPLATES_STRUCT *Classify::NewAdaptedTemplates() {
+  if (unicharset.size() > static_cast<size_t>(MAX_NUM_CLASSES)) {
+    tprintf("Error: unicharset of size %zu exceeds MAX_NUM_CLASSES %d\n", unicharset.size(),
+            MAX_NUM_CLASSES);
+    return nullptr;
+  }
+  auto *templates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  if (!templates->valid()) {
+    tprintf("Error: failed to create the adapted templates\n");
+    delete templates;
+    return nullptr;
+  }
+  return templates;
+}
 
 void Classify::ResetAdaptiveClassifierInternal() {
   if (classify_learning_debug_level > 0) {
     tprintf("Resetting adaptive classifier (NumAdaptationsFailed=%d)\n", NumAdaptationsFailed);
   }
+  // Build the new templates before discarding the old ones, so that a failure
+  // to build them leaves the classifier with a usable set of templates.
+  auto *templates = NewAdaptedTemplates();
+  if (templates == nullptr) {
+    return;
+  }
   delete AdaptedTemplates;
-  AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  AdaptedTemplates = templates;
   delete BackupAdaptedTemplates;
   BackupAdaptedTemplates = nullptr;
   NumAdaptationsFailed = 0;
@@ -623,8 +675,14 @@ void Classify::SwitchAdaptiveClassifier() {
 
 // Resets the backup adaptive classifier to empty.
 void Classify::StartBackupAdaptiveClassifier() {
+  // Build the new templates before discarding the old ones, so that a failure
+  // to build them leaves the classifier with a usable set of templates.
+  auto *templates = NewAdaptedTemplates();
+  if (templates == nullptr) {
+    return;
+  }
   delete BackupAdaptedTemplates;
-  BackupAdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  BackupAdaptedTemplates = templates;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -714,6 +772,9 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
   for (Fid = 0; Fid < Features->NumFeatures; Fid++) {
     Pid = AddIntProto(IClass);
     assert(Pid != NO_PROTO);
+    if (Pid == NO_PROTO) {
+      break;
+    }
 
     Feature = Features->Features[Fid];
     auto TempProto = new TEMP_PROTO_STRUCT;
@@ -775,7 +836,7 @@ void Classify::InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, A
  * @return Number of pico-features returned (0 if
  * an error occurred)
  */
-int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures,
+int Classify::GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY &IntFeatures,
                                   FEATURE_SET *FloatFeatures) {
   FEATURE_SET Features;
   int NumFeatures;
@@ -877,7 +938,7 @@ void Classify::AdaptToChar(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, float 
         reset_bit(MatchingFontConfigs, cfg);
       }
     }
-    im_.Match(IClass, AllProtosOn, MatchingFontConfigs, NumFeatures, IntFeatures, &int_result,
+    im_.Match(IClass, AllProtosOn, MatchingFontConfigs, NumFeatures, IntFeatures.data(), &int_result,
               classify_adapt_feature_threshold, NO_DEBUG, matcher_debug_separate_windows);
     FreeBitVector(MatchingFontConfigs);
 
@@ -999,6 +1060,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
   if (old_match < results->match.size()) {
     results->match[old_match].rating = new_result.rating;
   } else {
+    results->match_index[new_result.unichar_id] = results->match.size();
     results->match.push_back(new_result);
   }
 
@@ -1036,7 +1098,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
  */
 void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                               INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes,
+                               INT_TEMPLATES_STRUCT *templates,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
   if (int_features.empty()) {
     return;
@@ -1125,6 +1187,9 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
       std::vector<UnicharRating> mapped_results;
+      // Index in mapped_results of each unichar_id, or -1 if it has none yet.
+      // A shape may have thousands of unichars, so don't search for each.
+      std::vector<int> mapped_index(unicharset.size(), -1);
       for (auto &f : int_result->fonts) {
         int shape_id = f.fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
@@ -1134,10 +1199,10 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
             continue;
           }
           // Find the mapped_result for unichar_id.
-          unsigned r = 0;
-          for (r = 0; r < mapped_results.size() && mapped_results[r].unichar_id != unichar_id;
-               ++r) {
+          if (mapped_index[unichar_id] < 0) {
+            mapped_index[unichar_id] = mapped_results.size();
           }
+          unsigned r = mapped_index[unichar_id];
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
@@ -1240,8 +1305,8 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
   }
 
   MasterMatcher(Templates->Templates, int_features.size(), &int_features[0], CharNormArray,
-                Templates->Class, matcher_debug_flags, 0, Blob->bounding_box(), Results->CPResults,
-                Results);
+                Templates->Class.data(), matcher_debug_flags, 0, Blob->bounding_box(),
+                Results->CPResults, Results);
 
   delete[] CharNormArray;
   CLASS_ID ClassId = Results->best_unichar_id;
@@ -1385,7 +1450,7 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
     const UnicharRating &result = it;
     bool adapted = result.adapted;
     bool current_is_frag = (unicharset.get_fragment(result.unichar_id) != nullptr);
-    if (temp_it.length() + 1 == max_matches && !contains_nonfrag && current_is_frag) {
+    if (choices_length + 1 == max_matches && !contains_nonfrag && current_is_frag) {
       continue; // look for a non-fragmented character to fill the
                 // last spot in Choices if only fragments are present
     }
@@ -1499,7 +1564,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
         Results->match.empty()) {
       CharNormClassifier(Blob, *sample, Results);
     } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
-      AmbigClassifier(bl_features, fx_info, Blob, PreTrainedTemplates, AdaptedTemplates->Class,
+      AmbigClassifier(bl_features, fx_info, Blob, PreTrainedTemplates,
                       Ambiguities, Results);
     }
   }
@@ -1667,7 +1732,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT *norm_feature, INT_TEMPLATES
  * case of error.
  */
 int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
-                                     int NumFeatures, INT_FEATURE_ARRAY Features,
+                                     int NumFeatures, const INT_FEATURE_ARRAY &Features,
                                      FEATURE_SET FloatFeatures) {
   INT_CLASS_STRUCT *IClass;
   ADAPT_CLASS_STRUCT *Class;
@@ -1798,6 +1863,21 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
     Y2 = F2->Params[PicoFeatY];
     A2 = F2->Params[PicoFeatDir];
 
+    // The angle of the new proto is the circular midpoint of the angles
+    // of the first and last feature, so compute it along the shorter arc.
+    float delta = A2 - A1;
+    if (delta > 0.5f) {
+      delta -= 1.0f;
+    } else if (delta < -0.5f) {
+      delta += 1.0f;
+    }
+    float Angle = A1 + delta / 2.0f;
+    if (Angle < 0.0f) {
+      Angle += 1.0f;
+    } else if (Angle >= 1.0f) {
+      Angle -= 1.0f;
+    }
+
     Pid = AddIntProto(IClass);
     if (Pid == NO_PROTO) {
       return (NO_PROTO);
@@ -1810,7 +1890,7 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATU
    ConvertProto assumes that the Y dimension varies from -0.5 to 0.5
    instead of the -0.25 to 0.75 used in baseline normalization */
     Proto->Length = SegmentLength;
-    Proto->Angle = A1;
+    Proto->Angle = Angle;
     Proto->X = (X1 + X2) / 2;
     Proto->Y = (Y1 + Y2) / 2 - Y_DIM_OFFSET;
     FillABC(Proto);

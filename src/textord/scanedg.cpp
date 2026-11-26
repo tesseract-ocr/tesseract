@@ -20,9 +20,8 @@
 
 #include "crakedge.h"
 #include "edgloop.h"
+#include "image.h"    // for Image
 #include "pdblock.h"
-
-#include <allheaders.h>
 
 #include <memory> // std::unique_ptr
 
@@ -90,7 +89,7 @@ void block_edges(Image t_pix,   // thresholded image
       // Get the binary pixels from the image.
       l_uint32 *line = pixGetData(t_pix) + wpl * (height - 1 - y);
       for (int x = 0; x < block_width; ++x) {
-        bwline[x] = GET_DATA_BIT(line, x + bleft.x()) ^ 1;
+        bwline[x] = Image::getDataBit(line, x + bleft.x()) ^ 1;
       }
       make_margins(block, &line_it, bwline.get(), margin, bleft.x(), tright.x(), y);
     } else {

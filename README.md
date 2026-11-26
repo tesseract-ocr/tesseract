@@ -41,7 +41,7 @@ You should note that in many cases, in order to get better OCR results, you'll n
 This project **does not include a GUI application**. If you need one, please see the [3rdParty](https://tesseract-ocr.github.io/tessdoc/User-Projects-%E2%80%93-3rdParty.html) documentation.
 
 Tesseract **can be trained to recognize other languages**.
-See [Tesseract Training](https://tesseract-ocr.github.io/tessdoc/Training-Tesseract.html) for more information.
+See [Tesseract Training](https://tesseract-ocr.github.io/tessdoc/tess5/TrainingTesseract-5.html) for more information.
 
 ## Brief history
 
@@ -114,16 +114,15 @@ Please report an issue only for a **bug**, not for asking questions.
 
 **NOTE**: This software depends on other packages that may be licensed under different open source licenses.
 
-Tesseract uses [Leptonica library](http://leptonica.com/) which essentially
-uses a [BSD 2-clause license](http://leptonica.com/about-the-license.html).
+Tesseract uses the [Leptonica library](http://www.leptonica.org/) which essentially
+uses a [BSD 2-clause license](http://www.leptonica.org/about-the-license.html).
 
 ## Dependencies
 
-Tesseract uses [Leptonica library](https://github.com/DanBloomberg/leptonica)
-for opening input images (e.g. not documents like pdf).
-It is suggested to use leptonica with built-in support for [zlib](https://zlib.net),
+Tesseract uses the [Leptonica](https://github.com/DanBloomberg/leptonica)
+library for reading and writing images. It is suggested to use Leptonica with built-in support for [zlib](https://zlib.net),
 [png](https://sourceforge.net/projects/libpng) and
-[tiff](http://www.simplesystems.org/libtiff) (for multipage tiff).
+[tiff](http://www.simplesystems.org/libtiff).
 
 ## Latest Version of README
 

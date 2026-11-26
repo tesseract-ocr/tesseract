@@ -182,7 +182,7 @@ static float MakeRowFromSubBlobs(TO_BLOCK *block, C_BLOB *blob, TO_ROW_IT *row_i
  * only a single blob, it makes 2 rows, in case the top-level blob
  * is a container of the real blobs to recognize.
  */
-float make_single_row(ICOORD page_tr, bool allow_sub_blobs, TO_BLOCK *block,
+float make_single_row(bool allow_sub_blobs, TO_BLOCK *block,
                       TO_BLOCK_LIST *blocks) {
   BLOBNBOX_IT blob_it = &block->blobs;
   TO_ROW_IT row_it = block->get_rows();
@@ -1228,7 +1228,7 @@ void compute_row_stats( // find lines
         // too big so use max
       }
       if (block->line_size < textord_min_xheight) {
-        block->line_size = (float)textord_min_xheight;
+        block->line_size = static_cast<float>(textord_min_xheight);
       }
       block->line_spacing = rows[row_index]->spacing;
       block->max_blob_size = block->line_spacing * textord_excess_blobsize;
@@ -1571,20 +1571,33 @@ int compute_xheight_from_modes(STATS *heights, STATS *floating_heights, bool cap
 int32_t compute_row_descdrop(TO_ROW *row, float gradient, int xheight_blob_count,
                              STATS *asc_heights) {
   // Count how many potential ascenders are in this row.
+  // The ratio limits can only narrow the range of the histogram, so clip them
+  // to it before the conversion to int: the conversion is undefined for
+  // values out of range (e.g. a huge ratio from a config), and would
+  // otherwise leave the loop below running over billions of indices.
   int i_min = asc_heights->min_bucket();
-  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
-    i_min = static_cast<int>(floor(row->xheight * textord_ascx_ratio_min + 0.5));
-  }
   int i_max = asc_heights->max_bucket();
+  const double lowest = i_min - 1.0;
+  const double highest = i_max + 1.0;
+  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
+    i_min = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_min + 0.5), lowest, highest));
+  }
   if ((i_max / row->xheight) > textord_ascx_ratio_max) {
-    i_max = static_cast<int>(floor(row->xheight * textord_ascx_ratio_max));
+    i_max = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_max), lowest, highest));
   }
   int num_potential_asc = 0;
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  auto min_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  auto max_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
+  // Likewise clip the descender limits before the conversion. Blob heights
+  // are bounded by the page coordinates, so that is all the histogram needs.
+  const double max_coord = INT16_MAX;
+  auto min_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_min + 0.5), -max_coord, max_coord));
+  auto max_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_max), -max_coord, max_coord));
   float xcentre; // centre of blob
   float height;  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list();
@@ -1888,7 +1901,7 @@ void pre_associate_blobs( // make rough chars
           }
         }
       } while (overlap);
-      blob->chop(&start_it, &blob_it, blob_rotation,
+      blob->chop(&start_it, &blob_it,
                  block->line_size * tesseract::CCStruct::kXHeightFraction * textord_chop_width);
       // attempt chop
     }
@@ -2022,7 +2035,7 @@ void Textord::make_spline_rows(TO_BLOCK *block, // block to do
       }
     }
 #endif
-    make_old_baselines(block, testing_on, gradient);
+    make_old_baselines(block, gradient);
   }
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
@@ -2054,7 +2067,7 @@ void make_baseline_spline(TO_ROW *row, // row to fit
   auto *xstarts = new int32_t[row->blob_list()->length() + 1];
   if (segment_baseline(row, block, segments, xstarts) && !textord_straight_baselines &&
       !textord_parallel_baselines) {
-    coeffs = linear_spline_baseline(row, block, segments, xstarts);
+    coeffs = linear_spline_baseline(row, segments, xstarts);
   } else {
     xstarts[1] = xstarts[segments];
     segments = 1;
@@ -2103,7 +2116,10 @@ bool segment_baseline( // split baseline
   if (textord_oldbl_debug) {
     tprintf("Segmenting baseline of %d blobs at (%d,%d)\n", blobcount, box.left(), box.bottom());
   }
-  if (blobcount <= textord_spline_medianwin || blobcount < textord_spline_minblobs) {
+  // A window size which is not positive cannot be used for the median below
+  // nor as a divisor in linear_spline_baseline.
+  if (textord_spline_medianwin < 1 || blobcount <= textord_spline_medianwin ||
+      blobcount < textord_spline_minblobs) {
     blob_it.move_to_last();
     box = blob_it.data()->bounding_box();
     xstarts[1] = box.right();
@@ -2174,7 +2190,6 @@ bool segment_baseline( // split baseline
  */
 double *linear_spline_baseline( // split baseline
     TO_ROW *row,                // row to fit
-    TO_BLOCK *block,            // block it came from
     int32_t &segments,          // no of segments
     int32_t xstarts[]           // coords of segments
 ) {
@@ -2455,7 +2470,6 @@ OVERLAP_STATE most_overlapping_row( // find best row
   float overlap;                 // of blob & row
   float bestover;                // nearest row
   float merge_top, merge_bottom; // size of merged row
-  ICOORD testpt;                 // testing only
   TO_ROW *row;                   // current row
   TO_ROW *test_row;              // for multiple overlaps
   BLOBNBOX_IT blob_it;           // for merging rows

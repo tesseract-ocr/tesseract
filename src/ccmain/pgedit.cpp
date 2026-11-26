@@ -256,9 +256,9 @@ void PGEventHandler::Notify(const SVEvent *event) {
   else if (event->type == SVET_EXIT) {
     stillRunning = false;
   } else if (event->type == SVET_MENU) {
-    if (strcmp(event->parameter, "true") == 0) {
+    if (event->parameter == "true") {
       myval = 'T';
-    } else if (strcmp(event->parameter, "false") == 0) {
+    } else if (event->parameter == "false") {
       myval = 'F';
     }
     tess_->process_cmd_win_event(event->command_id, &myval);
@@ -778,10 +778,10 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
   // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,
-                              static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color),
-                              static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color));
+                              static_cast<ScrollView::Color>(static_cast<int32_t>(editor_image_word_bb_color)),
+                              static_cast<ScrollView::Color>(static_cast<int32_t>(editor_image_word_bb_color)));
 
-    auto c = static_cast<ScrollView::Color>((int32_t)editor_image_blob_bb_color);
+    auto c = static_cast<ScrollView::Color>(static_cast<int32_t>(editor_image_blob_bb_color));
     image_win->Pen(c);
     // cblob iterator
     C_BLOB_IT c_it(word->cblob_list());
@@ -859,8 +859,8 @@ bool Tesseract::word_display(PAGE_RES_IT *pr_it) {
 
   if (!displayed_something) { // display BBox anyway
     word->bounding_box().plot(image_win,
-                              static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color),
-                              static_cast<ScrollView::Color>((int32_t)editor_image_word_bb_color));
+                              static_cast<ScrollView::Color>(static_cast<int32_t>(editor_image_word_bb_color)),
+                              static_cast<ScrollView::Color>(static_cast<int32_t>(editor_image_word_bb_color)));
   }
   return true;
 }
@@ -879,7 +879,7 @@ bool Tesseract::word_dumper(PAGE_RES_IT *pr_it) {
     pr_it->block()->block->print(nullptr, false);
   }
   tprintf("\nRow data...\n");
-  pr_it->row()->row->print(nullptr);
+  pr_it->row()->row->print();
   tprintf("\nWord data...\n");
   WERD_RES *word_res = pr_it->word();
   word_res->word->print();

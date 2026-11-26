@@ -121,7 +121,16 @@ bool FullyConnected::Serialize(TFile *fp) const {
 
 // Reads from the given file. Returns false in case of error.
 bool FullyConnected::DeSerialize(TFile *fp) {
-  return weights_.DeSerialize(IsTraining(), fp);
+  if (!weights_.DeSerialize(IsTraining(), fp)) {
+    return false;
+  }
+  // The weight matrix must match the declared sizes (the second dimension
+  // includes the bias column); otherwise Forward would read or write
+  // outside the scratch buffers sized from ni_ and no_.
+  if (weights_.Dim1() != no_ || weights_.Dim2() != ni_ + 1) {
+    return false;
+  }
+  return true;
 }
 
 // Runs forward propagation of activations on the input line.
@@ -158,7 +167,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
 #endif
     TFloat *temp_line = temp_lines[thread_id];
     if (input.int_mode()) {
-      ForwardTimeStep(input.i(t), t, temp_line);
+      ForwardTimeStep(input.i(t), temp_line);
     } else {
       input.ReadTimeStep(t, curr_input[thread_id]);
       ForwardTimeStep(curr_input[thread_id], t, temp_line);
@@ -200,7 +209,7 @@ void FullyConnected::SetupForward(const NetworkIO &input, const TransposedArray 
   }
 }
 
-void FullyConnected::ForwardTimeStep(int t, TFloat *output_line) {
+void FullyConnected::ForwardTimeStep(TFloat *output_line) {
   if (type_ == NT_TANH) {
     FuncInplace<GFunc>(no_, output_line);
   } else if (type_ == NT_LOGISTIC) {
@@ -224,13 +233,13 @@ void FullyConnected::ForwardTimeStep(const TFloat *d_input, int t, TFloat *outpu
     source_t_.WriteStrided(t, d_input);
   }
   weights_.MatrixDotVector(d_input, output_line);
-  ForwardTimeStep(t, output_line);
+  ForwardTimeStep(output_line);
 }
 
-void FullyConnected::ForwardTimeStep(const int8_t *i_input, int t, TFloat *output_line) {
+void FullyConnected::ForwardTimeStep(const int8_t *i_input, TFloat *output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   weights_.MatrixDotVector(i_input, output_line);
-  ForwardTimeStep(t, output_line);
+  ForwardTimeStep(output_line);
 }
 
 // Runs backward propagation of errors on the deltas line.

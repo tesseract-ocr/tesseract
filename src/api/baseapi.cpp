@@ -35,6 +35,7 @@
 #include "errcode.h" // for ASSERT_HOST
 #include "helpers.h" // for IntCastRounded, chomp_string, copy_string
 #include "host.h"    // for MAX_PATH
+#include "image.h"   // for Image, Leptonica (pixDestroy, boxCreate, ...)
 #include "imageio.h" // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "intfx.h" // for INT_FX_RESULT_STRUCT
@@ -71,9 +72,9 @@
 #include <memory>   // for std::unique_ptr
 #include <set>      // for std::pair
 #include <sstream>  // for std::stringstream
+#include <string_view>
 #include <vector>   // for std::vector
 
-#include <allheaders.h> // for pixDestroy, boxCreate, boxaAddBox, box...
 #ifdef HAVE_LIBCURL
 #  include <curl/curl.h>
 #endif
@@ -125,18 +126,21 @@ static STRING_VAR(classify_font_name, kUnknownFontName,
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-static void ExtractFontName(const char* filename, std::string* fontname) {
+static void ExtractFontName(std::string_view filename, std::string* fontname) {
   *fontname = classify_font_name;
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename, '/');
-    const char *firstdot = strchr(basename ? basename : filename, '.');
-    const char *lastdot  = strrchr(filename, '.');
-    if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
+    auto basename_pos = filename.find_last_of('/');
+    auto view = (basename_pos != std::string_view::npos)
+                    ? filename.substr(basename_pos + 1)
+                    : filename;
+    auto firstdot = view.find_first_of('.');
+    auto lastdot = view.find_last_of('.');
+    if (firstdot != lastdot && firstdot != std::string_view::npos &&
+        lastdot != std::string_view::npos) {
       ++firstdot;
-      *fontname = firstdot;
-      fontname->resize(lastdot - firstdot);
+      *fontname = view.substr(firstdot, lastdot - firstdot);
     }
   }
 }
@@ -225,7 +229,7 @@ bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
   if (p == nullptr) {
     return false;
   }
-  *value = (int32_t)(*p);
+  *value = static_cast<int32_t>(*p);
   return true;
 }
 
@@ -251,7 +255,7 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
   if (p == nullptr) {
     return false;
   }
-  *value = (double)(*p);
+  *value = static_cast<double>(*p);
   return true;
 }
 
@@ -288,7 +292,8 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
 /**
  * The datapath must be the name of the data directory or
  * some other file in which the data directory resides (for instance argv[0].)
- * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
+ * The language is (usually) an ISO 639-3 string. If it is nullptr or empty,
+ * no language data is loaded and Recognize fails.
  * If numeric_mode is true, then only digits and Roman numerals will
  * be returned.
  * @return: 0 on success and -1 on initialization failure.
@@ -317,8 +322,8 @@ int TessBaseAPI::Init(const char *data, int data_size, const char *language, Ocr
   // If the datapath, OcrEngineMode or the language have changed - start again.
   // Note that the language_ field stores the last requested language that was
   // initialized successfully, while tesseract_->lang stores the language
-  // actually used. They differ only if the requested language was nullptr, in
-  // which case tesseract_->lang is set to the Tesseract default ("eng").
+  // actually used. If the requested language was nullptr or empty, no language
+  // is loaded and tesseract_->lang stays empty.
   if (tesseract_ != nullptr &&
       (datapath_.empty() || language_.empty() || datapath_ != datapath ||
        last_oem_requested_ != oem || (language_ != language && tesseract_->lang != language))) {
@@ -527,7 +532,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
       // remove alpha channel from png
       Pix *p1 = pixRemoveAlpha(pix);
       pixSetSpp(p1, 3);
-      (void)pixCopy(pix, p1);
+      static_cast<void>(pixCopy(pix, p1));
       pixDestroy(&p1);
     }
     thresholder_->SetImage(pix);
@@ -537,6 +542,7 @@ void TessBaseAPI::SetImage(Pix *pix) {
 
 /**
  * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+ * The rectangle is clipped to the image.
  * Each SetRectangle clears the recognition results so multiple rectangles
  * can be recognized with the same image.
  */
@@ -742,6 +748,7 @@ PageIterator *TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
     if (block_list_->empty()) {
       return nullptr; // The page was empty.
     }
+    delete page_res_;
     page_res_ = new PAGE_RES(merge_similar_words, block_list_, nullptr);
     DetectParagraphs(false);
     return new PageIterator(page_res_, tesseract_, thresholder_->GetScaleFactor(),
@@ -759,17 +766,30 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
   if (tesseract_ == nullptr) {
     return -1;
   }
+  // Training line recognition (tessedit_train_line_recognizer, used by the
+  // lstm.train config together with tessedit_init_config_only) needs no model.
+  if (!tesseract_->tessedit_train_line_recognizer &&
+      tesseract_->unicharset.size() <= SPECIAL_UNICHAR_CODES_COUNT) {
+    // Only the special unichars are present, so no language data was loaded:
+    // Init was called without a language (which loads nothing), Init failed
+    // before the unicharset was loaded (for example because the traineddata
+    // file is missing), or only InitForAnalysePage was used. Recognition needs
+    // a model. An Init that fails after the unicharset was loaded is not
+    // detected here.
+    tprintf("Error: Recognize called without a loaded language. Pass a language to Init.\n");
+    return -1;
+  }
   if (FindLines() != 0) {
     return -1;
   }
   delete page_res_;
+  recognition_done_ = true;
   if (block_list_->empty()) {
     page_res_ = new PAGE_RES(false, block_list_, &tesseract_->prev_word_best_choice_);
     return 0; // Empty page.
   }
 
   tesseract_->SetBlackAndWhitelist();
-  recognition_done_ = true;
 #ifndef DISABLED_LEGACY_ENGINE
   if (tesseract_->tessedit_resegment_from_line_boxes) {
     page_res_ = tesseract_->ApplyBoxes(input_file_.c_str(), true, block_list_);
@@ -813,12 +833,12 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
 #ifndef DISABLED_LEGACY_ENGINE
   } else if (tesseract_->tessedit_train_from_boxes) {
     std::string fontname;
-    ExtractFontName(output_file_.c_str(), &fontname);
+    ExtractFontName(output_file_, &fontname);
     tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
     FILE *training_output_file = tesseract_->init_recog_training(input_file_.c_str());
     // OCR the page segmented into words by tesseract.
-    tesseract_->recog_training_segmented(input_file_.c_str(), page_res_, monitor,
+    tesseract_->recog_training_segmented(input_file_.c_str(), page_res_,
                                          training_output_file);
     fclose(training_output_file);
 #endif // ndef DISABLED_LEGACY_ENGINE
@@ -885,7 +905,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
     std::string line;
     for (const auto ch : *buf) {
       if (ch == '\n') {
-        lines.push_back(line);
+        lines.push_back(std::move(line));
         line.clear();
       } else {
         line.push_back(ch);
@@ -893,7 +913,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist, std::string *buf, const char
     }
     if (!line.empty()) {
       // Add last line without terminating LF.
-      lines.push_back(line);
+      lines.push_back(std::move(line));
     }
     if (lines.empty()) {
       return false;
@@ -1347,7 +1367,8 @@ static void AddBoxToTSV(const PageIterator *it, PageIteratorLevel level, std::st
  * Returned string must be freed with the delete [] operator.
  */
 char *TessBaseAPI::GetTSVText(int page_number) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(nullptr) < 0)) {
     return nullptr;
   }
 
@@ -1993,6 +2014,12 @@ bool TessBaseAPI::Threshold(Pix **pix) {
   if (*pix != nullptr) {
     pixDestroy(pix);
   }
+  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
+                              &image_height_);
+  if (rect_width_ <= 0 || rect_height_ <= 0) {
+    tprintf("Error: The rectangle to recognize is empty or outside of the image.\n");
+    return false;
+  }
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int user_dpi = 0;
   GetIntVariable("user_defined_dpi", &user_dpi);
@@ -2042,9 +2069,6 @@ bool TessBaseAPI::Threshold(Pix **pix) {
     tesseract_->set_pix_thresholds(pix_thresholds);
     tesseract_->set_pix_grey(pix_grey);
   }
-
-  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_, &rect_height_, &image_width_,
-                              &image_height_);
 
   // Set the internal resolution that is used for layout parameters from the
   // estimated resolution, rather than the image resolution, which may be
@@ -2127,6 +2151,9 @@ int TessBaseAPI::FindLines() {
       }
     }
   }
+  if (osd_tess != nullptr && osd_tess != tesseract_) {
+    osd_tess->min_characters_to_try.set_value(tesseract_->min_characters_to_try);
+  }
 #endif // ndef DISABLED_LEGACY_ENGINE
 
   if (tesseract_->SegmentPage(input_file_.c_str(), block_list_, osd_tess, &osr) < 0) {
@@ -2135,7 +2162,7 @@ int TessBaseAPI::FindLines() {
 
   // If Devanagari is being recognized, we use different images for page seg
   // and for OCR.
-  tesseract_->PrepareForTessOCR(block_list_, osd_tess, &osr);
+  tesseract_->PrepareForTessOCR(block_list_);
   return 0;
 }
 
@@ -2210,6 +2237,14 @@ int TessBaseAPI::TextLength(int *blob_count) const {
  */
 bool TessBaseAPI::DetectOS(OSResults *osr) {
   if (tesseract_ == nullptr) {
+    return false;
+  }
+  if (tesseract_->PreTrainedTemplates == nullptr) {
+    // Orientation and script detection classifies with the legacy classifier
+    // of the primary language. Without its templates (for example the
+    // tessdata_fast or tessdata_best model of a language other than osd, or
+    // layout analysis only) the detector gets no script information.
+    tprintf("Error: OSD requires a model for the legacy engine, e.g. osd.traineddata\n");
     return false;
   }
   ClearResults();

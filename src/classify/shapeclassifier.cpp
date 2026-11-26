@@ -30,7 +30,7 @@
 #ifndef GRAPHICS_DISABLED
 #include "svmnode.h"
 #endif
-#include "tprintf.h"
+#include "tesserrstream.h" // for tesserr
 #include "trainingsample.h"
 
 namespace tesseract {
@@ -55,8 +55,10 @@ int ShapeClassifier::UnicharClassifySample(const TrainingSample &sample, Image p
 // Classifies the given [training] sample, writing to results.
 // See shapeclassifier.h for a full description.
 // Default implementation aborts.
-int ShapeClassifier::ClassifySample(const TrainingSample &sample, Image page_pix, int debug,
-                                    int keep_this, std::vector<ShapeRating> *results) {
+int ShapeClassifier::ClassifySample(const TrainingSample &/*sample*/,
+                                    Image /*page_pix*/, int /*debug*/,
+                                    int /*keep_this*/,
+                                    std::vector<ShapeRating> */*results*/) {
   ASSERT_HOST("Must implement ClassifySample!" == nullptr);
   return 0;
 }
@@ -121,7 +123,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
     if (unichar_id >= 0) {
       tprintf("Debugging class %d = %s\n", unichar_id, unicharset.id_to_unichar(unichar_id));
       UnicharClassifySample(sample, page_pix, 1, unichar_id, &results);
-      DisplayClassifyAs(sample, page_pix, unichar_id, 1, windows);
+      DisplayClassifyAs(sample, page_pix, unichar_id, 1);
     } else {
       tprintf("Invalid unichar_id: %d\n", unichar_id);
       UnicharClassifySample(sample, page_pix, 1, -1, &results);
@@ -137,10 +139,10 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
       auto ev = debug_win->AwaitEvent(SVET_ANY);
       ev_type = ev->type;
       if (ev_type == SVET_POPUP) {
-        if (unicharset.contains_unichar(ev->parameter)) {
-          unichar_id = unicharset.unichar_to_id(ev->parameter);
+        if (unicharset.contains_unichar(ev->parameter.c_str())) {
+          unichar_id = unicharset.unichar_to_id(ev->parameter.c_str());
         } else {
-          tprintf("Char class '%s' not found in unicharset", ev->parameter);
+          tesserr << "Char class '" << ev->parameter << "' not found in unicharset";
         }
       }
     } while (unichar_id == old_unichar_id && ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
@@ -158,9 +160,9 @@ void ShapeClassifier::DebugDisplay(const TrainingSample &sample, Image page_pix,
 // windows to the windows output and returns a new index that may be used
 // by any subsequent classifiers. Caller waits for the user to view and
 // then destroys the windows by clearing the vector.
-int ShapeClassifier::DisplayClassifyAs(const TrainingSample &sample, Image page_pix,
-                                       UNICHAR_ID unichar_id, int index,
-                                       std::vector<ScrollView *> &windows) {
+int ShapeClassifier::DisplayClassifyAs(const TrainingSample &/*sample*/,
+                                       Image /*page_pix*/,
+                                       UNICHAR_ID /*unichar_id*/, int index) {
   // Does nothing in the default implementation.
   return index;
 }

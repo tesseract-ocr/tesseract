@@ -23,8 +23,11 @@
 
 #include "convolve.h"
 
+#include <cstdint>
+
 #include "networkscratch.h"
 #include "serialis.h"
+#include "tprintf.h"
 
 namespace tesseract {
 
@@ -46,14 +49,34 @@ bool Convolve::DeSerialize(TFile *fp) {
   if (!fp->DeSerialize(&half_y_)) {
     return false;
   }
-  no_ = ni_ * (2 * half_x_ + 1) * (2 * half_y_ + 1);
+  if (half_x_ < 0 || half_y_ < 0 || ni_ <= 0) {
+    tprintf("Error: invalid Convolve parameters: ni=%d half_x=%d half_y=%d\n", ni_, half_x_,
+            half_y_);
+    return false;
+  }
+  int64_t kx = 2LL * half_x_ + 1;
+  int64_t ky = 2LL * half_y_ + 1;
+  // Stepwise overflow check: ni_ * kx * ky must fit in int.
+  if (kx > INT_MAX / ky) {
+    tprintf("Error: Convolve output-channel count overflows: ni=%d half_x=%d half_y=%d\n", ni_,
+            half_x_, half_y_);
+    return false;
+  }
+  int64_t kxky = kx * ky;
+  if (static_cast<int64_t>(ni_) > INT_MAX / kxky) {
+    tprintf("Error: Convolve output-channel count overflows: ni=%d half_x=%d half_y=%d\n", ni_,
+            half_x_, half_y_);
+    return false;
+  }
+  no_ = static_cast<int>(static_cast<int64_t>(ni_) * kxky);
   return true;
 }
 
 // Runs forward propagation of activations on the input line.
 // See NetworkCpp for a detailed discussion of the arguments.
-void Convolve::Forward(bool debug, const NetworkIO &input, const TransposedArray *input_transpose,
-                       NetworkScratch *scratch, NetworkIO *output) {
+void Convolve::Forward(bool debug, const NetworkIO &input,
+                       const TransposedArray * /*input_transpose*/,
+                       NetworkScratch * /*scratch*/, NetworkIO *output) {
   output->Resize(input, no_);
   int y_scale = 2 * half_y_ + 1;
   StrideMap::Index dest_index(output->stride_map());
@@ -89,7 +112,7 @@ void Convolve::Forward(bool debug, const NetworkIO &input, const TransposedArray
 
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
-bool Convolve::Backward(bool debug, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
+bool Convolve::Backward(bool /*debug*/, const NetworkIO &fwd_deltas, NetworkScratch *scratch,
                         NetworkIO *back_deltas) {
   back_deltas->Resize(fwd_deltas, ni_);
   NetworkScratch::IO delta_sum;

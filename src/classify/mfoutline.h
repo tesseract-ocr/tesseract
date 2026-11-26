@@ -27,7 +27,7 @@ namespace tesseract {
 
 using MFOUTLINE = LIST;
 
-enum DIRECTION : uint8_t { north, south, east, west, northeast, northwest, southeast, southwest };
+enum class DIRECTION : uint8_t { north, south, east, west, northeast, northwest, southeast, southwest };
 
 struct MFEDGEPT {
   // Inline functions for manipulating micro-feature outline edge points.
@@ -48,17 +48,18 @@ struct MFEDGEPT {
   DIRECTION PreviousDirection;
 };
 
-enum OUTLINETYPE { outer, hole };
-
 enum NORM_METHOD { baseline, character };
 
 /**----------------------------------------------------------------------------
           Macros
 ----------------------------------------------------------------------------**/
-#define AverageOf(A, B) (((A) + (B)) / 2)
+template <typename T>
+inline constexpr T AverageOf(T A, T B) {
+  return (A + B) / T{2};
+}
 
 // Constant for computing the scale factor to use to normalize characters.
-const float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
+constexpr float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
 
 // Inline functions for manipulating micro-feature outlines.
 
@@ -86,8 +87,6 @@ void ComputeBlobCenter(TBLOB *Blob, TPOINT *BlobCenter);
 LIST ConvertBlob(TBLOB *Blob);
 
 MFOUTLINE ConvertOutline(TESSLINE *Outline);
-
-LIST ConvertOutlines(TESSLINE *Outline, LIST ConvertedOutlines, OUTLINETYPE OutlineType);
 
 void FilterEdgeNoise(MFOUTLINE Outline, float NoiseSegmentLength);
 

@@ -31,7 +31,7 @@
 
 namespace tesseract {
 
-class Classify : public CCStruct {
+class TESS_API Classify : public CCStruct {
 public:
   Classify();
   virtual ~Classify();
@@ -164,12 +164,17 @@ public:
   // provided to explicitly clarify the character segmentation.
   void LearnPieces(const char *fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char *correct_text, WERD_RES *word);
-  void InitAdaptiveClassifier(TessdataManager *mgr);
+  bool InitAdaptiveClassifier(TessdataManager *mgr);
+  // Creates a new set of adapted templates for the current unicharset.
+  // Returns nullptr, after reporting the error, if the unicharset is too
+  // large to be indexed by the fixed-size class arrays, or if the templates
+  // could not be built. The caller has to handle the nullptr.
+  ADAPT_TEMPLATES_STRUCT *NewAdaptedTemplates();
   void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS_STRUCT *Class,
                         ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,
                        const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
-                       INT_TEMPLATES_STRUCT *templates, ADAPT_CLASS_STRUCT **classes, UNICHAR_ID *ambiguities,
+                       INT_TEMPLATES_STRUCT *templates, UNICHAR_ID *ambiguities,
                        ADAPT_RESULTS *results);
   void MasterMatcher(INT_TEMPLATES_STRUCT *templates, int16_t num_features,
                      const INT_FEATURE_STRUCT *features, const uint8_t *norm_factors,
@@ -193,7 +198,7 @@ public:
   void ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box, ADAPT_RESULTS *Results,
                                BLOB_CHOICE_LIST *Choices);
   void AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *results);
-  int GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY IntFeatures, FEATURE_SET *FloatFeatures);
+  int GetAdaptiveFeatures(TBLOB *Blob, INT_FEATURE_ARRAY &IntFeatures, FEATURE_SET *FloatFeatures);
 
 #  ifndef GRAPHICS_DISABLED
   void DebugAdaptiveClassifier(TBLOB *Blob, ADAPT_RESULTS *Results);
@@ -201,7 +206,7 @@ public:
   PROTO_ID MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat, FEATURE_ID BadFeat[],
                              INT_CLASS_STRUCT *IClass, ADAPT_CLASS_STRUCT *Class, BIT_VECTOR TempProtoMask);
   int MakeNewTemporaryConfig(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int FontinfoId,
-                             int NumFeatures, INT_FEATURE_ARRAY Features,
+                             int NumFeatures, const INT_FEATURE_ARRAY &Features,
                              FEATURE_SET FloatFeatures);
   void MakePermanent(ADAPT_TEMPLATES_STRUCT *Templates, CLASS_ID ClassId, int ConfigId, TBLOB *Blob);
   void PrintAdaptiveMatchResults(const ADAPT_RESULTS &results);
@@ -313,7 +318,7 @@ public:
   /* float2int.cpp ************************************************************/
   void ClearCharNormArray(uint8_t *char_norm_array);
   void ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature, uint8_t *char_norm_array);
-  void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
+  void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY &IntFeatures);
   /* intproto.cpp *************************************************************/
   INT_TEMPLATES_STRUCT *ReadIntTemplates(TFile *fp);
   void WriteIntTemplates(FILE *File, INT_TEMPLATES_STRUCT *Templates, const UNICHARSET &target_unicharset);
@@ -477,7 +482,7 @@ private:
   // value in the adaptive classifier. Both are indexed by unichar_id.
   // shapetable_cutoffs_ provides a similar value for each shape in the
   // shape_table_
-  uint16_t CharNormCutoffs[MAX_NUM_CLASSES];
+  uint16_t CharNormCutoffs[MAX_NUM_CLASSES] = {};
   uint16_t BaselineCutoffs[MAX_NUM_CLASSES];
 
 public:

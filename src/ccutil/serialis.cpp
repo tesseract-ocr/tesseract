@@ -88,6 +88,10 @@ bool TFile::DeSerializeSkip(size_t size) {
   if (!DeSerialize(&len)) {
     return false;
   }
+  // Check for overflow: len * size must not overflow size_t.
+  if (size != 0 && len > SIZE_MAX / size) {
+    return false;
+  }
   return Skip(len * size);
 }
 
@@ -96,6 +100,15 @@ bool TFile::DeSerialize(std::string &data) {
   if (!DeSerialize(&size)) {
     return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge string while
+    // carrying only a few trailing bytes (denial of service). As each element
+    // needs exactly one byte, this also limits the allocation to the size of
+    // the input, so there is no need for an additional arbitrary limit.
+    // Training checkpoints embed trainer dumps of more than 50 MB.
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], size);
@@ -114,6 +127,15 @@ bool TFile::DeSerialize(std::vector<char> &data) {
   if (!DeSerialize(&size)) {
     return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge vector while
+    // carrying only a few trailing bytes (denial of service). As each element
+    // needs exactly one byte, this also limits the allocation to the size of
+    // the input, so there is no need for an additional arbitrary limit.
+    // Training checkpoints embed trainer dumps of more than 50 MB.
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], data.size());
@@ -133,6 +155,14 @@ bool TFile::Serialize(const std::vector<char> &data) {
 }
 
 bool TFile::Skip(size_t count) {
+  if (data_ != nullptr) {
+    size_t data_size = data_->size();
+    // Subtraction-based check to avoid overflow in offset_ + count.
+    if (offset_ >= data_size || count > data_size - offset_) {
+      offset_ = data_size > UINT_MAX ? UINT_MAX : static_cast<unsigned>(data_size);
+      return false;
+    }
+  }
   offset_ += count;
   return true;
 }

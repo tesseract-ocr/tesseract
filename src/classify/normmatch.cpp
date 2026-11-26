@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <iomanip> // for std::setw
 #include <sstream> // for std::istringstream
 
 namespace tesseract {
@@ -190,7 +191,10 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
     std::istringstream stream(line);
     stream.imbue(std::locale::classic());
-    stream >> unichar >> NumProtos;
+    // unichar holds at most 2 * UNICHAR_LEN characters; the width limit
+    // (width - 1 characters for char* extraction) keeps the extraction
+    // from overflowing the buffer on overlong lines.
+    stream >> std::setw(2 * UNICHAR_LEN + 1) >> unichar >> NumProtos;
     if (stream.fail()) {
       continue;
     }

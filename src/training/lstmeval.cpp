@@ -63,8 +63,7 @@ int main(int argc, char **argv) {
     tprintf("Failed to load eval data from: %s\n", FLAGS_eval_listfile.c_str());
     return EXIT_FAILURE;
   }
-  double errs = 0.0;
-  std::string result = tester.RunEvalSync(0, &errs, mgr,
+  std::string result = tester.RunEvalSync(0, mgr,
                                           /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
   tprintf("%s\n", result.c_str());
   return EXIT_SUCCESS;

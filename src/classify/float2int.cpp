@@ -82,7 +82,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT &norm_feature,
  * @param Features floating point pico-features to be converted
  * @param[out] IntFeatures array to put converted features into
  */
-void Classify::ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures) {
+void Classify::ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY &IntFeatures) {
   float YShift;
 
   if (classify_norm_method == baseline) {

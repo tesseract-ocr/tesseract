@@ -14,9 +14,8 @@
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
+#include "image.h"            // for Image
 #include "stringrenderer.h"
-
-#include <allheaders.h>
 
 #include <memory>
 #include <string>

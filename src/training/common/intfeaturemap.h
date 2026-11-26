@@ -98,7 +98,7 @@ public:
 
   // After deleting some features, finish setting up the mapping, and map
   // all the samples. Returns the size of the compacted feature space.
-  int FinalizeMapping(SampleIterator *it);
+  int FinalizeMapping();
 
   // Indexes the given array of features to a vector of sorted indices.
   void IndexAndSortFeatures(const INT_FEATURE_STRUCT *features, int num_features,

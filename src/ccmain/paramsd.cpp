@@ -35,6 +35,7 @@
 #  include <cstdio>  // for fclose, fopen, fprintf, FILE
 #  include <cstdlib> // for atoi
 #  include <cstring> // for strcmp, strcspn, strlen, strncpy
+#  include <filesystem> // for std::filesystem
 #  include <locale>  // for std::locale::classic
 #  include <map>     // for map, _Rb_tree_iterator, map<>::iterator
 #  include <memory>  // for unique_ptr
@@ -268,14 +269,13 @@ SVMenuNode *ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
 // Event listener. Waits for SVET_POPUP events and processes them.
 void ParamsEditor::Notify(const SVEvent *sve) {
   if (sve->type == SVET_POPUP) { // only catch SVET_POPUP!
-    char *param = sve->parameter;
     if (sve->command_id == writeCommands[0]) {
-      WriteParams(param, false);
+      WriteParams(sve->parameter, false);
     } else if (sve->command_id == writeCommands[1]) {
-      WriteParams(param, true);
+      WriteParams(sve->parameter, true);
     } else {
       ParamContent *vc = ParamContent::GetParamContentById(sve->command_id);
-      vc->SetValue(param);
+      vc->SetValue(sve->parameter.c_str());
       sv_window_->AddMessageF("Setting %s to %s", vc->GetName(), vc->GetValue().c_str());
     }
   }
@@ -315,11 +315,8 @@ ParamsEditor::ParamsEditor(tesseract::Tesseract *tess, ScrollView *sv) {
 }
 
 // Write all (changed_) parameters to a config file.
-void ParamsEditor::WriteParams(char *filename, bool changes_only) {
-  FILE *fp; // input file
-  // if file exists
-  if ((fp = fopen(filename, "rb")) != nullptr) {
-    fclose(fp);
+void ParamsEditor::WriteParams(const std::string &filename, bool changes_only) {
+  if (std::filesystem::exists(filename)) {
     std::stringstream msg;
     msg << "Overwrite file " << filename << "? (Y/N)";
     int a = sv_window_->ShowYesNoDialog(msg.str().c_str());
@@ -328,9 +325,9 @@ void ParamsEditor::WriteParams(char *filename, bool changes_only) {
     } // don't write
   }
 
-  fp = fopen(filename, "wb"); // can we write to it?
+  FILE *fp = fopen(filename.c_str(), "wb"); // can we write to it?
   if (fp == nullptr) {
-    sv_window_->AddMessageF("Can't write to file %s", filename);
+    sv_window_->AddMessageF("Can't write to file %s", filename.c_str());
     return;
   }
   for (auto &iter : vcMap) {

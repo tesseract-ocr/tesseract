@@ -102,6 +102,10 @@ bool BitVector::DeSerialize(bool swap, FILE *fp) {
   if (swap) {
     ReverseN(&new_bit_size, sizeof(new_bit_size));
   }
+  // Reject unreasonably large bit vectors.
+  if (new_bit_size > 500000000) {
+    return false;
+  }
   Alloc(new_bit_size);
   int wordlen = WordLength();
   if (!tesseract::DeSerialize(fp, &array_[0], wordlen)) {

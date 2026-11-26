@@ -76,6 +76,7 @@ public:
               float yshift,              // the larger of y shift (top or bottom)
               BlobChoiceClassifier c);   // adapted match or other
   BLOB_CHOICE(const BLOB_CHOICE &other);
+  BLOB_CHOICE(BLOB_CHOICE &&other) noexcept = default;
   ~BLOB_CHOICE() = default;
 
   UNICHAR_ID unichar_id() const {
@@ -192,6 +193,8 @@ public:
 private:
   // Copy assignment operator.
   BLOB_CHOICE &operator=(const BLOB_CHOICE &other);
+  // Move assignment operator.
+  BLOB_CHOICE &operator=(BLOB_CHOICE &&other) noexcept = default;
 
   UNICHAR_ID unichar_id_; // unichar id
 #ifndef DISABLED_LEGACY_ENGINE
@@ -258,6 +261,12 @@ const char *ScriptPosToString(ScriptPos script_pos);
 class TESS_API WERD_CHOICE : public ELIST<WERD_CHOICE>::LINK {
 public:
   static const float kBadRating;
+  // Worst-case (most negative) certainty, mirroring kBadRating (highest rating).
+  // A deliberately finite value so that it can be summed and scaled without
+  // overflowing to -inf (which the tesseract CLI turns into a SIGFPE, since
+  // main1() enables the FE_OVERFLOW trap). See WERD_CHOICE::make_bad() and
+  // WERD_RES::FakeWordFromRatings().
+  static const float kBadCertainty;
   static const char *permuter_name(uint8_t permuter);
 
   WERD_CHOICE(const UNICHARSET *unicharset) : unicharset_(unicharset) {
@@ -276,6 +285,7 @@ public:
     this->init(word.length());
     this->operator=(word);
   }
+  WERD_CHOICE(WERD_CHOICE &&word) noexcept = default;
   ~WERD_CHOICE();
 
   const UNICHARSET *unicharset() const {
@@ -419,7 +429,7 @@ public:
   inline void make_bad() {
     length_ = 0;
     rating_ = kBadRating;
-    certainty_ = -FLT_MAX;
+    certainty_ = kBadCertainty;
   }
 
   /// This function assumes that there is enough space reserved
@@ -573,6 +583,7 @@ public:
       const WERD_CHOICE &second); // second on first
 
   WERD_CHOICE &operator=(const WERD_CHOICE &source);
+  WERD_CHOICE &operator=(WERD_CHOICE &&source) noexcept = default;
 
 private:
   const UNICHARSET *unicharset_;

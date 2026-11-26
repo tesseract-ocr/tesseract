@@ -60,9 +60,9 @@ void LMPainPoints::GenerateInitial(WERD_RES *word_res) {
         continue;
       }
       // Add an initial pain point if needed.
-      if (ratings->Classified(col, row - 1, dict_->WildcardID()) ||
+      if (ratings->Classified(col, row - 1) ||
           (col + 1 < ratings->dimension() &&
-           ratings->Classified(col + 1, row, dict_->WildcardID()))) {
+           ratings->Classified(col + 1, row))) {
         GeneratePainPoint(col, row, LM_PPTYPE_SHAPE, 0.0, true, max_char_wh_ratio_, word_res);
       }
     }
@@ -95,7 +95,7 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale, ViterbiStateEntry *
     const MATRIX_COORD &parent_cell = parent_vse->curr_b->matrix_cell();
     MATRIX_COORD pain_coord(parent_cell.col, curr_cell.row);
     if (!pain_coord.Valid(*word_res->ratings) ||
-        !word_res->ratings->Classified(parent_cell.col, curr_cell.row, dict_->WildcardID())) {
+        !word_res->ratings->Classified(parent_cell.col, curr_cell.row)) {
       // rat_subtr contains ratings sum of the two adjacent blobs to be merged.
       // rat_subtr will be subtracted from the ratings sum of the path, since
       // the blobs will be joined into a new blob, whose rating is yet unknown.
@@ -144,7 +144,7 @@ bool LMPainPoints::GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
                                      float max_char_wh_ratio, WERD_RES *word_res) {
   MATRIX_COORD coord(col, row);
   if (coord.Valid(*word_res->ratings) &&
-      word_res->ratings->Classified(col, row, dict_->WildcardID())) {
+      word_res->ratings->Classified(col, row)) {
     return false;
   }
   if (debug_level_ > 3) {

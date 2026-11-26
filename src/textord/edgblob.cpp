@@ -67,7 +67,7 @@ OL_BUCKETS::OL_BUCKETS(ICOORD bleft, // corners
       bydim((tright.y() - bleft.y()) / BUCKETSIZE + 1),
       buckets(bxdim * bydim),
       bl(bleft),
-      tr(tright) {}
+      tr(tright), it(buckets.end()) {}
 
 /**
  * @name OL_BUCKETS::operator(
@@ -231,8 +231,12 @@ int32_t OL_BUCKETS::count_children( // recursive count
         if (child != outline && *child < *outline) {
           child_count++;
           if (child_count <= max_count) {
+            // Avoid an integer division by zero if the parameter is not
+            // positive.
             int max_grand =
-                (max_count - child_count) / edges_children_per_grandchild;
+                edges_children_per_grandchild > 0
+                    ? (max_count - child_count) / edges_children_per_grandchild
+                    : 0;
             if (max_grand > 0) {
               grandchild_count += count_children(child, max_grand) *
                                   edges_children_per_grandchild;
@@ -383,7 +387,6 @@ static void fill_buckets(C_OUTLINE_LIST *outlines, // outlines in block
  */
 
 static bool capture_children(OL_BUCKETS *buckets,  // bucket sort class
-                             C_BLOB_IT *reject_it, // dead grandchildren
                              C_OUTLINE_IT *blob_it // output outlines
 ) {
   // master outline
@@ -440,7 +443,7 @@ static void empty_buckets(BLOCK *block,       // block to scan
     // move to new list
     out_it.add_after_then_move(parent_it.extract());
     // healthy blob
-    bool good_blob = capture_children(buckets, &junk_blobs, &out_it);
+    bool good_blob = capture_children(buckets, &out_it);
     C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs,
                                        &junk_blobs);
 

@@ -19,7 +19,6 @@
 // expects clones of tessdata, tessdata_fast and tessdata_best repos
 
 //#include "log.h"
-#include <allheaders.h>
 #include <tesseract/baseapi.h>
 #include <iostream>
 #include <memory> // std::unique_ptr
@@ -67,6 +66,7 @@ TEST_P(OSDTest, MatchOrientationDegrees) {
   // Skip test because TessBaseAPI::DetectOrientationScript is missing.
   GTEST_SKIP();
 #else
+  REQUIRE_TRAINEDDATA(std::get<2>(GetParam()), "osd");
   OSDTester(std::get<0>(GetParam()), std::get<1>(GetParam()), std::get<2>(GetParam()));
 #endif
 }

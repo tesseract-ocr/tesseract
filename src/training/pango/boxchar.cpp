@@ -29,6 +29,7 @@
 #include "unicode/uchar.h" // from libicu
 
 #include <algorithm>
+#include <climits> // for INT_MAX
 #include <cstddef>
 #include <vector>
 
@@ -143,27 +144,30 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules, std::vector<Bo
         // a box outside the image by making the width and height 1.
         int width = 1;
         int height = 1;
-        int x = prev_box->x + prev_box->w;
-        int y = prev_box->y;
+        int64_t x = static_cast<int64_t>(prev_box->x) + prev_box->w;
+        int64_t y = prev_box->y;
         if (vertical_rules) {
           x = prev_box->x;
-          y = prev_box->y + prev_box->h;
+          y = static_cast<int64_t>(prev_box->y) + prev_box->h;
         } else if (rtl_rules) {
-          x = prev_box->x - width;
+          x = static_cast<int64_t>(prev_box->x) - width;
           if (x < 0) {
             tprintf("prev x = %d, width=%d\n", prev_box->x, width);
             x = 0;
           }
         }
+        // Avoid implementation-defined narrowing on corrupt input data.
+        x = std::clamp(x, int64_t{0}, static_cast<int64_t>(INT_MAX));
+        y = std::clamp(y, int64_t{0}, static_cast<int64_t>(INT_MAX));
         if (prev_i + 1 == i) {
           // New character needed.
           auto *new_box = new BoxChar("\t", 1);
-          new_box->AddBox(x, y, width, height);
+          new_box->AddBox(static_cast<int>(x), static_cast<int>(y), width, height);
           new_box->page_ = (*boxes)[i]->page_;
           boxes->insert(boxes->begin() + i, new_box);
           ++i;
         } else {
-          (*boxes)[i - 1]->AddBox(x, y, width, height);
+          (*boxes)[i - 1]->AddBox(static_cast<int>(x), static_cast<int>(y), width, height);
           (*boxes)[i - 1]->ch_ = "\t";
         }
         max_shift = 0;

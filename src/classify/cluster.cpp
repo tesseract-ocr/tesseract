@@ -32,13 +32,13 @@
 
 namespace tesseract {
 
-#define HOTELLING 1  // If true use Hotelling's test to decide where to split.
-#define FTABLE_X 10  // Size of FTable.
-#define FTABLE_Y 100 // Size of FTable.
+constexpr int HOTELLING = 1;  // If true use Hotelling's test to decide where to split.
+constexpr int FTABLE_X = 10;  // Size of FTable.
+constexpr int FTABLE_Y = 100; // Size of FTable.
 
 // Table of values approximating the cumulative F-distribution for a confidence
 // of 1%.
-const double FTable[FTABLE_Y][FTABLE_X] = {
+constexpr double FTable[FTABLE_Y][FTABLE_X] = {
     {
         4052.19,
         4999.52,
@@ -1233,7 +1233,7 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   dimension of any feature. Since most features are calculated from numbers
   with a precision no better than 1 in 128, the variance should never be
   less than the square of this number for parameters whose range is 1. */
-#define MINVARIANCE 0.0004
+constexpr double MINVARIANCE = 0.0004;
 
 /** define the absolute minimum number of samples which must be present in
   order to accurately test hypotheses about underlying probability
@@ -1241,9 +1241,9 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   before a statistical analysis is attempted; this number should be
   equal to MINSAMPLES but can be set to a lower number for early testing
   when very few samples are available. */
-#define MINSAMPLESPERBUCKET 5
-#define MINSAMPLES (MINBUCKETS * MINSAMPLESPERBUCKET)
-#define MINSAMPLESNEEDED 1
+constexpr int MINSAMPLESPERBUCKET = 5;
+constexpr int MINSAMPLES = MINBUCKETS * MINSAMPLESPERBUCKET;
+constexpr int MINSAMPLESNEEDED = 1;
 
 /** define the size of the table which maps normalized samples to
   histogram buckets.  Also define the number of standard deviations
@@ -1251,8 +1251,8 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   The mapping table will be defined in such a way that it covers
   the specified number of standard deviations on either side of
   the mean.  BUCKETTABLESIZE should always be even. */
-#define BUCKETTABLESIZE 1024
-#define NORMALEXTENT 3.0
+constexpr int BUCKETTABLESIZE = 1024;
+constexpr double NORMALEXTENT = 3.0;
 
 struct TEMPCLUSTER {
   CLUSTER *Cluster;
@@ -1276,7 +1276,7 @@ struct BUCKETS {
   }
   ~BUCKETS() {
   }
-  DISTRIBUTION Distribution = normal; // distribution being tested for
+  DISTRIBUTION Distribution = DISTRIBUTION::normal; // distribution being tested for
   uint32_t SampleCount = 0;         // # of samples in histogram
   double Confidence = 0.0;          // confidence level of test
   double ChiSquared = 0.0;          // test threshold
@@ -1311,9 +1311,18 @@ struct ClusteringContext {
 using DENSITYFUNC = double (*)(int32_t);
 using SOLVEFUNC = double (*)(CHISTRUCT *, double);
 
-#define Odd(N) ((N) % 2)
-#define Mirror(N, R) ((R) - (N)-1)
-#define Abs(N) (((N) < 0) ? (-(N)) : (N))
+template <typename T>
+inline constexpr bool Odd(T N) {
+  return (N % 2) != 0;
+}
+template <typename T>
+inline constexpr T Mirror(T N, T R) {
+  return R - N - 1;
+}
+template <typename T>
+inline constexpr T Abs(T N) {
+  return N < 0 ? -N : N;
+}
 
 //--------------Global Data Definitions and Declarations----------------------
 /** the following variables describe a discrete normal distribution
@@ -1323,22 +1332,22 @@ using SOLVEFUNC = double (*)(CHISTRUCT *, double);
   discrete range of x.  x=0 is mapped to -NORMALEXTENT standard
   deviations and x=BUCKETTABLESIZE is mapped to
   +NORMALEXTENT standard deviations. */
-#define SqrtOf2Pi 2.506628275
-static const double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
-static const double kNormalVariance =
+constexpr double SqrtOf2Pi = 2.506628275;
+static constexpr double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
+static constexpr double kNormalVariance =
     (BUCKETTABLESIZE * BUCKETTABLESIZE) / (4.0 * NORMALEXTENT * NORMALEXTENT);
-static const double kNormalMagnitude = (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
-static const double kNormalMean = BUCKETTABLESIZE / 2;
+static constexpr double kNormalMagnitude = (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
+static constexpr double kNormalMean = BUCKETTABLESIZE / 2;
 
 /** define lookup tables used to compute the number of histogram buckets
   that should be used for a given number of samples. */
-#define LOOKUPTABLESIZE 8
-#define MAXDEGREESOFFREEDOM MAXBUCKETS
+constexpr int LOOKUPTABLESIZE = 8;
+constexpr int MAXDEGREESOFFREEDOM = MAXBUCKETS;
 
-static const uint32_t kCountTable[LOOKUPTABLESIZE] = {MINSAMPLES, 200,  400, 600, 800,
-                                                      1000,       1500, 2000}; // number of samples
+static constexpr uint32_t kCountTable[LOOKUPTABLESIZE] = {MINSAMPLES, 200,  400, 600, 800,
+                                                          1000,       1500, 2000}; // number of samples
 
-static const uint16_t kBucketsTable[LOOKUPTABLESIZE] = {
+static constexpr uint16_t kBucketsTable[LOOKUPTABLESIZE] = {
     MINBUCKETS, 16, 20, 24, 27, 30, 35, MAXBUCKETS}; // number of buckets
 
 /*-------------------------------------------------------------------------
@@ -1383,7 +1392,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
 
 static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics);
 
-static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster);
+static PROTOTYPE *NewSimpleProto(CLUSTER *Cluster);
 
 static bool Independent(PARAM_DESC *ParamDesc, int16_t N, float *CoVariance, float Independence);
 
@@ -1614,7 +1623,7 @@ void FreePrototype(void *arg) { // PROTOTYPE     *Prototype)
   }
 
   // deallocate the prototype statistics and then the prototype itself
-  if (Prototype->Style != spherical) {
+  if (Prototype->Style != PROTOSTYLE::spherical) {
     delete[] Prototype->Variance.Elliptical;
     delete[] Prototype->Magnitude.Elliptical;
     delete[] Prototype->Weight.Elliptical;
@@ -1672,20 +1681,21 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
  */
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       return std::sqrt(Proto->Variance.Spherical);
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       return std::sqrt(Proto->Variance.Elliptical[Dimension]);
-    case mixed:
+    case PROTOSTYLE::mixed:
       switch (Proto->Distrib[Dimension]) {
-        case normal:
+        case DISTRIBUTION::normal:
           return std::sqrt(Proto->Variance.Elliptical[Dimension]);
-        case uniform:
-        case D_random:
+        case DISTRIBUTION::uniform:
+        case DISTRIBUTION::D_random:
           return Proto->Variance.Elliptical[Dimension];
-        case DISTRIBUTION_COUNT:
-          ASSERT_HOST(!"Distribution count not allowed!");
       }
+      break;
+    default:
+      break;
   }
   return 0.0f;
 } // StandardDeviation
@@ -1794,10 +1804,9 @@ static void MakePotentialClusters(ClusteringContext *context, CLUSTER *Cluster, 
  * @param Distance  ptr to variable to report distance found
  * @return  Pointer to the nearest neighbor of Cluster, or nullptr
  */
-static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Distance)
-#define MAXNEIGHBORS 2
-#define MAXDISTANCE FLT_MAX
-{
+static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Distance) {
+  constexpr int MAXNEIGHBORS = 2;
+  constexpr float MAXDISTANCE = FLT_MAX;
   CLUSTER *Neighbor[MAXNEIGHBORS];
   float Dist[MAXNEIGHBORS];
   int NumberOfNeighbors;
@@ -1805,7 +1814,7 @@ static CLUSTER *FindNearestNeighbor(KDTREE *Tree, CLUSTER *Cluster, float *Dista
   CLUSTER *BestNeighbor;
 
   // find the 2 nearest neighbors of the cluster
-  KDNearestNeighborSearch(Tree, &Cluster->Mean[0], MAXNEIGHBORS, MAXDISTANCE, &NumberOfNeighbors,
+  KDNearestNeighborSearch(Tree, &Cluster->Mean[0], MAXNEIGHBORS, &NumberOfNeighbors,
                           reinterpret_cast<void **>(Neighbor), Dist);
 
   // search for the nearest neighbor that is not the cluster itself
@@ -1976,7 +1985,7 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
     return nullptr;
   }
 
-  if (HOTELLING && Config->ProtoStyle == elliptical) {
+  if (HOTELLING && Config->ProtoStyle == PROTOSTYLE::elliptical) {
     Proto = TestEllipticalProto(Clusterer, Config, Cluster, Statistics);
     if (Proto != nullptr) {
       delete Statistics;
@@ -1985,20 +1994,20 @@ static PROTOTYPE *MakePrototype(CLUSTERER *Clusterer, CLUSTERCONFIG *Config, CLU
   }
 
   // create a histogram data structure used to evaluate distributions
-  Buckets = GetBuckets(Clusterer, normal, Cluster->SampleCount, Config->Confidence);
+  Buckets = GetBuckets(Clusterer, DISTRIBUTION::normal, Cluster->SampleCount, Config->Confidence);
 
   // create a prototype based on the statistics and test it
   switch (Config->ProtoStyle) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       Proto = MakeEllipticalProto(Clusterer, Cluster, Statistics, Buckets);
       break;
-    case mixed:
+    case PROTOSTYLE::mixed:
       Proto = MakeMixedProto(Clusterer, Cluster, Statistics, Buckets, Config->Confidence);
       break;
-    case automatic:
+    case PROTOSTYLE::automatic:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
       if (Proto != nullptr) {
         break;
@@ -2043,14 +2052,14 @@ static PROTOTYPE *MakeDegenerateProto( // this was MinSample
 
   if (Cluster->SampleCount < MinSamples) {
     switch (Style) {
-      case spherical:
+      case PROTOSTYLE::spherical:
         Proto = NewSphericalProto(N, Cluster, Statistics);
         break;
-      case elliptical:
-      case automatic:
+      case PROTOSTYLE::elliptical:
+      case PROTOSTYLE::automatic:
         Proto = NewEllipticalProto(N, Cluster, Statistics);
         break;
-      case mixed:
+      case PROTOSTYLE::mixed:
         Proto = NewMixedProto(N, Cluster, Statistics);
         break;
     }
@@ -2273,7 +2282,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     if (RandomBuckets == nullptr) {
-      RandomBuckets = GetBuckets(Clusterer, D_random, Cluster->SampleCount, Confidence);
+      RandomBuckets = GetBuckets(Clusterer, DISTRIBUTION::D_random, Cluster->SampleCount, Confidence);
     }
     MakeDimRandom(i, Proto, &(Clusterer->ParamDesc[i]));
     FillBuckets(RandomBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
@@ -2283,7 +2292,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
     }
 
     if (UniformBuckets == nullptr) {
-      UniformBuckets = GetBuckets(Clusterer, uniform, Cluster->SampleCount, Confidence);
+      UniformBuckets = GetBuckets(Clusterer, DISTRIBUTION::uniform, Cluster->SampleCount, Confidence);
     }
     MakeDimUniform(i, Proto, Statistics);
     FillBuckets(UniformBuckets, Cluster, i, &(Clusterer->ParamDesc[i]), Proto->Mean[i],
@@ -2309,7 +2318,7 @@ static PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer, CLUSTER *Cluster, STATIST
  * @param ParamDesc description of specified dimension
  */
 static void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
-  Proto->Distrib[i] = D_random;
+  Proto->Distrib[i] = DISTRIBUTION::D_random;
   Proto->Mean[i] = ParamDesc->MidRange;
   Proto->Variance.Elliptical[i] = ParamDesc->HalfRange;
 
@@ -2330,7 +2339,7 @@ static void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
  * @param Statistics  statistical info about prototype
  */
 static void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
-  Proto->Distrib[i] = uniform;
+  Proto->Distrib[i] = DISTRIBUTION::uniform;
   Proto->Mean[i] = Proto->Cluster->Mean[i] + (Statistics->Min[i] + Statistics->Max[i]) / 2;
   Proto->Variance.Elliptical[i] = (Statistics->Max[i] - Statistics->Min[i]) / 2;
   if (Proto->Variance.Elliptical[i] < MINVARIANCE) {
@@ -2440,7 +2449,7 @@ static STATISTICS *ComputeStatistics(int16_t N, PARAM_DESC ParamDesc[], CLUSTER 
 static PROTOTYPE *NewSphericalProto(uint16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   PROTOTYPE *Proto;
 
-  Proto = NewSimpleProto(N, Cluster);
+  Proto = NewSimpleProto(Cluster);
 
   Proto->Variance.Spherical = Statistics->AvgVariance;
   if (Proto->Variance.Spherical < MINVARIANCE) {
@@ -2470,7 +2479,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
   PROTOTYPE *Proto;
   int i;
 
-  Proto = NewSimpleProto(N, Cluster);
+  Proto = NewSimpleProto(Cluster);
   Proto->Variance.Elliptical = new float[N];
   Proto->Magnitude.Elliptical = new float[N];
   Proto->Weight.Elliptical = new float[N];
@@ -2488,7 +2497,7 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
   Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
-  Proto->Style = elliptical;
+  Proto->Style = PROTOSTYLE::elliptical;
   return (Proto);
 } // NewEllipticalProto
 
@@ -2508,8 +2517,8 @@ static PROTOTYPE *NewEllipticalProto(int16_t N, CLUSTER *Cluster, STATISTICS *St
 static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   auto Proto = NewEllipticalProto(N, Cluster, Statistics);
   Proto->Distrib.clear();
-  Proto->Distrib.resize(N, normal);
-  Proto->Style = mixed;
+  Proto->Distrib.resize(N, DISTRIBUTION::normal);
+  Proto->Style = PROTOSTYLE::mixed;
   return Proto;
 } // NewMixedProto
 
@@ -2517,17 +2526,16 @@ static PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statist
  * This routine allocates memory to hold a simple prototype
  * data structure, i.e. one without independent distributions
  * and variances for each dimension.
- * @param N number of dimensions
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new simple prototype
  */
-static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
+static PROTOTYPE *NewSimpleProto(CLUSTER *Cluster) {
   auto Proto = new PROTOTYPE;
   Proto->Mean = Cluster->Mean;
   Proto->Distrib.clear();
   Proto->Significant = true;
   Proto->Merged = false;
-  Proto->Style = spherical;
+  Proto->Style = PROTOSTYLE::spherical;
   Proto->NumSamples = Cluster->SampleCount;
   Proto->Cluster = Cluster;
   Proto->Cluster->Prototype = true;
@@ -2603,12 +2611,12 @@ static BUCKETS *GetBuckets(CLUSTERER *clusterer, DISTRIBUTION Distribution, uint
                            double Confidence) {
   // Get an old bucket structure with the same number of buckets.
   uint16_t NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
-  BUCKETS *Buckets = clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS];
+  BUCKETS *Buckets = clusterer->bucket_cache[static_cast<size_t>(Distribution)][NumberOfBuckets - MINBUCKETS];
 
   // If a matching bucket structure is not found, make one and save it.
   if (Buckets == nullptr) {
     Buckets = MakeBuckets(Distribution, SampleCount, Confidence);
-    clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS] = Buckets;
+    clusterer->bucket_cache[static_cast<size_t>(Distribution)][NumberOfBuckets - MINBUCKETS] = Buckets;
   } else {
     // Just adjust the existing buckets.
     if (SampleCount != Buckets->SampleCount) {
@@ -2650,7 +2658,6 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
   double LastProbDensity;
   double ProbDensity;
   uint16_t CurrentBucket;
-  bool Symmetrical;
 
   // allocate memory needed for data structure
   auto Buckets = new BUCKETS(OptimumNumberOfBuckets(SampleCount));
@@ -2660,11 +2667,11 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution, uint32_t SampleCount, dou
   // initialize simple fields
   Buckets->Distribution = Distribution;
 
-  // all currently defined distributions are symmetrical
-  Symmetrical = true;
   Buckets->ChiSquared =
       ComputeChiSquared(DegreesOfFreedom(Distribution, Buckets->NumberOfBuckets), Confidence);
 
+  // all currently defined distributions are symmetrical
+  constexpr bool Symmetrical = true;
   if (Symmetrical) {
     // allocate buckets so that all have approx. equal probability
     BucketProbability = 1.0 / static_cast<double>(Buckets->NumberOfBuckets);
@@ -2757,10 +2764,9 @@ static uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
  * @param Alpha probability of right tail
  * @return Desired chi-squared value
  */
-static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha)
-#define CHIACCURACY 0.01
-#define MINALPHA (1e-200)
-{
+static double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha) {
+  constexpr double CHIACCURACY = 0.01;
+  constexpr double MINALPHA = 1e-200;
   static LIST ChiWith[MAXDEGREESOFFREEDOM + 1];
 
   // limit the minimum alpha that can be used - if alpha is too small
@@ -2899,11 +2905,11 @@ static void FillBuckets(BUCKETS *Buckets, CLUSTER *Cluster, uint16_t Dim, PARAM_
     InitSampleSearch(SearchState, Cluster);
     while ((Sample = NextSample(&SearchState)) != nullptr) {
       switch (Buckets->Distribution) {
-        case normal:
+        case DISTRIBUTION::normal:
           BucketID = NormalBucket(ParamDesc, Sample->Mean[Dim], Mean, StdDev);
           break;
-        case D_random:
-        case uniform:
+        case DISTRIBUTION::D_random:
+        case DISTRIBUTION::uniform:
           BucketID = UniformBucket(ParamDesc, Sample->Mean[Dim], Mean, StdDev);
           break;
         default:
@@ -3105,10 +3111,9 @@ static int AlphaMatch(void *arg1,   // CHISTRUCT *ChiStruct,
  * @param Accuracy  maximum allowed error
  * @return Solution of function (x for which f(x) = 0).
  */
-static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGuess, double Accuracy)
-#define INITIALDELTA 0.1
-#define DELTARATIO 0.1
-{
+static double Solve(SOLVEFUNC Function, void *FunctionParams, double InitialGuess, double Accuracy) {
+  constexpr double INITIALDELTA = 0.1;
+  constexpr double DELTARATIO = 0.1;
   double x;
   double f;
   double Slope;
@@ -3211,9 +3216,8 @@ static double ChiArea(CHISTRUCT *ChiParams, double x) {
  *        more than 1 feature in the cluster
  * @return true if the cluster should be split, false otherwise.
  */
-static bool MultipleCharSamples(CLUSTERER *Clusterer, CLUSTER *Cluster, float MaxIllegal)
-#define ILLEGAL_CHAR 2
-{
+static bool MultipleCharSamples(CLUSTERER *Clusterer, CLUSTER *Cluster, float MaxIllegal) {
+  constexpr int ILLEGAL_CHAR = 2;
   static std::vector<uint8_t> CharFlags;
   LIST SearchState;
   SAMPLE *Sample;

@@ -93,12 +93,19 @@ void Tesseract::set_done(WERD_RES *word, int16_t pass) {
  *
  * Sets a reject map for the word.
  *************************************************************************/
-void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
+void Tesseract::make_reject_map(WERD_RES *word, int16_t pass) {
   flip_0O(word);
   check_debug_pt(word, -1); // For trap only
   set_done(word, pass);     // Set acceptance
   word->reject_map.initialise(word->best_choice->unichar_lengths().length());
   reject_blanks(word);
+  if (tessedit_reject_mode != 0 && tessedit_reject_mode != 5) {
+    // The value may come from a config file or from the config embedded in
+    // the traineddata, so it must not be fatal. Fall back to the default.
+    tprintf("Warning: unsupported tessedit_reject_mode %d, using the default\n",
+            static_cast<int>(tessedit_reject_mode));
+    tessedit_reject_mode.ResetToDefault();
+  }
   /*
 0: Rays original heuristic - the baseline
 */
@@ -158,9 +165,6 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
       }
       /* Ambig word rejection was here once !!*/
     }
-  } else {
-    tprintf("BAD tessedit_reject_mode\n");
-    ASSERT_HOST("Fatal error encountered!" == nullptr);
   }
 
   if (tessedit_image_border > -1) {
@@ -285,8 +289,6 @@ void Tesseract::reject_edge_blobs(WERD_RES *word) {
  * - A bundle of contextual heuristics!
  **********************************************************************/
 bool Tesseract::one_ell_conflict(WERD_RES *word_res, bool update_map) {
-  const char *word;
-  const char *lengths;
   int16_t word_len; // its length
   int16_t first_alphanum_index_;
   int16_t first_alphanum_offset_;
@@ -298,8 +300,12 @@ bool Tesseract::one_ell_conflict(WERD_RES *word_res, bool update_map) {
   bool dict_word_ok;
   int dict_word_type;
 
-  word = word_res->best_choice->unichar_string().c_str();
-  lengths = word_res->best_choice->unichar_lengths().c_str();
+  // unichar_string() and unichar_lengths() rebuild their internal strings,
+  // so copy them here to keep stable pointers for the rest of the function.
+  std::string word_str = word_res->best_choice->unichar_string();
+  std::string lengths_str = word_res->best_choice->unichar_lengths();
+  const char *word = word_str.c_str();
+  const char *lengths = lengths_str.c_str();
   word_len = strlen(lengths);
   /*
   If there are no occurrences of the conflict set characters then the word
@@ -560,7 +566,7 @@ void Tesseract::reject_mostly_rejects(WERD_RES *word) {
   }
 }
 
-bool Tesseract::repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
+bool Tesseract::repeated_nonalphanum_wd(WERD_RES *word) {
   if (word->best_choice->unichar_lengths().length() <= 1) {
     return false;
   }

@@ -3,7 +3,7 @@ void build(Solution &s)
     auto &tess = s.addProject("google.tesseract", "main");
     tess += Git("https://github.com/tesseract-ocr/tesseract", "", "{v}");
 
-    auto cppstd = cpp17;
+    auto cppstd = cpp20;
 
     auto &libtesseract = tess.addTarget<LibraryTarget>("libtesseract");
     {

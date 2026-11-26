@@ -17,7 +17,7 @@
 #ifndef UTIL_UTF8_PUBLIC_UNICODETEXT_H_
 #define UTIL_UTF8_PUBLIC_UNICODETEXT_H_
 
-#include <stddef.h> // for NULL, ptrdiff_t
+#include <cstddef>  // for ptrdiff_t
 #include <iterator> // for bidirectional_iterator_tag, etc
 #include <string>   // for string
 #include <utility>  // for pair

@@ -45,10 +45,6 @@ const int kMaxLargeOverlapsWithMedium = 12;
 // Multiplier of original noise_count used to test for the case of spreading
 // noise beyond where it should really be.
 const int kOriginalNoiseMultiple = 8;
-// Pixel padding for noise blobs when rendering on the image
-// mask to encourage them to join together. Make it too big and images
-// will fatten out too much and have to be clipped to text.
-const int kNoisePadding = 4;
 // Fraction of max_noise_count_ to be added to the noise count if there is
 // photo mask in the background.
 const double kPhotoOffsetFraction = 0.375;

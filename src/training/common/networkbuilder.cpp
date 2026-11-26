@@ -112,6 +112,12 @@ Network *NetworkBuilder::BuildFromString(const StaticShape &input_shape, const c
       return ParseFullyConnected(input_shape, str);
     case 'O':
       return ParseOutput(input_shape, str);
+    case 'D':
+      // Models with a dropout layer can be used for recognition, but this
+      // version cannot train with dropout.
+      tprintf("Dropout (Do) is not supported for training by this version of Tesseract:%s\n",
+              *str);
+      break;
     default:
       tprintf("Invalid network spec:%s\n", *str);
   }

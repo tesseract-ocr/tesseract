@@ -19,6 +19,8 @@
 
 #include "clusttool.h"
 
+#include <algorithm> // for std::clamp
+#include <cfloat>  // for FLT_MAX
 #include <cmath>   // for M_PI, std::isnan
 #include <locale>  // for std::locale::classic
 #include <sstream> // for std::stringstream
@@ -88,16 +90,16 @@ static void WriteNFloats(FILE *File, uint16_t N, float Array[]) {
  */
 static void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       fprintf(File, "spherical");
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       fprintf(File, "elliptical");
       break;
-    case mixed:
+    case PROTOSTYLE::mixed:
       fprintf(File, "mixed");
       break;
-    case automatic:
+    case PROTOSTYLE::automatic:
       fprintf(File, "automatic");
       break;
   }
@@ -149,6 +151,15 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
     ASSERT_HOST(!stream.fail());
     ParamDesc[i].Circular = (linear_token[0] == 'c');
     ParamDesc[i].NonEssential = (essential_token[0] != 'e');
+    // Min and Max come from the file and can be any float value. Limit them
+    // to half of the float range, so neither their difference nor their sum
+    // can overflow (the tesseract program traps a floating point overflow
+    // with SIGFPE). Clipping the calculated range is not sufficient, as a
+    // compiler may convert the unclipped value to float before it selects
+    // the limit (clang for arm64), which sets the overflow flag.
+    const float kMaxLimit = FLT_MAX / 2;
+    ParamDesc[i].Min = std::clamp(ParamDesc[i].Min, -kMaxLimit, kMaxLimit);
+    ParamDesc[i].Max = std::clamp(ParamDesc[i].Max, -kMaxLimit, kMaxLimit);
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
     ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
@@ -184,17 +195,17 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
 
   switch (shape_token[0]) {
     case 's':
-      Proto->Style = spherical;
+      Proto->Style = PROTOSTYLE::spherical;
       break;
     case 'e':
-      Proto->Style = elliptical;
+      Proto->Style = PROTOSTYLE::elliptical;
       break;
     case 'a':
-      Proto->Style = automatic;
+      Proto->Style = PROTOSTYLE::automatic;
       break;
     default:
       tprintf("Invalid prototype style specification:%s\n", shape_token);
-      Proto->Style = elliptical;
+      Proto->Style = PROTOSTYLE::elliptical;
   }
 
   ASSERT_HOST(SampleCount >= 0);
@@ -204,7 +215,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   ReadNFloats(fp, N, &Proto->Mean[0]);
 
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       ReadNFloats(fp, 1, &(Proto->Variance.Spherical));
       Proto->Magnitude.Spherical = 1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
       Proto->TotalMagnitude = std::pow(Proto->Magnitude.Spherical, static_cast<float>(N));
@@ -212,7 +223,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
       Proto->Distrib.clear();
       break;
-    case elliptical:
+    case PROTOSTYLE::elliptical:
       Proto->Variance.Elliptical = new float[N];
       ReadNFloats(fp, N, Proto->Variance.Elliptical);
       Proto->Magnitude.Elliptical = new float[N];
@@ -276,32 +287,32 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   } else {
     fprintf(File, "insignificant ");
   }
-  WriteProtoStyle(File, static_cast<PROTOSTYLE>(Proto->Style));
+  WriteProtoStyle(File, Proto->Style);
   fprintf(File, "%6u\n\t", Proto->NumSamples);
   WriteNFloats(File, N, &Proto->Mean[0]);
   fprintf(File, "\t");
 
   switch (Proto->Style) {
-    case spherical:
+    case PROTOSTYLE::spherical:
       WriteNFloats(File, 1, &(Proto->Variance.Spherical));
       break;
-    case elliptical:
+      case PROTOSTYLE::elliptical:
       WriteNFloats(File, N, Proto->Variance.Elliptical);
       break;
-    case mixed:
+    case PROTOSTYLE::automatic:
+      break;
+    case PROTOSTYLE::mixed:
       for (i = 0; i < N; i++) {
         switch (Proto->Distrib[i]) {
-          case normal:
+          case DISTRIBUTION::normal:
             fprintf(File, " %9s", "normal");
             break;
-          case uniform:
+          case DISTRIBUTION::uniform:
             fprintf(File, " %9s", "uniform");
             break;
-          case D_random:
+          case DISTRIBUTION::D_random:
             fprintf(File, " %9s", "random");
             break;
-          case DISTRIBUTION_COUNT:
-            ASSERT_HOST(!"Distribution count not allowed!");
         }
       }
       fprintf(File, "\n\t");
