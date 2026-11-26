@@ -5,6 +5,8 @@
 //              against a straightforward calculation with doubles.
 //              The sizes are chosen to cover all the blocks and the
 //              remainders of the SIMD implementations.
+//              Also tests the product of an int-mode WeightMatrix with a
+//              float input.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +18,7 @@
 #include "include_gunit.h"
 
 #include "helpers.h"      // for TRand
+#include "intsimdmatrix.h" // for IntSimdMatrix
 #include "params.h"       // for ParamUtils, GlobalParams
 #include "simddetect.h"   // for SIMDDetect
 #include "weightmatrix.h" // for WeightMatrix, TransposedArray
@@ -175,6 +178,59 @@ protected:
     }
   }
 
+  // Tests the product of int weights with a float input, which is used for
+  // the first layer of an int model, for no outputs and ni inputs.
+  void TestFloatInputForIntWeights(int no, int ni) {
+    WeightMatrix matrix;
+    matrix.InitWeightsFloat(no, ni + 1, false, 1.0f, &randomizer_);
+    matrix.ConvertToInt();
+    matrix.InitFloatFromInt();
+    // The SIMD code for an int8 input reads and writes rounded sizes.
+    int rounded_ni = matrix.RoundInputs(ni + 1);
+    int rounded_no = no;
+    if (IntSimdMatrix::intSimdMatrix) {
+      rounded_no = IntSimdMatrix::intSimdMatrix->RoundOutputs(no);
+    }
+    std::vector<int8_t> int_u(rounded_ni, 0);
+    std::vector<TFloat> u(ni);
+    std::vector<TFloat> twice_u(ni);
+    std::vector<TFloat> zero_u(ni, 0);
+    for (int j = 0; j < ni; ++j) {
+      int_u[j] = static_cast<int8_t>(IntCastRounded(randomizer_.SignedRand(INT8_MAX)));
+      u[j] = static_cast<TFloat>(int_u[j]) / INT8_MAX;
+      twice_u[j] = 2 * u[j];
+    }
+    std::vector<TFloat> int_v(rounded_no);
+    std::vector<TFloat> v(no);
+    std::vector<TFloat> twice_v(no);
+    std::vector<TFloat> zero_v(no);
+    matrix.MatrixDotVector(int_u.data(), int_v.data());
+    matrix.MatrixDotVector(u.data(), v.data());
+    matrix.MatrixDotVector(twice_u.data(), twice_v.data());
+    matrix.MatrixDotVector(zero_u.data(), zero_v.data());
+    // The weights and the inputs are not larger than 1.
+    const double tolerance = kRelativeTolerance * (ni + 1) + kAbsoluteTolerance;
+    for (int i = 0; i < no; ++i) {
+      // The same input as int8 and as float gives the same result.
+      EXPECT_NEAR(int_v[i], v[i], tolerance)
+          << "float input for no=" << no << ", ni=" << ni << ", index=" << i;
+      // A float input is not clipped to the range of an int8 input:
+      // W (2 u) + b = 2 (W u + b) - b.
+      EXPECT_NEAR(2.0 * v[i] - zero_v[i], twice_v[i], 4 * tolerance)
+          << "large float input for no=" << no << ", ni=" << ni << ", index=" << i;
+    }
+  }
+
+  // Tests the product of int weights with a float input for many sizes.
+  void TestAllFloatInputForIntWeights() {
+    const int kSizes[] = {1, 2, 3, 4, 5, 8, 9, 16, 17, 33, 48};
+    for (int no : kSizes) {
+      for (int ni : kSizes) {
+        TestFloatInputForIntWeights(no, ni);
+      }
+    }
+  }
+
   // Selects the functions for the dot products like the parameter dotproduct
   // or the environment variable DOTPRODUCT do.
   static void SelectDotProduct(const char *name) {
@@ -193,6 +249,10 @@ TEST_F(WeightMatrixProductTest, VectorProducts) {
 
 TEST_F(WeightMatrixProductTest, SumOuterTransposed) {
   TestAllSumOuter();
+}
+
+TEST_F(WeightMatrixProductTest, FloatInputForIntWeights) {
+  TestAllFloatInputForIntWeights();
 }
 
 // The functions for FMA are also tested on a CPU for which other functions
