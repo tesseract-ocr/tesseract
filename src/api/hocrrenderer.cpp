@@ -25,6 +25,8 @@
 #include <locale>              // for std::locale::classic
 #include <memory>              // for std::unique_ptr
 #include <sstream>             // for std::stringstream
+#include <string>              // for std::string
+#include <vector>              // for std::vector
 #include "helpers.h"           // for copy_string
 #include "tesseractclass.h"    // for Tesseract
 
@@ -518,8 +520,9 @@ bool TessHOcrRenderer::EndDocumentHandler() {
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI *api) {
   if (imagenum() == 0) {
-    const std::string meta =
-        FormatHOcrLanguageMetaTags(api->GetInitLanguagesAsString());
+    std::vector<std::string> langs;
+    api->GetLoadedLanguagesAsVector(&langs);
+    const std::string meta = FormatHOcrLanguageMetaTags(langs);
     if (!meta.empty()) {
       AppendString(meta.c_str());
     }

@@ -250,12 +250,12 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   src_pix.destroy();
 }
 
-// Empty or null language strings produce no metadata, and an empty document
-// stays well formed without language metadata.
+// Empty model lists produce no metadata, and an empty document stays well
+// formed without language metadata.
 TEST_F(TesseractTest, HOCRHeaderWithoutLanguages) {
-  for (const char *languages : {static_cast<const char *>(nullptr), ""}) {
-    EXPECT_TRUE(FormatHOcrLanguageMetaTags(languages).empty());
-  }
+  EXPECT_TRUE(FormatHOcrLanguageMetaTags({}).empty());
+  EXPECT_TRUE(FormatHOcrLanguageMetaTags({""}).empty());
+  EXPECT_TRUE(FormatHOcrLanguageMetaTags({"osd", "equ"}).empty());
 
   file::MakeTmpdir();
   const std::string outputbase =
@@ -276,48 +276,84 @@ TEST_F(TesseractTest, HOCRHeaderWithoutLanguages) {
   EXPECT_THAT(doc, Not(HasSubstr("ocr-scripts")));
 }
 
-// Language models become ISO 639-1 codes and script models are listed apart.
+// Language models become ISO 639-1 / BCP 47 codes and script models become
+// ISO 15924 codes, stripping any directory prefix such as script/.
 TEST_F(TesseractTest, HOCRHeaderLanguagesAndScripts) {
-  const std::string meta = FormatHOcrLanguageMetaTags("eng+fra+Latin+Fraktur");
+  const std::string meta = FormatHOcrLanguageMetaTags(
+      {"eng", "fra", "script/Latin", "script/Fraktur", "Arabic", "Cyrillic",
+       "Devanagari", "Canadian_Aboriginal", "Vietnamese"});
   EXPECT_THAT(meta, HasSubstr("  <meta name='ocr-langs' content='en fr' />\n"));
-  EXPECT_THAT(
-      meta,
-      HasSubstr("  <meta name='ocr-scripts' content='Latin Fraktur' />\n"));
+  EXPECT_THAT(meta, HasSubstr("  <meta name='ocr-scripts' "
+                              "content='Latn Latf Arab Cyrl Deva Cans' />\n"));
   EXPECT_LT(meta.find("ocr-langs"), meta.find("ocr-scripts"));
 }
 
-// A list of script models gives no ocr-langs tag, and the reverse.
+// A list of script models gives no ocr-langs tag, and the reverse. osd and equ
+// are omitted from both lists.
 TEST_F(TesseractTest, HOCRHeaderOmitsEmptyTags) {
-  const std::string scripts_only = FormatHOcrLanguageMetaTags("Latin");
-  EXPECT_THAT(scripts_only,
-              HasSubstr("<meta name='ocr-scripts' content='Latin' />"));
-  EXPECT_THAT(scripts_only, Not(HasSubstr("ocr-langs")));
+  const std::string scripts_only =
+      FormatHOcrLanguageMetaTags({"script/Latin", "osd", "equ"});
+  EXPECT_EQ(scripts_only, "  <meta name='ocr-scripts' content='Latn' />\n");
 
-  const std::string langs_only = FormatHOcrLanguageMetaTags("deu");
-  EXPECT_THAT(langs_only, HasSubstr("<meta name='ocr-langs' content='de' />"));
-  EXPECT_THAT(langs_only, Not(HasSubstr("ocr-scripts")));
+  const std::string langs_only =
+      FormatHOcrLanguageMetaTags({"deu", "osd", "equ"});
+  EXPECT_EQ(langs_only, "  <meta name='ocr-langs' content='de' />\n");
 }
 
-// Compound model names resolve by prefix. Unknown names pass through.
-TEST_F(TesseractTest, HOCRHeaderCompoundModelNames) {
-  const std::string meta =
-      FormatHOcrLanguageMetaTags("deu_latf+chi_tra_vert+german_print");
-  EXPECT_THAT(
-      meta,
-      HasSubstr("<meta name='ocr-langs' content='de zh german_print' />"));
+// Stock compound models, three-letter codes without ISO 639-1 equivalents, and
+// simplified/traditional Chinese map to standard codes. Unmapped names (custom
+// models or names like san_serif) map to unknown.
+TEST_F(TesseractTest, HOCRHeaderCompoundAndSpecialModelNames) {
+  const std::string stock_compounds = FormatHOcrLanguageMetaTags(
+      {"deu_latf", "kur_ara", "uzb_cyrl", "aze_cyrl", "srp_latn",
+       "chi_sim_vert", "chi_tra_vert", "jpn_vert", "kor_vert", "ita_old",
+       "spa_old", "tgl"});
+  EXPECT_EQ(stock_compounds,
+            "  <meta name='ocr-langs' "
+            "content='de ku uz az sr zh-Hans zh-Hant ja ko it es tl' />\n");
+
+  const std::string three_letter = FormatHOcrLanguageMetaTags(
+      {"grc", "enm", "frm", "ceb", "chr", "fil", "syr", "chi_sim", "chi_tra"});
+  EXPECT_EQ(three_letter,
+            "  <meta name='ocr-langs' "
+            "content='grc enm frm ceb chr fil syr zh-Hans zh-Hant' />\n");
+
+  EXPECT_EQ(FormatHOcrLanguageMetaTags({"german_print"}),
+            "  <meta name='ocr-langs' content='unknown' />\n");
+  EXPECT_EQ(FormatHOcrLanguageMetaTags({"san_serif"}),
+            "  <meta name='ocr-langs' content='unknown' />\n");
 }
 
-// Meta tag content comes from the -l argument, so it has to be escaped.
+// Duplicate codes are removed from both lists while preserving first-seen
+// order, including unknown.
+TEST_F(TesseractTest, HOCRHeaderRemovesDuplicates) {
+  EXPECT_EQ(FormatHOcrLanguageMetaTags({"deu", "frk", "deu_latf"}),
+            "  <meta name='ocr-langs' content='de' />\n");
+  EXPECT_EQ(FormatHOcrLanguageMetaTags(
+                {"chi_sim", "chi_sim_vert", "chi_tra", "chi_tra_vert"}),
+            "  <meta name='ocr-langs' content='zh-Hans zh-Hant' />\n");
+  EXPECT_EQ(
+      FormatHOcrLanguageMetaTags({"Latin", "script/Latin", "HanS", "HanS_vert",
+                                  "HanT", "HanT_vert", "Hangul", "Hangul_vert",
+                                  "Japanese", "Japanese_vert"}),
+      "  <meta name='ocr-scripts' content='Latn Hans Hant Hang Jpan' />\n");
+  EXPECT_EQ(FormatHOcrLanguageMetaTags(
+                {"custom_model", "eng", "san_serif", "another_custom"}),
+            "  <meta name='ocr-langs' content='unknown en' />\n");
+}
+
+// Special characters in unmapped model names never leak into the meta tag, and
+// HOcrEscape escapes XML/HTML metacharacters.
 TEST_F(TesseractTest, HOCRHeaderEscapesLanguages) {
-  const std::string meta = FormatHOcrLanguageMetaTags("a&b+'c'+<d>+\"e\"");
-  EXPECT_THAT(
-      meta,
-      HasSubstr("<meta name='ocr-langs' "
-                "content='a&amp;b &#39;c&#39; &lt;d&gt; &quot;e&quot;' />"));
+  const std::string meta =
+      FormatHOcrLanguageMetaTags({"a&b", "'c'", "<d>", "\"e\""});
+  EXPECT_EQ(meta, "  <meta name='ocr-langs' content='unknown' />\n");
+  EXPECT_EQ(HOcrEscape("a&b 'c' <d> \"e\""),
+            "a&amp;b &#39;c&#39; &lt;d&gt; &quot;e&quot;");
 }
 
-// End-to-end check that TessHOcrRenderer reads init languages from TessBaseAPI
-// and emits ocr-langs before closing </head>.
+// End-to-end check that TessHOcrRenderer reads loaded languages from
+// TessBaseAPI and emits ocr-langs before closing </head>.
 TEST_F(TesseractTest, HOCRRendererWritesInitLanguages) {
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   tesseract::TessBaseAPI api;
