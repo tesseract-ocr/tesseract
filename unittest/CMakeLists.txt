@@ -25,7 +25,9 @@ set(COMMON_COMPILE_DEFINITIONS
     "-DTESSDATA_DIR=\"${CMAKE_SOURCE_DIR}/../tessdata\""
     "-DTESSBIN_DIR=\"${TESSBIN_DIR}\""
     "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testdata\""
-    "-DLANGDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../langdata_lstm\"")
+    # The language data is also expected in a sibling directory, matching the
+    # autotools LANGDATA_DIR.
+    "-DLANGDATA_DIR=\"${CMAKE_SOURCE_DIR}/../langdata_lstm\"")
 
 file(
   GLOB TEST_SOURCES
