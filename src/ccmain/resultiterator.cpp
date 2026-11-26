@@ -87,7 +87,8 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
   //     paragraph -- if there are more rtl words, it is RTL.  If there
   //     are more LTR words, it's LTR.  A tie is broken by the direction
   //     of the primary language, so a short line of an RTL language that
-  //     contains as many Latin words as RTL ones stays RTL.
+  //     contains as many Latin words as RTL ones stays RTL.  A paragraph
+  //     without any LTR or RTL word (numbers, punctuation) is LTR.
   bool leftmost_rtl = it.WordDirection() == DIR_RIGHT_TO_LEFT;
   bool rightmost_ltr = it.WordDirection() == DIR_LEFT_TO_RIGHT;
   int num_ltr, num_rtl;
@@ -116,6 +117,11 @@ bool ResultIterator::CurrentParagraphIsLtr() const {
   }
   if (num_ltr != num_rtl) {
     return num_ltr > num_rtl;
+  }
+  if (num_rtl == 0) {
+    // No word has a strong direction, for example in a line of numbers.
+    // There is nothing to reorder, so keep the order of the image.
+    return true;
   }
   // A tie has no majority to follow.  Follow the direction of the primary
   // language instead of assuming LTR, so that a line of an RTL language that

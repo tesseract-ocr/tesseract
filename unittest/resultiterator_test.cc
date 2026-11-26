@@ -1,8 +1,10 @@
 
 #include <tesseract/baseapi.h>
 #include <tesseract/resultiterator.h>
+#include <algorithm>
 #include <memory>
 #include <string>
+#include <vector>
 #include "image.h"      // for Image
 #include "pageres.h"
 #include "scrollview.h"
@@ -44,6 +46,21 @@ static std::string TextOf(const Iterator &it, PageIteratorLevel level) {
   return text ? std::string(text.get()) : std::string();
 }
 
+// Returns the directions of all words of the page in left to right order,
+// which is not the reading order of the given iterator for RTL text.
+static std::vector<StrongScriptDirection> WordDirections(const ResultIterator &it) {
+  std::vector<StrongScriptDirection> dirs;
+  TestLTRResultIterator ltr(it);
+  ltr.Begin();
+  if (ltr.Empty(RIL_WORD)) {
+    return dirs;
+  }
+  do {
+    dirs.push_back(ltr.WordDirection());
+  } while (ltr.Next(RIL_WORD));
+  return dirs;
+}
+
 // DEFINE_string(tess_config, "", "config file for tesseract");
 // DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
 
@@ -76,6 +93,54 @@ protected:
     api_.SetImage(src_pix_);
     src_pix_.destroy();
     src_pix_ = api_.GetInputImage();
+  }
+
+  // A rectangle of a test image which holds one word.
+  struct WordClip {
+    const char *filename;
+    int x, y, width, height;
+  };
+
+  // Sets up api_ for a single line which is composed of the given words, from
+  // left to right, on a white background.  Composing the line fixes the
+  // scripts of its words, which a crop of a page of one script cannot do.
+  void SetLineOfWords(const char *language, const std::vector<WordClip> &clips) {
+    const int kMargin = 10;
+    // A gap which is clearly wider than a space keeps the words apart and
+    // lets each of them be recognized on its own.
+    const int kGap = 50;
+    std::vector<Image> words;
+    int width = 2 * kMargin - kGap;
+    int height = 0;
+    for (const auto &clip : clips) {
+      Image pix = pixRead(TestDataNameToPath(clip.filename).c_str());
+      ASSERT_TRUE(pix != nullptr) << clip.filename;
+      // Blend a transparent background with white, as TessBaseAPI does.
+      Image opaque = pixRemoveAlpha(pix);
+      pix.destroy();
+      Image grey = pixConvertTo8(opaque, 0);
+      opaque.destroy();
+      Box *box = boxCreate(clip.x, clip.y, clip.width, clip.height);
+      Image word = pixClipRectangle(grey, box, nullptr);
+      boxDestroy(&box);
+      grey.destroy();
+      ASSERT_TRUE(word != nullptr) << clip.filename;
+      words.push_back(word);
+      width += clip.width + kGap;
+      height = std::max(height, clip.height);
+    }
+    Image line = pixCreate(width, height + 2 * kMargin, 8);
+    pixSetAll(line);
+    int x = kMargin;
+    for (auto &word : words) {
+      pixRasterop(line, x, kMargin, pixGetWidth(word), pixGetHeight(word), PIX_SRC, word, 0, 0);
+      x += pixGetWidth(word) + kGap;
+      word.destroy();
+    }
+    ASSERT_EQ(0, api_.Init(TessdataPath().c_str(), language, tesseract::OEM_DEFAULT));
+    api_.SetPageSegMode(tesseract::PSM_SINGLE_LINE);
+    api_.SetImage(line);
+    line.destroy();
   }
 
   // Rebuilds the image using the binary images at the given level, and
@@ -512,26 +577,29 @@ TEST_F(ResultIteratorTest, RightToLeftIteratorStartsTest) {
 // holds as many Latin words as RTL ones.  Such a line has no majority
 // direction, and neither of the two first-line heuristics applies: the
 // leftmost word is Latin and the rightmost word is not.  The direction used to
-// fall back to LTR, which moved the Latin words to the front of the line.  The
-// crop is a line of hebrew.png, cut out so that it forms a paragraph of its
-// own.
+// fall back to LTR, which moved the Latin words to the front of the line.
+// hebrew.png has no Latin word, so the line is composed of the word "text" of
+// phototest.tif on the left and a Hebrew word of hebrew.png on the right.
 TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
-  SetImage("hebrew.png", "heb+eng", tesseract::OEM_DEFAULT);
-  api_.SetPageSegMode(tesseract::PSM_SINGLE_LINE);
-  Box *line_box = boxCreate(100, 0, 100, 24);
-  Image line = pixClipRectangle(src_pix_, line_box, nullptr);
-  boxDestroy(&line_box);
-  ASSERT_NE(nullptr, line);
-  api_.SetImage(line);
-  line.destroy();
-
-  // One Hebrew word, one Latin word and one neutral word make the paragraph
-  // ambiguous.
+  ASSERT_NO_FATAL_FAILURE(SetLineOfWords(
+      "heb+eng", {{"phototest.tif", 370, 88, 61, 32}, {"hebrew.png", 483, 34, 78, 32}}));
   ASSERT_EQ(api_.Recognize(nullptr), 0);
   std::unique_ptr<ResultIterator> it(api_.GetIterator());
   ASSERT_NE(it, nullptr);
+
+  // The test only means something if the line really is the ambiguous case:
+  // as many LTR as RTL words, and neither first-line heuristic applies.
+  const std::vector<StrongScriptDirection> dirs = WordDirections(*it);
+  ASSERT_FALSE(dirs.empty());
+  const auto num_ltr = std::count(dirs.begin(), dirs.end(), DIR_LEFT_TO_RIGHT);
+  const auto num_rtl = std::count(dirs.begin(), dirs.end(), DIR_RIGHT_TO_LEFT);
+  ASSERT_GT(num_rtl, 0);
+  ASSERT_EQ(num_ltr, num_rtl);
+  ASSERT_NE(DIR_RIGHT_TO_LEFT, dirs.front());
+  ASSERT_NE(DIR_LEFT_TO_RIGHT, dirs.back());
+
   ASSERT_FALSE(it->ParagraphIsLtr());
 
   // Hebrew is written right to left, so the first word in reading order is
@@ -543,6 +611,38 @@ TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
   const auto *first_char = reinterpret_cast<const unsigned char *>(first_word.get());
   // Hebrew letters are all two bytes long and start with 0xD7.
   EXPECT_EQ(0xD7, first_char[0]) << "first word is not Hebrew: " << first_word.get();
+}
+
+// Tests that a paragraph without any LTR or RTL word, like a line of numbers,
+// keeps the left to right order of the image, also for an RTL language.  Zero
+// LTR words against zero RTL words is a tie, too, but there is nothing which
+// the direction of the primary language could put into the right order.  The
+// line is composed of the number "12" of phototest.tif, twice.
+TEST_F(ResultIteratorTest, ParagraphDirectionOfNeutralWordsIsLtrTest) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
+  ASSERT_NO_FATAL_FAILURE(SetLineOfWords(
+      "heb", {{"phototest.tif", 247, 88, 39, 32}, {"phototest.tif", 247, 88, 39, 32}}));
+  ASSERT_EQ(api_.Recognize(nullptr), 0);
+  std::unique_ptr<ResultIterator> it(api_.GetIterator());
+  ASSERT_NE(it, nullptr);
+
+  // The test only means something if no word has a strong direction.
+  const std::vector<StrongScriptDirection> dirs = WordDirections(*it);
+  ASSERT_GE(dirs.size(), 2u);
+  for (const auto dir : dirs) {
+    ASSERT_EQ(DIR_NEUTRAL, dir);
+  }
+
+  EXPECT_TRUE(it->ParagraphIsLtr());
+
+  // The first word in reading order is the leftmost one on the line.
+  TestLTRResultIterator leftmost(*it);
+  leftmost.Begin();
+  int left, top, right, bottom;
+  ASSERT_TRUE(leftmost.BoundingBox(RIL_WORD, &left, &top, &right, &bottom));
+  int first_left;
+  ASSERT_TRUE(it->BoundingBox(RIL_WORD, &first_left, &top, &right, &bottom));
+  EXPECT_EQ(left, first_left);
 }
 
 // Tests that Tesseract gets smallcaps and dropcaps.
