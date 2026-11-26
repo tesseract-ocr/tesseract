@@ -103,7 +103,9 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   const UNICHARSET &uchset = *word->uch_set;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
-  if ((word->unlv_crunch_mode != CR_NONE || word->best_choice->empty()) &&
+  // A word without recognition results is handled like an empty word.
+  if ((word->unlv_crunch_mode != CR_NONE || word->best_choice == nullptr ||
+       word->best_choice->empty()) &&
       !tessedit_zero_kelvin_rejection && !tessedit_word_for_word) {
     bool need_reject = false;
     if ((word->unlv_crunch_mode != CR_DELETE) &&
@@ -149,15 +151,16 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
 
   if (unlv_tilde_crunching && stats_.last_char_was_tilde && (word->word->space() == 0) &&
       !(word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes) &&
-      (word->best_choice->unichar_id(0) == space)) {
+      (word->best_choice != nullptr && word->best_choice->length() > 1 &&
+       word->best_choice->unichar_id(0) == space)) {
     /* Prevent adjacent tilde across words - we know that adjacent tildes within
-   words have been removed */
+   words have been removed. A word without a second blob has nothing to merge. */
     word->MergeAdjacentBlobs(0);
   }
   if (newline_type || (word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes)) {
     stats_.last_char_was_tilde = false;
   } else {
-    if (word->reject_map.length() > 0) {
+    if (word->reject_map.length() > 0 && word->best_choice != nullptr) {
       if (word->best_choice->unichar_id(word->reject_map.length() - 1) == space) {
         stats_.last_char_was_tilde = true;
       } else {
@@ -169,15 +172,17 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
     /* else it is unchanged as there are no output chars */
   }
 
-  ASSERT_HOST(word->best_choice->length() == word->reject_map.length());
+  if (word->best_choice != nullptr) {
+    ASSERT_HOST(word->best_choice->length() == word->reject_map.length());
+  }
 
   set_unlv_suspects(word);
   check_debug_pt(word, 120);
-  if (tessedit_rejection_debug) {
+  if (tessedit_rejection_debug && word->best_choice != nullptr) {
     tprintf("Dict word: \"%s\": %d\n", word->best_choice->debug_string().c_str(),
             dict_word(*(word->best_choice)));
   }
-  if (!word->word->flag(W_REP_CHAR) || !tessedit_write_rep_codes) {
+  if ((!word->word->flag(W_REP_CHAR) || !tessedit_write_rep_codes) && word->best_choice != nullptr) {
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       for (unsigned i = 0; i < word->best_choice->length(); ++i) {
@@ -245,12 +250,12 @@ char determine_newline_type( // test line ends
  * character which is repeated - as determined earlier by fix_rep_char()
  *************************************************************************/
 UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) { // what char is repeated?
-  int i;
+  unsigned i;
   for (i = 0; ((i < word->reject_map.length()) && (word->reject_map[i].rejected())); ++i) {
     ;
   }
 
-  if (i < word->reject_map.length()) {
+  if (i < word->reject_map.length() && word->best_choice != nullptr) {
     return word->best_choice->unichar_id(i);
   } else {
     return word->uch_set->unichar_to_id(unrecognised_char.c_str());
@@ -268,6 +273,9 @@ UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) { // what char is repeated?
  * tessedit_minimal_rejection.
  *************************************************************************/
 void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
+  if (word_res->best_choice == nullptr) {
+    return; // No recognition results available
+  }
   int len = word_res->reject_map.length();
   const WERD_CHOICE &word = *(word_res->best_choice);
   const UNICHARSET &uchset = *word.unicharset();
@@ -331,7 +339,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
     return;
   }
 
-  if (!suspect_constrain_1Il || (word_res->reject_map.length() <= suspect_short_words)) {
+  if (!suspect_constrain_1Il || (len <= suspect_short_words)) {
     for (i = 0; i < len; i++) {
       if (word_res->reject_map[i].rejected()) {
         if ((word_res->reject_map[i].flag(R_1IL_CONFLICT) ||
@@ -349,7 +357,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   if (acceptable_word_string(*word_res->uch_set, word.unichar_string().c_str(),
                              word.unichar_lengths().c_str()) != AC_UNACCEPTABLE ||
       acceptable_number_string(word.unichar_string().c_str(), word.unichar_lengths().c_str())) {
-    if (word_res->reject_map.length() > suspect_short_words) {
+    if (len > suspect_short_words) {
       for (i = 0; i < len; i++) {
         if (word_res->reject_map[i].rejected() && (!word_res->reject_map[i].perm_rejected() ||
                                                    word_res->reject_map[i].flag(R_1IL_CONFLICT) ||

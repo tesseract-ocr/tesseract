@@ -47,8 +47,8 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
   C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
   C_OUTLINE_IT c_outline_it;
-  int16_t inverted_vote = 0;
-  int16_t non_inverted_vote = 0;
+  int inverted_vote = 0;
+  int non_inverted_vote = 0;
 
   // Move blob_list's elements into cblobs.
   start_it.add_list_after(blob_list);

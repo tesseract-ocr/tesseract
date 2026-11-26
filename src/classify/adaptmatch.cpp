@@ -66,9 +66,10 @@
 #include <algorithm> // for max, min
 #include <cassert>   // for assert
 #include <cmath>     // for fabs
-#include <cstdint>   // for INT32_MAX, UINT8_MAX
+#include <cstdint>   // for INT16_MAX, INT32_MAX, UINT8_MAX
 #include <cstdio>    // for fflush, fclose, fopen, stdout, FILE
 #include <cstring>   // for strstr, memset, strcmp
+#include <unordered_map> // for unordered_map
 
 namespace tesseract {
 
@@ -97,6 +98,11 @@ struct ADAPT_RESULTS {
   int best_match_index;
   float best_rating;
   std::vector<UnicharRating> match;
+  // Index in match of each unichar_id, maintained by AddNewResult while the
+  // results are gathered, so that a shape of thousands of unichars does not
+  // cost a linear search of match per unichar. Not updated by the filtering
+  // and sorting that follow (RemoveBadMatches etc), which do no more lookups.
+  std::unordered_map<UNICHAR_ID, unsigned> match_index;
   std::vector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
@@ -149,10 +155,9 @@ inline bool MarginalMatch(float confidence, float matcher_great_threshold) {
 // Returns the index of the given id in results, if present, or the size of the
 // vector (index it will go at) if not present.
 static unsigned FindScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS &results) {
-  for (unsigned i = 0; i < results.match.size(); i++) {
-    if (results.match[i].unichar_id == id) {
-      return i;
-    }
+  auto it = results.match_index.find(id);
+  if (it != results.match_index.end()) {
+    return it->second;
   }
   return results.match.size();
 }
@@ -580,14 +585,14 @@ bool Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     std::string Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
     if (!fp.Open(Filename.c_str(), nullptr)) {
-      AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+      AdaptedTemplates = NewAdaptedTemplates();
     } else {
       tprintf("\nReading pre-adapted templates from %s ...\n", Filename.c_str());
       fflush(stdout);
       AdaptedTemplates = ReadAdaptedTemplates(&fp);
       if (AdaptedTemplates == nullptr) {
         tprintf("Error: invalid pre-adapted templates in %s, ignoring.\n", Filename.c_str());
-        AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+        AdaptedTemplates = NewAdaptedTemplates();
       } else {
         tprintf("\n");
         PrintAdaptedTemplates(stdout, AdaptedTemplates);
@@ -599,17 +604,53 @@ bool Classify::InitAdaptiveClassifier(TessdataManager *mgr) {
     }
   } else {
     delete AdaptedTemplates;
-    AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+    AdaptedTemplates = NewAdaptedTemplates();
+  }
+  if (AdaptedTemplates == nullptr) {
+    tprintf("Error: failed to initialize the adaptive classifier.\n");
+    return false;
   }
   return true;
 } /* InitAdaptiveClassifier */
+
+/*---------------------------------------------------------------------------*/
+/**
+ * This routine creates a new set of adapted templates for the current
+ * unicharset.
+ *  A unichar id indexes the fixed-size class arrays of the legacy
+ *  classifier, so a unicharset with more than MAX_NUM_CLASSES entries cannot
+ *  be represented. The constructor of ADAPT_TEMPLATES_STRUCT cannot report
+ *  that failure, so it is checked here.
+ *  Returns:
+ *      the new templates, or nullptr if they could not be created.
+ */
+ADAPT_TEMPLATES_STRUCT *Classify::NewAdaptedTemplates() {
+  if (unicharset.size() > static_cast<size_t>(MAX_NUM_CLASSES)) {
+    tprintf("Error: unicharset of size %zu exceeds MAX_NUM_CLASSES %d\n", unicharset.size(),
+            MAX_NUM_CLASSES);
+    return nullptr;
+  }
+  auto *templates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  if (!templates->valid()) {
+    tprintf("Error: failed to create the adapted templates\n");
+    delete templates;
+    return nullptr;
+  }
+  return templates;
+}
 
 void Classify::ResetAdaptiveClassifierInternal() {
   if (classify_learning_debug_level > 0) {
     tprintf("Resetting adaptive classifier (NumAdaptationsFailed=%d)\n", NumAdaptationsFailed);
   }
+  // Build the new templates before discarding the old ones, so that a failure
+  // to build them leaves the classifier with a usable set of templates.
+  auto *templates = NewAdaptedTemplates();
+  if (templates == nullptr) {
+    return;
+  }
   delete AdaptedTemplates;
-  AdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  AdaptedTemplates = templates;
   delete BackupAdaptedTemplates;
   BackupAdaptedTemplates = nullptr;
   NumAdaptationsFailed = 0;
@@ -634,8 +675,14 @@ void Classify::SwitchAdaptiveClassifier() {
 
 // Resets the backup adaptive classifier to empty.
 void Classify::StartBackupAdaptiveClassifier() {
+  // Build the new templates before discarding the old ones, so that a failure
+  // to build them leaves the classifier with a usable set of templates.
+  auto *templates = NewAdaptedTemplates();
+  if (templates == nullptr) {
+    return;
+  }
   delete BackupAdaptedTemplates;
-  BackupAdaptedTemplates = new ADAPT_TEMPLATES_STRUCT(unicharset);
+  BackupAdaptedTemplates = templates;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -956,7 +1003,9 @@ void Classify::DisplayAdaptedChar(TBLOB *blob, INT_CLASS_STRUCT *int_class) {
   std::vector<INT_FEATURE_STRUCT> bl_features;
   TrainingSample *sample =
       BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info, &bl_features);
-  if (sample == nullptr) {
+  // The integer matcher counts features in an int16_t.
+  if (sample == nullptr || bl_features.size() > INT16_MAX) {
+    delete sample;
     return;
   }
 
@@ -1013,6 +1062,7 @@ void Classify::AddNewResult(const UnicharRating &new_result, ADAPT_RESULTS *resu
   if (old_match < results->match.size()) {
     results->match[old_match].rating = new_result.rating;
   } else {
+    results->match_index[new_result.unichar_id] = results->match.size();
     results->match.push_back(new_result);
   }
 
@@ -1052,7 +1102,8 @@ void Classify::AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_featur
                                const INT_FX_RESULT_STRUCT &fx_info, const TBLOB *blob,
                                INT_TEMPLATES_STRUCT *templates,
                                UNICHAR_ID *ambiguities, ADAPT_RESULTS *results) {
-  if (int_features.empty()) {
+  // The integer matcher counts features in an int16_t.
+  if (int_features.empty() || int_features.size() > INT16_MAX) {
     return;
   }
   auto *CharNormArray = new uint8_t[unicharset.size()];
@@ -1139,6 +1190,9 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
       // by int_result. In this case, build a vector of UnicharRating to
       // gather together different font-ids for each unichar. Also covers case1.
       std::vector<UnicharRating> mapped_results;
+      // Index in mapped_results of each unichar_id, or -1 if it has none yet.
+      // A shape may have thousands of unichars, so don't search for each.
+      std::vector<int> mapped_index(unicharset.size(), -1);
       for (auto &f : int_result->fonts) {
         int shape_id = f.fontinfo_id;
         const Shape &shape = shape_table_->GetShape(shape_id);
@@ -1148,10 +1202,10 @@ void Classify::ExpandShapesAndApplyCorrections(ADAPT_CLASS_STRUCT **classes, boo
             continue;
           }
           // Find the mapped_result for unichar_id.
-          unsigned r = 0;
-          for (r = 0; r < mapped_results.size() && mapped_results[r].unichar_id != unichar_id;
-               ++r) {
+          if (mapped_index[unichar_id] < 0) {
+            mapped_index[unichar_id] = mapped_results.size();
           }
+          unsigned r = mapped_index[unichar_id];
           if (r == mapped_results.size()) {
             mapped_results.push_back(*int_result);
             mapped_results[r].unichar_id = unichar_id;
@@ -1239,7 +1293,8 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
                                          const std::vector<INT_FEATURE_STRUCT> &int_features,
                                          const INT_FX_RESULT_STRUCT &fx_info,
                                          ADAPT_TEMPLATES_STRUCT *Templates, ADAPT_RESULTS *Results) {
-  if (int_features.empty()) {
+  // The integer matcher counts features in an int16_t.
+  if (int_features.empty() || int_features.size() > INT16_MAX) {
     return nullptr;
   }
   auto *CharNormArray = new uint8_t[unicharset.size()];
@@ -1306,6 +1361,10 @@ int Classify::CharNormTrainingSample(bool pruner_only, int keep_this, const Trai
   adapt_results->Initialize();
   // Compute the bounding box of the features.
   uint32_t num_features = sample.num_features();
+  // The integer matcher counts features in an int16_t.
+  if (num_features > INT16_MAX) {
+    return num_features;
+  }
   // Only the top and bottom of the blob_box are used by MasterMatcher, so
   // fabricate right and left using top and bottom.
   TBOX blob_box(sample.geo_feature(GeoBottom), sample.geo_feature(GeoBottom),
@@ -1399,7 +1458,7 @@ void Classify::ConvertMatchesToChoices(const DENORM &denorm, const TBOX &box,
     const UnicharRating &result = it;
     bool adapted = result.adapted;
     bool current_is_frag = (unicharset.get_fragment(result.unichar_id) != nullptr);
-    if (temp_it.length() + 1 == max_matches && !contains_nonfrag && current_is_frag) {
+    if (choices_length + 1 == max_matches && !contains_nonfrag && current_is_frag) {
       continue; // look for a non-fragmented character to fill the
                 // last spot in Choices if only fragments are present
     }

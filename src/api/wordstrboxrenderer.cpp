@@ -30,7 +30,8 @@ namespace tesseract {
  */
 
 char *TessBaseAPI::GetWordStrBoxText(int page_number = 0) {
-  if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0)) {
+  if (tesseract_ == nullptr ||
+      ((page_res_ == nullptr || !recognition_done_) && Recognize(nullptr) < 0)) {
     return nullptr;
   }
 
@@ -73,7 +74,7 @@ char *TessBaseAPI::GetWordStrBoxText(int page_number = 0) {
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
   }
 
-  if (left != 0 && top != 0 && right != 0 && bottom != 0) {
+  if (!first_line) { // if first_line is true => empty page
     wordstr_box_str += "\n\t " + std::to_string(right + 1);
     wordstr_box_str += " " + std::to_string(image_height_ - bottom);
     wordstr_box_str += " " + std::to_string(right + 5);

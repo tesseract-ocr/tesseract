@@ -31,8 +31,9 @@
 
 #include "helpers.h"
 
-#include <cmath> // for M_PI
-#include <mutex> // for std::mutex
+#include <cmath>   // for M_PI
+#include <cstdint> // for INT16_MAX
+#include <mutex>   // for std::mutex
 
 namespace tesseract {
 
@@ -78,9 +79,9 @@ TrainingSample *BlobToTrainingSample(const TBLOB &blob, bool nonlinear_norm,
   // TODO(rays) Use blob->PreciseBoundingBox() instead.
   TBOX box = blob.bounding_box();
   TrainingSample *sample = nullptr;
-  int num_features = fx_info->NumCN;
-  if (num_features > 0) {
-    sample = TrainingSample::CopyFromFeatures(*fx_info, box, &cn_features[0], num_features);
+  // fx_info->NumCN and the integer matcher count features in an int16_t.
+  if (!cn_features.empty() && cn_features.size() <= INT16_MAX) {
+    sample = TrainingSample::CopyFromFeatures(*fx_info, box, &cn_features[0], cn_features.size());
   }
   if (sample != nullptr) {
     // Set the bounding box (in original image coordinates) in the sample.

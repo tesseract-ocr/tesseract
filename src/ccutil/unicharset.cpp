@@ -21,7 +21,9 @@
 #include "params.h"
 
 #include <tesseract/unichar.h>
+#include "matchdefs.h" // for MAX_NUM_CLASSES
 #include "serialis.h"
+#include "tesserrstream.h" // for tesserr
 
 #include <algorithm>
 #include <cassert>
@@ -794,6 +796,17 @@ bool UNICHARSET::load_via_fgets(
   if (unicharset_size <= 0) {
     return false;
   }
+  // A unichar id indexes fixed-size arrays of MAX_NUM_CLASSES entries in the
+  // legacy classifier (Class[], CharNormCutoffs[]/BaselineCutoffs[], the
+  // intproto/adaptive templates, ...), so reject a set that would overflow
+  // them. Capping it here, in the single parser every load_from_file funnels
+  // through, protects every consumer rather than relying on each one to do
+  // its own size check.
+  if (unicharset_size > MAX_NUM_CLASSES) {
+    tesserr << "Error: unicharset has " << unicharset_size
+            << " characters, more than MAX_NUM_CLASSES " << MAX_NUM_CLASSES << "\n";
+    return false;
+  }
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
     char unichar[256];
     unsigned int properties;
@@ -1080,15 +1093,15 @@ int UNICHARSET::add_script(const char *script) {
   }
   if (script_table_size_reserved == 0) {
     script_table_size_reserved = 8;
-    script_table = new char *[script_table_size_reserved];
+    script_table = new char *[script_table_size_reserved]();
   } else if (script_table_size_used >= script_table_size_reserved) {
     assert(script_table_size_used == script_table_size_reserved);
     script_table_size_reserved += script_table_size_reserved;
-    char **new_script_table = new char *[script_table_size_reserved];
-    memcpy(new_script_table, script_table,
+    char **old_script_table = script_table;
+    script_table = new char *[script_table_size_reserved]();
+    memcpy(script_table, old_script_table,
            script_table_size_used * sizeof(char *));
-    delete[] script_table;
-    script_table = new_script_table;
+    delete[] old_script_table;
   }
   script_table[script_table_size_used] = new char[strlen(script) + 1];
   strcpy(script_table[script_table_size_used], script);

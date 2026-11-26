@@ -31,6 +31,7 @@
 #include "lstm.h"
 #include "normalis.h"
 #include "pageres.h"
+#include "plumbing.h"
 #include "ratngs.h"
 #include "recodebeam.h"
 #include "scrollview.h"
@@ -79,6 +80,28 @@ bool LSTMRecognizer::Load(const ParamsVectors *params, const std::string &lang,
     return false;
   }
   if (!DeSerialize(mgr, &fp)) {
+    return false;
+  }
+  // Recoded codes are used as indices into the network softmax output
+  // (top_n_flags_/outputs), sized to the network output count. The recoder is
+  // loaded independently of the network, so tie it to that count: a corrupt
+  // model with a code range wider than the softmax would index out of bounds
+  // during beam search. This covers both the recoding and the pass-through
+  // recoder.
+  //
+  // The check belongs in Load, not in the recoder-loading routines: the
+  // recognition path (LSTMRecognizer::Load) always has the final network and
+  // recoder, whereas the training path (LSTMTrainer::TryLoadingCheckpoint)
+  // deserializes an old network together with a target-traineddata recoder
+  // that may legitimately have a wider code range; that path reconciles the
+  // two with RemapOutputs, which must be allowed to run.
+  //
+  // It applies only when the network actually has a softmax to index into;
+  // a zero-output network has no softmax array, so the recoder's code range
+  // cannot point out of bounds and the check is skipped.
+  if (network_->NumOutputs() > 0 && recoder_.code_range() > network_->NumOutputs()) {
+    tprintf("Error: recoder code range %d exceeds network output count %d\n",
+            recoder_.code_range(), network_->NumOutputs());
     return false;
   }
   if (lang.empty()) {
@@ -154,6 +177,15 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager *mgr, TFile *fp) {
     return false;
   }
   if (!fp->DeSerialize(&null_char_)) {
+    return false;
+  }
+  // null_char_ is used as an index into the network softmax output
+  // (top_n_flags_/outputs), so it must lie within the output range. A
+  // corrupt or malicious model may store a negative or oversized value,
+  // which would index out of bounds during recognition, so reject it here.
+  if (null_char_ < 0 || null_char_ >= network_->NumOutputs()) {
+    tprintf("Error: null_char %d out of range for network with %d outputs\n",
+            null_char_, network_->NumOutputs());
     return false;
   }
   if (!fp->DeSerialize(&adam_beta_)) {
@@ -290,6 +322,49 @@ void LSTMRecognizer::RecognizeLine(const ImageData &image_data,
   }
 }
 
+// Helper looks for the first layer with weights below the given network.
+// Returns 1 if it is a fully connected layer, 0 if it is something else
+// and -1 if there is no layer with weights.
+static int FirstWeightsAreFullyConnected(const Network *network) {
+  switch (network->type()) {
+    case NT_INPUT:
+    case NT_CONVOLVE:
+    case NT_MAXPOOL:
+    case NT_RECONFIG:
+      // These layers only copy or rearrange their input.
+      return -1;
+    case NT_SERIES:
+      for (const Network *layer : static_cast<const Plumbing *>(network)->stack()) {
+        int result = FirstWeightsAreFullyConnected(layer);
+        if (result >= 0) {
+          return result;
+        }
+      }
+      return -1;
+    case NT_LOGISTIC:
+    case NT_POSCLIP:
+    case NT_SYMCLIP:
+    case NT_TANH:
+    case NT_RELU:
+    case NT_LINEAR:
+    case NT_SOFTMAX:
+    case NT_SOFTMAX_NO_CTC:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+// Returns true if the image has to be converted to int8 for the network.
+// The pixel values are scaled with estimates for black and white, so many
+// pixels are outside of the range [-1, 1], and the int8 conversion clips
+// them. A model is trained with the unclipped float values, therefore an
+// int model reads the image as float, too, if its first layer with weights
+// is a fully connected layer, which can use a float input with int weights.
+bool LSTMRecognizer::IntInput() const {
+  return IsIntMode() && FirstWeightsAreFullyConnected(network_) != 1;
+}
+
 // Helper computes min and mean best results in the output.
 void LSTMRecognizer::OutputStats(const NetworkIO &outputs, float *min_output, float *mean_output,
                                  float *sd) {
@@ -341,7 +416,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data,
   }
   // Reduction factor from image to coords.
   *scale_factor = min_width / *scale_factor;
-  inputs->set_int_mode(IsIntMode());
+  inputs->set_int_mode(IntInput());
   SetRandomSeed();
   Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, inputs);
   network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
@@ -352,7 +427,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData &image_data,
     if (pos_mean < invert_threshold) {
       // Run again inverted and see if it is any better.
       NetworkIO inv_inputs, inv_outputs;
-      inv_inputs.set_int_mode(IsIntMode());
+      inv_inputs.set_int_mode(IntInput());
       SetRandomSeed();
       pixInvert(pix, pix);
       Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, &inv_inputs);

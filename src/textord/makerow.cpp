@@ -28,6 +28,7 @@
 #include "ccstruct.h"
 #include "detlinefit.h"
 #include "drawtord.h"
+#include "helpers.h" // for ClipToRange
 #include "oldbasel.h"
 #include "sortflts.h"
 #include "statistc.h"
@@ -169,6 +170,9 @@ static float MakeRowFromSubBlobs(TO_BLOCK *block, C_BLOB *blob, TO_ROW_IT *row_i
     // Correct direction as needed.
     blob->CheckInverseFlagAndDirection();
     auto *bbox = new BLOBNBOX(blob);
+    // The copy belongs to nobody else, so the BLOBNBOX has to delete it
+    // unless it is moved to a word later.
+    bbox->set_owns_cblob(true);
     bb_it.add_after_then_move(bbox);
   }
   // Now we can make a row from the blobs.
@@ -1165,7 +1169,7 @@ void compute_row_stats( // find lines
   float iqr;         // inter quartile range
   TO_ROW_IT row_it = block->get_rows();
   // number of rows
-  int16_t rowcount = row_it.length();
+  int32_t rowcount = row_it.length();
   // for choose nth
   std::vector<TO_ROW *> rows(rowcount);
   rowcount = 0;
@@ -1571,20 +1575,33 @@ int compute_xheight_from_modes(STATS *heights, STATS *floating_heights, bool cap
 int32_t compute_row_descdrop(TO_ROW *row, float gradient, int xheight_blob_count,
                              STATS *asc_heights) {
   // Count how many potential ascenders are in this row.
+  // The ratio limits can only narrow the range of the histogram, so clip them
+  // to it before the conversion to int: the conversion is undefined for
+  // values out of range (e.g. a huge ratio from a config), and would
+  // otherwise leave the loop below running over billions of indices.
   int i_min = asc_heights->min_bucket();
-  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
-    i_min = static_cast<int>(floor(row->xheight * textord_ascx_ratio_min + 0.5));
-  }
   int i_max = asc_heights->max_bucket();
+  const double lowest = i_min - 1.0;
+  const double highest = i_max + 1.0;
+  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
+    i_min = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_min + 0.5), lowest, highest));
+  }
   if ((i_max / row->xheight) > textord_ascx_ratio_max) {
-    i_max = static_cast<int>(floor(row->xheight * textord_ascx_ratio_max));
+    i_max = static_cast<int>(
+        ClipToRange(floor(row->xheight * textord_ascx_ratio_max), lowest, highest));
   }
   int num_potential_asc = 0;
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  auto min_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  auto max_height = static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
+  // Likewise clip the descender limits before the conversion. Blob heights
+  // are bounded by the page coordinates, so that is all the histogram needs.
+  const double max_coord = INT16_MAX;
+  auto min_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_min + 0.5), -max_coord, max_coord));
+  auto max_height = static_cast<int32_t>(
+      ClipToRange(floor(row->xheight * textord_descx_ratio_max), -max_coord, max_coord));
   float xcentre; // centre of blob
   float height;  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list();
@@ -1807,7 +1824,8 @@ void separate_underlines(TO_BLOCK *block,   // block to do
         ASSERT_HOST(blob->cblob() != nullptr);
         rotated_blob = crotate_cblob(blob->cblob(), blob_rotation);
         if (test_underline(testing_on && textord_show_final_rows, rotated_blob,
-                           static_cast<int16_t>(row->intercept()),
+                           static_cast<int16_t>(
+                               ClipToRange<float>(row->intercept(), -INT16_MAX, INT16_MAX)),
                            static_cast<int16_t>(block->line_size *
                                                 (tesseract::CCStruct::kXHeightFraction +
                                                  tesseract::CCStruct::kAscenderFraction / 2.0f)))) {
@@ -2103,7 +2121,10 @@ bool segment_baseline( // split baseline
   if (textord_oldbl_debug) {
     tprintf("Segmenting baseline of %d blobs at (%d,%d)\n", blobcount, box.left(), box.bottom());
   }
-  if (blobcount <= textord_spline_medianwin || blobcount < textord_spline_minblobs) {
+  // A window size which is not positive cannot be used for the median below
+  // nor as a divisor in linear_spline_baseline.
+  if (textord_spline_medianwin < 1 || blobcount <= textord_spline_medianwin ||
+      blobcount < textord_spline_minblobs) {
     blob_it.move_to_last();
     box = blob_it.data()->bounding_box();
     xstarts[1] = box.right();
@@ -2275,7 +2296,7 @@ void assign_blobs_to_rows( // find lines
   float ycoord;                 // current y
   float top, bottom;            // of blob
   float g_length = 1.0f;        // from gradient
-  int16_t row_count;            // no of rows
+  int32_t row_count;            // no of rows
   int16_t left_x;               // left edge
   int16_t last_x;               // previous edge
   float block_skew;             // y delta

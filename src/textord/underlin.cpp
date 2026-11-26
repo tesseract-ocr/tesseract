@@ -179,7 +179,9 @@ void find_underlined_blobs(    // get chop points
                                    &middle_proj, &upper_proj);
   }
 
-  for (auto x = blob_box.left(); x < blob_box.right(); x++) {
+  // x must be wider than TDimension: x = y followed by x++ would otherwise
+  // wrap around and rescan the blob forever when right() is INT16_MAX.
+  for (int x = blob_box.left(); x < blob_box.right(); x++) {
     if (middle_proj.pile_count(x) > 0) {
       auto y = x + 1;
       for (; y < blob_box.right() && middle_proj.pile_count(y) > 0; y++) {

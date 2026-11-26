@@ -402,6 +402,11 @@ Tesseract::Tesseract()
                     this->params())
     , BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding", this->params())
     , BOOL_MEMBER(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model", this->params())
+    , BOOL_MEMBER(textord_auto_columns, false,
+                 "Automatically detect and split multi-column (newspaper) "
+                 "layouts, recognising each column independently and merging "
+                 "the results in column-major reading order",
+                 this->params())
     , BOOL_MEMBER(poly_allow_detailed_fx, false,
                   "Allow feature extractors to see the original outline", this->params())
     , BOOL_INIT_MEMBER(tessedit_init_config_only, false,
@@ -439,6 +444,9 @@ Tesseract::Tesseract()
                  "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
                  "value greater than 0 to produce results.",
                  this->params())
+    , BOOL_MEMBER(lstm_font_attributes, false,
+                  "Estimate bold, italic and underlined for the words recognized by LSTM.",
+                  this->params())
     , double_MEMBER(lstm_rating_coefficient, 5,
                     "Sets the rating coefficient for the lstm choices. The smaller the "
                     "coefficient, the better are the ratings for each choice and less "
@@ -451,6 +459,7 @@ Tesseract::Tesseract()
 
     backup_config_file_(nullptr)
     , pix_binary_(nullptr)
+    , pix_removed_lines_(nullptr)
     , pix_grey_(nullptr)
     , pix_original_(nullptr)
     , pix_thresholds_(nullptr)
@@ -492,6 +501,7 @@ void Tesseract::Clear() {
   std::string debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.c_str());
   pix_binary_.destroy();
+  pix_removed_lines_.destroy();
   pix_grey_.destroy();
   pix_thresholds_.destroy();
   deskew_ = FCOORD(1.0f, 0.0f);

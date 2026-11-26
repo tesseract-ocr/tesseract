@@ -63,7 +63,7 @@ int16_t Tesseract::word_outline_errs(WERD_RES *word) {
   int16_t err_count = 0;
 
   if (word->rebuild_word != nullptr) {
-    int16_t i = 0;
+    int i = 0;
     for (unsigned b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
       TBLOB *blob = word->rebuild_word->blobs[b];
       err_count += count_outline_errs(word->best_choice->unichar_string()[i], blob->NumOutlines());
@@ -144,7 +144,7 @@ void Tesseract::unrej_good_quality_words( // unreject potential
   WERD_RES *word;
   ROW_RES *current_row;
   BLOCK_RES *current_block;
-  int i;
+  unsigned i;
 
   page_res_it.restart_page();
   while (page_res_it.word() != nullptr) {
@@ -214,8 +214,9 @@ void Tesseract::doc_and_block_rejection( // reject big chunks
   int16_t char_quality = 0;
   int16_t accepted_char_quality;
 
-  if (page_res_it.page_res->rej_count * 100.0 / page_res_it.page_res->char_count >
-      tessedit_reject_doc_percent) {
+  if (page_res_it.page_res->char_count > 0 &&
+      page_res_it.page_res->rej_count * 100.0 / page_res_it.page_res->char_count >
+          tessedit_reject_doc_percent) {
     reject_whole_page(page_res_it);
     if (tessedit_debug_doc_rejection) {
       tprintf("REJECT ALL #chars: %d #Rejects: %d; \n", page_res_it.page_res->char_count,
@@ -244,16 +245,17 @@ void Tesseract::doc_and_block_rejection( // reject big chunks
         bool prev_word_rejected = false;
         while ((word = page_res_it.word()) != nullptr && (page_res_it.block() == current_block)) {
           bool rej_word;
+          const int word_len = word->reject_map.length();
           if (tessedit_preserve_blk_rej_perfect_wds) {
             rej_word = word->reject_map.reject_count() > 0 ||
-                       word->reject_map.length() < tessedit_preserve_min_wd_len;
+                       word_len < tessedit_preserve_min_wd_len;
             if (rej_word && tessedit_dont_blkrej_good_wds &&
-                word->reject_map.length() >= tessedit_preserve_min_wd_len &&
+                word_len >= tessedit_preserve_min_wd_len &&
                 acceptable_word_string(*word->uch_set, word->best_choice->unichar_string().c_str(),
                                        word->best_choice->unichar_lengths().c_str()) !=
                     AC_UNACCEPTABLE) {
               word_char_quality(word, &char_quality, &accepted_char_quality);
-              rej_word = char_quality != word->reject_map.length();
+              rej_word = char_quality != word_len;
             }
           } else {
             rej_word = true;
@@ -302,21 +304,21 @@ void Tesseract::doc_and_block_rejection( // reject big chunks
             while ((word = page_res_it.word()) != nullptr && page_res_it.row() == current_row) {
               /* Preserve words on good docs unless they are mostly rejected*/
               bool rej_word;
+              const int word_len = word->reject_map.length();
               if (!tessedit_row_rej_good_docs && good_quality_doc) {
-                rej_word = word->reject_map.reject_count() /
-                               static_cast<float>(word->reject_map.length()) >
+                rej_word = word->reject_map.reject_count() / static_cast<float>(word_len) >
                            tessedit_good_doc_still_rowrej_wd;
               } else if (tessedit_preserve_row_rej_perfect_wds) {
                 /* Preserve perfect words anyway */
                 rej_word = word->reject_map.reject_count() > 0 ||
-                           word->reject_map.length() < tessedit_preserve_min_wd_len;
+                           word_len < tessedit_preserve_min_wd_len;
                 if (rej_word && tessedit_dont_rowrej_good_wds &&
-                    word->reject_map.length() >= tessedit_preserve_min_wd_len &&
+                    word_len >= tessedit_preserve_min_wd_len &&
                     acceptable_word_string(
                         *word->uch_set, word->best_choice->unichar_string().c_str(),
                         word->best_choice->unichar_lengths().c_str()) != AC_UNACCEPTABLE) {
                   word_char_quality(word, &char_quality, &accepted_char_quality);
-                  rej_word = char_quality != word->reject_map.length();
+                  rej_word = char_quality != word_len;
                 }
               } else {
                 rej_word = true;
@@ -586,7 +588,7 @@ void Tesseract::tilde_delete(PAGE_RES_IT &page_res_it) {
 }
 
 void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
-  int i;
+  unsigned i;
   UNICHAR_ID unichar_dash = word_res->uch_set->unichar_to_id("-");
   UNICHAR_ID unichar_space = word_res->uch_set->unichar_to_id(" ");
   UNICHAR_ID unichar_tilde = word_res->uch_set->unichar_to_id("~");

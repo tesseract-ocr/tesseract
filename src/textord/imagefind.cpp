@@ -45,6 +45,10 @@ const double kMaxRectangularFraction = 0.75;
 const double kMaxRectangularGradient = 0.1; // About 6 degrees.
 // Minimum image size to be worth looking for images on.
 const int kMinImageFindSize = 100;
+// Min number of blobs in a weak text partition which an image only consumes
+// if the text is on the pixels of the image, see TextOffImage. Single blobs
+// are mostly noise.
+const int kMinWeakTextBlobs = 2;
 
 // Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
 // stepping y+=y_step, until y=y_end. *ystart is input/output.
@@ -196,12 +200,17 @@ static bool pixNearlyRectangular(Image pix, double min_fraction, double max_frac
 // rectangular are replaced with solid rectangles.
 // The returned boxa, pixa may be nullptr, meaning no images found.
 // If not nullptr, they must be destroyed by the caller.
+// mask_boxa and mask_pixa get the same components as they are in the mask,
+// before any of them was made a rectangle.
 // Resolution of pix should match the source image (Tesseract::pix_binary_)
 // so the output coordinate systems match.
-static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **boxa,
-                                      Pixa **pixa) {
+static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug,
+                                      Boxa **boxa, Pixa **pixa,
+                                      Boxa **mask_boxa, Pixa **mask_pixa) {
   *boxa = nullptr;
   *pixa = nullptr;
+  *mask_boxa = nullptr;
+  *mask_pixa = nullptr;
 
   if (textord_tabfind_show_images && pixa_debug != nullptr) {
     pixa_debug->AddPix(pix, "Conncompimage");
@@ -214,6 +223,8 @@ static void ConnCompAndRectangularize(Image pix, DebugPixa *pixa_debug, Boxa **b
   int npixes = 0;
   if (*boxa != nullptr && *pixa != nullptr) {
     npixes = pixaGetCount(*pixa);
+    *mask_boxa = boxaCopy(*boxa, L_COPY);
+    *mask_pixa = pixaCopy(*pixa, L_COPY_CLONE);
   }
   for (int i = 0; i < npixes; ++i) {
     int x_start, x_end, y_start, y_end;
@@ -843,6 +854,36 @@ static void MaximalImageBoundingBox(ColPartitionGrid *part_grid, TBOX *im_box) {
   *im_box = text_box;
 }
 
+// A connected component of the image mask as it is in the mask, which can
+// be much less than the rectangle which is made of it.
+struct MaskComponent {
+  Image pix;         // The pixels of the component.
+  TBOX box;          // Their bounding box in the coordinates of the partitions.
+  FCOORD rerotation; // Rotates these coordinates to match the image.
+};
+
+// Returns true if part is weak text which can be more than noise: a row of
+// at least kMinWeakTextBlobs blobs which is not a leader.
+static bool WeakTextLine(const ColPartition &part) {
+  BlobRegionType type = part.blob_type();
+  BlobTextFlowType flow = part.flow();
+  return (type == BRT_TEXT || type == BRT_VERT_TEXT) &&
+         (flow == BTFT_NEIGHBOURS || flow == BTFT_CHAIN) &&
+         part.boxes_count() >= kMinWeakTextBlobs;
+}
+
+// Returns true if part is a weak text line which has no pixel of the image
+// component under it. An image takes the weak text inside its bounding box,
+// as text in a photo is mostly noise. But the bounding box can be much
+// larger than the image: the dark border of a scan is a frame around the
+// whole page, which would take a page number or a short running title.
+static bool TextOffImage(const ColPartition &part,
+                         const MaskComponent &component) {
+  return WeakTextLine(part) && ImageFind::CountPixelsInRotatedBox(
+                                   part.bounding_box(), component.box,
+                                   component.rerotation, component.pix) == 0;
+}
+
 // Helper deletes the given partition but first marks up all the blobs as
 // noise, so they get deleted later, and disowns them.
 // If the initial type of the partition is image, then it actually deletes
@@ -868,14 +909,18 @@ static void DeletePartition(ColPartition *part) {
 // expanded to consume overlapping and nearby ColPartitions of uncertain type
 // and other BRT_RECTIMAGE partitions, but NOT to be expanded beyond
 // max_image_box. *part_ptr is NOT in the part_grid.
+// component has the pixels of the image, which text must touch to be consumed.
 // rectsearch is already constructed on the part_grid, and is used for
 // searching for overlapping and nearby ColPartitions.
 // ExpandImageIntoParts is called iteratively until it returns false. Each
 // time it absorbs the nearest non-contained candidate, and everything that
 // is fully contained within part_ptr's bounding box.
 // TODO(rays) what if it just eats everything inside max_image_box in one go?
-static bool ExpandImageIntoParts(const TBOX &max_image_box, ColPartitionGridSearch *rectsearch,
-                                 ColPartitionGrid *part_grid, ColPartition **part_ptr) {
+static bool ExpandImageIntoParts(const TBOX &max_image_box,
+                                 const MaskComponent &component,
+                                 ColPartitionGridSearch *rectsearch,
+                                 ColPartitionGrid *part_grid,
+                                 ColPartition **part_ptr) {
   ColPartition *image_part = *part_ptr;
   TBOX im_part_box = image_part->bounding_box();
   if (textord_tabfind_show_images > 1) {
@@ -902,8 +947,9 @@ static bool ExpandImageIntoParts(const TBOX &max_image_box, ColPartitionGridSear
         tprintf("Real candidate\n");
       }
     }
-    if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_TEXT_ON_IMAGE ||
-        part->blob_type() == BRT_POLYIMAGE) {
+    if (part->flow() == BTFT_STRONG_CHAIN ||
+        part->flow() == BTFT_TEXT_ON_IMAGE ||
+        part->blob_type() == BRT_POLYIMAGE || TextOffImage(*part, component)) {
       continue;
     }
     TBOX box = part->bounding_box();
@@ -966,9 +1012,12 @@ static int IntersectArea(const TBOX &box, ColPartition_LIST *part_list) {
 // Tests whether part is to be consumed by the polygonal image.
 // Returns true if part is weak text and more than half of its area is
 // intersected by parts from the part_list, and it is contained within im_box.
-static bool TestWeakIntersectedPart(const TBOX &im_box, ColPartition_LIST *part_list,
+// Text which has no pixel of the image component under it is not consumed.
+static bool TestWeakIntersectedPart(const TBOX &im_box,
+                                    const MaskComponent &component,
+                                    ColPartition_LIST *part_list,
                                     ColPartition *part) {
-  if (part->flow() < BTFT_STRONG_CHAIN) {
+  if (part->flow() < BTFT_STRONG_CHAIN && !TextOffImage(*part, component)) {
     // A weak partition intersects the box.
     const TBOX &part_box = part->bounding_box();
     if (im_box.contains(part_box)) {
@@ -987,13 +1036,16 @@ static bool TestWeakIntersectedPart(const TBOX &im_box, ColPartition_LIST *part_
 // (basically anything that is not BRT_STRONG_CHAIN or better) from both the
 // part_grid and the big_parts list that are contained within im_box and
 // overlapped enough by the possibly polygonal image.
-static void EliminateWeakParts(const TBOX &im_box, ColPartitionGrid *part_grid,
-                               ColPartition_LIST *big_parts, ColPartition_LIST *part_list) {
+static void EliminateWeakParts(const TBOX &im_box,
+                               const MaskComponent &component,
+                               ColPartitionGrid *part_grid,
+                               ColPartition_LIST *big_parts,
+                               ColPartition_LIST *part_list) {
   ColPartitionGridSearch rectsearch(part_grid);
   ColPartition *part;
   rectsearch.StartRectSearch(im_box);
   while ((part = rectsearch.NextRectSearch()) != nullptr) {
-    if (TestWeakIntersectedPart(im_box, part_list, part)) {
+    if (TestWeakIntersectedPart(im_box, component, part_list, part)) {
       BlobRegionType type = part->blob_type();
       if (type == BRT_POLYIMAGE || type == BRT_RECTIMAGE) {
         rectsearch.RemoveBBox();
@@ -1010,7 +1062,7 @@ static void EliminateWeakParts(const TBOX &im_box, ColPartitionGrid *part_grid,
   ColPartition_IT big_it(big_parts);
   for (big_it.mark_cycle_pt(); !big_it.cycled_list(); big_it.forward()) {
     part = big_it.data();
-    if (TestWeakIntersectedPart(im_box, part_list, part)) {
+    if (TestWeakIntersectedPart(im_box, component, part_list, part)) {
       // Once marked, the blobs will be swept up by TidyBlobs.
       DeletePartition(big_it.extract());
     }
@@ -1044,6 +1096,29 @@ static bool ScanForOverlappingText(ColPartitionGrid *part_grid, TBOX *box) {
   return false;
 }
 
+// Clears the boxes of the weak text lines in box from the image_pix.
+// An image has not consumed such text only if the text has no pixel of the
+// image under it, see TextOffImage, and this must still be so when the
+// images are found again in the image_pix.
+// Box coordinates are rotated by rerotate to match the image.
+static void ClearWeakTextFromMask(const FCOORD &rerotate, const TBOX &box,
+                                  ColPartitionGrid *part_grid,
+                                  Image image_pix) {
+  int imageheight = pixGetHeight(image_pix);
+  ColPartitionGridSearch rectsearch(part_grid);
+  rectsearch.SetUniqueMode(true);
+  rectsearch.StartRectSearch(box);
+  ColPartition *part;
+  while ((part = rectsearch.NextRectSearch()) != nullptr) {
+    if (WeakTextLine(*part)) {
+      TBOX part_box = part->bounding_box();
+      part_box.rotate(rerotate);
+      pixRasterop(image_pix, part_box.left(), imageheight - part_box.top(),
+                  part_box.width(), part_box.height(), PIX_CLR, nullptr, 0, 0);
+    }
+  }
+}
+
 // Renders the boxes of image parts from the supplied list onto the image_pix,
 // except where they interfere with existing strong text in the part_grid,
 // and then deletes them.
@@ -1063,11 +1138,15 @@ static void MarkAndDeleteImageParts(const FCOORD &rerotate, ColPartitionGrid *pa
         type == BRT_POLYIMAGE) {
       // Mark the box on the image.
       // All coords need to be rotated to match the image.
-      part_box.rotate(rerotate);
-      int left = part_box.left();
-      int top = part_box.top();
-      pixRasterop(image_pix, left, imageheight - top, part_box.width(), part_box.height(), PIX_SET,
-                  nullptr, 0, 0);
+      TBOX mask_box(part_box);
+      mask_box.rotate(rerotate);
+      int left = mask_box.left();
+      int top = mask_box.top();
+      pixRasterop(image_pix, left, imageheight - top, mask_box.width(),
+                  mask_box.height(), PIX_SET, nullptr, 0, 0);
+      if (type == BRT_RECTIMAGE || type == BRT_POLYIMAGE) {
+        ClearWeakTextFromMask(rerotate, part_box, part_grid, image_pix);
+      }
     }
     DeletePartition(part);
   }
@@ -1140,7 +1219,10 @@ void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
   int imageheight = pixGetHeight(image_pix);
   Boxa *boxa;
   Pixa *pixa;
-  ConnCompAndRectangularize(image_pix, pixa_debug, &boxa, &pixa);
+  Boxa *mask_boxa;
+  Pixa *mask_pixa;
+  ConnCompAndRectangularize(image_pix, pixa_debug, &boxa, &pixa, &mask_boxa,
+                            &mask_pixa);
   // Iterate the connected components in the image regions mask.
   int nboxes = 0;
   if (boxa != nullptr && pixa != nullptr) {
@@ -1152,6 +1234,14 @@ void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
     Image pix = pixaGetPix(pixa, i, L_CLONE);
     TBOX im_box(x, imageheight - y - height, x + width, imageheight - y);
     im_box.rotate(rotation); // Now matches all partitions and blobs.
+    // The component as it is in the mask, to test which text is on the image.
+    MaskComponent component;
+    boxaGetBoxGeometry(mask_boxa, i, &x, &y, &width, &height);
+    component.pix = pixaGetPix(mask_pixa, i, L_CLONE);
+    component.box =
+        TBOX(x, imageheight - y - height, x + width, imageheight - y);
+    component.box.rotate(rotation);
+    component.rerotation = rerotation;
     ColPartitionGridSearch rectsearch(part_grid);
     rectsearch.SetUniqueMode(true);
     ColPartition_LIST part_list;
@@ -1170,14 +1260,15 @@ void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
         ColPartition *part = part_it.extract();
         TBOX text_box(im_box);
         MaximalImageBoundingBox(part_grid, &text_box);
-        while (ExpandImageIntoParts(text_box, &rectsearch, part_grid, &part)) {
+        while (ExpandImageIntoParts(text_box, component, &rectsearch, part_grid,
+                                    &part)) {
           ;
         }
         part_it.set_to_list(&part_list);
         part_it.add_after_then_move(part);
         im_box = part->bounding_box();
       }
-      EliminateWeakParts(im_box, part_grid, big_parts, &part_list);
+      EliminateWeakParts(im_box, component, part_grid, big_parts, &part_list);
       // Iterate the part_list and put the parts into the grid.
       for (part_it.move_to_first(); !part_it.empty(); part_it.forward()) {
         ColPartition *image_part = part_it.extract();
@@ -1190,9 +1281,12 @@ void ImageFind::FindImagePartitions(Image image_pix, const FCOORD &rotation,
         }
       }
     }
+    component.pix.destroy();
   }
   boxaDestroy(&boxa);
   pixaDestroy(&pixa);
+  boxaDestroy(&mask_boxa);
+  pixaDestroy(&mask_pixa);
   DeleteSmallImages(part_grid);
 #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_images) {

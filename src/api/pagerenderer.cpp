@@ -604,6 +604,52 @@ static Pta *FitBaselineIntoLinePolygon(Pta *bottom_pts, Pta *baseline_pts,
 }
 #endif
 
+///
+/// Font styles of a word or of a text line
+///
+struct FontStyle {
+  bool bold = false;
+  bool italic = false;
+  bool underlined = false;
+  bool smallcaps = false;
+};
+
+///
+/// Get the font styles of the current word
+///
+static FontStyle GetWordFontStyle(const ResultIterator *it) {
+  FontStyle style;
+  bool monospace, serif;
+  int pointsize, font_id;
+  it->WordFontAttributes(&style.bold, &style.italic, &style.underlined, &monospace, &serif,
+                         &style.smallcaps, &pointsize, &font_id);
+  return style;
+}
+
+///
+/// Add the element TextStyle to the output if a font style is set
+///
+static void AddTextStyleToPAGE(const FontStyle &style, const char *indent,
+                               std::stringstream &str) {
+  if (!style.bold && !style.italic && !style.underlined && !style.smallcaps) {
+    return;
+  }
+  str << indent << "<TextStyle";
+  if (style.bold) {
+    str << " bold=\"true\"";
+  }
+  if (style.italic) {
+    str << " italic=\"true\"";
+  }
+  if (style.underlined) {
+    str << " underlined=\"true\"";
+  }
+  if (style.smallcaps) {
+    str << " smallCaps=\"true\"";
+  }
+  str << "/>\n";
+}
+
 /// Convert writing direction to string representation
 static const char *WritingDirectionToStr(int wd) {
   switch (wd) {
@@ -712,7 +758,8 @@ char *TessBaseAPI::GetPAGEText(int page_number) {
 ///
 char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
   if (tesseract_ == nullptr ||
-      (page_res_ == nullptr && Recognize(monitor) < 0)) {
+      ((page_res_ == nullptr || !recognition_done_) &&
+       Recognize(monitor) < 0)) {
     return nullptr;
   }
 
@@ -724,7 +771,10 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
 
   // Used variables
 
+  std::stringstream page_start_str;
   std::stringstream reading_order_str;
+  // The reading order has at least one region.
+  bool has_reading_order = false;
   std::stringstream region_content;
   std::stringstream line_content;
   std::stringstream word_content;
@@ -767,13 +817,13 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
 
   // Use "C" locale (needed for int values larger than 999).
   page_str.imbue(std::locale::classic());
-  reading_order_str << "\t<Page " << "imageFilename=\"";
+  page_start_str << "\t<Page " << "imageFilename=\"";
   const char *input_name = GetInputName();
   if (input_name != nullptr) {
-    reading_order_str << HOcrEscape(input_name);
+    page_start_str << HOcrEscape(input_name);
   }
-  reading_order_str << "\" " << "imageWidth=\"" << rect_width_ << "\" "
-                    << "imageHeight=\"" << rect_height_ << "\">\n";
+  page_start_str << "\" " << "imageWidth=\"" << rect_width_ << "\" "
+                 << "imageHeight=\"" << rect_height_ << "\">\n";
   std::size_t ro_id = std::hash<std::string>{}(input_name ? input_name : "");
   reading_order_str << "\t\t<ReadingOrder>\n"
                     << "\t\t\t<OrderedGroup id=\"ro" << ro_id
@@ -783,6 +833,8 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
 
   float block_conf = 0;
   float line_conf = 0;
+  // Font styles which all words of the current text line have.
+  FontStyle line_style;
 
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
@@ -824,6 +876,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
       // Add Block to reading order
       reading_order_str << "\t\t\t\t<RegionRefIndexed " << "index=\"" << rcnt
                         << "\" " << "regionRef=\"r" << rcnt << "\"/>\n";
+      has_reading_order = true;
 
       float deskew_angle;
       res_it->Orientation(&orientation_block, &writing_direction_block,
@@ -869,6 +922,10 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // writing_direction_before = writing_direction;
       line_conf = res_it->Confidence(RIL_TEXTLINE) / 100;
+      line_style.bold = true;
+      line_style.italic = true;
+      line_style.underlined = true;
+      line_style.smallcaps = true;
       char *utf8text = res_it->GetUTF8Text(RIL_TEXTLINE);
       std::string textline = utf8text;
       delete[] utf8text;
@@ -899,6 +956,11 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
     bool last_word_in_cblock = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
 
     float word_conf = res_it->Confidence(RIL_WORD) / 100;
+    const FontStyle word_style = GetWordFontStyle(res_it.get());
+    line_style.bold &= word_style.bold;
+    line_style.italic &= word_style.italic;
+    line_style.underlined &= word_style.underlined;
+    line_style.smallcaps &= word_style.smallcaps;
 
     // Create word stream if word level output is active
     if (LEVELFLAG > 0) {
@@ -962,14 +1024,14 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
         word_top_pts = TransposePolygonline(word_top_pts);
       }
       AddPointsToPAGE(word_top_pts, word_str);
-      word_str << "\t\t\t\t\t";
-      AddBaselinePtsToPAGE(word_baseline_pts, word_str);
+      // The PAGE schema allows a baseline for a text line, but not for a word.
       word_str << "\t\t\t\t\t<TextEquiv index=\"1\" conf=\""
                << std::setprecision(4) << word_conf << "\">\n"
                << "\t\t\t\t\t\t<Unicode>" << word_content.str()
                << "</Unicode>\n"
-               << "\t\t\t\t\t</TextEquiv>\n"
-               << "\t\t\t\t</Word>\n";
+               << "\t\t\t\t\t</TextEquiv>\n";
+      AddTextStyleToPAGE(word_style, "\t\t\t\t\t", word_str);
+      word_str << "\t\t\t\t</Word>\n";
     }
     if (LEVELFLAG > 0 || (POLYGONFLAG && !skewed_flag)) {
       // Add wordbaseline to linebaseline
@@ -1077,6 +1139,7 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
                << std::setprecision(4) << line_conf << "\">\n"
                << "\t\t\t\t\t<Unicode>" << line_content.str() << "</Unicode>\n"
                << "\t\t\t\t</TextEquiv>\n";
+      AddTextStyleToPAGE(line_style, "\t\t\t\t", line_str);
       line_str << "\t\t\t</TextLine>\n";
       region_content << line_content.str();
       line_content.str("");
@@ -1132,16 +1195,15 @@ char *TessBaseAPI::GetPAGEText(ETEXT_DESC *monitor, int /*page_number*/) {
   ptaDestroy(&line_baseline_ltr_pts);
   ptaDestroy(&line_baseline_pts);
 
-  reading_order_str << "\t\t\t</OrderedGroup>\n"
-                    << "\t\t</ReadingOrder>\n";
+  // The PAGE schema does not allow a reading order without regions, so a
+  // page without text regions gets none.
+  if (has_reading_order) {
+    page_start_str << reading_order_str.str() << "\t\t\t</OrderedGroup>\n"
+                   << "\t\t</ReadingOrder>\n";
+  }
+  page_start_str << page_str.str() << "\t</Page>\n";
 
-  reading_order_str << page_str.str();
-  page_str.str("");
-  reading_order_str << "\t</Page>\n";
-  const std::string &text = reading_order_str.str();
-  reading_order_str.str("");
-
-  return copy_string(text);
+  return copy_string(page_start_str.str());
 }
 
 } // namespace tesseract

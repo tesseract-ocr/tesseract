@@ -187,7 +187,7 @@ int orientation_and_script_detection(const char *filename, OSResults *osr,
   int height = pixGetHeight(tess->pix_binary());
 
   BLOCK_LIST blocks;
-  if (!read_unlv_file(name, height, &blocks)) {
+  if (!read_unlv_file(name, width, height, &blocks)) {
     FullPageBlock(width, height, &blocks);
   }
 
@@ -469,6 +469,11 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST *scores) {
     for (choice_it.mark_cycle_pt(); !choice_it.cycled_list(); choice_it.forward()) {
       BLOB_CHOICE *choice = choice_it.data();
       int id = choice->script_id();
+      if (id < 0 || id >= kMaxNumberOfScripts) {
+        // No usable script, e.g. the fallback choice added by
+        // Classify::AddLargeSpeckleTo when classification failed.
+        continue;
+      }
       if (allowed_scripts_ != nullptr && !allowed_scripts_->empty()) {
         // Check that the choice is in an allowed script.
         size_t s = 0;

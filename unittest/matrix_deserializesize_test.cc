@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        matrix_deserializesize_test.cc
 // Description: Tests that GENERIC_2D_ARRAY::DeSerializeSize rejects
-//              negative and oversized dimensions read from a TFile
-//              stream. The dimensions are serialized as little-endian
+//              negative and oversized dimensions read from a TFile or
+//              FILE stream. The dimensions are serialized as little-endian
 //              int32, so a crafted .traineddata can supply values such
 //              as -1 (0xFFFFFFFF) or 65535 that the previous signed
 //              "size > UINT16_MAX" check failed to reject. The -1 case
@@ -23,6 +23,8 @@
 #include "serialis.h"  // for TFile
 
 #include <cstdint>
+#include <cstdio>
+#include <string>
 #include <vector>
 
 namespace tesseract {
@@ -65,7 +67,25 @@ bool DeSerializeMatrix(const std::vector<char> &blob, GENERIC_2D_ARRAY<int8_t> *
   return m->DeSerialize(&fp);
 }
 
+// Writes the given blob to a temporary file and returns its path, so the
+// FILE* deserialization path can be exercised like the TFile* one. Uses the
+// project File helper to create the file.
+std::string WriteBlobToTmpFile(const std::string &name, const std::vector<char> &blob) {
+  const std::string path = file::JoinPath(FLAGS_test_tmpdir, name);
+  FILE *fp = file::Open(path, "wb");
+  EXPECT_TRUE(fp != nullptr);
+  if (fp != nullptr) {
+    EXPECT_TRUE(fwrite(blob.data(), 1, blob.size(), fp) == blob.size());
+    fclose(fp);
+  }
+  return path;
+}
+
 class MatrixDeserializeSizeTest : public testing::Test {
+ protected:
+  void SetUp() override {
+    file::MakeTmpdir();
+  }
 };
 
 // A valid small matrix must still deserialize successfully.
@@ -124,23 +144,15 @@ TEST_F(MatrixDeserializeSizeTest, AcceptsLargeFullyBackedMatrix) {
   EXPECT_EQ(1, m.dim2());
 }
 
-// ResizeNoInit itself must bound the element count, for callers that
-// have no stream to check against. The maximum allowed size must
-// still be accepted.
-TEST_F(MatrixDeserializeSizeTest, ResizeNoInitAcceptsMaxSize) {
+// A size above the former 100,000,000 element DoS cap must still be
+// accepted: trusted runtime callers (e.g. a full-width OCR line buffer
+// in a Convolve layer) legitimately request more than that, and the
+// deserialization-time checks in DeSerializeSize are the DoS guard.
+TEST_F(MatrixDeserializeSizeTest, ResizeNoInitAcceptsSizeAboveFormerDoSCap) {
   GENERIC_2D_ARRAY<int8_t> m;
-  m.ResizeNoInit(10000, 10000); // exactly kMaxElements
-  EXPECT_EQ(10000, m.dim1());
+  m.ResizeNoInit(10001, 10000); // 100010000 elements, > 100000000
+  EXPECT_EQ(10001, m.dim1());
   EXPECT_EQ(10000, m.dim2());
-}
-
-// A size above the DoS cap must be rejected even though the product
-// fits in a 32-bit int (10001 * 10000 = 100010000).
-TEST_F(MatrixDeserializeSizeTest, ResizeNoInitRejectsOverCap) {
-  GENERIC_2D_ARRAY<int8_t> m;
-  m.ResizeNoInit(10001, 10000);
-  EXPECT_EQ(0, m.dim1());
-  EXPECT_EQ(0, m.dim2());
 }
 
 // A negative size must be rejected (no allocation, no state change).
@@ -157,6 +169,40 @@ TEST_F(MatrixDeserializeSizeTest, ResizeNoInitRejectsOverflowingProduct) {
   m.ResizeNoInit(65535, 65535);
   EXPECT_EQ(0, m.dim1());
   EXPECT_EQ(0, m.dim2());
+}
+
+// Deserializes a matrix from the given FILE*, like the TFile* helper above.
+bool DeSerializeMatrixFile(FILE *fp, GENERIC_2D_ARRAY<int8_t> *m) {
+  return m->DeSerialize(false, fp);
+}
+
+// The FILE* overload has no stream position to check the declared size
+// against, so it must bound the total element count itself: a crafted short
+// file declaring 32768 x 65535 (~2.1e9 elements) would otherwise force a
+// multi-gigabyte allocation before the missing payload is detected.
+TEST_F(MatrixDeserializeSizeTest, FileDeSerializeRejectsOversizedProduct) {
+  const std::string path =
+      WriteBlobToTmpFile("file_oversized", MakeMatrixBlob(32768, 65535, 0));
+  FILE *fp = file::Open(path, "rb");
+  ASSERT_TRUE(fp != nullptr);
+  GENERIC_2D_ARRAY<int8_t> m;
+  EXPECT_FALSE(DeSerializeMatrixFile(fp, &m));
+  fclose(fp);
+}
+
+// A large matrix whose product fits the FILE* element-count bound and is
+// fully present in the file must still deserialize successfully, so the new
+// bound does not reject legitimate matrices.
+TEST_F(MatrixDeserializeSizeTest, FileDeSerializeAcceptsLargeMatrix) {
+  const std::string path =
+      WriteBlobToTmpFile("file_large", MakeMatrixBlob(65535, 1, 65535));
+  FILE *fp = file::Open(path, "rb");
+  ASSERT_TRUE(fp != nullptr);
+  GENERIC_2D_ARRAY<int8_t> m;
+  ASSERT_TRUE(DeSerializeMatrixFile(fp, &m));
+  EXPECT_EQ(65535, m.dim1());
+  EXPECT_EQ(1, m.dim2());
+  fclose(fp);
 }
 
 } // namespace

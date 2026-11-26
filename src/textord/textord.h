@@ -205,6 +205,7 @@ private:
   void cleanup_nontext_block(BLOCK *block);
   void cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks);
   bool clean_noise_from_row(ROW *row);
+  bool row_is_noise(ROW *row, float x_height);
   void clean_noise_from_words(ROW *row);
   // Remove outlines that are a tiny fraction in either width or height
   // of the word height.

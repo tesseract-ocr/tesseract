@@ -165,6 +165,11 @@ public:
   void LearnPieces(const char *fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char *correct_text, WERD_RES *word);
   bool InitAdaptiveClassifier(TessdataManager *mgr);
+  // Creates a new set of adapted templates for the current unicharset.
+  // Returns nullptr, after reporting the error, if the unicharset is too
+  // large to be indexed by the fixed-size class arrays, or if the templates
+  // could not be built. The caller has to handle the nullptr.
+  ADAPT_TEMPLATES_STRUCT *NewAdaptedTemplates();
   void InitAdaptedClass(TBLOB *Blob, CLASS_ID ClassId, int FontinfoId, ADAPT_CLASS_STRUCT *Class,
                         ADAPT_TEMPLATES_STRUCT *Templates);
   void AmbigClassifier(const std::vector<INT_FEATURE_STRUCT> &int_features,

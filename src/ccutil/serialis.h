@@ -20,6 +20,7 @@
 #define SERIALIS_H
 
 #include <tesseract/baseapi.h> // FileReader
+#include <cstddef>             // for size_t
 #include <cstdint>             // uint8_t
 #include <cstdio>
 #include <cstdlib>
@@ -97,53 +98,78 @@ public:
       return false;
     } else if (size == 0) {
       data.clear();
+      return true;
     } else if (size > 50000000) {
       // Arbitrarily limit the number of elements to protect against bad data.
       return false;
-    } else if constexpr (std::is_same<T, std::string>::value) {
-      // Deserialize a string.
-      // TODO: optimize.
-      data.resize(size);
-      for (auto &item : data) {
-        if (!DeSerialize(item)) {
-          return false;
-        }
+    } else {
+      // The numeric cap alone is not enough: a crafted file could declare
+      // tens of millions of elements while carrying only a few trailing
+      // bytes, forcing a huge allocation (denial of service) from a tiny
+      // input. The declared size must be backed by the bytes that actually
+      // remain in the stream. The bound must use the *minimum serialized*
+      // size per element, not sizeof(T): a class like RecodedCharID
+      // serializes to fewer bytes than its sizeof (5 to 41 vs 44), and a
+      // null pointer serializes to a single byte, so a sizeof-based check
+      // would reject valid models. The minimum per element is 4 for a
+      // string (the uint32 length prefix is present even when empty), 1 for
+      // a class or a pointer (a field, or the non-null flag), and exactly
+      // sizeof(T) for a plain type.
+      constexpr size_t kMinBytesPerElement =
+          std::is_same<T, std::string>::value
+              ? static_cast<size_t>(4)
+              : (std::is_class<T>::value || std::is_pointer<T>::value)
+                    ? static_cast<size_t>(1)
+                    : sizeof(T);
+      if (static_cast<uint64_t>(size) * kMinBytesPerElement >
+          RemainingBytes()) {
+        return false;
       }
-    } else if constexpr (std::is_class<T>::value) {
-      // Deserialize a tesseract class.
-      // TODO: optimize.
-      data.resize(size);
-      for (auto &item : data) {
-        if (!item.DeSerialize(this)) {
-          return false;
-        }
-      }
-    } else if constexpr (std::is_pointer<T>::value) {
-      // Deserialize pointers.
-      // TODO: optimize.
-      data.resize(size);
-      for (uint32_t i = 0; i < size; i++) {
-        uint8_t non_null;
-	if (!DeSerialize(&non_null)) {
-          return false;
-	}
-        if (non_null) {
-          typedef typename std::remove_pointer<T>::type ST;
-          auto item = new ST;
-          if (!item->DeSerialize(this)) {
-            delete item;
+      if constexpr (std::is_same<T, std::string>::value) {
+        // Deserialize a string.
+        // TODO: optimize.
+        data.resize(size);
+        for (auto &item : data) {
+          if (!DeSerialize(item)) {
             return false;
           }
-          data[i] = item;
         }
+      } else if constexpr (std::is_class<T>::value) {
+        // Deserialize a tesseract class.
+        // TODO: optimize.
+        data.resize(size);
+        for (auto &item : data) {
+          if (!item.DeSerialize(this)) {
+            return false;
+          }
+        }
+      } else if constexpr (std::is_pointer<T>::value) {
+        // Deserialize pointers.
+        // TODO: optimize.
+        data.resize(size);
+        for (uint32_t i = 0; i < size; i++) {
+          uint8_t non_null;
+          if (!DeSerialize(&non_null)) {
+            return false;
+          }
+          if (non_null) {
+            typedef typename std::remove_pointer<T>::type ST;
+            auto item = new ST;
+            if (!item->DeSerialize(this)) {
+              delete item;
+              return false;
+            }
+            data[i] = item;
+          }
+        }
+      } else {
+        // Deserialize a non-class.
+        // TODO: optimize.
+        data.resize(size);
+        return DeSerialize(&data[0], size);
       }
-    } else {
-      // Deserialize a non-class.
-      // TODO: optimize.
-      data.resize(size);
-      return DeSerialize(&data[0], size);
+      return true;
     }
-    return true;
   }
 
   // Serialize data.

@@ -10,9 +10,11 @@
 // limitations under the License.
 
 #include <memory>
+#include <vector>
 
 #include "colpartition.h"
 #include "colpartitiongrid.h"
+#include "colpartitionset.h"
 #include "tablefind.h"
 
 #include "include_gunit.h"
@@ -25,6 +27,7 @@ public:
   using TableFinder::HasLeaderAdjacent;
   using TableFinder::InsertLeaderPartition;
   using TableFinder::InsertTextPartition;
+  using TableFinder::MakeTableBlocks;
   using TableFinder::set_global_median_blob_width;
   using TableFinder::set_global_median_ledding;
   using TableFinder::set_global_median_xheight;
@@ -56,6 +59,13 @@ public:
       ++count;
     }
     EXPECT_EQ(expected_count, count);
+  }
+  // Adds a table with the given box to the grid of detected tables.
+  // The finder deletes the tables in its grid.
+  void InsertTable(const TBOX &box) {
+    auto *table = new ColSegment();
+    table->set_bounding_box(box);
+    table_grid_.InsertBBox(true, true, table);
   }
 };
 
@@ -275,6 +285,74 @@ TEST_F(TableFinderTest, SplitAndInsertFragmentedPartitionsBasicFail) {
   finder_->SplitAndInsertFragmentedTextPartition(fragment_me);
   finder_->ExpectPartition(TBOX(11, 5, 99, 15));
   finder_->ExpectPartitionCount(1);
+}
+
+// Tests that all text partitions of a table are merged into a single table
+// partition which gets all their blobs. The number of partitions is odd, so
+// that the merge in pairs has a partition without a partner in two of its
+// three passes. An image in the table and text outside of it are kept.
+TEST_F(TableFinderTest, MakeTableBlocksMergesTextPartitions) {
+  ColPartitionGrid grid(10, ICOORD(0, 0), ICOORD(500, 500));
+  // All rows of the grid use the same single column.
+  ColPartition *column = ColPartition::FakePartition(
+      TBOX(0, 0, 500, 500), PT_FLOWING_TEXT, BRT_TEXT, BTFT_CHAIN);
+  ColPartitionSet column_set(column);
+  std::vector<ColPartitionSet *> all_columns(grid.gridheight(), &column_set);
+
+  finder_->InsertTable(TBOX(100, 100, 400, 300));
+  const TBOX cells[] = {TBOX(310, 250, 390, 270), TBOX(110, 250, 190, 270),
+                        TBOX(210, 150, 290, 170), TBOX(110, 150, 190, 170),
+                        TBOX(210, 250, 290, 270)};
+  TBOX cells_box;
+  for (const TBOX &cell : cells) {
+    grid.InsertBBox(true, true,
+                    ColPartition::FakePartition(cell, PT_FLOWING_TEXT, BRT_TEXT,
+                                                BTFT_CHAIN));
+    cells_box += cell;
+  }
+  grid.InsertBBox(
+      true, true,
+      ColPartition::FakePartition(TBOX(210, 200, 290, 230), PT_FLOWING_IMAGE,
+                                  BRT_RECTIMAGE, BTFT_NONTEXT));
+  grid.InsertBBox(
+      true, true,
+      ColPartition::FakePartition(TBOX(110, 400, 390, 420), PT_FLOWING_TEXT,
+                                  BRT_TEXT, BTFT_CHAIN));
+
+  finder_->set_resolution(300);
+  finder_->MakeTableBlocks(&grid, all_columns.data(), [](int) { return true; });
+
+  std::vector<ColPartition *> parts;
+  ColPartitionGridSearch gsearch(&grid);
+  gsearch.SetUniqueMode(true);
+  gsearch.StartFullSearch();
+  ColPartition *found;
+  while ((found = gsearch.NextFullSearch()) != nullptr) {
+    parts.push_back(found);
+  }
+  EXPECT_EQ(parts.size(), 3U);
+  int num_tables = 0;
+  for (ColPartition *part : parts) {
+    if (part->type() == PT_TABLE) {
+      ++num_tables;
+      EXPECT_TRUE(part->bounding_box() == cells_box);
+      EXPECT_EQ(part->boxes()->length(), 5);
+      // The blobs are sorted by their left edge and belong to the table.
+      int last_left = 0;
+      BLOBNBOX_C_IT blob_it(part->boxes());
+      for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+        BLOBNBOX *blob = blob_it.data();
+        EXPECT_GE(blob->bounding_box().left(), last_left);
+        last_left = blob->bounding_box().left();
+        EXPECT_EQ(blob->owner(), part);
+        EXPECT_EQ(blob->flow(), BTFT_CHAIN);
+      }
+    }
+    part->DeleteBoxes();
+    delete part;
+  }
+  EXPECT_EQ(num_tables, 1);
+  column->DeleteBoxes();
 }
 
 } // namespace tesseract

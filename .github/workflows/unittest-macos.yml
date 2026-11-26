@@ -4,6 +4,7 @@ on:
   #push:
   schedule:
     - cron: 0 0 * * *
+  workflow_dispatch:
 
 jobs:
   sanitizers:
@@ -13,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-arm-14-clang-unittest, os: macos-14, cxx: clang++ } # Apple silicon
+          - { name: macos-arm-15-clang-unittest, os: macos-15, cxx: clang++ } # Apple silicon
           - { name: macos-latest-clang-unittest, os: macos-latest, cxx: clang++ }
           - { name: macos-latest-gcc-unittest, os: macos-latest, cxx: g++ }
 
@@ -64,6 +65,11 @@ jobs:
       run: |
            git clone https://github.com/egorpugin/tessdata tessdata_unittest
            cp tessdata_unittest/fonts/* test/testing/
+           # Add the fonts with the names which "make check" expects. They are the
+           # same files which it would download from SourceForge otherwise.
+           cp tessdata_unittest/fonts/Arialbi.TTF test/testing/Arial_Bold_Italic.ttf
+           cp tessdata_unittest/fonts/Times.TTF test/testing/Times_New_Roman.ttf
+           cp tessdata_unittest/fonts/Verdana.TTF test/testing/Verdana.ttf
            mv tessdata_unittest/* ../
 
     - name: Run Tesseract on phototest.tif and devatest.png

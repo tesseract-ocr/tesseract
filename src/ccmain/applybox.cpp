@@ -115,6 +115,11 @@ PAGE_RES *Tesseract::ApplyBoxes(const char *filename, bool find_segmentation,
     return nullptr; // Can't do it.
   }
 
+  // Start fresh budgets of the legacy engine for the resegmentation, as
+  // recog_all_words() does. Only the seam-evaluation budget is enforced here
+  // (see choose_best_seam() in findseam.cpp, OSS-Fuzz issue 4775901406232576).
+  ResetPassBudgets();
+
   const int box_count = boxes.size();
   int box_failures = 0;
 

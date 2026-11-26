@@ -22,12 +22,12 @@
 
 #include "blobs.h"          // for TWERD, TBLOB, TESSLINE
 #include "boxword.h"        // for BoxWord
-#include "errcode.h"        // for ASSERT_HOST
 #include "normalis.h"       // for kBlnXHeight, kBlnBaselineOffset
 #include "pageres.h"        // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
 #include "params.h"         // for IntParam, StringParam, BoolParam, DoubleParam, ...
 #include "ratngs.h"         // for WERD_CHOICE, FREQ_DAWG_PERM, NUMBER_PERM
 #include "rect.h"           // for TBOX
+#include "serialis.h"       // for countof
 #include "stepblob.h"       // for C_BLOB_IT, C_BLOB_LIST, C_BLOB
 #include "tesseractclass.h" // for Tesseract, TesseractStats, WordData
 #include "tessvars.h"       // for debug_fp
@@ -38,14 +38,17 @@
 #include <tesseract/ocrclass.h> // for ETEXT_DESC
 #include <tesseract/unichar.h>  // for UNICHAR_ID
 
-#include <cstdint> // for INT16_MAX, int16_t, int32_t
+#include <algorithm> // for std::min
+#include <cstdint>   // for INT16_MAX, int16_t, int32_t
 
 namespace tesseract {
 
 class BLOCK;
 class ROW;
 
-#define PERFECT_WERDS 999
+// Score of a word list in which all words are contextually confirmed.
+// It must be greater than any score which is a count of characters.
+#define PERFECT_WERDS INT16_MAX
 
 /**********************************************************************
  *  c_blob_comparator()
@@ -179,6 +182,11 @@ void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
 
   while ((best_score != PERFECT_WERDS) && !current_perm.empty()) {
     match_current_words(current_perm, row, block);
+    if (AllClassificationBudgetsExhausted()) {
+      // The legacy engine might not have recognized all words of
+      // current_perm, so it cannot be compared with best_perm.
+      break;
+    }
     int16_t current_score = eval_word_spacing(current_perm);
     dump_words(current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -254,11 +262,11 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK *block
  */
 int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_res_it(&word_res_list);
-  int16_t total_score = 0;
+  int total_score = 0;
   int16_t word_count = 0;
   int16_t done_word_count = 0;
   int i;
-  int16_t offset;
+  int offset;
   int16_t prev_word_score = 0;
   bool prev_word_done = false;
   bool prev_char_1 = false;     // prev ch a "1/I/l"?
@@ -284,7 +292,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   Yes IF it didn't end in a 1 when the first char of this word is a digit
     AND it didn't end in a digit when the first char of this word is a 1
 */
-      auto word_len = word->reject_map.length();
+      int word_len = word->reject_map.length();
       bool current_word_ok_so_far = false;
       if (!((prev_char_1 && digit_or_numeric_punct(word, 0)) ||
             (prev_char_digit &&
@@ -353,7 +361,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   if (done_word_count == word_count) {
     return PERFECT_WERDS;
   } else {
-    return total_score;
+    return std::min(total_score, PERFECT_WERDS - 1);
   }
 }
 
@@ -590,6 +598,11 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK *
 
   while (best_score != PERFECT_WERDS && !current_perm.empty()) {
     match_current_words(current_perm, row, block);
+    if (AllClassificationBudgetsExhausted()) {
+      // The legacy engine might not have recognized all words of
+      // current_perm, so it cannot be compared with best_perm.
+      break;
+    }
     current_score = fp_eval_word_spacing(current_perm);
     dump_words(current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -685,12 +698,19 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res, float *worst_noise_score
   if (word_res->rebuild_word == nullptr) {
     return -1; // Can't handle cube words.
   }
+  if (word_res->tess_failed) {
+    // A word which was not recognized (for example because the classification
+    // budget was used up) has boxes, but no blobs to get noise scores from.
+    return -1;
+  }
 
   // Normalised.
   auto blob_count = word_res->box_word->length();
-  ASSERT_HOST(blob_count <= 512);
   if (blob_count < 5) {
     return -1; // too short to split
+  }
+  if (blob_count > countof(noise_score)) {
+    return -1; // too long to score
   }
 
     /* Get the noise scores for all blobs */

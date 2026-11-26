@@ -171,7 +171,8 @@ public:
   // to the given inttemp_file, and the corresponding pffmtable.
   // The unicharset is the original encoding of graphemes, and shape_set should
   // match the size of the shape_table, and may possibly be totally fake.
-  void WriteInttempAndPFFMTable(const UNICHARSET &unicharset, const UNICHARSET &shape_set,
+  // Returns false if the templates could not be created or written.
+  bool WriteInttempAndPFFMTable(const UNICHARSET &unicharset, const UNICHARSET &shape_set,
                                 const ShapeTable &shape_table, CLASS_STRUCT *float_classes,
                                 const char *inttemp_file, const char *pffmtable_file);
 

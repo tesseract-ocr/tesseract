@@ -85,6 +85,10 @@ const double kMaxDiacriticDistanceRatio = 1.25;
 // Max x-gap between a diacritic and its base char as a fraction of the height
 // of the base char (allowing other blobs to fill the gap.)
 const double kMaxDiacriticGapToBaseCharHeight = 1.0;
+// Min ratio of the height of the base character to the height of a diacritic
+// for the diacritic to be tested as the letter of a small word, see
+// StrokeWidth::SaveLetterOfSmallWord.
+const double kMinBaseCharToSmallWordRatio = 2.5;
 // Ratio between longest side of a line and longest side of a character.
 // (neighbor_min > blob_min * kLineTrapShortest &&
 //  neighbor_max < blob_max / kLineTrapLongest)
@@ -1476,6 +1480,89 @@ void StrokeWidth::FindHorizontalTextChains(ColPartitionGrid *part_grid) {
   }
 }
 
+// Returns true if blob stands in a horizontal row of at least
+// kMinSmallWordBlobs blobs of similar height which are close to each other,
+// like the letters of a word. Real diacritics come alone or in pairs
+// (dieresis, quotes).
+// The grid is const really.
+static bool InRowOfSimilarBlobs(BlobGrid *grid, const BLOBNBOX *blob) {
+  int count = 1;
+  for (int dir = -1; dir <= 1 && count < kMinSmallWordBlobs; dir += 2) {
+    TBOX box(blob->bounding_box());
+    while (count < kMinSmallWordBlobs) {
+      // Look for the nearest similar blob on this side of box.
+      const int max_gap = box.height();
+      TBOX search_box(box);
+      if (dir > 0) {
+        search_box.set_left(box.right());
+        search_box.set_right(box.right() + max_gap);
+      } else {
+        search_box.set_right(box.left());
+        search_box.set_left(box.left() - max_gap);
+      }
+      BlobGridSearch rsearch(grid);
+      rsearch.SetUniqueMode(true);
+      rsearch.StartRectSearch(search_box);
+      const BLOBNBOX *best = nullptr;
+      int best_gap = 0;
+      BLOBNBOX *neighbour;
+      while ((neighbour = rsearch.NextRectSearch()) != nullptr) {
+        if (neighbour == blob) {
+          continue;
+        }
+        const TBOX &nbox = neighbour->bounding_box();
+        const bool beyond = dir > 0 ? nbox.left() > box.left() && nbox.right() > box.right()
+                                    : nbox.right() < box.right() && nbox.left() < box.left();
+        if (!beyond || nbox.height() > 2 * box.height() || box.height() > 2 * nbox.height() ||
+            !(nbox.major_y_overlap(box) || box.major_y_overlap(nbox))) {
+          continue;
+        }
+        const int gap = box.x_gap(nbox);
+        if (gap <= max_gap && (best == nullptr || gap < best_gap)) {
+          best = neighbour;
+          best_gap = gap;
+        }
+      }
+      if (best == nullptr) {
+        break;
+      }
+      box = best->bounding_box();
+      ++count;
+    }
+  }
+  return count >= kMinSmallWordBlobs;
+}
+
+// Saves a copy of blob in block->small_word_blobs if blob, which has just
+// been accepted as a diacritic, is more likely a letter of a small word next
+// to very large text, like a small "and" between the two lines of a large
+// title: it is at least as high as the normal text of the page, much smaller
+// than its base character, and it stands in a row of similar blobs. The
+// letters of such a word are shared out as diacritics among the letters of
+// the large text, where they are far too small to be read. The layout is
+// left as it is; ColumnFinder::AddSmallWordBlocks makes a block of its own
+// from the copies.
+void StrokeWidth::SaveLetterOfSmallWord(BlobGrid *small_grid, const BLOBNBOX *blob,
+                                        TO_BLOCK *block) {
+  const BLOBNBOX *base_blob = blob->base_char_blob();
+  const int height = blob->bounding_box().height();
+  if (base_blob == nullptr || blob->cblob() == nullptr || height < gridsize() ||
+      base_blob->bounding_box().height() < kMinBaseCharToSmallWordRatio * height ||
+      !InRowOfSimilarBlobs(small_grid, blob)) {
+    return;
+  }
+  auto *copy = new BLOBNBOX(C_BLOB::deep_copy(blob->cblob()));
+  copy->set_owns_cblob(true);
+  // The outlines stay in the coordinates of the image, but the layout
+  // analysis rotates, reflects and deskews the boxes of the blobs. The copy
+  // needs the box of blob, and all which is done later to that box, for its
+  // block to be in the same coordinates as the other blocks.
+  copy->set_bounding_box(blob->bounding_box());
+  copy->set_region_type(BRT_TEXT);
+  BLOBNBOX_IT it(&block->small_word_blobs);
+  it.add_to_end(copy);
+}
+
 // Finds diacritics and saves their base character in the blob.
 // The objective is to move all diacritics to the noise_blobs list, so
 // they don't mess up early textline finding/merging, or force splits
@@ -1494,6 +1581,7 @@ void StrokeWidth::TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block) {
     BLOBNBOX *blob = small_it.data();
     if (blob->owner() == nullptr && !blob->IsDiacritic() && DiacriticBlob(&small_grid, blob)) {
       ++small_diacritics;
+      SaveLetterOfSmallWord(&small_grid, blob, block);
     }
   }
   BLOBNBOX_IT blob_it(&block->blobs);
@@ -1506,6 +1594,7 @@ void StrokeWidth::TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block) {
     ColPartition *part = blob->owner();
     if (part == nullptr && DiacriticBlob(&small_grid, blob)) {
       ++medium_diacritics;
+      SaveLetterOfSmallWord(&small_grid, blob, block);
       RemoveBBox(blob);
       small_it.add_to_end(blob_it.extract());
     } else if (part != nullptr && !part->block_owned() && part->boxes_count() < 3) {
@@ -1531,6 +1620,7 @@ void StrokeWidth::TestDiacritics(ColPartitionGrid *part_grid, TO_BLOCK *block) {
           box->set_owner(nullptr);
           box_it.forward();
           ++medium_diacritics;
+          SaveLetterOfSmallWord(&small_grid, box, block);
           // We remove the blob from the grid so it isn't found by subsequent
           // searches where we might not want to include diacritics.
           RemoveBBox(box);

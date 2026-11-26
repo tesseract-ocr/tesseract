@@ -364,7 +364,7 @@ bool try_doc_fixed(             // determine pitch
     TO_BLOCK_LIST *port_blocks, // input list
     float gradient              // page skew
 ) {
-  int16_t master_x; // uniform shifts
+  int32_t master_x; // uniform shifts
   int16_t pitch;    // median pitch.
   int x;            // profile coord
   int prop_blocks;  // correct counts
@@ -374,10 +374,10 @@ bool try_doc_fixed(             // determine pitch
   TO_BLOCK_IT block_it = port_blocks;
   TO_BLOCK *block;         // current block;
   TO_ROW *row;             // current row
-  int16_t projection_left; // edges
-  int16_t projection_right;
-  int16_t row_left; // edges of row
-  int16_t row_right;
+  int32_t projection_left; // edges
+  int32_t projection_right;
+  int32_t row_left; // edges of row
+  int32_t row_right;
   float master_y;     // uniform shifts
   float shift_factor; // page skew correction
   float final_pitch;  // output pitch
@@ -398,8 +398,8 @@ bool try_doc_fixed(             // determine pitch
   TO_ROW_IT row_it(block_it.data()->get_rows());
   master_x = row_it.data()->projection_left;
   master_y = row_it.data()->baseline.y(master_x);
-  projection_left = INT16_MAX;
-  projection_right = -INT16_MAX;
+  projection_left = INT32_MAX;
+  projection_right = -INT32_MAX;
   prop_blocks = 0;
   fixed_blocks = 0;
   total_row_count = 0;
@@ -415,8 +415,8 @@ bool try_doc_fixed(             // determine pitch
       }
       // find median
       row_y = row->baseline.y(master_x);
-      row_left = static_cast<int16_t>(row->projection_left - shift_factor * (master_y - row_y));
-      row_right = static_cast<int16_t>(row->projection_right - shift_factor * (master_y - row_y));
+      row_left = static_cast<int32_t>(row->projection_left - shift_factor * (master_y - row_y));
+      row_right = static_cast<int32_t>(row->projection_right - shift_factor * (master_y - row_y));
       if (row_left < projection_left) {
         projection_left = row_left;
       }
@@ -436,7 +436,7 @@ bool try_doc_fixed(             // determine pitch
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       row = row_it.data();
       row_y = row->baseline.y(master_x);
-      row_left = static_cast<int16_t>(row->projection_left - shift_factor * (master_y - row_y));
+      row_left = static_cast<int32_t>(row->projection_left - shift_factor * (master_y - row_y));
       for (x = row->projection_left; x < row->projection_right; x++, row_left++) {
         projection.add(row_left, row->projection.pile_count(x));
       }
@@ -1072,8 +1072,8 @@ bool count_pitch_stats(  // find lines
 float tune_row_pitch(           // find fp cells
     TO_ROW *row,                // row to do
     STATS *projection,          // vertical projection
-    int16_t projection_left,    // edge of projection
-    int16_t projection_right,   // edge of projection
+    int32_t projection_left,    // edge of projection
+    int32_t projection_right,   // edge of projection
     float space_size,           // size of blank
     float &initial_pitch,       // guess at pitch
     float &best_sp_sd,          // space sd
@@ -1171,8 +1171,8 @@ float tune_row_pitch(           // find fp cells
 float tune_row_pitch2(          // find fp cells
     TO_ROW *row,                // row to do
     STATS *projection,          // vertical projection
-    int16_t projection_left,    // edge of projection
-    int16_t projection_right,   // edge of projection
+    int32_t projection_left,    // edge of projection
+    int32_t projection_right,   // edge of projection
     float space_size,           // size of blank
     float &initial_pitch,       // guess at pitch
     float &best_sp_sd,          // space sd
@@ -1181,7 +1181,7 @@ float tune_row_pitch2(          // find fp cells
     bool testing_on             // individual words
 ) {
   int pitch_delta;    // offset pitch
-  int16_t pixel;      // pixel coord
+  int32_t pixel;      // pixel coord
   int16_t best_pixel; // pixel coord
   int16_t best_delta; // best pitch
   int16_t best_pitch; // best pitch
@@ -1264,8 +1264,8 @@ float tune_row_pitch2(          // find fp cells
 float compute_pitch_sd(        // find fp cells
     TO_ROW *row,               // row to do
     STATS *projection,         // vertical projection
-    int16_t projection_left,   // edge
-    int16_t projection_right,  // edge
+    int32_t projection_left,   // edge
+    int32_t projection_right,  // edge
     float space_size,          // size of blank
     float initial_pitch,       // guess at pitch
     float &sp_sd,              // space sd
@@ -1304,6 +1304,11 @@ float compute_pitch_sd(        // find fp cells
                                   occupation, mid_cuts, row_cells, testing_on, start, end);
     sp_sd = occupation;
     return word_sync;
+  }
+  // check_pitch_sync(2) clamp their copy of the pitch, but the cell filling
+  // loop below steps by initial_pitch and never advances for a pitch below 1.
+  if (initial_pitch < 3) {
+    initial_pitch = 3; // nothing ludicrous
   }
   mid_cuts = 0;
   cellpos = 0;
@@ -1374,7 +1379,8 @@ float compute_pitch_sd(        // find fp cells
       sp_count++;
     }
     for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
-      segpos = seg_it.data()->position();
+      // cuts may lie up to a pitch outside the image
+      segpos = ClipToRange<int>(seg_it.data()->position(), INT16_MIN, INT16_MAX);
       if (cell_it.empty() || segpos > cellpos + initial_pitch / 2) {
         // big gap
         while (!cell_it.empty() && segpos > cellpos + initial_pitch * 3 / 2) {
@@ -1421,8 +1427,8 @@ float compute_pitch_sd(        // find fp cells
 float compute_pitch_sd2(       // find fp cells
     TO_ROW *row,               // row to do
     STATS *projection,         // vertical projection
-    int16_t projection_left,   // edge
-    int16_t projection_right,  // edge
+    int32_t projection_left,   // edge
+    int32_t projection_right,  // edge
     float initial_pitch,       // guess at pitch
     int16_t &occupation,       // no of occupied cells
     int16_t &mid_cuts,         // no of free cuts
@@ -1488,7 +1494,8 @@ float compute_pitch_sd2(       // find fp cells
 #endif
   seg_it.set_to_list(&seg_list);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
-    segpos = seg_it.data()->position();
+    // cuts may lie up to a pitch outside the image
+    segpos = ClipToRange<int>(seg_it.data()->position(), INT16_MIN, INT16_MAX);
     // make new one
     cell = new ICOORDELT(segpos, 0);
     cell_it.add_after_then_move(cell);
@@ -1510,8 +1517,8 @@ float compute_pitch_sd2(       // find fp cells
 void print_pitch_sd(         // find fp cells
     TO_ROW *row,             // row to do
     STATS *projection,       // vertical projection
-    int16_t projection_left, // edges //size of blank
-    int16_t projection_right, float space_size,
+    int32_t projection_left, // edges //size of blank
+    int32_t projection_right, float space_size,
     float initial_pitch // guess at pitch
 ) {
   const char *res2;   // pitch result

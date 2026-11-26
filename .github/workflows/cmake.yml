@@ -22,9 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: macos-14-clang-15-cmake, os: macos-14, cxx: clang++ } # default
-          - { name: macos-15-gcc-14-cmake, os: macos-15, cxx: g++ } #installed
           - { name: macos-15-clang-cmake, os: macos-15, cxx: clang++ } # default
+          - { name: macos-latest-gcc-15-cmake, os: macos-latest, cxx: g++-15 } #installed
+          - { name: macos-latest-clang-cmake, os: macos-latest, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
           - { name: ubuntu-24.04-gcc-12-cmake, os: ubuntu-24.04, cxx: g++-14 } #installed
@@ -93,6 +93,9 @@ jobs:
              set -e
              mkdir build
              mkdir inst
+             # Use curl and ICU from Homebrew. Otherwise curl is found in the SDK,
+             # and the include path for the SDK hides the C++ headers of ICU when
+             # the compiler is GCC.
              cmake \
                -S . \
                -B build \
@@ -101,6 +104,7 @@ jobs:
                -DOPENMP_BUILD=OFF \
                -DENABLE_UNITY_BUILD=ON \
                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} \
+               -DCMAKE_PREFIX_PATH="$(brew --prefix curl);$(brew --prefix icu4c)" \
                -DCMAKE_INSTALL_PREFIX:PATH=inst
         if: runner.os == 'macOS'
 

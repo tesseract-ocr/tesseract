@@ -53,6 +53,7 @@ class ImageThresholder;
 class LTRResultIterator;
 class ResultIterator;
 class MutableIterator;
+class TessPDFRenderer;
 class TessResultRenderer;
 class Tesseract;
 
@@ -74,6 +75,8 @@ using ProbabilityInContextFunc = double (Dict::*)(const char *, const char *,
  * include any other Tesseract headers.
  */
 class TESS_API TessBaseAPI {
+  friend class TessPDFRenderer;
+
 public:
   TessBaseAPI();
   virtual ~TessBaseAPI();
@@ -169,8 +172,10 @@ public:
    * listed above here in the class definition.
    *
    * The datapath must be the name of the tessdata directory.
-   * The language is (usually) an ISO 639-3 string or nullptr will default to
-   * eng. It is entirely safe (and eventually will be efficient too) to call
+   * The language is (usually) an ISO 639-3 string. If it is nullptr or empty,
+   * no language data is loaded: this is enough for page layout analysis, but
+   * Recognize fails (returns -1) until Init is called with a language.
+   * It is entirely safe (and eventually will be efficient too) to call
    * Init multiple times on the same instance to change language, or just
    * to reset the classifier.
    * The language may be a string of the form [~]<lang>[+[~]<lang>]* indicating
@@ -325,6 +330,7 @@ public:
 
   /**
    * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+   * The rectangle is clipped to the image.
    * Each SetRectangle clears the recogntion results so multiple rectangles
    * can be recognized with the same image.
    */
@@ -613,7 +619,11 @@ public:
    * orient_conf is the confidence (15.0 is reasonably confident)
    * script_name is an ASCII string, the name of the script, e.g. "Latin"
    * script_conf is confidence level in the script
-   * Returns true on success and writes values to each parameter as an output
+   * Returns true on success and writes values to each parameter as an output.
+   * Returns false if the primary (first) language was loaded without the
+   * legacy engine (for example the tessdata_fast or tessdata_best model of a
+   * language, or a combined model loaded with OEM_LSTM_ONLY): use the osd
+   * model, or put a model with a legacy engine first in the language list.
    */
   bool DetectOrientationScript(int *orient_deg, float *orient_conf,
                                const char **script_name, float *script_conf);
@@ -810,6 +820,15 @@ private:
                                  int timeout_millisec,
                                  TessResultRenderer *renderer,
                                  int tessedit_page_number);
+  // Multi-column (newspaper) recognition: automatically detect the gutters
+  // that separate columns, recognise each column independently so that
+  // words from adjacent columns are never interleaved, and merge the results
+  // back into a single page result in column-major reading order. Used as an
+  // alternative to the normal FindLines()/recog_all_words() flow when
+  // textord_auto_columns is enabled and more than one column is detected.
+  // Returns 1 if the page was recognised by columns, 0 if it was not split
+  // and -1 if the recognition failed or was stopped by the monitor.
+  int RecognizeMultiColumn(ETEXT_DESC *monitor);
 }; // class TessBaseAPI.
 
 /** Escape a char string - replace &<>"' with HTML codes. */

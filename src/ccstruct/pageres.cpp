@@ -258,7 +258,9 @@ void WERD_RES::CopySimpleFields(const WERD_RES &source) {
   done = source.done;
   unlv_crunch_mode = source.unlv_crunch_mode;
   small_caps = source.small_caps;
+  underlined = source.underlined;
   odd_size = source.odd_size;
+  budget_skipped = source.budget_skipped;
   fontinfo = source.fontinfo;
   fontinfo2 = source.fontinfo2;
   fontinfo_id_count = source.fontinfo_id_count;
@@ -984,10 +986,6 @@ bool WERD_RES::ConditionalBlobMerge(
       best_choice->set_unichar_id(new_id, i);
       modified = true;
       MergeAdjacentBlobs(i);
-      const MATRIX_COORD &coord = best_choice->MatrixCoord(i);
-      if (!coord.Valid(*ratings)) {
-        ratings->IncreaseBandSize(coord.row + 1 - coord.col);
-      }
       BLOB_CHOICE_LIST *blob_choices = GetBlobChoices(i);
       if (FindMatchingChoice(new_id, blob_choices) == nullptr) {
         // Insert a fake result.
@@ -1008,11 +1006,21 @@ void WERD_RES::MergeAdjacentBlobs(unsigned index) {
     reject_map.remove_pos(index);
   }
   best_choice->remove_unichar_id(index + 1);
-  rebuild_word->MergeBlobs(index, index + 2);
+  if (rebuild_word != nullptr) {
+    // Words from the LSTM recognizer have no rebuild_word.
+    rebuild_word->MergeBlobs(index, index + 2);
+  }
   box_word->MergeBoxes(index, index + 2);
   if (index + 1 < best_state.size()) {
     best_state[index] += best_state[index + 1];
     best_state.erase(best_state.begin() + index + 1);
+  }
+  if (ratings != nullptr) {
+    // The merged blob may need a wider band in the ratings matrix.
+    const MATRIX_COORD &coord = best_choice->MatrixCoord(index);
+    if (!coord.Valid(*ratings)) {
+      ratings->IncreaseBandSize(coord.row + 1 - coord.col);
+    }
   }
 }
 
@@ -1142,6 +1150,7 @@ void WERD_RES::Clear() {
 
 void WERD_RES::ClearResults() {
   done = false;
+  budget_skipped = false;
   fontinfo = nullptr;
   fontinfo2 = nullptr;
   fontinfo_id_count = 0;
@@ -1387,6 +1396,27 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     return;
   }
   WERD_RES *input_word = word();
+  // With several languages, a language whose recognizer returns no words
+  // passes back its copy of the input word (made by
+  // WERD_RES::InitForRetryRecognition), which shares the input WERD. That
+  // WERD is deleted below, so give such a word a WERD of its own, with a
+  // fake blob at each blob of the input word, like the words from LSTM.
+  for (size_t w = 0; w < words->size(); ++w) {
+    WERD_RES *word_w = (*words)[w];
+    if (word_w->word == input_word->word) {
+      WERD *new_word = input_word->word->shallow_copy();
+      new_word->set_flag(W_BOL, false);
+      new_word->set_flag(W_EOL, false);
+      C_BLOB_IT src_it(input_word->word->cblob_list());
+      C_BLOB_IT dest_it(new_word->cblob_list());
+      for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
+        dest_it.add_after_then_move(
+            C_BLOB::FakeBlob(src_it.data()->bounding_box()));
+      }
+      word_w->word = new_word;
+      word_w->combination = true; // It owns its word.
+    }
+  }
   // Set the BOL/EOL flags on the words from the input word.
   if (input_word->word->flag(W_BOL)) {
     (*words)[0]->word->set_flag(W_BOL, true);
@@ -1553,6 +1583,23 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
 WERD_RES *PAGE_RES_IT::start_page(bool empty_ok) {
   block_res_it.set_to_list(&page_res->block_res_list);
   block_res_it.mark_cycle_pt();
+  return start_at_block_res_it(empty_ok);
+}
+
+/*************************************************************************
+ * PAGE_RES_IT::start_block
+ *
+ * Move to the first word of the current block, as start_page() does for the
+ * first block.
+ *************************************************************************/
+
+WERD_RES *PAGE_RES_IT::start_block(bool empty_ok) {
+  ASSERT_HOST(block_res != nullptr);
+  block_res_it = bl_it_of_current_word;
+  return start_at_block_res_it(empty_ok);
+}
+
+WERD_RES *PAGE_RES_IT::start_at_block_res_it(bool empty_ok) {
   prev_block_res = nullptr;
   prev_row_res = nullptr;
   prev_word_res = nullptr;
@@ -1629,6 +1676,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
   row_res = next_row_res;
   word_res = next_word_res;
   wr_it_of_current_word = wr_it_of_next_word;
+  bl_it_of_current_word = bl_it_of_next_word;
   next_block_res = nullptr;
   next_row_res = nullptr;
   next_word_res = nullptr;
@@ -1639,6 +1687,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
       row_res_it.mark_cycle_pt();
       if (row_res_it.empty() && empty_ok) {
         next_block_res = block_res_it.data();
+        bl_it_of_next_word = block_res_it;
         break;
       }
       new_row = true;
@@ -1655,6 +1704,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
       }
       if (!word_res_it.cycled_list()) {
         next_block_res = block_res_it.data();
+        bl_it_of_next_word = block_res_it;
         next_row_res = row_res_it.data();
         next_word_res = word_res_it.data();
         wr_it_of_next_word = word_res_it;
@@ -1682,14 +1732,15 @@ foundword:
 /*************************************************************************
  * PAGE_RES_IT::restart_row()
  *
- * Move to the beginning (leftmost word) of the current row.
+ * Move to the beginning (leftmost word) of the current row. As with
+ * forward_with_empties(), a following empty block is not skipped.
  *************************************************************************/
 WERD_RES *PAGE_RES_IT::restart_row() {
   ROW_RES *row = this->row();
   if (!row) {
     return nullptr;
   }
-  for (restart_page(); this->row() != row; forward()) {
+  for (start_block(true); this->row() != row; forward_with_empties()) {
     // pass
   }
   return word();
@@ -1724,8 +1775,8 @@ WERD_RES *PAGE_RES_IT::forward_block() {
 }
 
 void PAGE_RES_IT::rej_stat_word() {
-  int16_t chars_in_word;
-  int16_t rejects_in_word = 0;
+  int chars_in_word;
+  int rejects_in_word = 0;
 
   chars_in_word = word_res->reject_map.length();
   page_res->char_count += chars_in_word;

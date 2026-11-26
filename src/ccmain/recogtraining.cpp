@@ -85,6 +85,10 @@ static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
 // the correct label, rating and certainty.
 void Tesseract::recog_training_segmented(const char *filename, PAGE_RES *page_res,
                                          FILE *output_file) {
+  // Start fresh budgets of the legacy engine for this page, as
+  // recog_all_words() does.
+  ResetPassBudgets();
+
   std::string box_fname = filename;
   const char *lastdot = strrchr(box_fname.c_str(), '.');
   if (lastdot != nullptr) {
@@ -213,6 +217,14 @@ void Tesseract::ambigs_classify_and_output(const char *label, PAGE_RES_IT *pr_it
   std::vector<UNICHAR_ID> encoding;
   if (!unicharset.encode_string(label, true, &encoding, nullptr, nullptr)) {
     tprintf("Not outputting illegal unichar %s\n", label);
+    return;
+  }
+
+  if (werd_res->tess_failed || werd_res->ratings == nullptr) {
+    // The word was not really recognized. When the classification budget is
+    // used up, SetupFake() gives a word with blobs a non-null ratings matrix
+    // full of fake space choices; the tess_failed flag (set by SetupFake)
+    // catches that case, while a word without blobs keeps a null ratings.
     return;
   }
 

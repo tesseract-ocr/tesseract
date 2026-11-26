@@ -78,8 +78,8 @@ void plot_fp_cells(           // draw words
     int16_t pitch,            // of block
     int16_t blob_count,       // no of real blobs
     STATS *projection,        // vertical
-    int16_t projection_left,  // edges //scale factor
-    int16_t projection_right, float projection_scale);
+    int32_t projection_left,  // edges //scale factor
+    int32_t projection_right, float projection_scale);
 void plot_fp_cells2(          // draw words
     ScrollView *win,          // window tro draw in
     ScrollView::Color colour, // colour of lines

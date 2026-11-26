@@ -1294,6 +1294,7 @@ bool TabFind::Deskew(TabVector_LIST *hlines, BLOBNBOX_LIST *image_blobs, TO_BLOC
   RotateBlobList(*deskew, &block->blobs);
   RotateBlobList(*deskew, &block->small_blobs);
   RotateBlobList(*deskew, &block->noise_blobs);
+  RotateBlobList(*deskew, &block->small_word_blobs);
 
   // Rotate the horizontal vectors. The vertical vectors don't need
   // rotating as they can just be refitted.

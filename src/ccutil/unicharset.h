@@ -670,6 +670,12 @@ public:
       return true;
     }
     int script_id = get_script(unichar_id);
+    // The id of a script which is missing in the unicharset is null_sid_,
+    // so a character with the null script (like the space) must not be
+    // compared with those ids.
+    if (script_id == null_sid_) {
+      return true;
+    }
     return script_id != han_sid_ && script_id != thai_sid_ &&
            script_id != hangul_sid_ && script_id != hiragana_sid_ &&
            script_id != katakana_sid_;

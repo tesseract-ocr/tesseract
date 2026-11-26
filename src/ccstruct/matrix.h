@@ -77,19 +77,22 @@ public:
   }
   GENERIC_2D_ARRAY(GENERIC_2D_ARRAY<T> &&src) noexcept
       : array_(src.array_), empty_(src.empty_), dim1_(src.dim1_), dim2_(src.dim2_),
-        size_allocated_(src.size_allocated_) {
+        size_allocated_(src.size_allocated_), pad_(src.pad_) {
     src.array_ = nullptr;
     src.empty_ = static_cast<T>(0);
     src.dim1_ = 0;
     src.dim2_ = 0;
     src.size_allocated_ = 0;
+    src.pad_ = 0;
   }
   virtual ~GENERIC_2D_ARRAY() {
     delete[] array_;
   }
 
   void operator=(const GENERIC_2D_ARRAY<T> &src) {
-    ResizeNoInit(src.dim1(), src.dim2());
+    // Keep the padding of src, as users of the copy may rely on it in the
+    // same way as users of src (eg the SIMD code reading an int8_t array).
+    ResizeNoInit(src.dim1(), src.dim2(), src.pad_);
     int size = num_elements();
     if (size > 0) {
       memcpy(array_, src.array_, size * sizeof(array_[0]));
@@ -103,33 +106,39 @@ public:
       dim1_ = src.dim1_;
       dim2_ = src.dim2_;
       size_allocated_ = src.size_allocated_;
+      pad_ = src.pad_;
       src.array_ = nullptr;
       src.empty_ = static_cast<T>(0);
       src.dim1_ = 0;
       src.dim2_ = 0;
       src.size_allocated_ = 0;
+      src.pad_ = 0;
     }
   }
-
-  // DoS protection: the maximum number of elements (including the
-  // padding) a single array may hold. Legitimate matrices in tesseract
-  // are far smaller than this; the cap is consistent with the
-  // "unreasonably large" bound applied to the scale vector in
-  // WeightMatrix::DeSerialize.
-  static const int64_t kMaxElements = 100000000;
 
   // Reallocates the array to the given size. Does not keep old data, but does
   // not initialize the array either.
   // The allocated memory is expanded on the end by pad, allowing deliberate
   // access beyond the bounds of the array.
+  //
+  // Denial-of-service protection against *untrusted* sizes (dimensions read
+  // from a .traineddata file) is done at deserialization time in
+  // DeSerializeSize, which bounds each dimension and the total element
+  // count, and the TFile* overload additionally requires the declared
+  // element count to be backed by the bytes remaining in the stream. This
+  // method is also called by trusted runtime callers to size inference and
+  // training buffers -- e.g. a full-width OCR line through a deep Convolve
+  // layer legitimately exceeds 100,000,000 floats -- so it must not impose an
+  // arbitrary element cap here: an early return would leave dim1_/dim2_
+  // stale and corrupt every later access. It only rejects corrupted values
+  // and keeps the int element count below from wrapping.
   void ResizeNoInit(int size1, int size2, int pad = 0) {
     // Compute the total element count in 64 bits so it cannot overflow
-    // (in particular (-1) * (-1) must not pass as 1), then reject
-    // corrupted values (a crafted .traineddata file could produce
-    // negative or oversized dimensions) and bound the allocation against
-    // denial of service.
+    // (in particular (-1) * (-1) must not pass as 1), then reject corrupted
+    // values: negative dimensions, or a total that would wrap the int cast
+    // below.
     const int64_t total = static_cast<int64_t>(size1) * size2 + pad;
-    if (size1 < 0 || size2 < 0 || pad < 0 || total > kMaxElements) {
+    if (size1 < 0 || size2 < 0 || pad < 0 || total > INT32_MAX) {
       return;
     }
     const int new_size = static_cast<int>(total);
@@ -140,6 +149,7 @@ public:
     }
     dim1_ = size1;
     dim2_ = size2;
+    pad_ = pad;
     // Fill the padding data so it isn't uninitialized.
     for (int i = new_size - pad; i < new_size; ++i) {
       array_[i] = empty_;
@@ -174,6 +184,7 @@ public:
       dim1_ = size1;
       dim2_ = size2;
       size_allocated_ = new_size;
+      pad_ = 0;
     }
   }
 
@@ -601,6 +612,15 @@ protected:
     if (size2 > UINT16_MAX) {
       return false;
     }
+    // Unlike the TFile* overload, there is no stream position to check the
+    // declared size against, so bound the total element count as well: a
+    // crafted short file (e.g. 32768 x 65535, ~2.1e9 elements) would
+    // otherwise force a multi-gigabyte allocation before the missing payload
+    // is detected. Legitimate matrices deserialized through this path are
+    // far smaller.
+    if (static_cast<int64_t>(size1) * size2 > 100000000) {
+      return false;
+    }
     Resize(size1, size2, empty_);
     return true;
   }
@@ -648,6 +668,9 @@ protected:
   // needed. If Resize is used, memory is retained so it can be re-expanded
   // without a further alloc, and this stores the allocated size.
   int size_allocated_;
+  // The number of extra elements that ResizeNoInit provided beyond the bounds
+  // of the array (dim1_ * dim2_). A copy of the array gets the same padding.
+  int pad_ = 0;
 };
 
 // A generic class to store a banded triangular matrix with entries of type T.

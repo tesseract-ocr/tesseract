@@ -21,12 +21,14 @@
 
 #include "elst.h"
 #include "errcode.h" // for ASSERT_HOST
+#include "helpers.h" // for ClipToRange
 #include "tesstypes.h" // for TDimension
 
 #include <tesseract/export.h> // for DLLSYM
 
 #include <cmath> // for sqrt, atan2
 #include <cstdio>
+#include <limits> // for std::numeric_limits
 
 namespace tesseract {
 
@@ -184,14 +186,11 @@ ELISTIZEH(ICOORDELT)
 class TESS_API FCOORD {
 public:
   /// empty constructor
-  FCOORD() = default;
+  constexpr FCOORD() : xcoord(0.0f), ycoord(0.0f) {}
   /// constructor
   ///@param xvalue x value
   ///@param yvalue y value
-  FCOORD(float xvalue, float yvalue) {
-    xcoord = xvalue; // set coords
-    ycoord = yvalue;
-  }
+  constexpr FCOORD(float xvalue, float yvalue) : xcoord(xvalue), ycoord(yvalue) {}
   constexpr FCOORD(              // make from ICOORD
       ICOORD icoord) : xcoord(icoord.xcoord), ycoord(icoord.ycoord) {}
 
@@ -261,11 +260,11 @@ public:
   bool normalise();
 
   /// test equality
-  bool operator==(const FCOORD &other) const {
+  constexpr bool operator==(const FCOORD &other) const {
     return xcoord == other.xcoord && ycoord == other.ycoord;
   }
   /// test inequality
-  bool operator!=(const FCOORD &other) const {
+  constexpr bool operator!=(const FCOORD &other) const {
     return xcoord != other.xcoord || ycoord != other.ycoord;
   }
   /// rotate 90 deg anti
@@ -502,8 +501,13 @@ constexpr inline ICOORD &operator/=( // scalar divide
 
 inline void ICOORD::rotate( // rotate by vector
     const FCOORD &vec) {
-  auto tmp = static_cast<TDimension>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f));
-  ycoord = static_cast<TDimension>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f));
+  // A point near the far corner of a large image can rotate out of the
+  // range of TDimension, so clip the result to keep the conversion defined.
+  constexpr double limit = std::numeric_limits<TDimension>::max();
+  auto tmp = static_cast<TDimension>(
+      ClipToRange<double>(std::floor(xcoord * vec.x() - ycoord * vec.y() + 0.5f), -limit, limit));
+  ycoord = static_cast<TDimension>(
+      ClipToRange<double>(std::floor(ycoord * vec.x() + xcoord * vec.y() + 0.5f), -limit, limit));
   xcoord = tmp;
 }
 

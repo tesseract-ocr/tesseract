@@ -121,6 +121,7 @@ protected:
 
   void SetUp() override {
     std::locale::global(std::locale(""));
+    REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
     tesseract_ = std::make_unique<Tesseract>();
     tesseract_->init_tesseract(TESSDATA_DIR, "eng", OEM_TESSERACT_ONLY);
     tesseract_->set_source_resolution(300);

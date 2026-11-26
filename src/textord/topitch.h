@@ -98,8 +98,8 @@ bool count_pitch_stats(  // find lines
 float tune_row_pitch(           // find fp cells
     TO_ROW *row,                // row to do
     STATS *projection,          // vertical projection
-    int16_t projection_left,    // edge of projection
-    int16_t projection_right,   // edge of projection
+    int32_t projection_left,    // edge of projection
+    int32_t projection_right,   // edge of projection
     float space_size,           // size of blank
     float &initial_pitch,       // guess at pitch
     float &best_sp_sd,          // space sd
@@ -110,8 +110,8 @@ float tune_row_pitch(           // find fp cells
 float tune_row_pitch2(          // find fp cells
     TO_ROW *row,                // row to do
     STATS *projection,          // vertical projection
-    int16_t projection_left,    // edge of projection
-    int16_t projection_right,   // edge of projection
+    int32_t projection_left,    // edge of projection
+    int32_t projection_right,   // edge of projection
     float space_size,           // size of blank
     float &initial_pitch,       // guess at pitch
     float &best_sp_sd,          // space sd
@@ -122,8 +122,8 @@ float tune_row_pitch2(          // find fp cells
 float compute_pitch_sd(        // find fp cells
     TO_ROW *row,               // row to do
     STATS *projection,         // vertical projection
-    int16_t projection_left,   // edge
-    int16_t projection_right,  // edge
+    int32_t projection_left,   // edge
+    int32_t projection_right,  // edge
     float space_size,          // size of blank
     float initial_pitch,       // guess at pitch
     float &sp_sd,              // space sd
@@ -136,8 +136,8 @@ float compute_pitch_sd(        // find fp cells
 float compute_pitch_sd2(       // find fp cells
     TO_ROW *row,               // row to do
     STATS *projection,         // vertical projection
-    int16_t projection_left,   // edge
-    int16_t projection_right,  // edge
+    int32_t projection_left,   // edge
+    int32_t projection_right,  // edge
     float initial_pitch,       // guess at pitch
     int16_t &occupation,       // no of occupied cells
     int16_t &mid_cuts,         // no of free cuts
@@ -149,8 +149,8 @@ float compute_pitch_sd2(       // find fp cells
 void print_pitch_sd(         // find fp cells
     TO_ROW *row,             // row to do
     STATS *projection,       // vertical projection
-    int16_t projection_left, // edges //size of blank
-    int16_t projection_right, float space_size,
+    int32_t projection_left, // edges //size of blank
+    int32_t projection_right, float space_size,
     float initial_pitch // guess at pitch
 );
 void find_repeated_chars(TO_BLOCK *block); // Block to search.

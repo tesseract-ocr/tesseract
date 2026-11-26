@@ -262,6 +262,11 @@ private:
   // Transform the grid of partitions to the output blocks.
   void TransformToBlocks(BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
 
+  // Makes a text block of its own from each row of the letters which
+  // StrokeWidth::SaveLetterOfSmallWord has saved in block->small_word_blobs,
+  // and puts it after the block of the large text above it.
+  void AddSmallWordBlocks(TO_BLOCK *block, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
+
   // Reflect the blob boxes (but not the outlines) in the y-axis so that
   // the blocks get created in the correct RTL order. Rotates the blobs
   // in the input_block and the bblobs list.

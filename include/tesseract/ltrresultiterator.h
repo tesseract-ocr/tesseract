@@ -100,6 +100,10 @@ public:
   // to an internal table and SHOULD NOT BE DELETED. Lifespan is the same as
   // the iterator itself, ie rendered invalid by various members of
   // TessBaseAPI, including Init, SetImage, End or deleting the TessBaseAPI.
+  // The return value is nullptr if the font name is not known. The attributes
+  // can be set nevertheless: with the parameter lstm_font_attributes, bold,
+  // italic and underlined are estimated for words recognized by LSTM, which
+  // have no font name and the font_id -1. Other words are never underlined.
   // Pointsize is returned in printers points (1/72 inch.)
   const char *WordFontAttributes(bool *is_bold, bool *is_italic,
                                  bool *is_underlined, bool *is_monospace,

@@ -55,7 +55,7 @@ FPSEGPT::FPSEGPT(  // constructor
  **********************************************************************/
 
 FPSEGPT::FPSEGPT( // constructor
-    int16_t x     // position
+    int32_t x     // position
     )
     : xpos(x) {
   pred = nullptr;
@@ -75,7 +75,7 @@ FPSEGPT::FPSEGPT( // constructor
  **********************************************************************/
 
 FPSEGPT::FPSEGPT(           // constructor
-    int16_t x,              // position
+    int32_t x,              // position
     bool faking,            // faking this one
     int16_t offset,         // dist to gap
     int16_t region_index,   // segment number
@@ -143,19 +143,19 @@ double check_pitch_sync(   // find segmentation
     STATS *projection,     // vertical
     FPSEGPT_LIST *seg_list // output list
 ) {
-  int16_t x;          // current coord
+  int32_t x;          // current coord
   int16_t min_index;  // blob number
   int16_t max_index;  // blob number
-  int16_t left_edge;  // of word
-  int16_t right_edge; // of word
-  int16_t right_max;  // max allowed x
-  int16_t min_x;      // in this region
-  int16_t max_x;
+  int32_t left_edge;  // of word
+  int32_t right_edge; // of word
+  int32_t right_max;  // max allowed x
+  int32_t min_x;      // in this region
+  int32_t max_x;
   int16_t region_index;
   int16_t best_region_index = 0; // for best result
   int16_t offset;                // dist to legal area
-  int16_t left_best_x;           // edge of good region
-  int16_t right_best_x;          // right edge
+  int32_t left_best_x;           // edge of good region
+  int32_t right_best_x;          // right edge
   TBOX min_box;                  // bounding box
   TBOX max_box;                  // bounding box
   TBOX next_box;                 // box of next blob
@@ -359,9 +359,9 @@ void make_illegal_segment(   // find segmentation
     int16_t pitch_error,     // tolerance
     FPSEGPT_LIST *seg_list   // output list
 ) {
-  int16_t x;         // current coord
-  int16_t min_x = 0; // in this region
-  int16_t max_x = 0;
+  int32_t x;         // current coord
+  int32_t min_x = 0; // in this region
+  int32_t max_x = 0;
   int16_t offset;                 // dist to edge
   FPSEGPT *segpt;                 // segment point
   FPSEGPT *prevpt;                // previous point

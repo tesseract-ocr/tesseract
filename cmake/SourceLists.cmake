@@ -46,6 +46,7 @@ set(TESSERACT_SRC_ARCH_SSE41
 
 set(TESSERACT_SRC_ARCH_NEON
     src/arch/dotproductneon.cpp
+    src/arch/functionsneon.cpp
     src/arch/intsimdmatrixneon.cpp
 )
 
@@ -55,6 +56,7 @@ set(TESSERACT_SRC_CCMAIN
     src/ccmain/applybox.cpp
     src/ccmain/control.cpp
     src/ccmain/docqual.cpp
+    src/ccmain/fontstyle.cpp
     src/ccmain/equationdetect.cpp
     src/ccmain/fixspace.cpp
     src/ccmain/fixxht.cpp
@@ -191,6 +193,7 @@ set(TESSERACT_SRC_DICT
 # LSTM module sources
 set(TESSERACT_SRC_LSTM
     src/lstm/convolve.cpp
+    src/lstm/dropout.cpp
     src/lstm/fullyconnected.cpp
     src/lstm/functions.cpp
     src/lstm/input.cpp
@@ -373,6 +376,7 @@ set(TESSERACT_HDR_INTERNAL
     src/ccmain/docqual.h
     src/ccmain/equationdetect.h
     src/ccmain/fixspace.h
+    src/ccmain/fontstyle.h
     src/ccmain/mutableiterator.h
     src/ccmain/output.h
     src/ccmain/paragraphs.h

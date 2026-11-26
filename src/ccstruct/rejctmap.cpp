@@ -64,13 +64,13 @@ REJMAP &REJMAP::operator=(const REJMAP &source) {
   return *this;
 }
 
-void REJMAP::initialise(uint16_t length) {
+void REJMAP::initialise(unsigned length) {
   ptr = std::make_unique<REJ[]>(length);
   len = length;
 }
 
-int16_t REJMAP::accept_count() const { // How many accepted?
-  int16_t count = 0;
+int REJMAP::accept_count() const { // How many accepted?
+  int count = 0;
   for (unsigned i = 0; i < len; i++) {
     if (ptr[i].accepted()) {
       count++;
@@ -98,7 +98,7 @@ bool REJMAP::quality_recoverable_rejects() const { // Any potential rejs?
 }
 
 void REJMAP::remove_pos( // Cut out an element
-    uint16_t pos         // element to remove
+    unsigned pos         // element to remove
 ) {
   ASSERT_HOST(pos < len);
   ASSERT_HOST(len > 0);

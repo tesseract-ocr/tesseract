@@ -35,6 +35,7 @@ namespace tesseract {
 
 bool read_unlv_file(   // print list of sides
     std::string &name, // basename of file
+    int32_t xsize,     // image size
     int32_t ysize,     // image size
     BLOCK_LIST *blocks // output list
 ) {
@@ -51,6 +52,13 @@ bool read_unlv_file(   // print list of sides
     return false; // didn't read one
   } else {
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
+      // The zone must be inside the image.
+      if (x < 0 || y < 0 || width <= 0 || height <= 0 || width > xsize - x ||
+          height > ysize - y) {
+        tprintf("Warning: ignoring UZN zone %d %d %d %d, not inside the image\n", x, y, width,
+                height);
+        continue;
+      }
       // make rect block
       block = new BLOCK(name.c_str(), true, 0, 0, static_cast<int16_t>(x),
                         static_cast<int16_t>(ysize - y - height), static_cast<int16_t>(x + width),

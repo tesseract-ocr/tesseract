@@ -99,10 +99,16 @@ bool TFile::DeSerialize(std::string &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
     return false;
-  } else if (size > 50000000) {
-    // Arbitrarily limit the size to protect against bad data.
-    return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge string while
+    // carrying only a few trailing bytes (denial of service). As each element
+    // needs exactly one byte, this also limits the allocation to the size of
+    // the input, so there is no need for an additional arbitrary limit.
+    // Training checkpoints embed trainer dumps of more than 50 MB.
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], size);
@@ -120,10 +126,16 @@ bool TFile::DeSerialize(std::vector<char> &data) {
   uint32_t size;
   if (!DeSerialize(&size)) {
     return false;
-  } else if (size > 50000000) {
-    // Arbitrarily limit the size to protect against bad data.
-    return false;
   } else if (size > 0) {
+    // The declared size must be backed by the bytes that actually remain in
+    // the stream, so a crafted file cannot declare a huge vector while
+    // carrying only a few trailing bytes (denial of service). As each element
+    // needs exactly one byte, this also limits the allocation to the size of
+    // the input, so there is no need for an additional arbitrary limit.
+    // Training checkpoints embed trainer dumps of more than 50 MB.
+    if (static_cast<uint64_t>(size) > RemainingBytes()) {
+      return false;
+    }
     // TODO: optimize.
     data.resize(size);
     return DeSerialize(&data[0], data.size());

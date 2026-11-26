@@ -50,7 +50,7 @@ bool test_underline(  // look for underlines
     int16_t baseline, ///< coords of baseline
     int16_t xheight   ///< height of line
 ) {
-  TDimension occ;
+  int32_t occ; // must be able to go past the range of TDimension
   STATS projection;
 
   auto blob_box = blob->bounding_box();

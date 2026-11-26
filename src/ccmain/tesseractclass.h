@@ -205,6 +205,7 @@ public:
   // Destroy any existing pix and return a pointer to the pointer.
   Image *mutable_pix_binary() {
     pix_binary_.destroy();
+    pix_removed_lines_.destroy();
     return &pix_binary_;
   }
   Image pix_binary() const {
@@ -255,6 +256,14 @@ public:
   }
   void set_source_resolution(int ppi) {
     source_resolution_ = ppi;
+  }
+  // Number of columns which the automatic multi-column recognition
+  // (textord_auto_columns) used for the last page, 0 if it did not split it.
+  int auto_columns_used() const {
+    return auto_columns_used_;
+  }
+  void set_auto_columns_used(int columns) {
+    auto_columns_used_ = columns;
   }
   int ImageWidth() const {
     return pixGetWidth(pix_binary_);
@@ -376,6 +385,18 @@ public:
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC *monitor, PAGE_RES_IT *pr_it,
                           std::vector<WordData> *words);
+#ifndef DISABLED_LEGACY_ENGINE
+  // Starts fresh per-page budgets for the legacy engine (seam evaluations
+  // and blob classifications, see Wordrec::ResetSeamEvalsBudget() and
+  // Wordrec::ResetClassificationBudget()) for this language and for all
+  // sub-languages. Must be called at the start of each page.
+  void ResetPassBudgets();
+  // Returns true if the blob-classification budgets of this language and of
+  // all sub-languages are used up (see
+  // Wordrec::ClassificationBudgetExhausted()), so that the legacy engine
+  // cannot recognize any further word of this page.
+  bool AllClassificationBudgetsExhausted();
+#endif // ndef DISABLED_LEGACY_ENGINE
   bool recog_all_words(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
                        const char *word_config, int dopasses);
   void rejection_passes(PAGE_RES *page_res, ETEXT_DESC *monitor, const TBOX *target_word_box,
@@ -451,6 +472,8 @@ public:
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES *page_res);
+  // Estimates bold and italic from the image for the words without a font.
+  void font_style_pass(PAGE_RES *page_res);
   void dictionary_correction_pass(PAGE_RES *page_res);
   bool check_debug_pt(WERD_RES *word, int location);
 
@@ -558,9 +581,9 @@ public:
   // make rej map for word
   void make_reject_map(WERD_RES *word, int16_t pass);
   bool one_ell_conflict(WERD_RES *word_res, bool update_map);
-  int16_t first_alphanum_index(const char *word, const char *word_lengths);
-  int16_t first_alphanum_offset(const char *word, const char *word_lengths);
-  int16_t alpha_count(const char *word, const char *word_lengths);
+  int first_alphanum_index(const char *word, const char *word_lengths);
+  int first_alphanum_offset(const char *word, const char *word_lengths);
+  int alpha_count(const char *word, const char *word_lengths);
   bool word_contains_non_1_digit(const char *word, const char *word_lengths);
   void dont_allow_1Il(WERD_RES *word);
   int16_t count_alphanums( // how many alphanums
@@ -942,6 +965,7 @@ public:
   double_VAR_H(min_orientation_margin);
   BOOL_VAR_H(textord_tabfind_show_vlines);
   BOOL_VAR_H(textord_use_cjk_fp_model);
+  BOOL_VAR_H(textord_auto_columns);
   BOOL_VAR_H(poly_allow_detailed_fx);
   BOOL_VAR_H(tessedit_init_config_only);
 #ifndef DISABLED_LEGACY_ENGINE
@@ -956,6 +980,7 @@ public:
   STRING_VAR_H(page_separator);
   INT_VAR_H(lstm_choice_mode);
   INT_VAR_H(lstm_choice_iterations);
+  BOOL_VAR_H(lstm_font_attributes);
   double_VAR_H(lstm_rating_coefficient);
   BOOL_VAR_H(pageseg_apply_music_mask);
 
@@ -975,6 +1000,12 @@ private:
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Image pix_binary_;
+  // Columns used by the last automatic multi-column recognition (0 = none).
+  int auto_columns_used_ = 0;
+  // The pixels of the lines which the layout analysis removed from the binary
+  // image, or nullptr. Kept for the font style pass, which needs them to find
+  // underlined words.
+  Image pix_removed_lines_;
   // Grey-level input image if the input was not binary, otherwise nullptr.
   Image pix_grey_;
   // Original input image. Color if the input was color.

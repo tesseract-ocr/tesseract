@@ -19,7 +19,10 @@ endif()
 # Set common compile definitions
 set(COMMON_COMPILE_DEFINITIONS
     "-DTESTING_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testing\""
-    "-DTESSDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../tessdata\""
+    # Trained data models are downloaded to a sibling 'tessdata' directory (see
+    # the CI workflows), matching the autotools TESSDATA_DIR; the in-tree
+    # tessdata/ holds only config files.
+    "-DTESSDATA_DIR=\"${CMAKE_SOURCE_DIR}/../tessdata\""
     "-DTESSBIN_DIR=\"${TESSBIN_DIR}\""
     "-DTESTDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../test/testdata\""
     "-DLANGDATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../langdata_lstm\"")
@@ -44,6 +47,7 @@ set(GMOCK_TESTS
 set(TRAINING_TESTS
     commandlineflags_test.cc
     dawg_test.cc
+    dropout_test.cc
     lstm_recode_test.cc
     lstm_squashed_test.cc
     lstm_test.cc
@@ -60,12 +64,14 @@ set(TRAINING_TESTS
 set(PANGO_TESTS ligature_table_test.cc pango_font_info_test.cc stringrenderer_test.cc)
 
 set(LEGACY_TESTS
+    adaptive_templates_test.cc
     adaptive_test.cc
     applybox_test.cc
     bitvector_test.cc
     equationdetect_test.cc
     indexmapbidi_test.cc
     intfeaturemap_test.cc
+    intproto_addclass_test.cc
     intproto_test.cc
     mastertrainer_test.cc
     normproto_test.cc
@@ -110,7 +116,10 @@ foreach(test_source IN LISTS TEST_SOURCES)
     target_link_libraries(${test_name} PRIVATE GTest::gmock)
   endif()
   target_compile_definitions(${test_name} PRIVATE ${COMMON_COMPILE_DEFINITIONS})
-  target_include_directories(${test_name} PRIVATE ${COMMON_INCLUDE_DIRS})
+  # BEFORE: the in-tree include/ must take precedence over any system-installed
+  # Tesseract headers (e.g. a Homebrew tesseract in the same prefix as TIFF),
+  # matching how libtesseract itself is compiled.
+  target_include_directories(${test_name} BEFORE PRIVATE ${COMMON_INCLUDE_DIRS})
   target_link_libraries(${test_name} PRIVATE ${COMMON_LINK_LIBS})
   add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()

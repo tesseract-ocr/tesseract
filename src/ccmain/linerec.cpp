@@ -212,6 +212,9 @@ ImageData *Tesseract::GetRectImage(const TBOX &box, const BLOCK &block, int padd
     box_pix.destroy();
     box_pix = grey;
   }
+  if (box_pix == nullptr) {
+    return nullptr;
+  }
   bool vertical_text = false;
   if (num_rotations > 0) {
     // Rotated the clipped revised box back to internal coordinates.
