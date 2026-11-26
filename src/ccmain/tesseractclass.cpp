@@ -402,6 +402,11 @@ Tesseract::Tesseract()
                     this->params())
     , BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding", this->params())
     , BOOL_MEMBER(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model", this->params())
+    , BOOL_MEMBER(textord_auto_columns, false,
+                 "Automatically detect and split multi-column (newspaper) "
+                 "layouts, recognising each column independently and merging "
+                 "the results in column-major reading order",
+                 this->params())
     , BOOL_MEMBER(poly_allow_detailed_fx, false,
                   "Allow feature extractors to see the original outline", this->params())
     , BOOL_INIT_MEMBER(tessedit_init_config_only, false,

@@ -42,6 +42,8 @@
 #endif
 #include "mutableiterator.h" // for MutableIterator
 #include "normalis.h"        // for kBlnBaselineOffset, kBlnXHeight
+#include "ocrblock.h"        // for BLOCK, BLOCK_IT
+#include "ocrrow.h"          // for ROW, ROW_IT
 #include "pageres.h"         // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"      // for DetectParagraphs
 #include "params.h"          // for BoolParam, IntParam, DoubleParam, Stri...
@@ -62,6 +64,7 @@
 #include <tesseract/renderer.h>       // for TessResultRenderer
 #include <tesseract/resultiterator.h> // for ResultIterator
 
+#include <algorithm> // for std::sort
 #include <cmath>    // for round, M_PI
 #include <cstdint>  // for int32_t
 #include <cstring>  // for strcmp, strcpy
@@ -778,6 +781,35 @@ int TessBaseAPI::Recognize(ETEXT_DESC *monitor) {
     // detected here.
     tprintf("Error: Recognize called without a loaded language. Pass a language to Init.\n");
     return -1;
+  }
+  tesseract_->set_auto_columns_used(0);
+  // Automatic multi-column (newspaper) support: when enabled, detect the
+  // column gutters, recognise each column independently and merge the results
+  // in column-major order. If no gutter is found (single-column or irregular
+  // page) this returns 0 and we fall through to the normal path below.
+  // Only the page segmentation modes which look for columns themselves get
+  // it: the other ones say that the page has a single column, block, line or
+  // word, or take the blocks from a zone file for the whole page.
+  // The modes below which take the segmentation from a box file, make
+  // training data or show the results need the normal path.
+  bool by_columns = tesseract_->textord_auto_columns &&
+                    PSM_COL_FIND_ENABLED(tesseract_->tessedit_pageseg_mode) &&
+                    !tesseract_->tessedit_train_line_recognizer &&
+                    !tesseract_->interactive_display_mode;
+#ifndef DISABLED_LEGACY_ENGINE
+  if (tesseract_->tessedit_resegment_from_line_boxes ||
+      tesseract_->tessedit_resegment_from_boxes ||
+      tesseract_->tessedit_make_boxes_from_boxes ||
+      tesseract_->tessedit_train_from_boxes ||
+      tesseract_->tessedit_ambigs_training) {
+    by_columns = false;
+  }
+#endif // ndef DISABLED_LEGACY_ENGINE
+  if (by_columns) {
+    const int result = RecognizeMultiColumn(monitor);
+    if (result != 0) {
+      return result > 0 ? 0 : -1;
+    }
   }
   if (FindLines() != 0) {
     return -1;
@@ -2164,6 +2196,602 @@ int TessBaseAPI::FindLines() {
   // and for OCR.
   tesseract_->PrepareForTessOCR(block_list_);
   return 0;
+}
+
+namespace {
+// Multi-column (newspaper) support. See RecognizeMultiColumn below.
+
+// A single candidate gutter: the line x + slope * (y - height / 2) in
+// full-resolution pixels (a gutter is only vertical if the page has no skew),
+// and its strength (the number of gutter pixels along that line at half
+// resolution).
+struct GutterX {
+  int x;
+  int strength;
+  double slope;
+  // The x coordinate of the gutter in row y of an image of the given height.
+  int XAtY(int y, int height) const {
+    return x + static_cast<int>(std::lround(slope * (y - height / 2)));
+  }
+};
+
+// Number of horizontal bands of the page for which the gutter pixels are
+// counted per pixel column, and the slopes (dx / dy) which are tried for a
+// gutter: up to about 3 degrees of skew.
+const int kGutterBands = 32;
+const double kMaxGutterSlope = 0.05;
+const double kGutterSlopeStep = 0.0025;
+// A gutter must be free of text over this fraction of the page height.
+// Measured on the 101 double pages of the ground truth reichsanzeiger-gt
+// (character error rate of the text lines 26.95 % without the column
+// recognition): 0.7 and 0.8 give nearly the same result (5.24 %, 5.40 %),
+// 0.9 misses gutters which are crossed by headings (6.74 %).
+const double kMinGutterHeightFraction = 0.80;
+// Minimum width of a column as a fraction of the image width. A scan of two
+// newspaper pages with five columns each has columns of about 8 %.
+const double kMinColumnWidthFraction = 0.07;
+
+// Detect the vertical gutters that separate the columns of a newspaper page,
+// working at half resolution (the morphological structuring elements are
+// scale-tuned for that). Ported from Leptonica's newspaper_reg.c: the vertical
+// and horizontal rules are opened out and removed, the remaining text image is
+// re-binarised with a local (rank) threshold -- which is what makes the
+// detection robust to faint, variable-intensity rules -- then inverted so the
+// ink-free gutters become the foreground, opened into vertical strokes,
+// and dilated. A narrow group of lines (vertical, or slanted a little for a
+// page with skew) which are gutter over most of the page height is a gutter
+// candidate; a minimum-column-width post-filter then rejects edge printing
+// artifacts, next-page slivers and the gaps inside tables, which would
+// otherwise create a too-narrow column. Returns an empty vector for a
+// single-column (or too-irregular) page.
+std::vector<GutterX> DetectColumnGutters(Pix *page) {
+  std::vector<GutterX> gutters;
+  if (page == nullptr) {
+    return gutters;
+  }
+  const int w0 = pixGetWidth(page);
+  const int h0 = pixGetHeight(page);
+  if (w0 < 100 || h0 < 100) {
+    return gutters;
+  }
+
+  // Work at half resolution.
+  Pix *half = pixScale(page, 0.5f, 0.5f);
+  int spp = pixGetSpp(half);
+  int dep = pixGetDepth(half);
+  Pix *grey = nullptr;
+  if (spp > 1) {
+    grey = pixConvertRGBToGray(half, 0.3f, 0.59f, 0.11f);
+  } else if (dep != 8) {
+    grey = pixConvertTo8(half, dep == 16);
+  } else {
+    grey = pixClone(half);
+  }
+  Pix *ink = pixThresholdToBinary(grey, 128); // dark (ink) = 1.
+  const int w = pixGetWidth(ink);
+  const int h = pixGetHeight(ink);
+
+  // Remove the vertical, then the horizontal, rules (open -> fill -> xor out).
+  Pix *vlines = pixMorphSequence(ink, "o1.50", 0);
+  Pix *vfull = pixSeedfillBinary(nullptr, vlines, ink, 8);
+  Pix *notv = pixXor(nullptr, ink, vfull);
+  Pix *hlines = pixMorphSequence(notv, "o50.1", 0);
+  Pix *hfull = pixSeedfillBinary(nullptr, hlines, notv, 8);
+  Pix *text = pixXor(nullptr, notv, hfull);
+
+  // Local (rank) re-binarisation: robust to variable-intensity rules.
+  Pix *rank = pixReduceRankBinaryCascade(text, 1, 1, 0, 0);
+  pixInvert(rank, rank); // gutters (low ink) become foreground.
+
+  // Open into vertical gutter strokes, then dilate into a mask.
+  Pix *strokes = pixMorphSequence(rank, "o1.50", 0);
+  Pix *mask = pixExpandBinaryPower2(strokes, 4);
+
+  // Gutter candidates: lines which are gutter over most of the page height,
+  // in a narrow group, not at the page edge. The gutter pixels are counted
+  // along slanted lines too, because the gutters of a page with a little skew
+  // are not vertical: a vertical line through such a gutter is free over a
+  // part of the height only and cuts off the ends of the text lines above or
+  // below. A projection is used instead of the connected components of the
+  // mask: a component also contains the white areas which touch the gutter
+  // (the ends of short lines, which are all on the left side of a gutter), so
+  // the centre of its bounding box lies inside the text of the left column,
+  // and two gutters which are connected through such areas form a single
+  // component.
+  std::vector<GutterX> cands;
+  const int emargin = (int)(0.05 * w);
+  // The mask can be a few pixels narrower than w (reduced and expanded by 4).
+  const int mask_width = pixGetWidth(mask);
+  const int mask_height = pixGetHeight(mask);
+  // Count the gutter pixels of each pixel column in horizontal bands.
+  std::vector<std::vector<int>> band_sums(kGutterBands, std::vector<int>(mask_width, 0));
+  std::vector<double> band_mid_y(kGutterBands, 0.0);
+  for (int b = 0; b < kGutterBands; ++b) {
+    const int y0 = static_cast<int>(static_cast<int64_t>(mask_height) * b / kGutterBands);
+    const int y1 = static_cast<int>(static_cast<int64_t>(mask_height) * (b + 1) / kGutterBands);
+    band_mid_y[b] = (y0 + y1) / 2.0 - mask_height / 2.0;
+    if (y1 <= y0) {
+      continue;
+    }
+    Box *band_box = boxCreate(0, y0, mask_width, y1 - y0);
+    Pix *band = pixClipRectangle(mask, band_box, nullptr);
+    Numa *sums = band != nullptr ? pixCountPixelsByColumn(band) : nullptr;
+    if (sums != nullptr) {
+      for (int x = 0; x < mask_width; ++x) {
+        l_int32 count = 0;
+        numaGetIValue(sums, x, &count);
+        band_sums[b][x] = count;
+      }
+    }
+    numaDestroy(&sums);
+    pixDestroy(&band);
+    boxDestroy(&band_box);
+  }
+  // For each pixel column (at half of the height) the best count along a
+  // line through it, and the slope of that line.
+  std::vector<int> best_count(mask_width, 0);
+  std::vector<double> best_slope(mask_width, 0.0);
+  const int num_slopes = static_cast<int>(std::lround(kMaxGutterSlope / kGutterSlopeStep));
+  std::vector<int> line_count(mask_width);
+  for (int k = 0; k <= 2 * num_slopes; ++k) {
+    // Try the slopes 0, +step, -step, +2 * step, ... so that the vertical
+    // line wins a tie.
+    const double slope = ((k + 1) / 2) * kGutterSlopeStep * ((k & 1) ? 1 : -1);
+    std::fill(line_count.begin(), line_count.end(), 0);
+    for (int b = 0; b < kGutterBands; ++b) {
+      const int shift = static_cast<int>(std::lround(slope * band_mid_y[b]));
+      const int first_x = std::max(0, -shift);
+      const int last_x = std::min(mask_width, mask_width - shift);
+      for (int x = first_x; x < last_x; ++x) {
+        line_count[x] += band_sums[b][x + shift];
+      }
+    }
+    for (int x = 0; x < mask_width; ++x) {
+      if (line_count[x] > best_count[x]) {
+        best_count[x] = line_count[x];
+        best_slope[x] = slope;
+      }
+    }
+  }
+  auto column_count = [&best_count, mask_width](int x) {
+    return x >= 0 && x < mask_width ? best_count[x] : 0;
+  };
+  const int min_count = (int)(kMinGutterHeightFraction * h);
+  for (int x = 0; x < mask_width; ++x) {
+    if (column_count(x) < min_count) {
+      continue;
+    }
+    // [x, end) is a run of gutter columns.
+    int end = x + 1;
+    int peak = column_count(x);
+    int peak_x = x;
+    while (end < mask_width && column_count(end) >= min_count) {
+      if (column_count(end) > peak) {
+        peak = column_count(end);
+        peak_x = end;
+      }
+      ++end;
+    }
+    // Cut in the middle of the columns which are (nearly) as free as the best
+    // one: the lower flanks of the run are the ends of short lines.
+    const int near_peak = peak - peak / 20;
+    int first = x;
+    while (column_count(first) < near_peak) {
+      ++first;
+    }
+    int last = end - 1;
+    while (column_count(last) < near_peak) {
+      --last;
+    }
+    x = end;
+    if (last - first + 1 > 0.05 * w) {
+      continue;
+    }
+    const int cx = (first + last + 1) / 2;
+    if (cx < emargin || cx > w - emargin) {
+      continue;
+    }
+    cands.push_back(GutterX{cx * 2, peak, best_slope[peak_x]});
+  }
+
+  // Sort by x, then drop any gutter that would leave a column narrower than
+  // the minimum real-column width (rejects edge artifacts / slivers).
+  std::sort(cands.begin(), cands.end(),
+            [](const GutterX &a, const GutterX &b) { return a.x < b.x; });
+  const double minw = kMinColumnWidthFraction * w0;
+  for (;;) {
+    if (cands.empty()) {
+      break;
+    }
+    double worst = 1e18;
+    int worst_edge = -1; // -1 => left edge, cands.size() => right edge
+    if (cands[0].x < worst) {
+      worst = cands[0].x;
+      worst_edge = -1;
+    }
+    for (size_t i = 1; i < cands.size(); ++i) {
+      double gap = cands[i].x - cands[i - 1].x;
+      if (gap < worst) {
+        worst = gap;
+        worst_edge = (int)i;
+      }
+    }
+    if (w0 - cands.back().x < worst) {
+      worst = w0 - cands.back().x;
+      worst_edge = (int)cands.size();
+    }
+    if (worst >= minw) {
+      break;
+    }
+    int drop;
+    if (worst_edge == -1) {
+      drop = 0;
+    } else if (worst_edge == (int)cands.size()) {
+      drop = (int)cands.size() - 1;
+    } else {
+      // Interior narrow gap: drop the weaker of its two gutters; on a tie
+      // drop the left one.
+      drop = (cands[worst_edge].strength < cands[worst_edge - 1].strength)
+                 ? worst_edge
+                 : worst_edge - 1;
+    }
+    cands.erase(cands.begin() + drop);
+  }
+
+  gutters = std::move(cands);
+
+  pixDestroy(&mask);
+  pixDestroy(&strokes);
+  pixDestroy(&rank);
+  pixDestroy(&text);
+  pixDestroy(&hfull);
+  pixDestroy(&hlines);
+  pixDestroy(&notv);
+  pixDestroy(&vfull);
+  pixDestroy(&vlines);
+  pixDestroy(&ink);
+  pixDestroy(&grey);
+  pixDestroy(&half);
+  return gutters;
+}
+
+// Move the rejected (noise) blobs of a word, which WERD::move skips but which
+// the bounding boxes of the word, its row and its block include.
+void MoveRejectedBlobs(WERD *word, const ICOORD &vec) {
+  C_BLOB_IT it(word->rej_cblob_list());
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->move(vec);
+  }
+}
+
+// Shift a column's recognised blocks and the results of its recognition right
+// by dx pixels in the image, so that all of its geometry is in full-page
+// coordinates. The coordinates of a block are rotated against the image if
+// its text is vertical or if the page is not upright (re_rotation() turns
+// them back), so the shift is rotated the other way for each block.
+// Moving the blobs of the words in the rows is not sufficient: a row also
+// keeps its bounding box (used for the paragraph box and the baseline) and
+// its baseline, a block keeps its outline and its polygon, and the results
+// keep the words which were made from several words of a row (nearly all
+// words of the LSTM recognizer, they are not in the word list of the row) and
+// the boxes of the symbols.
+void ShiftColumnGeometry(BLOCK_LIST *blocks, PAGE_RES *page_res, int dx) {
+  if (dx == 0) {
+    return;
+  }
+  const ICOORD image_vec(dx, 0);
+  // The shift in the coordinates of a block.
+  auto block_vec = [&image_vec](const BLOCK *block) {
+    ICOORD vec(image_vec);
+    const FCOORD re_rotation = block->re_rotation();
+    vec.rotate(FCOORD(re_rotation.x(), -re_rotation.y()));
+    return vec;
+  };
+  BLOCK_IT b_it(blocks);
+  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+    BLOCK *block = b_it.data();
+    const ICOORD vec = block_vec(block);
+    block->pdblk.move(vec);
+    if (block->pdblk.poly_block() != nullptr) {
+      block->pdblk.poly_block()->move(vec);
+    }
+    ROW_IT r_it(block->row_list());
+    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
+      ROW *row = r_it.data();
+      // Moves the words, the bounding box and the baseline.
+      row->move(vec);
+      WERD_IT w_it(row->word_list());
+      for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
+        MoveRejectedBlobs(w_it.data(), vec);
+      }
+    }
+  }
+  BLOCK_RES_IT br_it(&page_res->block_res_list);
+  for (br_it.mark_cycle_pt(); !br_it.cycled_list(); br_it.forward()) {
+    const ICOORD vec = block_vec(br_it.data()->block);
+    ROW_RES_IT rr_it(&br_it.data()->row_res_list);
+    for (rr_it.mark_cycle_pt(); !rr_it.cycled_list(); rr_it.forward()) {
+      WERD_RES_IT wr_it(&rr_it.data()->word_res_list);
+      for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
+        WERD_RES *word_res = wr_it.data();
+        // A combination owns its word, all other words were moved with
+        // their row.
+        if (word_res->combination && word_res->word != nullptr) {
+          word_res->word->move(vec);
+          MoveRejectedBlobs(word_res->word, vec);
+        }
+        // The iterators take the boxes of the symbols as they are, in the
+        // coordinates of the image. (The legacy engine makes them so. Those
+        // of the LSTM recognizer are in the coordinates of the block, which
+        // is the same unless the block is rotated.)
+        if (word_res->box_word != nullptr) {
+          for (unsigned i = 0; i < word_res->box_word->length(); ++i) {
+            TBOX box = word_res->box_word->BlobBox(i);
+            box.move(image_vec);
+            word_res->box_word->ChangeBox(i, box);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Counts the rows of a column's blocks, and those of them which are upside
+// down in the image.
+void CountUpsideDownRows(BLOCK_LIST *blocks, int *rows, int *upside_down) {
+  BLOCK_IT b_it(blocks);
+  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+    BLOCK *block = b_it.data();
+    const int num_rows = block->row_list()->length();
+    *rows += num_rows;
+    if (block->re_rotation().x() < -0.5f) {
+      *upside_down += num_rows;
+    }
+  }
+}
+
+} // namespace
+
+/**
+ * Multi-column (newspaper) recognition. Detects the vertical gutters that
+ * separate columns, recognises each column independently -- so that words from
+ * adjacent columns are never interleaved -- and merges the per-column results
+ * into a single page result in column-major reading order (the natural order
+ * for a newspaper body).
+ *
+ * Each column is cut out full-height along its gutters, which need not be
+ * vertical, and recognised with its own thresholded image, then its block
+ * geometry is shifted right by the left edge of the cut-out so that bounding
+ * boxes line up in full-page coordinates. The full-page
+ * thresholded image is restored before returning so the renderers convert
+ * boxes correctly.
+ *
+ * Returns 1 if the page was recognised by columns, and 0 if it was not split
+ * (no gutter is found: single-column or too-irregular page, or no column has
+ * text); in that case the caller should fall back to the normal recognition
+ * path. Returns -1 if the recognition of a column failed or was stopped by
+ * the monitor, as Recognize does for the page.
+ */
+int TessBaseAPI::RecognizeMultiColumn(ETEXT_DESC *monitor) {
+  if (tesseract_ == nullptr || thresholder_ == nullptr) {
+    return 0;
+  }
+  if (tesseract_->pix_binary() == nullptr &&
+      !Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
+    return 0;
+  }
+  // Everything below works in the coordinate system of the (possibly
+  // sub-)rectangle that has been requested, because the renderers convert
+  // crop-relative boxes back to original-image coordinates by adding
+  // rect_left_/rect_top_.
+  const int rl = rect_left_;
+  const int rt = rect_top_;
+  const int rw = rect_width_;
+  const int rh = rect_height_;
+
+  std::vector<GutterX> gutters = DetectColumnGutters(tesseract_->pix_binary());
+  const int n = (int)gutters.size();
+  if (n < 1) {
+    return 0;
+  }
+
+  const int ncols = n + 1;
+
+  // The whole source image, from which the columns are cut. A column lies
+  // between two gutters which need not be vertical, so it is not a rectangle
+  // of the page: it is cut out with its bounding rectangle, and the parts of
+  // that rectangle which belong to the neighbouring columns are painted
+  // white.
+  thresholder_->SetRectangle(0, 0, image_width_, image_height_);
+  Image full_pix = thresholder_->GetPixRect();
+  // The columns are cut from an image without a colormap, in which white is
+  // known: with a colormap it can be any index.
+  Image cut_pix;
+  if (full_pix != nullptr) {
+    cut_pix = pixGetColormap(full_pix) != nullptr
+                  ? Image(pixRemoveColormap(full_pix, REMOVE_CMAP_BASED_ON_SRC))
+                  : full_pix.clone();
+  }
+  if (cut_pix == nullptr) {
+    full_pix.destroy();
+    thresholder_->SetRectangle(rl, rt, rw, rh);
+    return 0;
+  }
+  // SetImage takes the resolution from the image, which need not be the
+  // resolution of the page (SetSourceResolution, user_defined_dpi), so it is
+  // set again for each image.
+  const int source_yres = thresholder_->GetSourceYResolution();
+  // x coordinate (in rectangle coordinates) of the left edge of column c, or
+  // of the right edge of column c - 1, in row y.
+  auto edge_at = [&gutters, n, rw, rh](int c, int y) {
+    if (c <= 0) {
+      return 0;
+    }
+    if (c > n) {
+      return rw;
+    }
+    return ClipToRange(gutters[c - 1].XAtY(y, rh), 0, rw);
+  };
+
+  // Same one-time per-page configuration the normal flow performs.
+  tesseract_->SetBlackAndWhitelist();
+
+  std::vector<BLOCK_LIST *> col_blocks; // owns each column's recognised blocks
+  std::vector<PAGE_RES *> col_page_res; // per-column results (text in WERD_RES)
+  col_blocks.reserve(ncols);
+  col_page_res.reserve(ncols);
+  // Set if a column cannot be recognised, or if the monitor stops the
+  // recognition: the columns after it are not recognised.
+  bool failed = false;
+  int num_rows = 0;
+  int num_upside_down_rows = 0;
+
+  for (int c = 0; c < ncols && !failed; ++c) {
+    const int x0 = std::min(edge_at(c, 0), edge_at(c, rh - 1));
+    const int cw = std::max(edge_at(c + 1, 0), edge_at(c + 1, rh - 1)) - x0;
+    if (cw <= 0) {
+      continue;
+    }
+    Box *col_box = boxCreate(rl + x0, rt, cw, rh);
+    Pix *col_pix = pixClipRectangle(cut_pix, col_box, nullptr);
+    boxDestroy(&col_box);
+    if (col_pix == nullptr) {
+      continue;
+    }
+    // Paint the parts white which lie beyond the gutters.
+    const l_int32 white = pixGetDepth(col_pix) == 1 ? PIX_CLR : PIX_SET;
+    const int kRowStep = 8;
+    for (int y = 0; y < rh; y += kRowStep) {
+      const int mid_y = std::min(rh - 1, y + kRowStep / 2);
+      const int left = edge_at(c, mid_y) - x0;
+      if (left > 0) {
+        pixRasterop(col_pix, 0, y, left, kRowStep, white, nullptr, 0, 0);
+      }
+      const int right = std::max(0, edge_at(c + 1, mid_y) - x0);
+      if (right < cw) {
+        pixRasterop(col_pix, right, y, cw - right, kRowStep, white, nullptr, 0, 0);
+      }
+    }
+    // The column replaces the source image for now. ClearResults clears
+    // block_list_ / page_res_ and the working pix. block_list_ is guaranteed
+    // empty here (the previous column's blocks were extracted out below), so
+    // FindLines will re-segment.
+    thresholder_->SetImage(col_pix);
+    thresholder_->SetSourceYResolution(source_yres);
+    pixDestroy(&col_pix);
+    ClearResults();
+    if (!Threshold(&tesseract_->mutable_pix_binary()->pix_) ||
+        FindLines() != 0) {
+      failed = true;
+      break;
+    }
+    if (block_list_->empty()) {
+      continue;
+    }
+    // Recognise this column with its own (full-height) thresholded image.
+    PAGE_RES *res = new PAGE_RES(tesseract_->AnyLSTMLang(), block_list_,
+                                 &tesseract_->prev_word_best_choice_);
+    if (!tesseract_->recog_all_words(res, monitor, nullptr, nullptr, 0)) {
+      // Stopped by the monitor. The results of this column are kept, as the
+      // normal flow keeps those of the page.
+      failed = true;
+    }
+
+    // Move the recognised blocks out of the shared block_list_ into an owned
+    // list so they survive the next column's ClearResults (which clears the
+    // member block_list_). The PAGE_RES's WERD_RES point into these blocks.
+    BLOCK_LIST *own = new BLOCK_LIST;
+    {
+      BLOCK_IT from(block_list_);
+      BLOCK_IT to(own);
+      for (from.mark_cycle_pt(); !from.cycled_list(); from.forward()) {
+        to.add_to_end(from.extract());
+      }
+    }
+    CountUpsideDownRows(own, &num_rows, &num_upside_down_rows);
+    // Bring the column's boxes into rectangle coordinates. (Full-height crops
+    // keep y in rectangle coordinates already, so only x needs shifting.)
+    ShiftColumnGeometry(own, res, x0);
+    col_blocks.push_back(own);
+    col_page_res.push_back(res);
+  }
+  cut_pix.destroy();
+
+  // Remove what the last column left: its images, and its blocks if it could
+  // not be recognised.
+  ClearResults();
+  // Put the whole source image back, and restore the rectangle thresholded
+  // image and rect so the renderers convert boxes into the correct
+  // (rectangle) coordinates. Re-thresholding the full rectangle reproduces
+  // exactly the state the normal single-page flow leaves (full rectangle pix
+  // + rect_*), and the merged blobs are already in rectangle coordinates.
+  thresholder_->SetImage(full_pix);
+  thresholder_->SetSourceYResolution(source_yres);
+  full_pix.destroy();
+  thresholder_->SetRectangle(rl, rt, rw, rh);
+  if (!Threshold(&tesseract_->mutable_pix_binary()->pix_)) {
+    // Without the image there is nothing which the results can be used with.
+    tesseract_->prev_word_best_choice_ = nullptr;
+    for (auto *res : col_page_res) {
+      delete res;
+    }
+    for (auto *own : col_blocks) {
+      delete own;
+    }
+    ClearResults();
+    return -1;
+  }
+  if (col_page_res.empty()) {
+    // No column has text. block_list_ is empty, so the FindLines() of the
+    // normal single-page recognition path will segment the whole page.
+    return failed ? -1 : 0;
+  }
+  // The columns of a page which is upside down are read from right to left.
+  if (2 * num_upside_down_rows > num_rows) {
+    std::reverse(col_page_res.begin(), col_page_res.end());
+    std::reverse(col_blocks.begin(), col_blocks.end());
+  }
+
+  // Merge the per-column results into a single page result, in column-major
+  // reading order (the per-column block lists are already top-to-bottom).
+  page_res_ = new PAGE_RES();
+  page_res_->prev_word_best_choice = &tesseract_->prev_word_best_choice_;
+  for (auto *res : col_page_res) {
+    {
+      BLOCK_RES_IT src(&res->block_res_list);
+      BLOCK_RES_IT dst(&page_res_->block_res_list);
+      for (src.mark_cycle_pt(); !src.cycled_list(); src.forward()) {
+        dst.add_to_end(src.extract());
+      }
+    }
+    page_res_->char_count += res->char_count;
+    page_res_->rej_count += res->rej_count;
+    delete res; // frees the per-column results; blocks live on in col_blocks.
+  }
+
+  // Hand the blocks back to the shared block_list_ so that the next
+  // ClearResults() frees them (page_res_ holds non-owning references to them).
+  for (auto *own : col_blocks) {
+    BLOCK_IT from(own);
+    BLOCK_IT to(block_list_);
+    for (from.mark_cycle_pt(); !from.cycled_list(); from.forward()) {
+      to.add_to_end(from.extract());
+    }
+    delete own;
+  }
+  recognition_done_ = true;
+  tesseract_->set_auto_columns_used(static_cast<int>(col_page_res.size()));
+  if (failed) {
+    return -1;
+  }
+  // Mirror the normal flow's paragraph detection, now run on the merged,
+  // column-major page. Without the text (paragraph_text_based off) the normal
+  // flow runs it before the recognition; it does not need the text, so it can
+  // run here too.
+  bool wait_for_text = true;
+  GetBoolVariable("paragraph_text_based", &wait_for_text);
+  DetectParagraphs(wait_for_text);
+  return 1;
 }
 
 /**

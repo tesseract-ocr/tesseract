@@ -116,7 +116,10 @@ foreach(test_source IN LISTS TEST_SOURCES)
     target_link_libraries(${test_name} PRIVATE GTest::gmock)
   endif()
   target_compile_definitions(${test_name} PRIVATE ${COMMON_COMPILE_DEFINITIONS})
-  target_include_directories(${test_name} PRIVATE ${COMMON_INCLUDE_DIRS})
+  # BEFORE: the in-tree include/ must take precedence over any system-installed
+  # Tesseract headers (e.g. a Homebrew tesseract in the same prefix as TIFF),
+  # matching how libtesseract itself is compiled.
+  target_include_directories(${test_name} BEFORE PRIVATE ${COMMON_INCLUDE_DIRS})
   target_link_libraries(${test_name} PRIVATE ${COMMON_LINK_LIBS})
   add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()

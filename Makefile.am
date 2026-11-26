@@ -1212,6 +1212,7 @@ check_PROGRAMS += mastertrainer_test
 endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += matrix_deserializesize_test
 check_PROGRAMS += matrix_test
+check_PROGRAMS += multicolumn_test
 check_PROGRAMS += networkio_test
 if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += normproto_test
@@ -1485,6 +1486,10 @@ matrix_deserializesize_test_LDADD = $(TRAINING_LIBS)
 matrix_test_SOURCES = unittest/matrix_test.cc
 matrix_test_CPPFLAGS = $(unittest_CPPFLAGS)
 matrix_test_LDADD = $(TESS_LIBS)
+
+multicolumn_test_SOURCES = unittest/multicolumn_test.cc
+multicolumn_test_CPPFLAGS = $(unittest_CPPFLAGS)
+multicolumn_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 
 networkio_test_SOURCES = unittest/networkio_test.cc
 networkio_test_CPPFLAGS = $(unittest_CPPFLAGS)

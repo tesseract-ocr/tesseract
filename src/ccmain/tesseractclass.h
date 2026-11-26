@@ -257,6 +257,14 @@ public:
   void set_source_resolution(int ppi) {
     source_resolution_ = ppi;
   }
+  // Number of columns which the automatic multi-column recognition
+  // (textord_auto_columns) used for the last page, 0 if it did not split it.
+  int auto_columns_used() const {
+    return auto_columns_used_;
+  }
+  void set_auto_columns_used(int columns) {
+    auto_columns_used_ = columns;
+  }
   int ImageWidth() const {
     return pixGetWidth(pix_binary_);
   }
@@ -957,6 +965,7 @@ public:
   double_VAR_H(min_orientation_margin);
   BOOL_VAR_H(textord_tabfind_show_vlines);
   BOOL_VAR_H(textord_use_cjk_fp_model);
+  BOOL_VAR_H(textord_auto_columns);
   BOOL_VAR_H(poly_allow_detailed_fx);
   BOOL_VAR_H(tessedit_init_config_only);
 #ifndef DISABLED_LEGACY_ENGINE
@@ -991,6 +1000,8 @@ private:
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Image pix_binary_;
+  // Columns used by the last automatic multi-column recognition (0 = none).
+  int auto_columns_used_ = 0;
   // The pixels of the lines which the layout analysis removed from the binary
   // image, or nullptr. Kept for the font style pass, which needs them to find
   // underlined words.
