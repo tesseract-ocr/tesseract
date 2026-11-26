@@ -1195,6 +1195,7 @@ check_PROGRAMS += intsimdmatrix_test
 check_PROGRAMS += lang_model_test
 check_PROGRAMS += layout_test
 check_PROGRAMS += ligature_table_test
+check_PROGRAMS += deskew_test
 check_PROGRAMS += linlsq_test
 check_PROGRAMS += list_test
 check_PROGRAMS += lstm_layer_test
@@ -1431,6 +1432,10 @@ ligature_table_test_LDADD = $(TRAINING_LIBS) $(LEPTONICA_LIBS)
 ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 ligature_table_test_LDADD += $(pangocairo_LIBS) $(pangoft2_LIBS)
 ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+
+deskew_test_SOURCES = unittest/deskew_test.cc
+deskew_test_CPPFLAGS = $(unittest_CPPFLAGS)
+deskew_test_LDADD = $(TESS_LIBS)
 
 linlsq_test_SOURCES = unittest/linlsq_test.cc
 linlsq_test_CPPFLAGS = $(unittest_CPPFLAGS)
