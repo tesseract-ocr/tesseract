@@ -201,13 +201,18 @@ protected:
   }
 
   // Writes text with its baseline at y from x to the right on pix, with a
-  // font which is built in Leptonica. Returns the width of the text.
-  static int DrawText(Pix *pix, const char *text, int x, int y) {
-    static L_BMF *font = bmfCreate(nullptr, 10);
-    CHECK(font != nullptr);
+  // font of the given size (an even number from 4 to 20) which is built in
+  // Leptonica. Returns the width of the text.
+  static int DrawText(Pix *pix, const char *text, int x, int y, int size = 10) {
+    static L_BMF *fonts[21];
+    CHECK(size >= 4 && size <= 20);
+    if (fonts[size] == nullptr) {
+      fonts[size] = bmfCreate(nullptr, size);
+    }
+    CHECK(fonts[size] != nullptr);
     int width = 0;
     int overflow = 0;
-    pixSetTextline(pix, font, text, 0, x, y, &width, &overflow);
+    pixSetTextline(pix, fonts[size], text, 0, x, y, &width, &overflow);
     return width;
   }
 
@@ -248,12 +253,13 @@ protected:
 
   // Takes a synthetic page, which is destroyed here, and runs the layout
   // analysis on it. A resolution of 0 leaves it to Tesseract.
-  void AnalysePage(Pix *page, int resolution = 0) {
+  void AnalysePage(Pix *page, int resolution = 0,
+                   tesseract::PageSegMode mode = tesseract::PSM_AUTO) {
     src_pix_.destroy();
     src_pix_ = pixThresholdToBinary(page, 128);
     pixDestroy(&page);
     ASSERT_EQ(api_.Init(TessdataPath().c_str(), "eng"), 0);
-    api_.SetPageSegMode(tesseract::PSM_AUTO);
+    api_.SetPageSegMode(mode);
     api_.SetImage(src_pix_);
     if (resolution > 0) {
       api_.SetSourceResolution(resolution);
@@ -409,6 +415,23 @@ TEST_F(LayoutTest, WordWithLittleMargin) {
   pixDestroy(&page);
   AnalysePage(image, 300);
   EXPECT_EQ(CountTextLinesIn(0, 0, width, height), 1);
+}
+
+// Tests that a row which is made from the lines of two columns is not taken
+// for noise. In the mode for a single block the lines of both columns share
+// their rows. Here the left line is lower than the right one, which has the
+// larger font, so the row gets the baseline of the right line and an
+// x-height which is less than half the height of its characters.
+TEST_F(LayoutTest, RowFromTwoColumns) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  const int kBaseline = 1230;
+  Pix *page = MakeTextPage();
+  // Make room in the middle of the text.
+  FillRect(page, 200, 1090, 1600, 250, false);
+  DrawText(page, "GAJOVA 13", 300, kBaseline + 14);
+  DrawText(page, "No. : 91385763", 900, kBaseline, 12);
+  AnalysePage(page, 0, tesseract::PSM_SINGLE_BLOCK);
+  EXPECT_EQ(CountTextLinesIn(250, kBaseline - 60, 1750, kBaseline + 60), 1);
 }
 
 } // namespace tesseract

@@ -49,10 +49,12 @@
 #include "tprintf.h"     // for tprintf
 #include "werd.h"        // for WERD_IT, WERD, WERD_LIST, W_DONT_CHOP
 
+#include <algorithm> // for std::sort
 #include <cfloat>  // for FLT_MAX
 #include <cmath>   // for ceil, floor, M_PI
 #include <cstdint> // for INT16_MAX, uint32_t, int32_t, int16_t
 #include <memory>
+#include <vector>
 
 namespace tesseract {
 
@@ -470,6 +472,35 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
   }
 }
 
+// Returns the size which the noise tests of a row use as its x-height.
+// A row which was made from text lines with different baselines, like those
+// of two columns with different line spacing in a single block, can get an
+// x-height which is much too small. Many of its characters then look like
+// blobs which are too tall for the row, and the row looks like noise.
+// Blobs of more than twice the x-height must be an exception: if a quarter
+// of the blobs is that tall, the x-height does not fit the row, and the
+// median height of the blobs is used in its place if it is larger.
+static float NoiseXHeight(ROW *row) {
+  std::vector<int> heights;
+  WERD_IT word_it(row->word_list());
+  for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
+    C_BLOB_IT blob_it(word_it.data()->cblob_list());
+    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+      heights.push_back(blob_it.data()->bounding_box().height());
+    }
+  }
+  float x_height = row->x_height();
+  if (!heights.empty()) {
+    std::sort(heights.begin(), heights.end());
+    int upper_quartile = heights[heights.size() * 3 / 4];
+    int median = heights[heights.size() / 2];
+    if (upper_quartile > 2 * x_height && median > x_height) {
+      x_height = median;
+    }
+  }
+  return x_height;
+}
+
 /**********************************************************************
  * clean_noise_from_row
  *
@@ -478,6 +509,27 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
 
 bool Textord::clean_noise_from_row( // remove empties
     ROW *row                        // row to clean
+) {
+  // The row must look like noise with its own x-height. If its blobs give
+  // a different size, it must look like noise with that size, too, so the
+  // second test can only keep a row which the first test rejects.
+  if (!row_is_noise(row, row->x_height())) {
+    return false;
+  }
+  const float x_height = NoiseXHeight(row);
+  return x_height == row->x_height() || row_is_noise(row, x_height);
+}
+
+/**********************************************************************
+ * row_is_noise
+ *
+ * Return true if the row looks like garbage when its blobs are compared
+ * with the given x-height.
+ **********************************************************************/
+
+bool Textord::row_is_noise( // test for garbage
+    ROW *row,               // row to test
+    float x_height          // x-height for the tests
 ) {
   bool testing_on;
   TBOX blob_box;            // bounding box
@@ -513,14 +565,14 @@ bool Textord::clean_noise_from_row( // remove empties
           outline = out_it.data();
           blob_box = outline->bounding_box();
           blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
-          if (blob_size < textord_noise_sizelimit * row->x_height()) {
+          if (blob_size < textord_noise_sizelimit * x_height) {
             dot_count++; // count small outlines
           }
           if (!outline->child()->empty() &&
-              blob_box.height() < (1 + textord_noise_syfract) * row->x_height() &&
-              blob_box.height() > (1 - textord_noise_syfract) * row->x_height() &&
-              blob_box.width() < (1 + textord_noise_sxfract) * row->x_height() &&
-              blob_box.width() > (1 - textord_noise_sxfract) * row->x_height()) {
+              blob_box.height() < (1 + textord_noise_syfract) * x_height &&
+              blob_box.height() > (1 - textord_noise_syfract) * x_height &&
+              blob_box.width() < (1 + textord_noise_sxfract) * x_height &&
+              blob_box.width() > (1 - textord_noise_sxfract) * x_height) {
             super_norm_count++; // count small outlines
           }
         }
@@ -529,8 +581,8 @@ bool Textord::clean_noise_from_row( // remove empties
       }
       blob_box = blob->bounding_box();
       blob_size = blob_box.width() > blob_box.height() ? blob_box.width() : blob_box.height();
-      if (blob_size >= textord_noise_sizelimit * row->x_height() &&
-          blob_size < row->x_height() * 2) {
+      if (blob_size >= textord_noise_sizelimit * x_height &&
+          blob_size < x_height * 2) {
         // Avoid an integer division by zero if the parameter is not positive.
         trans_threshold = textord_noise_sizefraction > 0 ? blob_size / textord_noise_sizefraction
                                                          : blob_size;
@@ -538,7 +590,7 @@ bool Textord::clean_noise_from_row( // remove empties
         if (trans_count < textord_noise_translimit) {
           norm_count++;
         }
-      } else if (blob_box.height() > row->x_height() * 2 &&
+      } else if (blob_box.height() > x_height * 2 &&
                  (!word_it.at_first() || !blob_it.at_first())) {
         dot_count += 2;
       }
