@@ -121,7 +121,8 @@ public:
   // mapping and then call Setup before using the map.
   void Init(int size, bool all_mapped);
   // Sets a given index in the sparse_map_ to be mapped or not.
-  void SetMap(int sparse_index, bool mapped);
+  // Returns false, and changes nothing, if sparse_index is out of range.
+  bool SetMap(int sparse_index, bool mapped);
   // Sets up the sparse_map_ and compact_map_ properly after Init and
   // some calls to SetMap. Assumes an ordered 1-1 map from set indices
   // in the sparse space to the compact space.
