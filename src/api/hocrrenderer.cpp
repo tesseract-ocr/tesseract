@@ -17,13 +17,18 @@
  *
  **********************************************************************/
 
+#include "hocrrenderer_internal.h"
+
 #include <tesseract/baseapi.h> // for TessBaseAPI
+#include <tesseract/renderer.h>
+#include <cstring>             // for strcmp
 #include <locale>              // for std::locale::classic
 #include <memory>              // for std::unique_ptr
 #include <sstream>             // for std::stringstream
-#include <tesseract/renderer.h>
-#include "helpers.h"        // for copy_string
-#include "tesseractclass.h" // for Tesseract
+#include <string>              // for std::string
+#include <vector>              // for std::vector
+#include "helpers.h"           // for copy_string
+#include "tesseractclass.h"    // for Tesseract
 
 namespace tesseract {
 
@@ -497,21 +502,35 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   if (font_info_) {
     AppendString(" ocrp_font ocrp_fsize");
   }
-  AppendString(
-      "'/>\n"
-      " </head>\n"
-      " <body>\n");
+  AppendString("'/>\n");
 
   return true;
 }
 
 bool TessHOcrRenderer::EndDocumentHandler() {
+  if (imagenum() < 0) {
+    AppendString(
+        " </head>\n"
+        " <body>\n");
+  }
   AppendString(" </body>\n</html>\n");
 
   return true;
 }
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI *api) {
+  if (imagenum() == 0) {
+    std::vector<std::string> langs;
+    api->GetLoadedLanguagesAsVector(&langs);
+    const std::string meta = FormatHOcrLanguageMetaTags(langs);
+    if (!meta.empty()) {
+      AppendString(meta.c_str());
+    }
+    AppendString(
+        " </head>\n"
+        " <body>\n");
+  }
+
   const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
   if (hocr == nullptr) {
     return false;

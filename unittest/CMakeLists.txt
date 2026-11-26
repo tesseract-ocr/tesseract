@@ -3,6 +3,7 @@ include(GoogleTest) # Todo install GoogleTests?
 # Set common include directories
 set(COMMON_INCLUDE_DIRS
     ${CMAKE_CURRENT_BINARY_DIR}/../src/training
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/api
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/ccutil
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/ccstruct
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/viewer

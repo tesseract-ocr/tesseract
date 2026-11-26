@@ -131,6 +131,7 @@ libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
 
 # Rules for src/api.
 
+noinst_HEADERS += src/api/hocrrenderer_internal.h
 noinst_HEADERS += src/api/pdf_ttf.h
 
 libtesseract_la_SOURCES += src/api/baseapi.cpp
@@ -1097,6 +1098,7 @@ endif # DISABLED_LEGACY_ENGINE
 unittest_CPPFLAGS += -DTESS_COMMON_TRAINING_API=
 unittest_CPPFLAGS += -DTESS_PANGO_TRAINING_API=
 unittest_CPPFLAGS += -DTESS_UNICHARSET_TRAINING_API=
+unittest_CPPFLAGS += -I$(top_srcdir)/src/api
 unittest_CPPFLAGS += -I$(top_srcdir)/src/arch
 unittest_CPPFLAGS += -I$(top_srcdir)/src/ccmain
 unittest_CPPFLAGS += -I$(top_srcdir)/src/ccstruct

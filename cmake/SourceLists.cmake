@@ -368,6 +368,7 @@ set(TESSERACT_HDR_INCLUDE
 
 # Internal header files
 set(TESSERACT_HDR_INTERNAL
+    src/api/hocrrenderer_internal.h
     src/api/pdf_ttf.h
     src/arch/dotproduct.h
     src/arch/intsimdmatrix.h
