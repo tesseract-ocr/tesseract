@@ -60,3 +60,19 @@ $CXX $CXXFLAGS \
      $LEPTONICA_CFLAGS \
      -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
+
+$CXX $CXXFLAGS \
+    -I "$SRC"/tesseract/include \
+     "$SRC"/tesseract/unittest/fuzzers/fuzzer_imgfile.cpp -o "$OUT"/fuzzer_imgfile \
+     "$SRC"/tesseract/.libs/libtesseract.a \
+     $LEPTONICA_CFLAGS \
+     -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
+     $LIB_FUZZING_ENGINE
+
+cp "$SRC"/tesseract/unittest/fuzzers/fuzzer_imgfile.options "$OUT"/fuzzer_imgfile.options
+
+# Seed corpus for fuzzer_imgfile: small valid images with text, so the fuzzer
+# reaches SetImage() / GetUTF8Text() instead of staying in the format
+# sniffers.  The system libtiff / libjpeg / libwebp are not instrumented, so
+# without valid images there is hardly any coverage feedback.
+(cd "$SRC"/tesseract/unittest/fuzzers/fuzzer_imgfile-seeds && zip -qj "$OUT/fuzzer_imgfile_seed_corpus.zip" ./*)

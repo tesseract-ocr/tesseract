@@ -1022,6 +1022,27 @@ fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
 
 CLEANFILES += fuzzer-api fuzzer-api-512x256
 
+# fuzzer_imgfile is used for fuzzing tests like fuzzer-api above, but starts
+# from image files instead of raw pixels.
+fuzzer_imgfile: libtesseract.la
+fuzzer_imgfile: unittest/fuzzers/fuzzer_imgfile.cpp
+	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
+          -I $(top_srcdir)/include \
+          -I $(builddir)/include \
+          -I $(top_srcdir)/src/ccmain \
+          -I $(top_srcdir)/src/ccstruct \
+          -I $(top_srcdir)/src/ccutil \
+          $(LEPTONICA_CFLAGS) \
+          $(OPENMP_CXXFLAGS) \
+          $< \
+          $(builddir)/.libs/libtesseract.a \
+          $(LEPTONICA_LIBS) \
+          $(libarchive_LIBS) \
+          $(libcurl_LIBS) \
+          -o $@
+
+CLEANFILES += fuzzer_imgfile
+
 if ASCIIDOCTOR
 
 man_MANS = doc/combine_lang_model.1
