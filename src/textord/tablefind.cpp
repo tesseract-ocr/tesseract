@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
+#include <vector>
 #include "tablefind.h"
 
 #include "colpartitionset.h"
@@ -2057,7 +2058,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid,
     ColPartitionGridSearch rectsearch(grid);
     rectsearch.StartRectSearch(table_box);
     ColPartition *part;
-    ColPartition *table_partition = nullptr;
+    std::vector<ColPartition *> table_parts;
     while ((part = rectsearch.NextRectSearch()) != nullptr) {
       // Do not consider image partitions
       if (!part->IsTextType()) {
@@ -2068,13 +2069,28 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid *grid,
       // is covered by the table
       if (part_box.overlap_fraction(table_box) > kMinOverlapWithTable) {
         rectsearch.RemoveBBox();
-        if (table_partition) {
-          table_partition->Absorb(part, width_cb);
-        } else {
-          table_partition = part;
-        }
+        table_parts.push_back(part);
       }
     }
+    // Merge the partitions of the table in pairs until a single one is left.
+    // Absorb sorts all blobs of the merged partition and computes its limits
+    // again, so the time for adding the partitions one by one to a growing
+    // partition is quadratic in the size of the table. That took several
+    // seconds for a page which was a single table with 2500 partitions and
+    // 24000 blobs. Each pass over the list halves it and handles each blob
+    // only once. The order of the partitions is kept.
+    while (table_parts.size() > 1) {
+      size_t num_merged = 0;
+      for (size_t i = 0; i < table_parts.size(); i += 2) {
+        if (i + 1 < table_parts.size()) {
+          table_parts[i]->Absorb(table_parts[i + 1], width_cb);
+        }
+        table_parts[num_merged++] = table_parts[i];
+      }
+      table_parts.resize(num_merged);
+    }
+    ColPartition *table_partition =
+        table_parts.empty() ? nullptr : table_parts[0];
     // Insert table colpartition back to part_grid_
     if (table_partition) {
       // To match the columns used when transforming to blocks, the new table
