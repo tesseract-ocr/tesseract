@@ -56,7 +56,7 @@
 #  endif
 #endif
 
-#if defined(HAVE_NEON) && !defined(__aarch64__)
+#if defined(HAVE_NEON) && !defined(__aarch64__) && !defined(_M_ARM64)
 #  if defined(HAVE_ANDROID_GETCPUFAMILY)
 #    include <cpu-features.h>
 #  elif defined(HAVE_GETAUXVAL)
@@ -138,7 +138,7 @@ static const SIMDDetect &detector_init = SIMDDetect::GetDetector();
   return true;
 }();
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(_M_ARM64)
 // ARMv8 always has NEON.
 bool SIMDDetect::neon_available_ = true;
 // If true, then the NEON dot product instructions have been detected.
@@ -361,7 +361,7 @@ SIMDDetect::SIMDDetect() {
 #  endif
 #endif
 
-#if defined(HAVE_NEON) && !defined(__aarch64__)
+#if defined(HAVE_NEON) && !defined(__aarch64__) && !defined(_M_ARM64)
 #  if defined(HAVE_ANDROID_GETCPUFAMILY)
   {
     AndroidCpuFamily family = android_getCpuFamily();
@@ -429,7 +429,7 @@ SIMDDetect::SIMDDetect() {
     // SSE detected.
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
 #endif
-#if defined(HAVE_NEON) || defined(__aarch64__)
+#if defined(HAVE_NEON) || defined(__aarch64__) || defined(_M_ARM64)
   } else if (neon_available_) {
     // NEON detected.
     SetDotProduct(DotProductNEON, neon_dotprod_available_
@@ -488,7 +488,7 @@ void SIMDDetect::Update() {
   } else if (dotproduct == "accelerate") {
     SetDotProduct(DotProductAccelerate, IntSimdMatrix::intSimdMatrix);
 #endif
-#if defined(HAVE_NEON) || defined(__aarch64__)
+#if defined(HAVE_NEON) || defined(__aarch64__) || defined(_M_ARM64)
   } else if (dotproduct == "neon" && neon_available_) {
     // NEON selected by config variable.
     SetDotProduct(DotProductNEON, neon_dotprod_available_
