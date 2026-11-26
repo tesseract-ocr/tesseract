@@ -173,8 +173,6 @@ public:
   explicit TessHOcrRenderer(const char *outputbase, bool font_info);
   explicit TessHOcrRenderer(const char *outputbase);
 
-  void SetInputLanguages(const char *languages);
-
 protected:
   bool BeginDocumentHandler() override;
   bool AddImageHandler(TessBaseAPI *api) override;
@@ -182,7 +180,6 @@ protected:
 
 private:
   bool font_info_; // whether to print font information
-  std::string input_languages_;
 };
 
 /**

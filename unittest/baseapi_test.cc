@@ -12,6 +12,7 @@
 #include "include_gunit.h"
 
 #include "cycletimer.h" // for CycleTimer
+#include "hocrrenderer_internal.h"
 #include "image.h"      // for Image
 #include "log.h"        // for LOG
 #include "ocrblock.h"   // for class BLOCK
@@ -249,66 +250,111 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   src_pix.destroy();
 }
 
-// Returns what TessHOcrRenderer writes for the start of a document.
-// A null value for languages leaves SetInputLanguages uncalled.
-static std::string HOcrHeader(const char *languages) {
-  file::MakeTmpdir();
-  const std::string outputbase = file::JoinPath(FLAGS_test_tmpdir, "hocr_header_test");
-  {
-    TessHOcrRenderer renderer(outputbase.c_str());
-    EXPECT_TRUE(renderer.happy());
-    if (languages != nullptr) {
-      renderer.SetInputLanguages(languages);
-    }
-    EXPECT_TRUE(renderer.BeginDocument("title"));
-  } // The destructor closes the output file.
-  std::string header;
-  EXPECT_TRUE(file::GetContents(outputbase + ".hocr", &header, file::Defaults()));
-  return header;
-}
-
-// The header has no language metadata unless languages are set.
+// Empty or null language strings produce no metadata, and an empty document
+// stays well formed without language metadata.
 TEST_F(TesseractTest, HOCRHeaderWithoutLanguages) {
   for (const char *languages : {static_cast<const char *>(nullptr), ""}) {
-    const std::string header = HOcrHeader(languages);
-    EXPECT_THAT(header, HasSubstr("<meta name='ocr-capabilities'"));
-    EXPECT_THAT(header, HasSubstr("</head>"));
-    EXPECT_THAT(header, Not(HasSubstr("ocr-langs")));
-    EXPECT_THAT(header, Not(HasSubstr("ocr-scripts")));
+    EXPECT_TRUE(FormatHOcrLanguageMetaTags(languages).empty());
   }
+
+  file::MakeTmpdir();
+  const std::string outputbase =
+      file::JoinPath(FLAGS_test_tmpdir, "hocr_empty_doc_test");
+  const std::string hocr_file = outputbase + ".hocr";
+  {
+    TessHOcrRenderer renderer(outputbase.c_str());
+    ASSERT_TRUE(renderer.happy());
+    ASSERT_TRUE(renderer.BeginDocument("title"));
+    ASSERT_TRUE(renderer.EndDocument());
+  } // The destructor closes the output file.
+  std::string doc;
+  ASSERT_TRUE(file::GetContents(hocr_file, &doc, file::Defaults()));
+  std::remove(hocr_file.c_str());
+  EXPECT_THAT(doc, HasSubstr("<meta name='ocr-capabilities'"));
+  EXPECT_THAT(doc, HasSubstr(" </head>\n <body>\n </body>\n</html>\n"));
+  EXPECT_THAT(doc, Not(HasSubstr("ocr-langs")));
+  EXPECT_THAT(doc, Not(HasSubstr("ocr-scripts")));
 }
 
 // Language models become ISO 639-1 codes and script models are listed apart.
 TEST_F(TesseractTest, HOCRHeaderLanguagesAndScripts) {
-  const std::string header = HOcrHeader("eng+fra+Latin+Fraktur");
-  EXPECT_THAT(header, HasSubstr("  <meta name='ocr-langs' content='en fr' />\n"));
-  EXPECT_THAT(header, HasSubstr("  <meta name='ocr-scripts' content='Latin Fraktur' />\n"));
-  EXPECT_LT(header.find("ocr-capabilities"), header.find("ocr-langs"));
-  EXPECT_LT(header.find("ocr-scripts"), header.find("</head>"));
+  const std::string meta = FormatHOcrLanguageMetaTags("eng+fra+Latin+Fraktur");
+  EXPECT_THAT(meta, HasSubstr("  <meta name='ocr-langs' content='en fr' />\n"));
+  EXPECT_THAT(
+      meta,
+      HasSubstr("  <meta name='ocr-scripts' content='Latin Fraktur' />\n"));
+  EXPECT_LT(meta.find("ocr-langs"), meta.find("ocr-scripts"));
 }
 
 // A list of script models gives no ocr-langs tag, and the reverse.
 TEST_F(TesseractTest, HOCRHeaderOmitsEmptyTags) {
-  const std::string scripts_only = HOcrHeader("Latin");
-  EXPECT_THAT(scripts_only, HasSubstr("<meta name='ocr-scripts' content='Latin' />"));
+  const std::string scripts_only = FormatHOcrLanguageMetaTags("Latin");
+  EXPECT_THAT(scripts_only,
+              HasSubstr("<meta name='ocr-scripts' content='Latin' />"));
   EXPECT_THAT(scripts_only, Not(HasSubstr("ocr-langs")));
 
-  const std::string langs_only = HOcrHeader("deu");
+  const std::string langs_only = FormatHOcrLanguageMetaTags("deu");
   EXPECT_THAT(langs_only, HasSubstr("<meta name='ocr-langs' content='de' />"));
   EXPECT_THAT(langs_only, Not(HasSubstr("ocr-scripts")));
 }
 
 // Compound model names resolve by prefix. Unknown names pass through.
 TEST_F(TesseractTest, HOCRHeaderCompoundModelNames) {
-  const std::string header = HOcrHeader("deu_latf+chi_tra_vert+german_print");
-  EXPECT_THAT(header, HasSubstr("<meta name='ocr-langs' content='de zh german_print' />"));
+  const std::string meta =
+      FormatHOcrLanguageMetaTags("deu_latf+chi_tra_vert+german_print");
+  EXPECT_THAT(
+      meta,
+      HasSubstr("<meta name='ocr-langs' content='de zh german_print' />"));
 }
 
 // Meta tag content comes from the -l argument, so it has to be escaped.
 TEST_F(TesseractTest, HOCRHeaderEscapesLanguages) {
-  const std::string header = HOcrHeader("a&b+'c'+<d>+\"e\"");
-  EXPECT_THAT(header, HasSubstr("<meta name='ocr-langs' "
-                                "content='a&amp;b &#39;c&#39; &lt;d&gt; &quot;e&quot;' />"));
+  const std::string meta = FormatHOcrLanguageMetaTags("a&b+'c'+<d>+\"e\"");
+  EXPECT_THAT(
+      meta,
+      HasSubstr("<meta name='ocr-langs' "
+                "content='a&amp;b &#39;c&#39; &lt;d&gt; &quot;e&quot;' />"));
+}
+
+// End-to-end check that TessHOcrRenderer reads init languages from TessBaseAPI
+// and emits ocr-langs before closing </head>.
+TEST_F(TesseractTest, HOCRRendererWritesInitLanguages) {
+  REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
+  tesseract::TessBaseAPI api;
+  ASSERT_EQ(0, api.Init(TessdataPath().c_str(), "eng"));
+
+  Image pix = pixCreate(100, 50, 8);
+  ASSERT_TRUE(pix);
+  pixSetAll(pix);
+  api.SetImage(pix);
+  pix.destroy();
+
+  file::MakeTmpdir();
+  const std::string outputbase =
+      file::JoinPath(FLAGS_test_tmpdir, "hocr_renderer_langs_test");
+  const std::string hocr_file = outputbase + ".hocr";
+  {
+    TessHOcrRenderer renderer(outputbase.c_str());
+    ASSERT_TRUE(renderer.happy());
+    ASSERT_TRUE(renderer.BeginDocument("title"));
+    ASSERT_TRUE(renderer.AddImage(&api));
+    ASSERT_TRUE(renderer.EndDocument());
+  } // The destructor closes the output file.
+
+  std::string hocr;
+  ASSERT_TRUE(file::GetContents(hocr_file, &hocr, file::Defaults()));
+  std::remove(hocr_file.c_str());
+
+  const size_t cap_pos = hocr.find("<meta name='ocr-capabilities'");
+  const size_t lang_pos = hocr.find("<meta name='ocr-langs' content='en' />");
+  const size_t head_end = hocr.find("</head>");
+  ASSERT_NE(cap_pos, std::string::npos);
+  ASSERT_NE(lang_pos, std::string::npos);
+  ASSERT_NE(head_end, std::string::npos);
+  EXPECT_LT(cap_pos, lang_pos);
+  EXPECT_LT(lang_pos, head_end);
+  EXPECT_THAT(hocr, HasSubstr(" <body>\n"));
+  EXPECT_THAT(hocr, HasSubstr(" </body>\n</html>\n"));
 }
 
 // Tests that all output formats return valid results on an empty page.
