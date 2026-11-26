@@ -58,7 +58,8 @@ void Maxpool::Forward(bool /*debug*/, const NetworkIO &input,
     for (int x = 0; x < x_scale_; ++x) {
       for (int y = 0; y < y_scale_; ++y) {
         StrideMap::Index src_xy(src_index);
-        if (src_xy.AddOffset(x, FD_WIDTH) && src_xy.AddOffset(y, FD_HEIGHT)) {
+        if (src_xy.AddOffsetFromValid<FD_WIDTH>(x) &&
+            src_xy.AddOffsetFromValid<FD_HEIGHT>(y)) {
           output->MaxpoolTimeStep(out_t, input, src_xy.t(), max_line);
         }
       }

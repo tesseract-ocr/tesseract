@@ -60,6 +60,48 @@ protected:
 #endif
 };
 
+static void ExpectOffsetsFromValidMatch(const StrideMap &stride_map) {
+  StrideMap::Index start(stride_map);
+  do {
+    ASSERT_TRUE(start.IsValid());
+    for (FlexDimensions dimension : {FD_HEIGHT, FD_WIDTH}) {
+      for (int offset : {-6, -1, 0, 1, 6}) {
+        StrideMap::Index general(start);
+        StrideMap::Index specialized(start);
+        const bool specialized_valid =
+            dimension == FD_HEIGHT
+                ? specialized.AddOffsetFromValid<FD_HEIGHT>(offset)
+                : specialized.AddOffsetFromValid<FD_WIDTH>(offset);
+        EXPECT_EQ(specialized_valid, general.AddOffset(offset, dimension));
+        EXPECT_EQ(specialized.t(), general.t());
+        for (FlexDimensions d : {FD_BATCH, FD_HEIGHT, FD_WIDTH}) {
+          EXPECT_EQ(specialized.index(d), general.index(d));
+        }
+      }
+    }
+  } while (start.Increment());
+}
+
+TEST_F(StridemapTest, OffsetFromValidMatchesGeneralOffset) {
+  StrideMap stride_map;
+  stride_map.SetStride({{2, 5}, {4, 3}, {3, 4}});
+  ExpectOffsetsFromValidMatch(stride_map);
+}
+
+TEST_F(StridemapTest, OffsetFromValidMatchesAfterScaling) {
+  StrideMap stride_map;
+  stride_map.SetStride({{2, 5}, {4, 3}, {3, 4}});
+  stride_map.ScaleXY(2, 2);
+  ExpectOffsetsFromValidMatch(stride_map);
+}
+
+TEST_F(StridemapTest, OffsetFromValidMatchesAfterTransposing) {
+  StrideMap stride_map;
+  stride_map.SetStride({{2, 5}, {4, 3}, {3, 4}});
+  stride_map.TransposeXY();
+  ExpectOffsetsFromValidMatch(stride_map);
+}
+
 TEST_F(StridemapTest, Indexing) {
   // This test verifies that with a batch of arrays of different sizes, the
   // iteration index each of them in turn, without going out of bounds.
