@@ -169,6 +169,9 @@ static float MakeRowFromSubBlobs(TO_BLOCK *block, C_BLOB *blob, TO_ROW_IT *row_i
     // Correct direction as needed.
     blob->CheckInverseFlagAndDirection();
     auto *bbox = new BLOBNBOX(blob);
+    // The copy belongs to nobody else, so the BLOBNBOX has to delete it
+    // unless it is moved to a word later.
+    bbox->set_owns_cblob(true);
     bb_it.add_after_then_move(bbox);
   }
   // Now we can make a row from the blobs.
