@@ -139,8 +139,12 @@ public:
   // u is of size W.dim2() - 1 and the output v is of size W.dim1().
   // u is imagined to have an extra element at the end with value 1, to
   // implement the bias, but it doesn't actually have it.
-  // Asserts that the call matches what we have.
+  // Asserts that the call matches what we have. The float version can also
+  // be used in int mode after a call of InitFloatFromInt.
   void MatrixDotVector(const TFloat *u, TFloat *v) const;
+  // Makes a float copy of the int weights for MatrixDotVector with a float
+  // input.
+  void InitFloatFromInt();
   void MatrixDotVector(const int8_t *u, TFloat *v) const;
   // MatrixDotVector for peep weights, MultiplyAccumulate adds the
   // component-wise products of *this[0] and v to inout.
@@ -175,6 +179,8 @@ private:
   TransposedArray wf_t_;
   // Which of wf_ and wi_ are we actually using.
   bool int_mode_;
+  // True if wf_ is a float copy of wi_ (see InitFloatFromInt).
+  bool float_from_int_ = false;
   // True if we are running adam in this weight matrix.
   bool use_adam_;
   // If we are using wi_, then scales_ is a factor to restore the row product

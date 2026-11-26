@@ -155,6 +155,7 @@ TransposedArray::~TransposedArray() = default;
 int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam, float weight_range,
                                    TRand *randomizer) {
   int_mode_ = false;
+  float_from_int_ = false;
   wf_.Resize(no, ni, 0.0);
   if (randomizer != nullptr) {
     for (int i = 0; i < no; ++i) {
@@ -206,6 +207,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int> &code_map) {
 // Store a multiplicative scale factor (as a TFloat) that will reproduce
 // the original value, subject to rounding errors.
 void WeightMatrix::ConvertToInt() {
+  float_from_int_ = false;
   wi_.ResizeNoInit(wf_.dim1(), wf_.dim2());
   scales_.reserve(wi_.dim1());
   int dim2 = wi_.dim2();
@@ -303,6 +305,7 @@ bool WeightMatrix::Serialize(bool training, TFile *fp) const {
 // Reads from the given file. Returns false in case of error.
 
 bool WeightMatrix::DeSerialize(bool training, TFile *fp) {
+  float_from_int_ = false;
   uint8_t mode;
   if (!fp->DeSerialize(&mode)) {
     return false;
@@ -472,8 +475,32 @@ bool WeightMatrix::DeSerializeOld([[maybe_unused]] bool training,
 // implement the bias, but it doesn't actually have it.
 // Asserts that the call matches what we have.
 void WeightMatrix::MatrixDotVector(const TFloat *u, TFloat *v) const {
-  assert(!int_mode_);
+  // In int mode this needs the float copy of the weights, see
+  // InitFloatFromInt.
+  assert(!int_mode_ || float_from_int_);
   MatrixDotVectorInternal(wf_, true, false, u, v);
+}
+
+// Makes a float copy of the int weights, so that MatrixDotVector can also be
+// used with a float input. The result is the same as for an int8 input of
+// INT8_MAX * u. Does nothing if the copy exists or if not in int mode.
+void WeightMatrix::InitFloatFromInt() {
+  if (!int_mode_ || float_from_int_) {
+    return;
+  }
+  float_from_int_ = true;
+  int dim1 = wi_.dim1();
+  int dim2 = wi_.dim2();
+  wf_.ResizeNoInit(dim1, dim2);
+  for (int i = 0; i < dim1; ++i) {
+    const int8_t *i_line = wi_[i];
+    TFloat *f_line = wf_[i];
+    // scales_ includes a factor 1 / INT8_MAX for the int8 input.
+    TFloat scale = scales_[i] * INT8_MAX;
+    for (int j = 0; j < dim2; ++j) {
+      f_line[j] = i_line[j] * scale;
+    }
+  }
 }
 
 void WeightMatrix::MatrixDotVector(const int8_t *u, TFloat *v) const {

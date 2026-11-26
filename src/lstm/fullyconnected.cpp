@@ -141,6 +141,12 @@ void FullyConnected::Forward(bool debug, const NetworkIO &input,
   int width = input.Width();
   if (type_ == NT_SOFTMAX) {
     output->ResizeFloat(input, no_);
+  } else if (weights_.is_int_mode() && !input.int_mode()) {
+    // The first layer of an int model gets a float input (see
+    // LSTMRecognizer::RecognizeLine) and switches to int for the rest of
+    // the network.
+    output->ResizeToMap(true, input.stride_map(), no_);
+    weights_.InitFloatFromInt();
   } else {
     output->Resize(input, no_);
   }
@@ -200,7 +206,9 @@ void FullyConnected::SetupForward(const NetworkIO &input, const TransposedArray 
   // Softmax output is always float, so save the input type.
   int_mode_ = input.int_mode();
   if (IsTraining()) {
-    acts_.Resize(input, no_);
+    // The activations are a copy of the output, which is int for int
+    // weights, also if the input is float (see Forward).
+    acts_.ResizeToMap(input.int_mode() || weights_.is_int_mode(), input.stride_map(), no_);
     // Source_ is a transposed copy of input. It isn't needed if provided.
     external_source_ = input_transpose;
     if (external_source_ == nullptr) {

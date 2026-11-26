@@ -87,6 +87,8 @@ public:
   bool IsIntMode() const {
     return (training_flags_ & TF_INT_MODE) != 0;
   }
+  // True if the image has to be converted to int8 for the network.
+  bool IntInput() const;
   // True if recoder_ is active to re-encode text to a smaller space.
   bool IsRecoding() const {
     return (training_flags_ & TF_COMPRESS_UNICHARSET) != 0;
