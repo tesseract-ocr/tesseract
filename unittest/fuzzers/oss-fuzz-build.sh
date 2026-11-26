@@ -60,3 +60,24 @@ $CXX $CXXFLAGS \
      $LEPTONICA_CFLAGS \
      -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
      $LIB_FUZZING_ENGINE
+
+# fuzzer-raw-image reads the page segmentation mode and the size, depth and
+# resolution of the image from a text line at the start of the fuzz input.
+# The dictionary has the keys and values for that line. HAVE_CONFIG_H is
+# needed for config_auto.h which tells whether the legacy engine was built.
+
+$CXX $CXXFLAGS \
+    -DHAVE_CONFIG_H \
+    -I "$SRC"/tesseract/include \
+     "$SRC"/tesseract/unittest/fuzzers/fuzzer-raw-image.cpp -o "$OUT"/fuzzer-raw-image \
+     "$SRC"/tesseract/.libs/libtesseract.a \
+     $LEPTONICA_CFLAGS \
+     -Wl,-Bstatic $LEPTONICA_LIBS $LIBTIFF_LIBS -Wl,-Bdynamic \
+     $LIB_FUZZING_ENGINE
+
+cp "$SRC"/tesseract/unittest/fuzzers/fuzzer-raw-image.dict "$OUT"/
+
+# The seed corpus is generated, so that no image files are needed.
+
+python3 "$SRC"/tesseract/unittest/fuzzers/fuzzer-raw-image-seeds.py \
+    "$OUT"/fuzzer-raw-image_seed_corpus.zip
