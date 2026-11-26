@@ -976,7 +976,7 @@ wordlist2dawg_CPPFLAGS = $(training_CPPFLAGS)
 wordlist2dawg_SOURCES = src/training/wordlist2dawg.cpp
 wordlist2dawg_LDADD = $(extralib)
 
-# fuzzer-api is used for fuzzing tests.
+# fuzzer-api and fuzzer-raw-image are used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
 # Note: -fsanitize=fuzzer currently requires the clang++ compiler.
 
@@ -1020,7 +1020,30 @@ fuzzer-api-512x256: unittest/fuzzers/fuzzer-api.cpp
           $(libcurl_LIBS) \
           -o $@
 
+# fuzzer-raw-image gets the page segmentation mode and the size, depth and
+# resolution of the image from a text line at the start of the fuzz input.
+# Run it with -dict=$(top_srcdir)/unittest/fuzzers/fuzzer-raw-image.dict.
+fuzzer-raw-image: libtesseract.la
+fuzzer-raw-image: unittest/fuzzers/fuzzer-raw-image.cpp
+	$(CXX) $(DEFS) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
+          -I $(top_srcdir)/include \
+          -I $(builddir)/include \
+          $(LEPTONICA_CFLAGS) \
+          $(OPENMP_CXXFLAGS) \
+          $< \
+          $(builddir)/.libs/libtesseract.a \
+          $(LEPTONICA_LIBS) \
+          $(libarchive_LIBS) \
+          $(libcurl_LIBS) \
+          -o $@
+
+# The seed corpus for fuzzer-raw-image is generated, so that no image files
+# are needed.
+fuzzer-raw-image_seed_corpus.zip: unittest/fuzzers/fuzzer-raw-image-seeds.py
+	python3 $< $@
+
 CLEANFILES += fuzzer-api fuzzer-api-512x256
+CLEANFILES += fuzzer-raw-image fuzzer-raw-image_seed_corpus.zip
 
 if ASCIIDOCTOR
 
