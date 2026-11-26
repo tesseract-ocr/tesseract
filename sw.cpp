@@ -72,6 +72,7 @@ void build(Solution &s)
             libtesseract["src/arch/dotproductavx.cpp"].args.push_back("-mavx");
             libtesseract["src/arch/dotproductavx512.cpp"].args.push_back("-mavx512f");
             libtesseract["src/arch/dotproductsse.cpp"].args.push_back("-msse4.1");
+            libtesseract["src/arch/functionsavx2.cpp"].args.push_back("-mavx2");
             libtesseract["src/arch/intsimdmatrixsse.cpp"].args.push_back("-msse4.1");
             libtesseract["src/arch/intsimdmatrixavx2.cpp"].args.push_back("-mavx2");
         }
