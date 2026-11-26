@@ -28,6 +28,7 @@
 #include <tesseract/baseapi.h>
 #include <tesseract/publictypes.h> // for PTIsTextType()
 #include <tesseract/renderer.h>
+#include <algorithm> // for std::min
 #include <cmath>
 #include <cstring>
 #include <fstream>   // for std::ifstream
@@ -591,40 +592,76 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   objsize += AppendData("endobj\n"sv);
   AppendPDFObjectDIY(objsize);
 
-  const char stream2[] =
-      "/CIDInit /ProcSet findresource begin\n"
-      "12 dict begin\n"
-      "begincmap\n"
-      "/CIDSystemInfo\n"
-      "<<\n"
-      "  /Registry (Adobe)\n"
-      "  /Ordering (UCS)\n"
-      "  /Supplement 0\n"
-      ">> def\n"
-      "/CMapName /Adobe-Identify-UCS def\n"
-      "/CMapType 2 def\n"
-      "1 begincodespacerange\n"
-      "<0000> <FFFF>\n"
-      "endcodespacerange\n"
-      "1 beginbfrange\n"
-      "<0000> <FFFF> <0000>\n"
-      "endbfrange\n"
-      "endcmap\n"
-      "CMapName currentdict /CMap defineresource pop\n"
-      "end\n"
-      "end\n";
-
   // TOUNICODE
+  // The CID of a character is its UTF-16 code unit, so each code maps to
+  // itself. A range may only increment the last byte of its destination
+  // (ISO 32000-1, 9.10.3), so each value of the first byte needs its own
+  // range, and a block must not have more than 100 ranges (Adobe Technical
+  // Note #5014).
+  std::stringstream cmap;
+  // Use "C" locale (needed for int values larger than 999).
+  cmap.imbue(std::locale::classic());
+  cmap << "/CIDInit /ProcSet findresource begin\n"
+          "12 dict begin\n"
+          "begincmap\n"
+          "/CIDSystemInfo\n"
+          "<<\n"
+          "  /Registry (Adobe)\n"
+          "  /Ordering (UCS)\n"
+          "  /Supplement 0\n"
+          ">> def\n"
+          "/CMapName /Adobe-Identity-UCS def\n"
+          "/CMapType 2 def\n"
+          "1 begincodespacerange\n"
+          "<0000> <FFFF>\n"
+          "endcodespacerange\n";
+  const int kNumRanges = 256;
+  const int kMaxRangesPerBlock = 100;
+  for (int first = 0; first < kNumRanges; first += kMaxRangesPerBlock) {
+    const int end = std::min(first + kMaxRangesPerBlock, kNumRanges);
+    cmap << (end - first) << " beginbfrange\n";
+    for (int high = first; high < end; high++) {
+      char range[32];
+      snprintf(range, sizeof(range), "<%02X00> <%02XFF> <%02X00>\n", high, high, high);
+      cmap << range;
+    }
+    cmap << "endbfrange\n";
+  }
+  cmap << "endcmap\n"
+          "CMapName currentdict /CMap defineresource pop\n"
+          "end\n"
+          "end\n";
+  const std::string tounicode = cmap.str();
+  len = tounicode.size();
+#ifndef NO_PDF_COMPRESSION
+  comp = zlibCompress(reinterpret_cast<const unsigned char *>(tounicode.data()), tounicode.size(),
+                      &len);
+  if (comp == nullptr) {
+    return false;
+  }
+#endif
   stream.str("");
   stream << "6 0 obj\n"
             "<< /Length "
-         << (sizeof(stream2) - 1)
-         << " >>\n"
-            "stream\n"
-         << stream2
-         << "endstream\n"
-            "endobj\n";
-  AppendPDFObject(stream.str().c_str());
+         << len
+         << ""
+#ifndef NO_PDF_COMPRESSION
+            " /Filter /FlateDecode"
+#endif
+            " >>\n"
+            "stream\n";
+  AppendString(stream.str().c_str());
+  objsize = stream.str().size();
+#ifndef NO_PDF_COMPRESSION
+  AppendData(reinterpret_cast<char *>(comp), len);
+  lept_free(comp);
+#else
+  AppendData(tounicode.data(), len);
+#endif
+  objsize += len;
+  objsize += AppendData("endstream\n"sv);
+  objsize += AppendData("endobj\n"sv);
+  AppendPDFObjectDIY(objsize);
 
   // FONT DESCRIPTOR
   stream.str("");

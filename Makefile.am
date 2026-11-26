@@ -1253,6 +1253,7 @@ if ENABLE_TRAINING
 check_PROGRAMS += pango_font_info_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += paragraphs_test
+check_PROGRAMS += pdfrenderer_test
 check_PROGRAMS += plumbing_dimensions_test
 check_PROGRAMS += plumbing_test
 if !DISABLED_LEGACY_ENGINE
@@ -1554,6 +1555,10 @@ pango_font_info_test_LDADD += $(pangoft2_LIBS)
 paragraphs_test_SOURCES = unittest/paragraphs_test.cc
 paragraphs_test_CPPFLAGS = $(unittest_CPPFLAGS)
 paragraphs_test_LDADD = $(TESS_LIBS)
+
+pdfrenderer_test_SOURCES = unittest/pdfrenderer_test.cc
+pdfrenderer_test_CPPFLAGS = $(unittest_CPPFLAGS)
+pdfrenderer_test_LDADD = $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 plumbing_dimensions_test_SOURCES = unittest/plumbing_dimensions_test.cc
 plumbing_dimensions_test_CPPFLAGS = $(unittest_CPPFLAGS)
