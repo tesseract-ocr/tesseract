@@ -506,7 +506,7 @@ void find_cblob_limits( // get y limits
     FCOORD rotation, // for landscape
     float &ymin,     // output y limits
     float &ymax) {
-  int16_t stepindex;  // current point
+  int32_t stepindex;  // current point
   ICOORD pos;         // current coords
   ICOORD vec;         // rotated step
   C_OUTLINE *outline; // current outline
@@ -544,7 +544,7 @@ void find_cblob_vlimits( // get y limits
     float rightx,
     float &ymin, // output y limits
     float &ymax) {
-  int16_t stepindex;  // current point
+  int32_t stepindex;  // current point
   ICOORD pos;         // current coords
   ICOORD vec;         // rotated step
   C_OUTLINE *outline; // current outline
@@ -580,7 +580,7 @@ void find_cblob_hlimits( // get x limits
     float topy,
     float &xmin, // output x limits
     float &xmax) {
-  int16_t stepindex;  // current point
+  int32_t stepindex;  // current point
   ICOORD pos;         // current coords
   ICOORD vec;         // rotated step
   C_OUTLINE *outline; // current outline
@@ -892,7 +892,7 @@ void vertical_coutline_projection( // project outlines
   ICOORD pos;        // current point
   ICOORD step;       // edge step
   int32_t length;    // of outline
-  int16_t stepindex; // current step
+  int32_t stepindex; // current step
   C_OUTLINE_IT out_it = outline->child();
 
   pos = outline->start_pos();

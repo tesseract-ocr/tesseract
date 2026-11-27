@@ -331,7 +331,7 @@ void QSPLINE::extrapolate( // linear extrapolation
     xstarts[0] = xmin;
     quads[0].a = 0;
     quads[0].b = gradient;
-    quads[0].c = y(xcoords[0]) - quads[0].b * xcoords[0];
+    quads[0].c = y(xcoords[0]) - static_cast<double>(quads[0].b) * xcoords[0];
     dest_segment = 1;
   } else {
     dest_segment = 0;
@@ -345,7 +345,8 @@ void QSPLINE::extrapolate( // linear extrapolation
   if (xmax > xcoords[segments]) {
     quads[dest_segment].a = 0;
     quads[dest_segment].b = gradient;
-    quads[dest_segment].c = y(xcoords[segments]) - quads[dest_segment].b * xcoords[segments];
+    quads[dest_segment].c =
+        y(xcoords[segments]) - static_cast<double>(quads[dest_segment].b) * xcoords[segments];
     dest_segment++;
     xstarts[dest_segment] = xmax + 1;
   }

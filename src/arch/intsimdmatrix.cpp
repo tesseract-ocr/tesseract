@@ -32,7 +32,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t> &w, std::vector<int8_t> 
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
   rounded_num_out = RoundOutputs(num_out);
   // Add the bias and compute the required size.
-  shaped_w.resize((rounded_num_in + 1) * rounded_num_out, 0);
+  shaped_w.resize(static_cast<size_t>(rounded_num_in + 1) * rounded_num_out, 0);
   int shaped_index = 0;
   int output = 0;
   // Each number of registers needs a different format! Iterates over the

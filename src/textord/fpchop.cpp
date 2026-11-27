@@ -415,7 +415,7 @@ static bool fixed_chop_coutline(     // chop the outline
   int16_t left_edge;       // of outline
   int16_t startindex;      // in first fragment
   int32_t length;          // of outline
-  int16_t stepindex;       // into outline
+  int32_t stepindex;       // into outline
   int16_t head_index;      // start of fragment
   ICOORD head_pos;         // start of fragment
   int16_t tail_index;      // end of fragment
@@ -432,7 +432,7 @@ static bool fixed_chop_coutline(     // chop the outline
   for (stepindex = 0; stepindex < length; stepindex++) {
     if (pos.x() < left_edge) {
       left_edge = pos.x();
-      tail_index = stepindex;
+      tail_index = static_cast<int16_t>(stepindex);
       tail_pos = pos;
     }
     pos += srcline->step(stepindex);
