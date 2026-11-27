@@ -28,7 +28,6 @@
 
 #include <cstdint>
 #include <cstdio>
-#include <cstring> // for memcpy
 #include <string>
 #include <vector>
 
@@ -51,9 +50,10 @@ std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
                               uint8_t num_proto_sets = 0, uint16_t num_protos = 0) {
   std::vector<char> data;
   auto append = [&data](const void *p, size_t n) {
-    const size_t old_size = data.size();
-    data.resize(old_size + n);
-    memcpy(&data[old_size], p, n);
+    const char *b = static_cast<const char *>(p);
+    for (size_t i = 0; i < n; ++i) {
+      data.push_back(b[i]);
+    }
   };
   append(&unicharset_size, sizeof(unicharset_size));
   append(&version_id, sizeof(version_id));
@@ -90,9 +90,10 @@ std::vector<char> MakeLegacyInttemp(int32_t version_id, uint32_t num_classes,
                                     const std::vector<int32_t> &class_ids) {
   std::vector<char> data;
   auto append = [&data](const void *p, size_t n) {
-    const size_t old_size = data.size();
-    data.resize(old_size + n);
-    memcpy(&data[old_size], p, n);
+    const char *b = static_cast<const char *>(p);
+    for (size_t i = 0; i < n; ++i) {
+      data.push_back(b[i]);
+    }
   };
   uint32_t num_class_pruners = 1;
   append(&unicharset_size, sizeof(unicharset_size));

@@ -64,9 +64,14 @@ public:
     set_natural(natural);
   }
   inline void set_unichar(const char *uch) {
-    const size_t len = strnlen(uch, UNICHAR_LEN);
-    memcpy(this->unichar, uch, len);
-    memset(this->unichar + len, 0, sizeof(this->unichar) - len);
+    // Copy at most UNICHAR_LEN characters and clear the rest.
+    size_t i = 0;
+    for (; i < UNICHAR_LEN && uch[i] != '\0'; ++i) {
+      this->unichar[i] = uch[i];
+    }
+    for (; i < sizeof(this->unichar); ++i) {
+      this->unichar[i] = '\0';
+    }
   }
   inline void set_pos(int p) {
     this->pos = p;
