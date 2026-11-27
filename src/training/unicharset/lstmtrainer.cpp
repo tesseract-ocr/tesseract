@@ -1112,8 +1112,8 @@ void LSTMTrainer::InitCharSet() {
 
 // Helper computes and sets the null_char_.
 void LSTMTrainer::SetNullChar() {
-  null_char_ = GetUnicharset().has_special_codes() ? UNICHAR_BROKEN
-                                                   : GetUnicharset().size();
+  null_char_ = GetUnicharset().has_special_codes() ? static_cast<int>(UNICHAR_BROKEN)
+                                                   : static_cast<int>(GetUnicharset().size());
   RecodedCharID code;
   recoder_.EncodeUnichar(null_char_, &code);
   null_char_ = code(0);
@@ -1216,7 +1216,7 @@ void LSTMTrainer::DisplayTargets(const NetworkIO &targets,
 // truth labels and the rest is padded with the null_char_.
 bool LSTMTrainer::ComputeTextTargets(const std::vector<int> &truth_labels,
                                      NetworkIO *targets) {
-  if (truth_labels.size() > targets->Width()) {
+  if (truth_labels.size() > static_cast<size_t>(targets->Width())) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",
             DecodeLabels(truth_labels).c_str(), targets->Width());
     return false;

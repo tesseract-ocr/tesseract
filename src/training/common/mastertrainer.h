@@ -252,6 +252,9 @@ private:
   UNICHARSET unicharset_;
   // Original feature space. Subspace mapping is contained in feature_map_.
   IntFeatureSpace feature_space_;
+  // Font metrics gathered from multiple files.
+  // The sample sets below keep a reference to it, so it must come first.
+  FontInfoTable fontinfo_table_;
   TrainingSampleSet samples_;
   TrainingSampleSet junk_samples_;
   TrainingSampleSet verify_samples_;
@@ -259,8 +262,6 @@ private:
   ShapeTable master_shapes_;
   // Flat shape table has each unichar/font id pair in a separate shape.
   ShapeTable flat_shapes_;
-  // Font metrics gathered from multiple files.
-  FontInfoTable fontinfo_table_;
   // Array of xheights indexed by font ids in fontinfo_table_;
   std::vector<int32_t> xheights_;
 

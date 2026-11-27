@@ -64,7 +64,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Image page_pix =
-        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
+        0 <= page_index && static_cast<size_t>(page_index) < page_images.size()
+            ? page_images[page_index]
+            : nullptr;
     // No debug, no keep this.
     classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID, &results);
     bool debug_it = false;
@@ -128,7 +130,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Image page_pix =
-        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
+        0 <= page_index && static_cast<size_t>(page_index) < page_images.size()
+            ? page_images[page_index]
+            : nullptr;
     // No debug, no keep this.
     old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
                                           &results);

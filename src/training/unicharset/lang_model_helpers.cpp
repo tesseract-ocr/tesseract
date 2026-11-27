@@ -109,7 +109,8 @@ bool WriteRecoder(const UNICHARSET &unicharset, bool pass_through, const std::st
   if (pass_through) {
     recoder.SetupPassThrough(unicharset);
   } else {
-    int null_char = unicharset.has_special_codes() ? UNICHAR_BROKEN : unicharset.size();
+    int null_char = unicharset.has_special_codes() ? static_cast<int>(UNICHAR_BROKEN)
+                                                   : static_cast<int>(unicharset.size());
     tprintf("Null char=%d\n", null_char);
     if (!recoder.ComputeEncoding(unicharset, null_char, radical_table_data)) {
       tprintf("Creation of encoded unicharset failed!!\n");

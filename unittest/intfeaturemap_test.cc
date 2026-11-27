@@ -96,7 +96,6 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
         EXPECT_LE(theta_delta, dtheta);
       } else {
         ++bad_offsets;
-        INT_FEATURE_STRUCT f = map.InverseIndexFeature(index);
       }
     }
   }

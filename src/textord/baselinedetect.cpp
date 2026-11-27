@@ -576,7 +576,6 @@ void BaselineBlock::PrepareForSplineFitting(ICOORD page_tr, bool remove_noise) {
 void BaselineBlock::FitBaselineSplines(bool enable_splines,
                                        bool show_final_rows, Textord *textord) {
   double gradient = tan(skew_angle_);
-  FCOORD rotation(1.0f, 0.0f);
 
   if (enable_splines) {
     textord->make_spline_rows(block_, gradient, show_final_rows);

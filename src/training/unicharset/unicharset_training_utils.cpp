@@ -136,7 +136,7 @@ void SetupBasicProperties(bool report_errors, bool decompose, UNICHARSET *unicha
     } else {
       unicharset->set_normed(unichar_id, unichar_str);
     }
-    ASSERT_HOST(unicharset->get_other_case(unichar_id) < unicharset->size());
+    ASSERT_HOST(static_cast<size_t>(unicharset->get_other_case(unichar_id)) < unicharset->size());
   }
   unicharset->post_load_setup();
 }

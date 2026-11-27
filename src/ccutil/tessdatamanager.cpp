@@ -271,7 +271,7 @@ bool TessdataManager::CombineDataFiles(const char *language_data_path_prefix,
                                        const char *output_filename) {
   // Load individual tessdata components from files.
   for (auto filesuffix : kTessdataFileSuffixes) {
-    TessdataType type;
+    TessdataType type = TESSDATA_NUM_ENTRIES;
     ASSERT_HOST(TessdataTypeFromFileSuffix(filesuffix, &type));
     std::string filename = language_data_path_prefix;
     filename += filesuffix;

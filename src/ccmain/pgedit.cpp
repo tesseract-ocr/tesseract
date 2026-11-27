@@ -101,7 +101,6 @@ enum ColorationMode {
 
 static ScrollView *image_win;
 static ParamsEditor *pe;
-static bool stillRunning = false;
 
 static ScrollView *bln_word_window = nullptr; // baseline norm words
 
@@ -254,7 +253,7 @@ void PGEventHandler::Notify(const SVEvent *event) {
     pe->Notify(event);
   } // These are handled by ParamsEditor
   else if (event->type == SVET_EXIT) {
-    stillRunning = false;
+    // Nothing to do.
   } else if (event->type == SVET_MENU) {
     if (event->parameter == "true") {
       myval = 'T';
@@ -359,7 +358,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   }
 
   recog_done = false;
-  stillRunning = true;
 
   build_image_window(width, height);
   word_display_mode.set(DF_EDGE_STEP);

@@ -305,8 +305,8 @@ UnicodeText::const_iterator UnicodeText::find(const UnicodeText &look) const {
   return UnsafeFind(look, begin());
 }
 
-UnicodeText::const_iterator UnicodeText::UnsafeFind(const UnicodeText &look,
-                                                    const_iterator start_pos) const {
+UnicodeText::const_iterator UnicodeText::UnsafeFind([[maybe_unused]] const UnicodeText &look,
+                                                    [[maybe_unused]] const_iterator start_pos) const {
   // Due to the magic of the UTF8 encoding, searching for a sequence of
   // letters is equivalent to substring search.
 #ifdef INCLUDE_TENSORFLOW

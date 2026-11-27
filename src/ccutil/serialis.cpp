@@ -241,7 +241,9 @@ size_t TFile::FReadEndian(void *buffer, size_t size, size_t count) {
   auto num_read = FRead(buffer, size, count);
   if (swap_ && size != 1) {
     char *char_buffer = static_cast<char *>(buffer);
-    for (size_t i = 0; i < num_read; ++i, char_buffer += size) {
+    // FRead never returns more than count. Saying so here avoids false
+    // warnings (-Wstringop-overflow) from GCC 13 with -O3.
+    for (size_t i = 0; i < num_read && i < count; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
     }
   }

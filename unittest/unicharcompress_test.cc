@@ -33,7 +33,8 @@ protected:
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data, file::Defaults()));
     CHECK(unicharset_.load_from_file(unicharset_file.c_str()));
     std::string radical_str(radical_data.c_str());
-    null_char_ = unicharset_.has_special_codes() ? UNICHAR_BROKEN : unicharset_.size();
+    null_char_ = unicharset_.has_special_codes() ? static_cast<int>(UNICHAR_BROKEN)
+                                                 : static_cast<int>(unicharset_.size());
     compressed_.ComputeEncoding(unicharset_, null_char_, &radical_str);
     // Get the encoding of the null char.
     RecodedCharID code;
@@ -78,9 +79,10 @@ protected:
     }
     int code_range = compressed_.code_range();
     std::vector<RecodedCharID> times_seen(code_range, zeros);
-    for (int u = 0; u <= unicharset_.size(); ++u) {
+    const int num_unichars = unicharset_.size();
+    for (int u = 0; u <= num_unichars; ++u) {
       if (u != UNICHAR_SPACE && u != null_char_ &&
-          (u == unicharset_.size() ||
+          (u == num_unichars ||
            (unicharset_.has_special_codes() && u < SPECIAL_UNICHAR_CODES_COUNT))) {
         continue; // Not used so not encoded.
       }
@@ -89,7 +91,7 @@ protected:
       // Check round-trip encoding.
       int unichar_id;
       std::vector<UNICHAR_ID> normed_ids;
-      if (u == null_char_ || u == unicharset_.size()) {
+      if (u == null_char_ || u == num_unichars) {
         unichar_id = null_char_;
       } else {
         unichar_id = u;
@@ -208,7 +210,8 @@ TEST_F(UnicharcompressTest, DoesLigaturesWithDoubles) {
   ExpectCorrect("por");
   // Check that any unichar-id that is encoded with multiple codes has the
   // correct encoded_null_char_ in between.
-  for (int u = 0; u <= unicharset_.size(); ++u) {
+  const int num_unichars = unicharset_.size();
+  for (int u = 0; u <= num_unichars; ++u) {
     RecodedCharID code;
     int len = compressed_.EncodeUnichar(u, &code);
     if (len > 1) {

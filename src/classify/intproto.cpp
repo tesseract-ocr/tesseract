@@ -286,9 +286,8 @@ int AddIntProto(INT_CLASS_STRUCT *Class) {
 
   if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
     int ProtoSetId = Class->NumProtoSets++;
-    auto ProtoSet = new PROTO_SET_STRUCT;
+    auto ProtoSet = new PROTO_SET_STRUCT();
     Class->ProtoSets[ProtoSetId] = ProtoSet;
-    memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
@@ -607,8 +606,7 @@ INT_CLASS_STRUCT::INT_CLASS_STRUCT(int MaxNumProtos) :
 
   for (int i = 0; i < NumProtoSets; i++) {
     // allocate space for a proto set, install in class, and initialize
-    auto ProtoSet = new PROTO_SET_STRUCT;
-    memset(ProtoSet, 0, sizeof(*ProtoSet));
+    auto ProtoSet = new PROTO_SET_STRUCT();
     ProtoSets[i] = ProtoSet;
 
     // allocate space for the proto lengths and install in class
@@ -859,7 +857,7 @@ INT_TEMPLATES_STRUCT *Classify::ReadIntTemplates(TFile *fp) {
     if (MaxNumIntProtosIn(Class) > 0) {
       Class->ProtoLengths.resize(MaxNumIntProtosIn(Class));
       if (fp->FRead(&Class->ProtoLengths[0], sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
-          MaxNumIntProtosIn(Class)) {
+          static_cast<size_t>(MaxNumIntProtosIn(Class))) {
         tprintf("Bad read of inttemp!\n");
       }
     }
