@@ -1035,8 +1035,6 @@ private:
   std::vector<FPRow> rows_;
   unsigned num_tall_rows_;
   unsigned num_bad_rows_;
-  // TODO: num_empty_rows_ is incremented, but never used otherwise.
-  unsigned num_empty_rows_;
   unsigned max_chars_per_row_;
 };
 
@@ -1044,7 +1042,6 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
     : page_tr_(page_tr)
     , num_tall_rows_(0)
     , num_bad_rows_(0)
-    , num_empty_rows_(0)
     , max_chars_per_row_(0) {
   TO_BLOCK_IT block_it(port_blocks);
 
@@ -1063,9 +1060,6 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
       row.Init(row_it.data());
       rows_.push_back(row);
       size_t num_chars = rows_.back().num_chars();
-      if (num_chars <= 1) {
-        num_empty_rows_++;
-      }
       if (num_chars > max_chars_per_row_) {
         max_chars_per_row_ = num_chars;
       }

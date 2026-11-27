@@ -14,13 +14,15 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      # Pinned to the oss-fuzz commit of 2026-11-17: a moving branch ref lets
+      # upstream code run in this repository's workflow without review.
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@f9894b9e4f0c69c12c551aee4a4e08b08885a980
       with:
         oss-fuzz-project-name: 'tesseract-ocr'
         language: c++
         dry-run: false
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@f9894b9e4f0c69c12c551aee4a4e08b08885a980
       with:
         oss-fuzz-project-name: 'tesseract-ocr'
         fuzz-seconds: 600

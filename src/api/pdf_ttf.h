@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef pdf_ttf__H
-#define pdf_ttf__H
+#ifndef TESSERACT_API_PDF_TTF_H_
+#define TESSERACT_API_PDF_TTF_H_
 
 #include <cstdint> // uint8_t
 

@@ -691,8 +691,7 @@ void Tesseract::SearchForText(const std::vector<BLOB_CHOICE_LIST *> *choices, in
 void Tesseract::TidyUp(PAGE_RES *page_res) {
   int ok_blob_count = 0;
   int bad_blob_count = 0;
-  // TODO: check usage of ok_word_count.
-  int ok_word_count = 0;
+  int partial_word_count = 0;
   int unlabelled_words = 0;
   PAGE_RES_IT pr_it(page_res);
   WERD_RES *word_res;
@@ -714,7 +713,11 @@ void Tesseract::TidyUp(PAGE_RES *page_res) {
     }
     if (ok_in_word > 0) {
       ok_blob_count += ok_in_word;
-      bad_blob_count += word_res->correct_text.size() - ok_in_word;
+      int bad_in_word = word_res->correct_text.size() - ok_in_word;
+      bad_blob_count += bad_in_word;
+      if (bad_in_word > 0) {
+        ++partial_word_count;
+      }
       word_res->LogNewRawChoice(word_choice);
       word_res->LogNewCookedChoice(1, false, word_choice);
     } else {
@@ -738,7 +741,7 @@ void Tesseract::TidyUp(PAGE_RES *page_res) {
   if (applybox_debug > 0) {
     tprintf("   Found %d good blobs.\n", ok_blob_count);
     if (bad_blob_count > 0) {
-      tprintf("   Leaving %d unlabelled blobs in %d words.\n", bad_blob_count, ok_word_count);
+      tprintf("   Leaving %d unlabelled blobs in %d words.\n", bad_blob_count, partial_word_count);
     }
     if (unlabelled_words > 0) {
       tprintf("   %d remaining unlabelled words deleted.\n", unlabelled_words);
@@ -776,7 +779,10 @@ void Tesseract::CorrectClassifyWords(PAGE_RES *page_res) {
       // The part before the first space is the real ground truth, and the
       // rest is the bounding box location and page number.
       std::vector<std::string> tokens = split(correct_text, ' ');
-      UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
+      // split() drops empty fields, so a blob that no box labelled yields an
+      // empty token list and must not be indexed.
+      UNICHAR_ID char_id =
+          tokens.empty() ? INVALID_UNICHAR_ID : unicharset.unichar_to_id(tokens[0].c_str());
       choice->append_unichar_id_space_allocated(char_id, word_res->best_state[&correct_text - &word_res->correct_text[0]], 0.0f, 0.0f);
     }
     word_res->ClearWordChoices();

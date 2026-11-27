@@ -6,10 +6,30 @@ on:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
+      - '.github/workflows/cmake.yml'
   pull_request:
     paths:
       - cmake/**
       - '**/CMakeLists.txt'
+      # Build inputs at the repository root: CMakeLists.txt reads VERSION and
+      # substitutes tesseract.pc.cmake, and neither is under cmake/.
+      - VERSION
+      - tesseract.pc.cmake
+      - 'src/**'
+      - 'include/**'
+      - 'unittest/**'
+      - test
+      - unittest/third_party/googletest
+      - '.github/workflows/cmake.yml'
   schedule:
     - cron: 0 21 * * *
   workflow_dispatch:
@@ -27,7 +47,7 @@ jobs:
           - { name: macos-latest-clang-cmake, os: macos-latest, cxx: clang++ } # default
 
           - { name: ubuntu-22.04-clang-15-cmake, os: ubuntu-22.04, cxx: clang++-15 } #installed
-          - { name: ubuntu-24.04-gcc-12-cmake, os: ubuntu-24.04, cxx: g++-14 } #installed
+          - { name: ubuntu-24.04-gcc-14-cmake, os: ubuntu-24.04, cxx: g++-14 } #installed
           - { name: ubuntu-22.04-gcc-12-cmake, os: ubuntu-22.04, cxx: g++-12 } #installed
 
     steps:
@@ -198,7 +218,7 @@ jobs:
           -DGRAPHICS_DISABLED=ON
 
       - name: Build tests including GoogleMock users
-        run: cmake --build build --parallel 2 --target bitvector_test heap_test intsimdmatrix_test baseapi_test progress_test
+        run: cmake --build build --parallel 2 --target bitvector_test heap_test intsimdmatrix_test capiexample_c_test baseapi_test progress_test
 
       - name: Run tests that do not require external data
-        run: ctest --test-dir build --output-on-failure --no-tests=error -R '^(bitvector_test|heap_test|intsimdmatrix_test)$'
+        run: ctest --test-dir build --output-on-failure --no-tests=error -R '^(bitvector_test|heap_test|intsimdmatrix_test|capiexample_c_test)$'

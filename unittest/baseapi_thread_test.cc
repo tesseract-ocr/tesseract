@@ -20,13 +20,14 @@
 // and by stage to run initialization/recognition/both. See flag descriptions
 // for details.
 
+#include <algorithm>
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <string>
-#ifdef INCLUDE_TENSORFLOW
-#  include <tensorflow/core/lib/core/threadpool.h>
-#endif
 #include <tesseract/baseapi.h>
+#include <thread>
+#include <vector>
 #include "commandlineflags.h"
 #include "include_gunit.h"
 #include "log.h"
@@ -50,6 +51,39 @@ INT_PARAM_FLAG(max_concurrent_instances, 0,
                "reps * number_of_langs_tested, which is also the default value.");
 
 namespace tesseract {
+
+// Minimal thread pool: jobs are queued with Schedule and run on up to
+// num_threads threads when the pool is destroyed, which is what
+// WaitForPoolWorkers() does by resetting the pool.
+class ThreadPool {
+public:
+  ThreadPool(int num_threads, const char * /*name*/)
+      : num_threads_(num_threads > 0 ? num_threads : 1) {}
+  void Schedule(std::function<void()> fn) {
+    jobs_.push_back(std::move(fn));
+  }
+  ~ThreadPool() {
+    std::atomic<size_t> next(0);
+    auto num_workers =
+        std::min<size_t>(static_cast<size_t>(num_threads_), jobs_.size());
+    std::vector<std::thread> workers;
+    workers.reserve(num_workers);
+    for (size_t i = 0; i < num_workers; ++i) {
+      workers.emplace_back([this, &next]() {
+        for (size_t j = next++; j < jobs_.size(); j = next++) {
+          jobs_[j]();
+        }
+      });
+    }
+    for (auto &worker : workers) {
+      worker.join();
+    }
+  }
+
+private:
+  int num_threads_;
+  std::vector<std::function<void()>> jobs_;
+};
 
 static const char *kTessLangs[] = {"eng", "vie", nullptr};
 static const char *kTessImages[] = {"HelloGoogle.tif", "viet.tif", nullptr};
@@ -101,10 +135,8 @@ protected:
       pix_.push_back(new_pix);
     }
 
-#ifdef INCLUDE_TENSORFLOW
     pool_size_ = (FLAGS_max_concurrent_instances < 1) ? num_langs_ * FLAGS_reps
                                                       : FLAGS_max_concurrent_instances;
-#endif
   }
 
   static void TearDownTestCase() {
@@ -113,19 +145,16 @@ protected:
     }
   }
 
-#ifdef INCLUDE_TENSORFLOW
   void ResetPool() {
-    pool_.reset(
-        new tensorflow::thread::ThreadPool(tensorflow::Env::Default(), "tessthread", pool_size_));
+    pool_.reset(new ThreadPool(pool_size_, "tessthread"));
   }
 
   void WaitForPoolWorkers() {
     pool_.reset(nullptr);
   }
 
-  std::unique_ptr<tensorflow::thread::ThreadPool> pool_;
+  std::unique_ptr<ThreadPool> pool_;
   static int pool_size_;
-#endif
   static std::vector<Image > pix_;
   static std::vector<std::string> langs_;
   static std::vector<std::string> gt_text_;
@@ -133,9 +162,7 @@ protected:
 };
 
 // static member variable declarations.
-#ifdef INCLUDE_TENSORFLOW
 int BaseapiThreadTest::pool_size_;
-#endif
 std::vector<Image > BaseapiThreadTest::pix_;
 std::vector<std::string> BaseapiThreadTest::langs_;
 std::vector<std::string> BaseapiThreadTest::gt_text_;
@@ -154,7 +181,6 @@ static void GetCleanedText(TessBaseAPI *tess, Image pix, std::string &ocr_text) 
   trim(ocr_text);
 }
 
-#ifdef INCLUDE_TENSORFLOW
 static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &lang,
                              const std::string &expected_text) {
   TessBaseAPI *tess_local = nullptr;
@@ -171,7 +197,6 @@ static void VerifyTextResult(TessBaseAPI *tess, Image pix, const std::string &la
     delete tess_local;
   }
 }
-#endif
 
 // Check that Tesseract/Cube produce the correct results in single-threaded
 // operation. If not, it is pointless to run the real multi-threaded tests.
@@ -188,7 +213,6 @@ TEST_F(BaseapiThreadTest, TestBasicSanity) {
 
 // Test concurrent instance initialization.
 TEST_F(BaseapiThreadTest, TestInit) {
-#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   ResetPool();
   std::vector<TessBaseAPI> tess(n);
@@ -196,12 +220,10 @@ TEST_F(BaseapiThreadTest, TestInit) {
     pool_->Schedule(std::bind(InitTessInstance, &tess[i], langs_[i % num_langs_]));
   }
   WaitForPoolWorkers();
-#endif
 }
 
 // Test concurrent recognition.
 TEST_F(BaseapiThreadTest, TestRecognition) {
-#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   std::vector<TessBaseAPI> tess(n);
   // Initialize api instances in a single thread.
@@ -215,11 +237,9 @@ TEST_F(BaseapiThreadTest, TestRecognition) {
                               gt_text_[i % num_langs_]));
   }
   WaitForPoolWorkers();
-#endif
 }
 
 TEST_F(BaseapiThreadTest, TestAll) {
-#ifdef INCLUDE_TENSORFLOW
   const int n = num_langs_ * FLAGS_reps;
   ResetPool();
   for (int i = 0; i < n; ++i) {
@@ -227,6 +247,5 @@ TEST_F(BaseapiThreadTest, TestAll) {
                               gt_text_[i % num_langs_]));
   }
   WaitForPoolWorkers();
-#endif
 }
 } // namespace tesseract

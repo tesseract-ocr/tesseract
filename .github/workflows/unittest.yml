@@ -8,9 +8,19 @@ on:
       - '**.cpp'
       - '**.h'
       - '**Makefile.am'
-      - '/configure.ac'
+      - 'configure.ac'
+      - 'autogen.sh'
+      - 'm4/**'
+      # Configure inputs: version.h.in and tesseract.pc.in are templates that
+      # only autotools consumes, and they end in .in rather than .h or .pc.
+      - '**.in'
+      # configure.ac falls back to VERSION when git describe yields nothing.
+      - VERSION
+      - 'test'
+      - 'unittest/third_party/googletest'
       - 'unittest/**.c'
       - 'unittest/**.cc'
+      - '.github/workflows/unittest.yml'
   schedule:
     - cron: 0 0 * * *
   workflow_dispatch:
@@ -23,13 +33,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined' }
+          - { name: ubuntu-24.04-gcc-unittest, os: ubuntu-24.04, cxx: g++, cxxflags: '-g -O2 -fsanitize=address,undefined -fno-sanitize-recover=undefined' }
           # Ubuntu 22.04's packaged libc++ is built with -Bsymbolic-functions,
           # so its std::logic_error allocation escapes AddressSanitizer's
           # interposition and any thrown or caught exception misreports
           # alloc-dealloc-mismatch (llvm/llvm-project#59432). Disable that one
           # check for the clang job; it is a toolchain false positive.
-          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -stdlib=libc++', asan_options: 'alloc_dealloc_mismatch=0' }
+          - { name: ubuntu-22.04-clang-unittest, os: ubuntu-22.04, cxx: clang++, cxxflags: '-g -O2 -fsanitize=address,undefined -fno-sanitize-recover=undefined -stdlib=libc++', asan_options: 'alloc_dealloc_mismatch=0' }
     steps:
     - uses: actions/checkout@v7
       with:
@@ -93,6 +103,9 @@ jobs:
 
     - name: Make and run Unit Tests
       env:
+        # -fno-sanitize-recover stops on the first undefined behaviour, so the
+        # stack trace is what makes the failure diagnosable.
+        UBSAN_OPTIONS: print_stacktrace=1
         ASAN_OPTIONS: ${{ matrix.config.asan_options }}
       run: |
            make check

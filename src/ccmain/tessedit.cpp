@@ -40,6 +40,21 @@
 
 namespace tesseract {
 
+namespace {
+
+// Parameters that name a path the engine opens for writing. They may be set
+// from the command line or from a user supplied config file, but never from the
+// traineddata's lang.config: a hostile model could otherwise truncate an
+// arbitrary file. Restoring the value afterwards is not enough, because
+// tprintf() opens debug_file as soon as it logs, and the parameter parser logs
+// a warning while it is still reading the untrusted component.
+bool IsUntrustedWritePath(const char *name) {
+  return strcmp(name, "debug_file") == 0 || strcmp(name, "tessedit_write_params_to_file") == 0 ||
+         strcmp(name, "output_ambig_words_file") == 0;
+}
+
+}  // namespace
+
 // Read a "config" file containing a set of variable, value pairs.
 // Searches the standard places: tessdata/configs, tessdata/tessconfigs
 // and also accepts a relative or absolute path name.
@@ -110,9 +125,14 @@ bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineM
 #endif // ndef DISABLED_LEGACY_ENGINE
 
   // If a language specific config file (lang.config) exists, load it in.
+  // The component is part of the traineddata, which is untrusted input, so the
+  // parameters that name a file opened for writing are filtered out inside the
+  // parser. The command line, -c and user config files are read through the
+  // same parser without the filter and can still set them.
   TFile fp;
   if (mgr->GetComponent(TESSDATA_LANG_CONFIG, &fp)) {
-    ParamUtils::ReadParamsFromFp(SET_PARAM_CONSTRAINT_NONE, &fp, this->params());
+    ParamUtils::ReadParamsFromFp(SET_PARAM_CONSTRAINT_NONE, &fp, this->params(),
+                                 &IsUntrustedWritePath);
   }
 
   SetParamConstraint set_params_constraint =

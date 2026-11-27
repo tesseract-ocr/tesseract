@@ -61,9 +61,13 @@ public:
   static bool ReadParamsFile(const char *file, // filename to read
                              SetParamConstraint constraint, ParamsVectors *member_params);
 
-  // Read parameters from the given file pointer.
+  // Read parameters from the given file pointer. When skip_name is not null,
+  // it is called with the name of every parameter in the file, and a name for
+  // which it returns true is ignored. The check runs inside the read loop so
+  // that a caller reading untrusted input never has to parse the file twice.
   static bool ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
-                               ParamsVectors *member_params);
+                               ParamsVectors *member_params,
+                               bool (*skip_name)(const char *name) = nullptr);
 
   // Set a parameters to have the given value.
   static bool SetParam(const char *name, const char *value, SetParamConstraint constraint,

@@ -1888,9 +1888,7 @@ void ColPartition::PrintColors() {
 }
 
 // Sets the types of all partitions in the run to be the max of the types.
-void ColPartition::SmoothPartnerRun(int working_set_count) {
-  STATS left_stats(0, working_set_count - 1);
-  STATS right_stats(0, working_set_count - 1);
+void ColPartition::SmoothPartnerRun(int /*working_set_count*/) {
   PolyBlockType max_type = type_;
   ColPartition *partner;
   for (partner = SingletonPartner(false); partner != nullptr;
@@ -1898,31 +1896,12 @@ void ColPartition::SmoothPartnerRun(int working_set_count) {
     if (partner->type_ > max_type) {
       max_type = partner->type_;
     }
-    if (column_set_ == partner->column_set_) {
-      left_stats.add(partner->first_column_, 1);
-      right_stats.add(partner->last_column_, 1);
-    }
   }
   type_ = max_type;
-  // TODO(rays) Either establish that it isn't necessary to set the columns,
-  // or find a way to do it that does not cause an assert failure in
-  // AddToWorkingSet.
-#if 0
-  first_column_ = left_stats.mode();
-  last_column_ = right_stats.mode();
-  if (last_column_ < first_column_)
-    last_column_ = first_column_;
-#endif
 
   for (partner = SingletonPartner(false); partner != nullptr;
        partner = partner->SingletonPartner(false)) {
     partner->type_ = max_type;
-#if 0 // See TODO above
-    if (column_set_ == partner->column_set_) {
-      partner->first_column_ = first_column_;
-      partner->last_column_ = last_column_;
-    }
-#endif
   }
 }
 

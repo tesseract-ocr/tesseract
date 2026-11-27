@@ -26,7 +26,9 @@ jobs:
     - uses: actions/checkout@v7
       with:
         submodules: recursive
-    - uses: egorpugin/sw-action@master
+    # Pinned to the sw-action commit of 2026-11-12 instead of the moving
+    # `master` branch.
+    - uses: egorpugin/sw-action@37c29fcccea30d5d52a6a7770e4903ddccad74aa
 
     - name: build
       if: github.event_name != 'pull_request' && (matrix.os == 'windows-2022')
@@ -56,15 +58,16 @@ jobs:
     - name: test
       if: github.event_name != 'pull_request' && (matrix.os != 'windows-2022' && matrix.os != 'macos-latest')
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
-      continue-on-error: true
     - name: test
       if: github.event_name == 'pull_request' && (matrix.os != 'windows-2022')
       run: ./sw test -Dwith-tests=1 "-Dskip-tests=lstm,lstm_recode"
-      continue-on-error: true
 
     - name: test-nightly
-      if: matrix.os != 'windows-2022' && matrix.os != 'macos-latest' && github.event.schedule=='0 0 * * *'
+      if: matrix.os != 'windows-2022' && matrix.os != 'macos-latest' && github.event.schedule == '0 0 * * 3'
       run: ./sw -static -shared -config "d,r" test -Dwith-tests=1
+      # This run exists to report on the tests the regular run skips, and those
+      # are known to fail, so it stays advisory. The regular test step above is
+      # the one that gates the weekly build.
       continue-on-error: true
 
     # windows and macos-latest tests hang here for some reason, investigate

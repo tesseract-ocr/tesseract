@@ -11,6 +11,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 // Verifies that C is able to include capi header.
+#include <stdio.h>
+
 #include <tesseract/capi.h>
 
 // Verifies that the libtesseract library has C API symbols.

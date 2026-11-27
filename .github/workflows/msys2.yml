@@ -45,7 +45,9 @@ jobs:
 
     - name: Configure Tesseract
       run: |
-           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' 'CXX=${{ matrix.config.cxx }}' 'CXXFLAGS=-g -O2'
+           # The matrix has no config.cxx, so naming it produced an empty CXX=
+           # assignment. The compiler installed above is mingw-w64 g++.
+           ./configure '--disable-shared' '--disable-openmp' '--disable-doc' 'CXX=g++' 'CXXFLAGS=-g -O2'
 
     - name: Build and install Tesseract
       run: |
