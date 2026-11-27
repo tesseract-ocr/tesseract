@@ -19,6 +19,7 @@
 #include "helpers.h"
 #include "indexmapbidi.h"
 #include "serialis.h"
+#include "tprintf.h"
 
 namespace tesseract {
 
@@ -110,8 +111,15 @@ void IndexMapBiDi::Init(int size, bool all_mapped) {
 }
 
 // Sets a given index in the sparse_map_ to be mapped or not.
-void IndexMapBiDi::SetMap(int sparse_index, bool mapped) {
+// Returns false, and leaves the map unchanged, if the index is out of range.
+bool IndexMapBiDi::SetMap(int sparse_index, bool mapped) {
+  if (sparse_index < 0 || static_cast<size_t>(sparse_index) >= sparse_map_.size()) {
+    tprintf("IndexMapBiDi::SetMap: index %d out of range [0, %zu)\n", sparse_index,
+            sparse_map_.size());
+    return false;
+  }
   sparse_map_[sparse_index] = mapped ? 0 : -1;
+  return true;
 }
 
 // Sets up the sparse_map_ and compact_map_ properly after Init and
