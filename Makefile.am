@@ -1289,6 +1289,7 @@ check_PROGRAMS += unicharset_load_test
 check_PROGRAMS += unicharset_test
 check_PROGRAMS += validate_grapheme_test
 check_PROGRAMS += validate_indic_test
+check_PROGRAMS += validate_javanese_test
 check_PROGRAMS += validate_khmer_test
 check_PROGRAMS += validate_myanmar_test
 check_PROGRAMS += validator_test
@@ -1683,6 +1684,10 @@ validate_grapheme_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 validate_indic_test_SOURCES = unittest/validate_indic_test.cc
 validate_indic_test_CPPFLAGS = $(unittest_CPPFLAGS)
 validate_indic_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+validate_javanese_test_SOURCES = unittest/validate_javanese_test.cc
+validate_javanese_test_CPPFLAGS = $(unittest_CPPFLAGS)
+validate_javanese_test_LDADD = $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validate_khmer_test_SOURCES = unittest/validate_khmer_test.cc
 validate_khmer_test_CPPFLAGS = $(unittest_CPPFLAGS)

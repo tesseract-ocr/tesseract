@@ -57,6 +57,7 @@ set(TRAINING_TESTS
     unicharset_test.cc
     validate_grapheme_test.cc
     validate_indic_test.cc
+    validate_javanese_test.cc
     validate_khmer_test.cc
     validate_myanmar_test.cc
     validator_test.cc)
