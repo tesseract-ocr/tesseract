@@ -285,14 +285,16 @@ int ProjectiveCoeffs(int width, int height, TRand *randomizer, float **im_coeffs
         shear = factors[FN_X1];
       }
       factors[i] = shear;
-    } else if (i != FN_INCOLOR) {
+    } else {
       factors[i] = fabs(randomizer->SignedRand(1.0));
-      if (i <= FN_Y3) {
-        factors[i] *= 5.0 / 8.0;
-      } else {
-        factors[i] *= 0.5;
+      if (i != FN_INCOLOR) {
+        if (i <= FN_Y3) {
+          factors[i] *= 5.0 / 8.0;
+        } else {
+          factors[i] *= 0.5;
+        }
+        factors[i] *= factors[i];
       }
-      factors[i] *= factors[i];
     }
   }
   // Setup "to" points.
