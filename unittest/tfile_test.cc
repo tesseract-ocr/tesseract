@@ -219,11 +219,10 @@ TEST_F(TfileTest, BigEndian) {
 // trailing bytes, mirroring the count-prefixed layout the vector, string
 // and char-vector deserializers expect.
 std::vector<char> MakeCountBuffer(uint32_t count, int trailing_bytes) {
-  std::vector<char> buf;
+  std::vector<char> buf(4 + trailing_bytes, 0);
   for (int i = 0; i < 4; ++i) {
-    buf.push_back(static_cast<char>((count >> (8 * i)) & 0xFF));
+    buf[i] = static_cast<char>((count >> (8 * i)) & 0xFF);
   }
-  buf.resize(buf.size() + trailing_bytes, 0);
   return buf;
 }
 

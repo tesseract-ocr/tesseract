@@ -595,9 +595,9 @@ void TrainingSampleSet::SetupFontIdMap() {
   // Number of samples for each font_id.
   std::vector<int> font_counts;
   for (auto &sample : samples_) {
-    const int font_id = sample->font_id();
-    while (font_id >= font_counts.size()) {
-      font_counts.push_back(0);
+    const auto font_id = static_cast<size_t>(sample->font_id());
+    if (font_id >= font_counts.size()) {
+      font_counts.resize(font_id + 1);
     }
     ++font_counts[font_id];
   }

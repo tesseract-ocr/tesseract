@@ -432,7 +432,7 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
     tess_blob_box.rotate(block->re_rotation());
     // verify that each of LSTM's character boxes lies close to within
     // tesseract's word box
-    for (int i = 0; i < word->box_word->length(); ++i) {
+    for (unsigned i = 0; i < word->box_word->length(); ++i) {
       TBOX lstm_blob_box = word->box_word->BlobBox(i);
       // LSTM character box should not spill out of tesseract word box
       // by more than a few pixels in any direction

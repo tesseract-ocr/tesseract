@@ -154,7 +154,7 @@ inline constexpr int PPrunerWordIndexFor(int I) { return (I % PROTOS_PER_PROTO_S
 inline constexpr int PPrunerBitIndexFor(int I) { return I % PROTOS_PER_PP_WERD; }
 inline constexpr uint32_t PPrunerMaskFor(int I) { return 1u << PPrunerBitIndexFor(I); }
 
-inline constexpr int MaxNumClassesIn(const INT_TEMPLATES_STRUCT *T) { return T->NumClassPruners * CLASSES_PER_CP; }
+inline constexpr unsigned MaxNumClassesIn(const INT_TEMPLATES_STRUCT *T) { return T->NumClassPruners * CLASSES_PER_CP; }
 inline constexpr bool LegalClassId(int c) { return c >= 0 && c < MAX_NUM_CLASSES; }
 inline constexpr bool UnusedClassIdIn(INT_TEMPLATES_STRUCT *T, int c) { return T->Class[c] == nullptr; }
 inline constexpr INT_CLASS_STRUCT *&ClassForClassId(INT_TEMPLATES_STRUCT *T, int c) { return T->Class[c]; }

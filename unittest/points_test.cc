@@ -67,7 +67,7 @@ public:
 TEST_F(PointsTest, ICooordArithmeticIsConstant) {
   static_assert(ICOORD(3, 4) == ICOORD(1, 2) + ICOORD(2, 2), "");
   static_assert(ICOORD(1, 2) - ICOORD(2, 2) == ICOORD(-1, 0), "");
-  static_assert(!ICOORD(3, 4) == ICOORD(-4, 3), "");
+  static_assert((!ICOORD(3, 4)) == ICOORD(-4, 3), "");
   static_assert(-ICOORD(3, 4) == ICOORD(-3, -4), "");
   static_assert(ICOORD(3, 4) * 2 == ICOORD(6, 8), "");
   static_assert(2 * ICOORD(3, 4) == ICOORD(6, 8), "");
@@ -89,7 +89,7 @@ TEST_F(PointsTest, FCoordsArithmeticIsConstant) {
                 "");
   static_assert(FCOORD(1.0f, 2.0f) - FCOORD(0.5f, 0.5f) == FCOORD(0.5f, 1.5f),
                 "");
-  static_assert(!FCOORD(3.0f, 4.0f) == FCOORD(-4.0f, 3.0f), "");
+  static_assert((!FCOORD(3.0f, 4.0f)) == FCOORD(-4.0f, 3.0f), "");
   static_assert(-FCOORD(3.0f, 4.0f) == FCOORD(-3.0f, -4.0f), "");
   static_assert(FCOORD(3.0f, 4.0f) * 2.0f == FCOORD(6.0f, 8.0f), "");
   static_assert(2.0f * FCOORD(3.0f, 4.0f) == FCOORD(6.0f, 8.0f), "");

@@ -110,11 +110,9 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
       }
     } else if (codes_used_ == num_codes || codes_[codes_used_].first != CharClass::kConsonant ||
                post_matra) {
-      if (codes_used_ == num_codes || codes_[codes_used_].second != kZeroWidthNonJoiner) {
-        // It is valid to have an unterminated virama at the end of a word, but
-        // for consistency, we will always add ZWNJ if not present.
-        CodeOnlyToOutput();
-      } else {
+      // It is valid to have an unterminated virama at the end of a word.
+      // Unlike validate_indic.cpp, no ZWNJ is added then.
+      if (codes_used_ < num_codes) {
         CodeOnlyToOutput();
       }
       // Explicit virama [H z]

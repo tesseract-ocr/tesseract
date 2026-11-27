@@ -64,7 +64,9 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier *classifier, int report_le
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Image page_pix =
-        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
+        0 <= page_index && static_cast<size_t>(page_index) < page_images.size()
+            ? page_images[page_index]
+            : nullptr;
     // No debug, no keep this.
     classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID, &results);
     bool debug_it = false;
@@ -128,7 +130,9 @@ void ErrorCounter::DebugNewErrors(ShapeClassifier *new_classifier, ShapeClassifi
     TrainingSample *mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Image page_pix =
-        0 <= page_index && page_index < page_images.size() ? page_images[page_index] : nullptr;
+        0 <= page_index && static_cast<size_t>(page_index) < page_images.size()
+            ? page_images[page_index]
+            : nullptr;
     // No debug, no keep this.
     old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0, INVALID_UNICHAR_ID,
                                           &results);
@@ -417,7 +421,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
       }
     }
     tprintf("Multi-unichar shape use:\n");
-    for (int u = 0; u < multi_unichar_counts_.size(); ++u) {
+    for (unsigned u = 0; u < multi_unichar_counts_.size(); ++u) {
       if (multi_unichar_counts_[u] > 0) {
         tprintf("%d multiple answers for unichar: %s\n", multi_unichar_counts_[u],
                 unicharset_.id_to_unichar(u));

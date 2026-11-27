@@ -51,7 +51,9 @@ std::vector<char> MakeInttemp(int32_t version_id, uint32_t num_class_pruners,
   std::vector<char> data;
   auto append = [&data](const void *p, size_t n) {
     const char *b = static_cast<const char *>(p);
-    data.insert(data.end(), b, b + n);
+    for (size_t i = 0; i < n; ++i) {
+      data.push_back(b[i]);
+    }
   };
   append(&unicharset_size, sizeof(unicharset_size));
   append(&version_id, sizeof(version_id));
@@ -89,7 +91,9 @@ std::vector<char> MakeLegacyInttemp(int32_t version_id, uint32_t num_classes,
   std::vector<char> data;
   auto append = [&data](const void *p, size_t n) {
     const char *b = static_cast<const char *>(p);
-    data.insert(data.end(), b, b + n);
+    for (size_t i = 0; i < n; ++i) {
+      data.push_back(b[i]);
+    }
   };
   uint32_t num_class_pruners = 1;
   append(&unicharset_size, sizeof(unicharset_size));

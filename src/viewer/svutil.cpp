@@ -37,7 +37,9 @@
 #include <vector>
 
 #ifdef _WIN32
-#  pragma comment(lib, "Ws2_32.lib")
+#  ifdef _MSC_VER
+#    pragma comment(lib, "Ws2_32.lib")
+#  endif
 #  include <winsock2.h> // for fd_set, send, ..
 #  include <ws2tcpip.h> // for addrinfo
 #else
@@ -216,7 +218,11 @@ char *SVNetwork::Receive() {
     // Set the flags to return when the stream_ is ready to be read.
     fd_set readfds;
     FD_ZERO(&readfds);
+#ifdef _WIN32
+    FD_SET(static_cast<SOCKET>(stream_), &readfds);
+#else
     FD_SET(stream_, &readfds);
+#endif
 
     int i = select(stream_ + 1, &readfds, nullptr, nullptr, &tv);
 

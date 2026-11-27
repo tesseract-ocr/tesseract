@@ -205,7 +205,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET &unicharset, int null_id,
   // Now renumber Han to make all codes unique. We already added han_offset to
   // all Han. Now separate out the radical, stroke, and count codes for Han.
   int code_offset = 0;
-  for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
+  for (uint32_t i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
     int max_offset = 0;
     for (unsigned u = 0; u < unicharset.size(); ++u) {
       RecodedCharID *code = &encoder_[u];
@@ -282,7 +282,7 @@ void UnicharCompress::DefragmentCodeValues(int encoded_null) {
   // Now apply the offsets.
   for (auto &c : encoder_) {
     RecodedCharID *code = &c;
-    for (int i = 0; i < code->length(); ++i) {
+    for (uint32_t i = 0; i < code->length(); ++i) {
       int value = (*code)(i);
       code->Set(i, value + offsets[value]);
     }

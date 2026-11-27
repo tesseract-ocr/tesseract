@@ -53,7 +53,7 @@ protected:
 
 TEST_F(TatweelTest, UnicharsetIgnoresTatweel) {
   // This test verifies that the unicharset ignores the Tatweel character.
-  for (int i = 0; i < unicharset_.size(); ++i) {
+  for (size_t i = 0; i < unicharset_.size(); ++i) {
     const char *utf8 = unicharset_.id_to_unichar(i);
     EXPECT_EQ(strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")), nullptr);
   }
@@ -83,7 +83,7 @@ TEST_F(TatweelTest, UnicharsetLoadKeepsTatweel) {
   } else {
     EXPECT_TRUE(unicharset_.load_from_file(filename.c_str()));
     int num_tatweel = 0;
-    for (int i = 0; i < unicharset_.size(); ++i) {
+    for (size_t i = 0; i < unicharset_.size(); ++i) {
       const char *utf8 = unicharset_.id_to_unichar(i);
       if (strstr(utf8, reinterpret_cast<const char *>(u8"\u0640")) != nullptr) {
         ++num_tatweel;

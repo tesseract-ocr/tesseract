@@ -50,7 +50,9 @@ struct CLUSTER {
 };
 using SAMPLE = CLUSTER; // can refer to as either sample or cluster
 
-enum class PROTOSTYLE {
+// The underlying type must be unsigned: PROTOTYPE stores the style in a
+// bit-field of 2 bits, which cannot hold mixed and automatic when it is signed.
+enum class PROTOSTYLE : unsigned {
   spherical,
   elliptical,
   mixed,
