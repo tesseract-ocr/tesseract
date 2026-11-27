@@ -48,7 +48,8 @@ static std::string TextOf(const Iterator &it, PageIteratorLevel level) {
 
 // Returns the directions of all words of the page in left to right order,
 // which is not the reading order of the given iterator for RTL text.
-static std::vector<StrongScriptDirection> WordDirections(const ResultIterator &it) {
+static std::vector<StrongScriptDirection> WordDirections(
+    const ResultIterator &it) {
   std::vector<StrongScriptDirection> dirs;
   TestLTRResultIterator ltr(it);
   ltr.Begin();
@@ -104,7 +105,8 @@ protected:
   // Sets up api_ for a single line which is composed of the given words, from
   // left to right, on a white background.  Composing the line fixes the
   // scripts of its words, which a crop of a page of one script cannot do.
-  void SetLineOfWords(const char *language, const std::vector<WordClip> &clips) {
+  void SetLineOfWords(const char *language,
+                      const std::vector<WordClip> &clips) {
     const int kMargin = 10;
     // A gap which is clearly wider than a space keeps the words apart and
     // lets each of them be recognized on its own.
@@ -133,11 +135,13 @@ protected:
     pixSetAll(line);
     int x = kMargin;
     for (auto &word : words) {
-      pixRasterop(line, x, kMargin, pixGetWidth(word), pixGetHeight(word), PIX_SRC, word, 0, 0);
+      pixRasterop(line, x, kMargin, pixGetWidth(word), pixGetHeight(word),
+                  PIX_SRC, word, 0, 0);
       x += pixGetWidth(word) + kGap;
       word.destroy();
     }
-    ASSERT_EQ(0, api_.Init(TessdataPath().c_str(), language, tesseract::OEM_DEFAULT));
+    ASSERT_EQ(
+        0, api_.Init(TessdataPath().c_str(), language, tesseract::OEM_DEFAULT));
     api_.SetPageSegMode(tesseract::PSM_SINGLE_LINE);
     api_.SetImage(line);
     line.destroy();
@@ -584,7 +588,8 @@ TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "eng");
   ASSERT_NO_FATAL_FAILURE(SetLineOfWords(
-      "heb+eng", {{"phototest.tif", 370, 88, 61, 32}, {"hebrew.png", 483, 34, 78, 32}}));
+      "heb+eng",
+      {{"phototest.tif", 370, 88, 61, 32}, {"hebrew.png", 483, 34, 78, 32}}));
   ASSERT_EQ(api_.Recognize(nullptr), 0);
   std::unique_ptr<ResultIterator> it(api_.GetIterator());
   ASSERT_NE(it, nullptr);
@@ -608,9 +613,11 @@ TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
   std::unique_ptr<char[]> first_word(it->GetUTF8Text(RIL_WORD));
   ASSERT_NE(nullptr, first_word);
   ASSERT_NE('\0', first_word[0]);
-  const auto *first_char = reinterpret_cast<const unsigned char *>(first_word.get());
+  const auto *first_char =
+      reinterpret_cast<const unsigned char *>(first_word.get());
   // Hebrew letters are all two bytes long and start with 0xD7.
-  EXPECT_EQ(0xD7, first_char[0]) << "first word is not Hebrew: " << first_word.get();
+  EXPECT_EQ(0xD7, first_char[0])
+      << "first word is not Hebrew: " << first_word.get();
 }
 
 // Tests that a paragraph without any LTR or RTL word, like a line of numbers,
@@ -620,8 +627,9 @@ TEST_F(ResultIteratorTest, ParagraphDirectionTieFollowsPrimaryLanguageTest) {
 // line is composed of the number "12" of phototest.tif, twice.
 TEST_F(ResultIteratorTest, ParagraphDirectionOfNeutralWordsIsLtrTest) {
   REQUIRE_TRAINEDDATA(TESSDATA_DIR, "heb");
-  ASSERT_NO_FATAL_FAILURE(SetLineOfWords(
-      "heb", {{"phototest.tif", 247, 88, 39, 32}, {"phototest.tif", 247, 88, 39, 32}}));
+  ASSERT_NO_FATAL_FAILURE(
+      SetLineOfWords("heb", {{"phototest.tif", 247, 88, 39, 32},
+                             {"phototest.tif", 247, 88, 39, 32}}));
   ASSERT_EQ(api_.Recognize(nullptr), 0);
   std::unique_ptr<ResultIterator> it(api_.GetIterator());
   ASSERT_NE(it, nullptr);
