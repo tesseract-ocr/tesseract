@@ -210,7 +210,8 @@ bool Tesseract::init_tesseract_lang_data(const std::string &language, OcrEngineM
     tprintf("Error: Size of unicharset is greater than MAX_NUM_CLASSES\n");
     return false;
   }
-  right_to_left_ = unicharset.major_right_to_left();
+  right_to_left_ = tessedit_right_to_left < 0 ? unicharset.major_right_to_left()
+                                              : tessedit_right_to_left != 0;
 
 #ifndef DISABLED_LEGACY_ENGINE
 
